@@ -1,0 +1,92 @@
+{
+	"projectType": "application",
+	"root": "demos/showcase",
+	"sourceRoot": "demos/showcase/src",
+	"prefix": "electric",
+	"targets": {
+		"build": {
+			"executor": "@angular-devkit/build-angular:browser",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/demos/showcase",
+				"index": "demos/showcase/src/index.html",
+				"main": "demos/showcase/src/main.ts",
+				"polyfills": "demos/showcase/src/polyfills.ts",
+				"tsConfig": "demos/showcase/tsconfig.app.json",
+				"inlineStyleLanguage": "scss",
+				"assets": [
+					"demos/showcase/src/favicon.ico",
+					"demos/showcase/src/assets"
+				],
+				"styles": [
+					"packages/styles/src/globals.scss",
+					"demos/showcase/src/styles.scss"
+				],
+				"stylePreprocessorOptions": {
+					"includePaths": ["packages/styles/src"]
+				},
+				"scripts": []
+			},
+			"configurations": {
+				"production": {
+					"budgets": [
+						{
+							"type": "initial",
+							"maximumWarning": "500kb",
+							"maximumError": "1mb"
+						},
+						{
+							"type": "anyComponentStyle",
+							"maximumWarning": "2kb",
+							"maximumError": "4kb"
+						}
+					],
+					"fileReplacements": [
+						{
+							"replace": "demos/showcase/src/environments/environment.ts",
+							"with": "demos/showcase/src/environments/environment.prod.ts"
+						}
+					],
+					"outputHashing": "all"
+				},
+				"development": {
+					"buildOptimizer": false,
+					"optimization": false,
+					"vendorChunk": true,
+					"extractLicenses": false,
+					"sourceMap": true,
+					"namedChunks": true
+				}
+			},
+			"defaultConfiguration": "production"
+		},
+		"serve": {
+			"executor": "@angular-devkit/build-angular:dev-server",
+			"configurations": {
+				"production": {
+					"browserTarget": "showcase:build:production"
+				},
+				"development": {
+					"browserTarget": "showcase:build:development"
+				}
+			},
+			"defaultConfiguration": "development"
+		},
+		"extract-i18n": {
+			"executor": "@angular-devkit/build-angular:extract-i18n",
+			"options": {
+				"browserTarget": "showcase:build"
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"options": {
+				"lintFilePatterns": [
+					"demos/showcase/src/**/*.ts",
+					"demos/showcase/src/**/*.html"
+				]
+			}
+		}
+	},
+	"tags": []
+}

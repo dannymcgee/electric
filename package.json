@@ -8,6 +8,7 @@
 	"private": true,
 	"dependencies": {
 		"@angular/animations": "^13.0.0",
+		"@angular/cdk": "^13.0.2",
 		"@angular/common": "^13.0.0",
 		"@angular/compiler": "^13.0.0",
 		"@angular/core": "^13.0.0",
@@ -27,6 +28,7 @@
 		"@angular/cli": "~13.0.0",
 		"@angular/compiler-cli": "^13.0.0",
 		"@angular/language-service": "^13.0.0",
+		"@ngneat/spectator": "^9.0.0",
 		"@nrwl/angular": "^13.2.3",
 		"@nrwl/cli": "13.2.3",
 		"@nrwl/eslint-plugin-nx": "13.2.3",

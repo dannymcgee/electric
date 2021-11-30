@@ -33,9 +33,22 @@
 			"options": {
 				"lintFilePatterns": [
 					"packages/components/src/**/*.ts",
-					"packages/components/src/**/*.html"
+					"packages/components/src/**/*.html",
+					"packages/components/theme/**/*.ts",
+					"packages/components/theme/**/*.html",
+					"packages/components/button/**/*.ts",
+					"packages/components/button/**/*.html"
 				]
 			}
+		}
+	},
+	"generators": {
+		"@schematics/angular:component": {
+			"style": "scss",
+			"changeDetection": "OnPush",
+			"viewEncapsulation": "None",
+			"flat": true,
+			"export": true
 		}
 	},
 	"tags": []

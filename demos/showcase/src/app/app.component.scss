@@ -1,0 +1,13 @@
+@use "lib/layout";
+
+:host {
+	display: block;
+	min-width: 300px;
+	max-width: 600px;
+	margin: 48px auto;
+}
+
+.buttons {
+	@include layout.flex(row, center, center);
+	gap: 8px;
+}

@@ -1,0 +1,6 @@
+{
+	"lib": {
+		"entryFile": "../src/lib/theme/index.ts",
+		"styleIncludePaths": ["../../styles/src"]
+	}
+}

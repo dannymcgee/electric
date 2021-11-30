@@ -1,0 +1,7 @@
+{
+	"name": "@electric/utils",
+	"version": "0.0.1",
+	"peerDependencies": {
+		"rxjs": "~7.4.0"
+	}
+}

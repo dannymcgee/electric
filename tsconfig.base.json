@@ -13,9 +13,12 @@
 		"lib": ["es2017", "dom"],
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
+		"useUnknownInCatchVariables": false,
 		"baseUrl": ".",
 		"paths": {
 			"@electric/components": ["packages/components/src/index.ts"],
+			"@electric/components/button": ["packages/components/src/lib/button/index.ts"],
+			"@electric/components/theme": ["packages/components/src/lib/theme/index.ts"],
 			"@electric/styles": ["packages/styles/src/index.ts"],
 			"@electric/utils": ["packages/utils/src/index.ts"]
 		}

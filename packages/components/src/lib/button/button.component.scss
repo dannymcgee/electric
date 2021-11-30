@@ -1,0 +1,99 @@
+@use "lib/a11y" as *;
+@use "lib/style/color";
+@use "lib/style/type";
+@use "lib/anim";
+@use "lib/layout";
+
+.elx-btn {
+	@include layout.flex(row, center);
+	cursor: pointer;
+	appearance: none;
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	@include anim.transition((background, color, box-shadow));
+	outline: none !important;
+
+	&--primary {
+		background: color.primary(400);
+		color: color.white();
+
+		&:hover  { background: color.primary(500); }
+		&:active { background: color.primary(300); }
+	}
+
+	&--warning {
+		background: color.warning(300);
+		color: color.white();
+
+		&:hover  { background: color.warning(400); }
+		&:active { background: color.warning(200); }
+
+		.elx-icon {
+			color: color.warning(800);
+		}
+	}
+
+	&--secondary {
+		background: color.accent(100);
+		color: color.accent(700);
+
+		&:hover  { background: color.accent(200); }
+		&:active { background: color.accent(50); }
+	}
+
+	&--primary, &--secondary {
+		.elx-icon {
+			color: color.accent(700);
+		}
+	}
+
+	&--tertiary {
+		background: color.background(700);
+		color: color.foreground(200);
+
+		.elx-icon {
+			color: color.foreground(300);
+		}
+
+		&:hover  { background: color.background(800); }
+		&:active { background: color.background(600); }
+	}
+
+	&:focus-visible {
+		box-shadow: 0 0 0 4px color.accent(600);
+		color: color.white();
+	}
+
+	&:disabled {
+		background: color.background(500);
+		color: color.foreground(500);
+		cursor: default;
+
+		.elx-icon {
+			color: color.foreground(500);
+		}
+	}
+
+	&--md {
+		height: rem(32);
+		padding: 0 rem(16);
+		@include type.ui;
+
+		.elx-icon {
+			margin-right: rem(8);
+			margin-left: rem(-4);
+		}
+	}
+
+	&--sm {
+		height: rem(24);
+		padding: 0 rem(12);
+		@include type.ui("sm");
+
+		.elx-icon {
+			margin-right: rem(6);
+			margin-left: rem(-3);
+		}
+	}
+}
