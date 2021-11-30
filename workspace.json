@@ -1,6 +1,7 @@
 {
 	"version": 2,
 	"projects": {
-		"components": "packages/components"
+		"components": "packages/components",
+		"styles": "packages/styles"
 	}
 }

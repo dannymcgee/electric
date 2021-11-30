@@ -15,7 +15,8 @@
 		"skipDefaultLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
-			"@electric/components": ["packages/components/src/index.ts"]
+			"@electric/components": ["packages/components/src/index.ts"],
+			"@electric/styles": ["packages/styles/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp"]

@@ -1,0 +1,5 @@
+@mixin inherit($properties) {
+	@each $property in $properties {
+		#{$property}: inherit;
+	}
+}

@@ -1,0 +1,24 @@
+@function primary($shade: 500, $alpha: 1) {
+	@return _color("primary", $shade, $alpha);
+}
+@function accent($shade: 500, $alpha: 1) {
+	@return _color("accent", $shade, $alpha);
+}
+@function warning($shade: 500, $alpha: 1) {
+	@return _color("warning", $shade, $alpha);
+}
+@function foreground($shade: 50, $alpha: 1) {
+	@return _color("foreground", $shade, $alpha);
+}
+@function background($shade: 100, $alpha: 1) {
+	@return _color("background", $shade, $alpha);
+}
+@function white() {
+	@return #FFFFFF;
+}
+
+@function _color($color-name, $shade, $alpha) {
+	$var: var(--#{$color-name}-#{$shade});
+
+	@return rgba($var, $alpha);
+}

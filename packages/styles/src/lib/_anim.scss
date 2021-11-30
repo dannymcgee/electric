@@ -1,0 +1,52 @@
+@use "sass:map";
+@use "sass:math";
+
+@function frame-time($frames) {
+	@return math.div($frames, 30) * 1000ms;
+}
+
+$_duration: (
+	"micro": 67ms,
+	"short": 133ms,
+	"medium": 200ms,
+	"long": 400ms,
+);
+@function duration($key) {
+	@return map.get($_duration, $key);
+}
+
+$ease-in-sine:  cubic-bezier(0.12, 0, 0.39, 0);
+$ease-in-quad:  cubic-bezier(0.11, 0, 0.5,  0);
+$ease-in-cubic: cubic-bezier(0.12, 0, 0.39, 0);
+
+$ease-out-sine:  cubic-bezier(0.61, 1, 0.88, 1);
+$ease-out-quad:  cubic-bezier(0.5,  1, 0.89, 1);
+$ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+$ease-out-quart: cubic-bezier(0.25, 1, 0.5,  1);
+$ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+$ease-out-expo:  cubic-bezier(0.16, 1, 0.3,  1);
+$ease-out-circ:  cubic-bezier(0, 0.55, 0.45, 1);
+$ease-out-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+$ease-in-out-sine:  cubic-bezier(0.37, 0, 0.63, 1);
+$ease-in-out-quad:  cubic-bezier(0.45, 0, 0.55, 1);
+$ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
+
+@mixin transition($properties, $duration: null, $timing: null) {
+	transition-property: $properties;
+	transition-timing-function: $timing;
+
+	@if $duration == null {
+		transition-duration: frame-time(2);
+	}
+	@else if map.has-key($_duration, $duration) {
+		transition-duration: duration($duration);
+	}
+	@else if type-of($duration) == number
+	and math.is-unitless($duration) {
+		transition-duration: frame-time($duration);
+	}
+	@else {
+		transition-duration: $duration;
+	}
+}

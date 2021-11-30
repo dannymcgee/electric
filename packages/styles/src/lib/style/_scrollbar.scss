@@ -1,0 +1,21 @@
+@use "../a11y" as *;
+@use "color";
+
+@mixin scrollbar($background-shade: 50) {
+	&::-webkit-scrollbar {
+		width: rem(14);
+
+		&-track {
+			background: color.background($background-shade);
+		}
+		&-thumb {
+			background: color.foreground(500, 0.6);
+			border: rem(4) solid color.background($background-shade);
+
+			&:hover {
+				background: color.foreground(500);
+				border-width: rem(3);
+			}
+		}
+	}
+}

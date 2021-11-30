@@ -1,0 +1,80 @@
+@use "../a11y" as *;
+@use "color";
+
+@mixin h1 {
+	@include _font(rem(36), 500);
+	color: color.foreground();
+}
+
+@mixin h2 {
+	@include _font(rem(16), 700);
+	color: color.foreground(100);
+}
+
+@mixin h3 {
+	@include _font(rem(12), 700);
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: color.foreground(200);
+}
+
+@mixin h4 {
+	@include _font(rem(10), 800);
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: color.foreground(300);
+}
+
+@mixin text {
+	@include _font(rem(14), 400);
+	line-height: 1.6;
+	color: color.foreground();
+}
+
+@mixin ui($size: "md") {
+	@if $size == "md" {
+		@include _font(rem(14), 500);
+	}
+	@else if $size == "sm" {
+		@include _font(rem(12), 500);
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+	}
+	line-height: 1;
+}
+
+@mixin recursive(
+	$mono:    null,
+	$casual:  null,
+	$weight:  null,
+	$slant:   null,
+	$cursive: null, // off, auto, or on
+) {
+	@if $mono    != null { --recursive-mono:   #{$mono}; }
+	@if $casual  != null { --recursive-casual: #{$casual}; }
+	@if $weight  != null { --recursive-weight: #{$weight}; }
+	@if $slant   != null { --recursive-slant:  #{$slant}; }
+	@if $cursive != null {
+		@if $cursive == off  { --recursive-cursive: 0.0; }
+		@if $cursive == auto { --recursive-cursive: 0.5; }
+		@if $cursive == on   { --recursive-cursive: 1.0; }
+	}
+
+	font-family: "Recursive";
+	font-weight: unset !important;
+	font-style: unset !important;
+	font-feature-settings: "dlig", "ccmp" 0;
+	font-variation-settings:
+		"MONO" var(--recursive-mono),
+		"CASL" var(--recursive-casual),
+		"wght" var(--recursive-weight),
+		"slnt" var(--recursive-slant),
+		"CRSV" var(--recursive-cursive);
+}
+
+@mixin _font($size, $weight) {
+	font: unset;
+	font-family: var(--global-font-family);
+	font-size: $size;
+	font-weight: $weight;
+}

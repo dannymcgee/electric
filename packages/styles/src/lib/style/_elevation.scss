@@ -1,0 +1,3 @@
+@mixin shadow($level) {
+	box-shadow: var(--elevation-#{$level});
+}

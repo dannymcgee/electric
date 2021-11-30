@@ -1,0 +1,69 @@
+@use "sass:list";
+
+@mixin flex(
+	$direction: null,
+	$alignment: null,
+	$justification: null,
+) {
+	@include _flex(flex, $direction, $alignment, $justification);
+}
+
+@mixin inline-flex(
+	$direction: null,
+	$alignment: null,
+	$justification: null,
+) {
+	@include _flex(inline-flex, $direction, $alignment, $justification);
+}
+
+@mixin _flex(
+	$type,
+	$direction: null,
+	$alignment: null,
+	$justification: null,
+) {
+	display: $type;
+	@if $direction != null {
+		flex-direction: $direction;
+	}
+	@if $alignment != null {
+		align-items: $alignment;
+	}
+	@if $justification != null {
+		justify-content: $justification;
+	}
+}
+
+@mixin absolute($top: null, $right: null, $bottom: null, $left: null) {
+	@include _position(absolute, ($top $right $bottom $left));
+}
+
+@mixin fixed($top: null, $right: null, $bottom: null, $left: null) {
+	@include _position(fixed, ($top $right $bottom $left));
+}
+
+@mixin sticky($top: null, $right: null, $bottom: null, $left: null) {
+	@include _position(fixed, ($top $right $bottom $left));
+}
+
+@mixin _position(
+	$type,
+	$positions: (
+		$top: null,
+		$right: null,
+		$bottom: null,
+		$left: null
+	)
+) {
+	position: $type;
+	$side-props: (top right bottom left);
+
+	@for $i from 1 through 4 {
+		$key: list.nth($side-props, $i);
+		$val: list.nth($positions, $i);
+
+		@if $val != null {
+			#{$key}: $val;
+		}
+	}
+}

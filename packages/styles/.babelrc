@@ -1,0 +1,12 @@
+{
+	"presets": [
+		["@nrwl/web/babel", {
+			"useBuiltIns": "usage"
+		}]
+	],
+	"plugins": [
+		["@babel/plugin-transform-typescript", {
+			"allowNamespaces": true
+		}]
+	]
+}
