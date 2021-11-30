@@ -2,6 +2,7 @@
 	"version": 2,
 	"projects": {
 		"components": "packages/components",
-		"styles": "packages/styles"
+		"styles": "packages/styles",
+		"utils": "packages/utils"
 	}
 }
