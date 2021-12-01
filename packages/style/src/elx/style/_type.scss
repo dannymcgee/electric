@@ -33,10 +33,10 @@
 
 @mixin ui($size: "md") {
 	@if $size == "md" {
-		@include _font(rem(14), 500);
+		@include _font(rem(14), 600);
 	}
 	@else if $size == "sm" {
-		@include _font(rem(12), 500);
+		@include _font(rem(12), 600);
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
 	}

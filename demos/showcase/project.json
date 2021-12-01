@@ -13,12 +13,17 @@
 				"main": "demos/showcase/src/main.ts",
 				"polyfills": "demos/showcase/src/polyfills.ts",
 				"tsConfig": "demos/showcase/tsconfig.app.json",
-				"inlineStyleLanguage": "scss",
 				"assets": [
 					"demos/showcase/src/favicon.ico",
-					"demos/showcase/src/assets"
+					"demos/showcase/src/assets",
+					{
+						"input": "packages/src/assets",
+						"glob": "**/*",
+						"output": "assets/elx"
+					}
 				],
 				"styles": [
+					"packages/style/src/assets/fonts.css",
 					"packages/style/src/globals.scss",
 					"demos/showcase/src/styles.scss"
 				],

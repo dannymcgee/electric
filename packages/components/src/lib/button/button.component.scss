@@ -76,24 +76,24 @@
 	}
 
 	&--md {
-		height: rem(32);
-		padding: 0 rem(16);
+		height: calc(#{rem(16)} + 16px);
+		padding: 0 16px;
 		@include type.ui;
 
 		.elx-icon {
-			margin-right: rem(8);
-			margin-left: rem(-4);
+			margin-right: 8px;
+			margin-left: -4px;
 		}
 	}
 
 	&--sm {
-		height: rem(24);
-		padding: 0 rem(12);
+		height: calc(#{rem(12)} + 16px);
+		padding: 0 12px;
 		@include type.ui("sm");
 
 		.elx-icon {
-			margin-right: rem(6);
-			margin-left: rem(-3);
+			margin-right: 6px;
+			margin-left: -3px;
 		}
 	}
 }
