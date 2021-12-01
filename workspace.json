@@ -3,7 +3,7 @@
 	"projects": {
 		"components": "packages/components",
 		"showcase": "demos/showcase",
-		"styles": "packages/styles",
+		"style": "packages/style",
 		"utils": "packages/utils"
 	}
 }

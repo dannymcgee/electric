@@ -3,6 +3,6 @@
 	"dest": "../../dist/packages/components",
 	"lib": {
 		"entryFile": "src/index.ts",
-		"styleIncludePaths": ["../styles/src"]
+		"styleIncludePaths": ["../style/src"]
 	}
 }

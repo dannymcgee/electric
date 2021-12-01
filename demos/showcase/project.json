@@ -19,11 +19,11 @@
 					"demos/showcase/src/assets"
 				],
 				"styles": [
-					"packages/styles/src/globals.scss",
+					"packages/style/src/globals.scss",
 					"demos/showcase/src/styles.scss"
 				],
 				"stylePreprocessorOptions": {
-					"includePaths": ["packages/styles/src"]
+					"includePaths": ["packages/style/src"]
 				},
 				"scripts": []
 			},

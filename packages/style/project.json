@@ -1,20 +1,20 @@
 {
-	"root": "packages/styles",
-	"sourceRoot": "packages/styles/src",
+	"root": "packages/style",
+	"sourceRoot": "packages/style/src",
 	"projectType": "library",
 	"targets": {
 		"lint": {
 			"executor": "@nrwl/linter:eslint",
 			"outputs": ["{options.outputFile}"],
 			"options": {
-				"lintFilePatterns": ["packages/styles/**/*.ts"]
+				"lintFilePatterns": ["packages/style/**/*.ts"]
 			}
 		},
 		"test": {
 			"executor": "@nrwl/jest:jest",
-			"outputs": ["coverage/packages/styles"],
+			"outputs": ["coverage/packages/style"],
 			"options": {
-				"jestConfig": "packages/styles/jest.config.js",
+				"jestConfig": "packages/style/jest.config.js",
 				"passWithNoTests": true
 			}
 		}
