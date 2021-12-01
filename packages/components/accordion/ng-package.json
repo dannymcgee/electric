@@ -1,0 +1,6 @@
+{
+	"lib": {
+		"entryFile": "../src/lib/accordion/index.ts",
+		"styleIncludePaths": ["../../style/src"]
+	}
+}

@@ -39,7 +39,9 @@
 					"packages/components/button/**/*.ts",
 					"packages/components/button/**/*.html",
 					"packages/components/icon/**/*.ts",
-					"packages/components/icon/**/*.html"
+					"packages/components/icon/**/*.html",
+					"packages/components/accordion/**/*.ts",
+					"packages/components/accordion/**/*.html"
 				]
 			}
 		}

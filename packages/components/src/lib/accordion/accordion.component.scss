@@ -1,0 +1,57 @@
+@use "elx/a11y" as *;
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+.elx-accordion {
+	@include layout.flex(column);
+}
+
+.elx-accordion-header {
+	@include layout.flex(row, center);
+	height: calc(#{rem(16)} + 16px);
+	padding: 0 0 0 12px;
+	user-select: none;
+	cursor: pointer;
+	background: color.background(500);
+	color: color.foreground(200);
+
+	&:hover {
+		background: color.background(600);
+	}
+
+	&__title {
+		flex: 1 0 0;
+		@include layout.flex(row);
+		@include type.h3;
+		color: inherit;
+	}
+
+	&__toolbar {
+		flex: 0 0 auto;
+		width: max-content;
+	}
+
+	&__icon {
+		@include layout.flex(row, center, center);
+		flex: 0 0 calc(#{rem(16)} + 20px);
+		height: calc(#{rem(16)} + 16px);
+		color: color.foreground(400);
+
+		.elx-icon {
+			transition: transform 100ms linear;
+		}
+
+		&--expanded {
+			.elx-icon {
+				transform: rotateZ(90deg);
+			}
+		}
+	}
+}
+
+.elx-accordion-body {
+	display: block;
+	overflow: hidden;
+	padding: 12px;
+}

@@ -1,27 +1,46 @@
-<section class="buttons">
-	<button elx-btn>Default</button>
-	<button elx-btn="primary">Primary</button>
-	<button elx-btn="warning">Warning</button>
-	<button elx-btn="secondary">Secondary</button>
-</section>
-<hr />
-<section class="buttons">
-	<button elx-btn icon="Cancel">Cancel</button>
-	<button elx-btn="primary" icon="Confirm">Okay</button>
-	<button elx-btn="warning" icon="Warning">Danger!</button>
-	<button elx-btn="secondary" icon="Save">Save as...</button>
-</section>
-<hr />
-<section class="buttons">
-	<button elx-btn size="sm">Default</button>
-	<button elx-btn="primary" size="sm">Primary</button>
-	<button elx-btn="warning" size="sm">Warning</button>
-	<button elx-btn="secondary" size="sm">Secondary</button>
-</section>
-<hr />
-<section class="buttons">
-	<button elx-btn icon="Cancel" size="sm">Cancel</button>
-	<button elx-btn="primary" icon="Confirm" size="sm">Okay</button>
-	<button elx-btn="warning" icon="Warning" size="sm">Danger!</button>
-	<button elx-btn="secondary" icon="Save" size="sm">Save as...</button>
-</section>
+<elx-accordion-group>
+	<elx-accordion>
+		<elx-accordion-header>
+			Medium
+			<nav elxAccordionToolbar class="toolbar">
+				<elx-icon icon="Cut" size="sm"></elx-icon>
+				<elx-icon icon="Copy" size="sm"></elx-icon>
+				<elx-icon icon="Paste" size="sm"></elx-icon>
+			</nav>
+		</elx-accordion-header>
+
+		<section class="buttons">
+			<button elx-btn>Default</button>
+			<button elx-btn="primary">Primary</button>
+			<button elx-btn="warning">Warning</button>
+			<button elx-btn="secondary">Secondary</button>
+		</section>
+		<hr />
+		<section class="buttons">
+			<button elx-btn icon="Cancel">Cancel</button>
+			<button elx-btn="primary" icon="Confirm">Okay</button>
+			<button elx-btn="warning" icon="Warning">Danger!</button>
+			<button elx-btn="secondary" icon="Save">Save as...</button>
+		</section>
+	</elx-accordion>
+
+	<elx-accordion>
+		<elx-accordion-header>
+			Small
+		</elx-accordion-header>
+
+		<section class="buttons">
+			<button elx-btn size="sm">Default</button>
+			<button elx-btn="primary" size="sm">Primary</button>
+			<button elx-btn="warning" size="sm">Warning</button>
+			<button elx-btn="secondary" size="sm">Secondary</button>
+		</section>
+		<hr />
+		<section class="buttons">
+			<button elx-btn icon="Cancel" size="sm">Cancel</button>
+			<button elx-btn="primary" icon="Confirm" size="sm">Okay</button>
+			<button elx-btn="warning" icon="Warning" size="sm">Danger!</button>
+			<button elx-btn="secondary" icon="Save" size="sm">Save as...</button>
+		</section>
+	</elx-accordion>
+</elx-accordion-group>

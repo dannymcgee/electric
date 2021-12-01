@@ -1,0 +1,6 @@
+@use "elx/layout";
+
+.elx-accordion-group {
+	@include layout.flex(column);
+	gap: 3px;
+}

@@ -1,6 +1,8 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { AccordionModule } from "@electric/components/accordion";
 import { ButtonModule } from "@electric/components/button";
 import { IconModule } from "@electric/components/icon";
 import { ThemeModule, DEFAULT_THEME, ThemeService } from "@electric/components/theme";
@@ -10,7 +12,9 @@ import { AppComponent } from "./app.component";
 
 @NgModule({
 	imports: [
+		AccordionModule,
 		BrowserModule,
+		BrowserAnimationsModule,
 		ButtonModule,
 		IconModule.withConfig({
 			icons: ICONS,
