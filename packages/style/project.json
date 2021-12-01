@@ -3,6 +3,27 @@
 	"sourceRoot": "packages/style/src",
 	"projectType": "library",
 	"targets": {
+		"build": {
+			"executor": "@nrwl/workspace:tsc",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/packages/style",
+				"main": "packages/style/src/index.ts",
+				"tsConfig": "packages/style/tsconfig.lib.json",
+				"assets": [
+					"packages/style/*.md",
+					"packages/style/src/assets"
+				]
+			}
+		},
+		"build-icons": {
+			"executor": "./tools/executors/icons:build",
+			"options": {
+				"pathToSvgs": "packages/style/src/assets/icons",
+				"outputPath": "packages/style/src/lib/icons",
+				"outFileName": "icon.definition.ts"
+			}
+		},
 		"lint": {
 			"executor": "@nrwl/linter:eslint",
 			"outputs": ["{options.outputFile}"],

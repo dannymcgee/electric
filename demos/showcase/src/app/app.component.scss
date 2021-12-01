@@ -1,4 +1,5 @@
 @use "elx/layout";
+@use "elx/style/color";
 
 :host {
 	display: block;
@@ -10,4 +11,11 @@
 .buttons {
 	@include layout.flex(row, center, center);
 	gap: 8px;
+}
+
+hr {
+	margin: 16px 0;
+	border: 0;
+	height: 2px;
+	background: color.background(500);
 }

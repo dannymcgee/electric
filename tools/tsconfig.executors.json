@@ -1,0 +1,15 @@
+{
+	"extends": "../tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": ".",
+		"module": "commonjs",
+		"target": "es5",
+		"types": ["node"],
+		"importHelpers": false,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true
+	},
+	"include": [
+		"./executors/**/impl.ts"
+	]
+}

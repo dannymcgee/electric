@@ -1,0 +1,9 @@
+{
+	"executors": {
+		"build": {
+			"implementation": "./impl",
+			"schema": "./schema.json",
+			"description": "Generates icon definitions for SVG files and makes them available via the IconComponent"
+		}
+	}
+}
