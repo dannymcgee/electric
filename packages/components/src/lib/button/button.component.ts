@@ -11,7 +11,6 @@ import {
 import { FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
 
 import { ButtonSize, ButtonVariant } from "./button.types";
-import { IconMap } from "@electric/style";
 
 @Component({
 	selector: "[elx-btn]",
@@ -20,14 +19,14 @@ import { IconMap } from "@electric/style";
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ButtonComponent<T extends IconMap> implements OnInit, OnDestroy {
+export class ButtonComponent implements OnInit, OnDestroy {
 	@Input("elx-btn")
 	get variant() { return this._variant; }
 	set variant(value) { if (value) this._variant = value; }
 	private _variant: ButtonVariant = "tertiary";
 
 	@Input() size: ButtonSize = "md";
-	@Input() icon?: string & keyof T;
+	@Input() icon?: string;
 
 	@HostBinding("attr.role")
 	@Input() role = "button";

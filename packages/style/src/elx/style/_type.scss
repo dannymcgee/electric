@@ -72,6 +72,12 @@
 		"CRSV" var(--recursive-cursive);
 }
 
+@mixin truncate {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 @mixin _font($size, $weight) {
 	font: unset;
 	font-family: var(--global-font-family);

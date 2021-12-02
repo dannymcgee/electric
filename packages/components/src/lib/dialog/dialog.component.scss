@@ -1,0 +1,128 @@
+@use "elx/a11y" as *;
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/elevation";
+@use "elx/style/type";
+
+.elx-dialog-overlay,
+.elx-dialog-backdrop {
+	@include layout.flex(column, center, center);
+	width: 100vw;
+	height: 100vh;
+	pointer-events: none;
+}
+
+.elx-dialog-backdrop--blocking {
+	background: color.background(900, 0.6);
+	pointer-events: auto;
+}
+
+.elx-dialog {
+	@include layout.flex(column);
+	width: 512px;
+	max-width: 100%;
+	pointer-events: auto;
+}
+
+.elx-dialog-main {
+	background: color.background(400);
+}
+
+.elx-dialog-heading {
+	@include layout.flex(row, center);
+	padding: 32px 24px 18px;
+	border-top: 3px solid color.primary();
+
+	&__icon {
+		margin-right: 8px;
+		color: color.accent(700);
+	}
+
+	&__title {
+		margin: 0;
+		@include type.h3;
+	}
+
+	.elx-dialog[role="alert"] & {
+		border-top-color: color.warning();
+
+		&__icon {
+			color: color.warning(600);
+		}
+	}
+
+	.loader & {
+		border-top: none;
+	}
+}
+
+@keyframes indeterminate-animation {
+	  0% { transform:  translateX(0)    scaleX(0); }
+	 40% { transform:  translateX(0)    scaleX(0.4); }
+	100% { transform:  translateX(100%) scaleX(0.5); }
+}
+
+.elx-dialog-progress {
+	height: 3px;
+	background: color.accent(400);
+	overflow: hidden;
+
+	&--indeterminate::after {
+		content: "";
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: color.accent(700);
+		animation: indeterminate-animation 1s infinite linear;
+		transform-origin: 0% 50%;
+	}
+
+	&__value {
+		display: block;
+		height: 100%;
+		background: color.accent(700);
+	}
+}
+
+.elx-dialog-body {
+	padding: 0 24px 32px;
+	@include type.text;
+
+	> *:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.elx-dialog-footer {
+	@include layout.flex(row, stretch, flex-end);
+	height: rem(48);
+	background: color.background(500, 0.6);
+	backdrop-filter: blur(24px);
+
+	.elx-btn {
+		height: 100%;
+		padding: 0 40px;
+
+		&--tertiary {
+			background: transparent;
+			color: color.white();
+
+			.elx-icon {
+				color: color.accent(700);
+			}
+
+			&:hover {
+				background: color.background(100, 0.125);
+			}
+		}
+
+		&:focus {
+			position: relative;
+			z-index: 1;
+		}
+
+		.elx-icon {
+			margin-left: -8px;
+		}
+	}
+}

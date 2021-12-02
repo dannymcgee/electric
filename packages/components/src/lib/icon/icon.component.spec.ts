@@ -5,21 +5,21 @@ import { IconComponent } from './icon.component';
 import { a11y, ICONS } from "@electric/style";
 import { html } from "@electric/utils";
 
-const CONFIG = {
-	icons: ICONS,
-	sizes: {
-		xs: a11y.rem(16),
-		sm: a11y.rem(18),
-		md: a11y.rem(20),
-		lg: a11y.rem(24),
-	},
-};
-
 describe("IconComponent", () => {
-	let spectator: SpectatorHost<IconComponent<typeof CONFIG>>;
+	let spectator: SpectatorHost<IconComponent>;
 	let createHost = createHostFactory({
 		component: IconComponent,
-		imports: [IconModule.withConfig(CONFIG)],
+		imports: [
+			IconModule.withConfig({
+				icons: ICONS,
+				sizes: {
+					xs: a11y.rem(16),
+					sm: a11y.rem(18),
+					md: a11y.rem(20),
+					lg: a11y.rem(24),
+				},
+			}),
+		],
 		declareComponent: false,
 	});
 

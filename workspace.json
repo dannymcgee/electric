@@ -2,6 +2,7 @@
 	"version": 2,
 	"projects": {
 		"components": "packages/components",
+		"ng-utils": "packages/ng-utils",
 		"showcase": "demos/showcase",
 		"style": "packages/style",
 		"utils": "packages/utils"

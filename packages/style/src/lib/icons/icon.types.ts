@@ -1,9 +1,5 @@
-export type IconMap<K extends string = string> = {
-	[key in K]: string;
-};
-
-export interface SvgIconsConfig<T extends IconMap = IconMap> {
-	icons: T;
+export interface SvgIconsConfig {
+	icons: Record<string, string>;
 	color?: string;
 	sizes: {
 		xs: string;

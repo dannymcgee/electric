@@ -1,9 +1,12 @@
 @use "sass:math";
 
 @use "./elx/a11y" as *;
+@use "./elx/layout";
 @use "./elx/style/color";
 @use "./elx/style/scrollbar" as *;
 @use "./elx/style/type";
+
+@import "~@angular/cdk/overlay-prebuilt.css";
 
 :root {
 	--recursive-mono: 0.51;
@@ -17,7 +20,13 @@
 	box-sizing: border-box;
 }
 
+html {
+	height: 100%;
+}
+
 body {
+	@include layout.flex(column);
+	height: 100%;
 	margin: 0;
 	padding: 0;
 	background-color: color.background(200);

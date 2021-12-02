@@ -20,7 +20,8 @@
 					}
 				],
 				"prefer-let/prefer-let": "warn",
-				"prefer-const": "off"
+				"prefer-const": "off",
+				"@typescript-eslint/no-non-null-assertion": "off"
 			}
 		},
 		{

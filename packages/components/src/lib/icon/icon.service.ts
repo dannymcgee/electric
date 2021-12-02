@@ -7,23 +7,23 @@ import { entries } from "@electric/utils";
 import { SVG_ICONS_CONFIG } from "./icon.types";
 
 @Injectable()
-export class IconRegistry<T extends SvgIconsConfig> {
-	private _svgMap = new Map<keyof T["icons"], SvgIcon>();
+export class IconRegistry {
+	private _svgMap = new Map<string, SvgIcon>();
 
 	constructor (
 		@Inject(DOCUMENT) private _document: Document,
-		@Inject(SVG_ICONS_CONFIG) config: T,
+		@Inject(SVG_ICONS_CONFIG) config: SvgIconsConfig,
 	) {
 		if (config.icons) {
 			this.register(config.icons);
 		}
 	}
 
-	has(id: keyof T["icons"]) {
+	has(id: string) {
 		return this._svgMap.has(id);
 	}
 
-	get(id: keyof T["icons"]) {
+	get(id: string) {
 		let svg = this._svgMap.get(id);
 		if (!svg) return null;
 
@@ -32,7 +32,7 @@ export class IconRegistry<T extends SvgIconsConfig> {
 		return svg.content;
 	}
 
-	private register(icons: T["icons"]) {
+	private register(icons: Record<string, string>) {
 		for (let [id, content] of entries(icons)) {
 			this._svgMap.set(id, new SvgIcon(content, this._document));
 		}

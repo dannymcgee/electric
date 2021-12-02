@@ -22,14 +22,14 @@ import { SVG_ICONS_CONFIG } from "./icon.types";
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class IconComponent<T extends SvgIconsConfig> {
+export class IconComponent {
 	@Input()
 	get icon() { return this._icon; }
 	set icon(value) {
 		this._icon = value;
 		if (value) this.render();
 	}
-	private _icon?: string & keyof T["icons"];
+	private _icon?: string;
 
 	@Input() size: IconSize = "md";
 
@@ -56,7 +56,7 @@ export class IconComponent<T extends SvgIconsConfig> {
 
 	constructor (
 		private _elementRef: ElementRef<HTMLElement>,
-		private _registry: IconRegistry<T>,
+		private _registry: IconRegistry,
 		@Inject(SVG_ICONS_CONFIG) private _config: SvgIconsConfig,
 	) {}
 

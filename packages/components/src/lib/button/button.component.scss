@@ -5,7 +5,8 @@
 @use "elx/style/type";
 
 .elx-btn {
-	@include layout.flex(row, center);
+	@include layout.inline-flex(row, center);
+	min-width: 0;
 	cursor: pointer;
 	appearance: none;
 	background: transparent;
@@ -95,5 +96,10 @@
 			margin-right: 6px;
 			margin-left: -3px;
 		}
+	}
+
+	&__label {
+		flex: 1 0 0;
+		@include type.truncate;
 	}
 }

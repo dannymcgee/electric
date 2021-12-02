@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"license": "MIT",
 	"scripts": {
-		"postinstall": "run-p postinstall:*",
+		"postinstall": "run-p postinstall:* && ngcc --properties es2015 browser module main",
 		"postinstall:tools": "npm run build-executors",
 		"postinstall:ngcc": "ngcc --properties es2015 browser module main",
 		"build-executors": "run-s build-executors:*",
@@ -52,6 +52,7 @@
 		"jasmine-core": "~3.6.0",
 		"jasmine-spec-reporter": "~5.0.0",
 		"jest": "27.2.3",
+		"jest-preset-angular": "11.0.0",
 		"karma": "~5.0.0",
 		"karma-chrome-launcher": "~3.1.0",
 		"karma-coverage-istanbul-reporter": "~3.0.2",

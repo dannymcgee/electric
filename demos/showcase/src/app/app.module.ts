@@ -4,6 +4,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { AccordionModule } from "@electric/components/accordion";
 import { ButtonModule } from "@electric/components/button";
+import { DialogModule } from "@electric/components/dialog";
 import { IconModule } from "@electric/components/icon";
 import { ThemeModule, DEFAULT_THEME, ThemeService } from "@electric/components/theme";
 import { a11y, ICONS } from "@electric/style";
@@ -16,6 +17,7 @@ import { AppComponent } from "./app.component";
 		BrowserModule,
 		BrowserAnimationsModule,
 		ButtonModule,
+		DialogModule,
 		IconModule.withConfig({
 			icons: ICONS,
 			sizes: {

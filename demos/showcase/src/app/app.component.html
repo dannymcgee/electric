@@ -43,4 +43,147 @@
 			<button elx-btn="secondary" icon="Save" size="sm">Save as...</button>
 		</section>
 	</elx-accordion>
+
+	<elx-accordion>
+		<elx-accordion-header>
+			Dialogs
+		</elx-accordion-header>
+
+		<section class="buttons">
+			<button elx-btn (click)="blocking = true">
+				Blocking
+			</button>
+			<button elx-btn (click)="nonBlocking = true">
+				Non-blocking
+			</button>
+			<button elx-btn="warning" (click)="warning = true">
+				Alert
+			</button>
+			<button elx-btn (click)="startTimer(10)">
+				Loader
+			</button>
+			<button elx-btn (click)="indeterminate = true">
+				Loader (indeterminate)
+			</button>
+		</section>
+	</elx-accordion>
 </elx-accordion-group>
+
+<elx-dialog #dialog
+	*elxDialogTrigger="blocking"
+	blocking
+	(close)="blocking = false"
+>
+	<elx-dialog-heading>
+		Blocking Dialog
+	</elx-dialog-heading>
+
+	<p>This is a blocking dialog.</p>
+
+	<elx-dialog-footer>
+		<button elx-btn icon="Info"
+			(click)="nonBlocking = true"
+		>
+			Tell me more
+		</button>
+		<button elx-btn="primary" icon="Confirm"
+			(click)="dialog.close()"
+		>
+			Got it
+		</button>
+	</elx-dialog-footer>
+</elx-dialog>
+
+<elx-dialog #dialog
+	*elxDialogTrigger="nonBlocking"
+	(close)="nonBlocking = false"
+>
+	<elx-dialog-heading>
+		Non-Blocking Dialog
+	</elx-dialog-heading>
+
+	<p>This is a non-blocking dialog.</p>
+
+	<elx-dialog-footer>
+		<button elx-btn="primary" icon="Confirm"
+			(click)="dialog.close()"
+		>
+			Okay
+		</button>
+	</elx-dialog-footer>
+</elx-dialog>
+
+<elx-dialog #alert
+	*elxDialogTrigger="warning"
+	blocking
+	role="alert"
+	(close)="warning = false"
+>
+	<elx-dialog-heading>
+		Alert
+	</elx-dialog-heading>
+
+	<p>This is an alert. Are you sure you want to do that?</p>
+
+	<elx-dialog-footer>
+		<button elx-btn icon="Back"
+			(click)="alert.close()"
+		>
+			Back to safety
+		</button>
+		<button elx-btn="warning" icon="Warning"
+			(click)="alert.close()"
+		>
+			Yes, I'm sure
+		</button>
+	</elx-dialog-footer>
+</elx-dialog>
+
+<elx-dialog #dialog
+	*elxDialogTrigger="timer"
+	blocking
+	loader
+	[total]="timer!.total"
+	[completed]="timer!.current"
+	(close)="stopTimer()"
+>
+	<elx-dialog-heading>
+		Loading
+	</elx-dialog-heading>
+
+	<p>This is a dialog that indicates something is loading.</p>
+
+	<elx-dialog-footer>
+		<button elx-btn icon="Cancel"
+			(click)="dialog.close()"
+		>
+			Cancel
+		</button>
+	</elx-dialog-footer>
+</elx-dialog>
+
+<elx-dialog #dialog
+	*elxDialogTrigger="indeterminate"
+	blocking
+	loader
+	indeterminate
+	(close)="indeterminate = false"
+>
+	<elx-dialog-heading>
+		Loading
+	</elx-dialog-heading>
+
+	<p>This is a dialog that indicates something is loading.</p>
+	<p>
+		(This example won't finish on its own &mdash; press the button to dismiss
+		it.)
+	</p>
+
+	<elx-dialog-footer>
+		<button elx-btn icon="Cancel"
+			(click)="dialog.close()"
+		>
+			Dismiss
+		</button>
+	</elx-dialog-footer>
+</elx-dialog>

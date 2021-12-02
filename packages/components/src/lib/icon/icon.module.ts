@@ -1,5 +1,5 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
-import { IconMap, SvgIconsConfig } from "@electric/style";
+import { SvgIconsConfig } from "@electric/style";
 
 import { IconComponent } from "./icon.component";
 import { IconRegistry } from "./icon.service";
@@ -10,9 +10,7 @@ import { SVG_ICONS_CONFIG } from "./icon.types";
 	exports: [IconComponent],
 })
 export class IconModule {
-	static withConfig<T extends IconMap>(
-		config: SvgIconsConfig<T>
-	): ModuleWithProviders<IconModule> {
+	static withConfig(config: SvgIconsConfig): ModuleWithProviders<IconModule> {
 		return {
 			ngModule: IconModule,
 			providers: [
