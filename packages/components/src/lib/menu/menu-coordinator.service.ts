@@ -103,12 +103,12 @@ export class MenuCoordinator {
 
 		if (parent) {
 			// Connect the parent to its child and vice versa
-			let parentId: ElementId | undefined;
-			if ((parentId = this._menuComponentIdLookup.get(parent))) {
-				this._menus.get(parentId)?.registerChild(menu);
+			if (this._menuComponentIdLookup.has(parent)) {
+				let parentId = this._menuComponentIdLookup.get(parent)!;
+				if (this._menus.has(parentId)) {
+					let parentMenu = this._menus.get(parentId)!;
 
-				let parentMenu: AbstractMenuController | undefined;
-				if ((parentMenu = this._menus.get(parentId))) {
+					parentMenu.registerChild(menu);
 					menu.registerParent(parentMenu);
 				}
 			}
