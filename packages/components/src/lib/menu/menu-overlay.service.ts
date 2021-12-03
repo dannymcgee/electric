@@ -16,26 +16,7 @@ import { assert } from "@electric/utils";
 
 import { MenuPanelComponent } from "./menu-panel/menu-panel.component";
 import { HORIZONTAL_POSITIONS, VERTICAL_POSITIONS } from "./menu.positions";
-
-export type Orientation = "vertical"|"horizontal";
-
-export interface MenuOverlayConfig {
-	origin: PositionStrategyOrigin;
-	menuPanelClass?: string;
-	encapsulationId?: string;
-	orientation?: Orientation;
-}
-
-export interface MenuCloseEvent {
-	isOpen: false;
-}
-export interface MenuOpenEvent {
-	isOpen: true;
-	originalEvent?: Event;
-	focusOrigin: FocusOrigin;
-	menuPanel: MenuPanelComponent;
-}
-export type MenuEvent = MenuCloseEvent | MenuOpenEvent;
+import { MenuEvent, MenuOverlayConfig, Orientation } from "./menu.types";
 
 @Injectable()
 export class MenuOverlayManager implements OnDestroy {

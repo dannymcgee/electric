@@ -8,6 +8,8 @@ import {
 	ElementRef,
 } from "@angular/core";
 
+import { MenuPanel } from "../menu.types";
+
 @Component({
 	selector: "elx-menu-panel",
 	templateUrl: "./menu-panel.component.html",
@@ -15,7 +17,7 @@ import {
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuPanelComponent {
+export class MenuPanelComponent implements MenuPanel {
 	@HostBinding("class")
 	readonly hostClass = "elx-menu-panel";
 

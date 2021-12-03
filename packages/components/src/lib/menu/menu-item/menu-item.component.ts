@@ -1,4 +1,4 @@
-import { FocusableOption, FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
+import { FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
 import {
 	Component,
 	OnInit,
@@ -19,22 +19,26 @@ import { filter, map, take, takeUntil } from "rxjs/operators";
 import { Coerce } from "@electric/ng-utils";
 import { array } from "@electric/utils";
 
-import { MENUBAR, MENU_TRIGGER } from "../menu.types";
-
-export interface MenuItemFocusEvent {
-	item: MenuItemComponent;
-	element: HTMLElement;
-	origin: FocusOrigin;
-}
+import {
+	MENU_ITEM,
+	MENU_TRIGGER,
+	MENUBAR,
+	MenuItem,
+	MenuItemFocusEvent,
+} from "../menu.types";
 
 @Component({
 	selector: "elx-menuitem",
 	templateUrl: "./menu-item.component.html",
 	styleUrls: ["./menu-item.component.scss"],
+	providers: [{
+		provide: MENU_ITEM,
+		useExisting: MenuItemComponent,
+	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuItemComponent implements OnInit, OnDestroy, FocusableOption {
+export class MenuItemComponent implements MenuItem, OnInit, OnDestroy {
 	@HostBinding("class")
 	readonly hostClass = "elx-menuitem";
 

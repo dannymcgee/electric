@@ -29,8 +29,13 @@ import {
 
 import { fromKeydown } from "@electric/utils";
 
-import { MenuItemComponent } from "../menu-item/menu-item.component";
-import { MENUBAR, MenuTrigger, MENU_TRIGGER } from "../menu.types";
+import {
+	MENU_ITEM,
+	MENU_TRIGGER,
+	MENUBAR,
+	MenuItem,
+	MenuTrigger,
+} from "../menu.types";
 
 @Component({
 	selector: "elx-menubar",
@@ -53,9 +58,9 @@ export class MenubarComponent implements AfterContentInit, OnDestroy {
 	@HostBinding()
 	tabIndex = 0;
 
-	@ContentChildren(MenuItemComponent, { descendants: false })
-	private _menuItems?: QueryList<MenuItemComponent>;
-	private _menuItems$?: Observable<QueryList<MenuItemComponent>>;
+	@ContentChildren(MENU_ITEM, { descendants: false })
+	private _menuItems?: QueryList<MenuItem>;
+	private _menuItems$?: Observable<QueryList<MenuItem>>;
 
 	@ContentChildren(MENU_TRIGGER, { descendants: false })
 	private _menuTriggers?: QueryList<MenuTrigger>;
@@ -63,7 +68,7 @@ export class MenubarComponent implements AfterContentInit, OnDestroy {
 
 	private _openMenuIndex$?: Observable<number>;
 	private _keyPresses$?: Observable<KeyboardEvent>;
-	private _keyManager?: FocusKeyManager<MenuItemComponent>;
+	private _keyManager?: FocusKeyManager<MenuItem>;
 	private _onDestroy$ = new Subject<void>();
 
 	constructor (

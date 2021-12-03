@@ -10,24 +10,28 @@ import {
 } from "@angular/core";
 import { findEncapsulationId } from "@electric/ng-utils";
 
-import { MenuItemComponent } from "./menu-item/menu-item.component";
+import { MENU, MENU_ITEM, Menu, MenuItem } from "./menu.types";
 
 @Component({
 	selector: "elx-menu",
 	templateUrl: "./menu.component.html",
 	styleUrls: ["./menu.component.scss"],
+	providers: [{
+		provide: MENU,
+		useExisting: MenuComponent,
+	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	exportAs: "menu",
 })
-export class MenuComponent {
+export class MenuComponent implements Menu {
 	@Input("class")
 	panelClass?: string;
 
 	@ViewChild(TemplateRef)
 	readonly template?: TemplateRef<void>;
 
-	@ContentChildren(MenuItemComponent)
-	items!: QueryList<MenuItemComponent>;
+	@ContentChildren(MENU_ITEM)
+	items!: QueryList<MenuItem>;
 
 	get encapsulationId() {
 		return findEncapsulationId(this._elementRef);

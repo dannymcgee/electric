@@ -4,6 +4,7 @@ import {
 	ElementRef,
 	HostBinding,
 	HostListener,
+	Inject,
 	Input,
 	OnDestroy,
 	Self,
@@ -11,8 +12,13 @@ import {
 
 import { MenuCoordinator } from "./menu-coordinator.service";
 import { MenuOverlayManager } from "./menu-overlay.service";
-import { MenuComponent } from "./menu.component";
-import { MenuTrigger, MenuKind, MENU_TRIGGER } from "./menu.types";
+import {
+	MENU,
+	MENU_TRIGGER,
+	Menu,
+	MenuKind,
+	MenuTrigger,
+} from "./menu.types";
 
 @Directive({
 	selector: "[elxMenuTriggerFor]",
@@ -27,7 +33,7 @@ export class MenuTriggerDirective implements MenuTrigger, OnDestroy {
 	readonly hostClass = "elx-menu-trigger";
 
 	@Input("elxMenuTriggerFor")
-	menu!: MenuComponent;
+	menu!: Menu;
 
 	@HostBinding("attr.aria-haspopup")
 	readonly ariaHasPopup = "menu";
@@ -67,7 +73,7 @@ export class MenuTriggerDirective implements MenuTrigger, OnDestroy {
 })
 export class ContextMenuTriggerDirective implements MenuTrigger, AfterViewInit {
 	@Input("elxContextMenuTriggerFor")
-	menu!: MenuComponent;
+	menu!: Menu;
 
 	constructor (
 		public elementRef: ElementRef<HTMLElement>,
@@ -89,7 +95,7 @@ export class ContextMenuTriggerDirective implements MenuTrigger, AfterViewInit {
 })
 export class SubmenuTriggerDirective implements MenuTrigger {
 	@Input("elxSubmenuTriggerFor")
-	menu!: MenuComponent;
+	menu!: Menu;
 
 	@HostBinding("attr.aria-haspopup")
 	readonly ariaHasPopup = "menu";
@@ -98,7 +104,7 @@ export class SubmenuTriggerDirective implements MenuTrigger {
 		public elementRef: ElementRef<HTMLElement>,
 		@Self() public overlay: MenuOverlayManager,
 		private _coordinator: MenuCoordinator,
-		private _parentMenu: MenuComponent,
+		@Inject(MENU) private _parentMenu: Menu,
 	) {}
 
 	@HostListener("mouseenter")

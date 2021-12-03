@@ -29,15 +29,16 @@ import {
 	isNotNull,
 } from "@electric/utils";
 
-import { MenuItemComponent } from "./menu-item/menu-item.component";
+import { MenuOverlayManager } from "./menu-overlay.service";
 import {
+	Menu,
 	MenuCloseEvent,
 	MenuEvent,
+	MenuItem,
+	MenuKind,
 	MenuOpenEvent,
-	MenuOverlayManager,
-} from "./menu-overlay.service";
-import { MenuComponent } from "./menu.component";
-import { MenuTrigger, MenuKind } from "./menu.types";
+	MenuTrigger,
+} from "./menu.types";
 
 const NOOP = () => {};
 
@@ -52,13 +53,13 @@ const NOOP = () => {};
 export class MenuCoordinator {
 	// ID -> Menu lookups
 	// Entries need to be deleted when unregistered to avoid memory leaks
-	private _menus = new Map<ElementId, MenuBase>();
-	private _topLevelMenus = new Map<ElementId, MenuBase>();
+	private _menus = new Map<ElementId, AbstractMenuController>();
+	private _topLevelMenus = new Map<ElementId, AbstractMenuController>();
 
 	// Trigger/Menu -> ID lookups
 	// These need to be WeakMaps to avoid memory leaks
 	private _menuTriggerIdLookup = new WeakMap<MenuTrigger, ElementId>();
-	private _menuComponentIdLookup = new WeakMap<MenuComponent, ElementId>();
+	private _menuComponentIdLookup = new WeakMap<Menu, ElementId>();
 
 	// This subscription closes all other menus
 	// whenever a new top-level menu is opened
@@ -68,7 +69,7 @@ export class MenuCoordinator {
 		kind: MenuKind,
 		trigger: MenuTrigger,
 		overlay: MenuOverlayManager,
-		parent?: MenuComponent,
+		parent?: Menu,
 	): void {
 		// The setup here only needs to be done once per trigger
 		if (this._menuTriggerIdLookup.has(trigger)) return;
@@ -87,9 +88,15 @@ export class MenuCoordinator {
 		// and add it to the map
 		let menu = (() => {
 			switch (kind) {
-				case MenuKind.Menu:    return new Menu(id, trigger, overlay);
-				case MenuKind.Context: return new ContextMenu(id, trigger, overlay);
-				case MenuKind.Submenu: return new Submenu(id, trigger, overlay);
+				case MenuKind.Menu: {
+					return new MenuController(id, trigger, overlay);
+				}
+				case MenuKind.Context: {
+					return new ContextMenuController(id, trigger, overlay);
+				}
+				case MenuKind.Submenu: {
+					return new SubmenuController(id, trigger, overlay);
+				}
 			}
 		})();
 		this._menus.set(id, menu);
@@ -100,7 +107,7 @@ export class MenuCoordinator {
 			if ((parentId = this._menuComponentIdLookup.get(parent))) {
 				this._menus.get(parentId)?.registerChild(menu);
 
-				let parentMenu: MenuBase | undefined;
+				let parentMenu: AbstractMenuController | undefined;
 				if ((parentMenu = this._menus.get(parentId))) {
 					menu.registerParent(parentMenu);
 				}
@@ -152,7 +159,7 @@ export class MenuCoordinator {
  * concrete implementations derive -- it defines only the generic behavior which
  * is shared between all variants.
  */
- class MenuBase {
+ class AbstractMenuController {
 	readonly id: ElementId;
 
 	protected overlay: MenuOverlayManager;
@@ -160,13 +167,13 @@ export class MenuCoordinator {
 	protected get triggerElement() { return this.trigger.elementRef.nativeElement }
 	protected get template() { return this.trigger.menu.template }
 
-	protected items: QueryList<MenuItemComponent>;
-	protected items$: Observable<QueryList<MenuItemComponent>>;
+	protected items: QueryList<MenuItem>;
+	protected items$: Observable<QueryList<MenuItem>>;
 	protected keydown$: Observable<KeyboardEvent>;
-	protected keyManager: FocusKeyManager<MenuItemComponent>;
+	protected keyManager: FocusKeyManager<MenuItem>;
 
-	protected parent?: MenuBase;
-	protected children: MenuBase[] = [];
+	protected parent?: AbstractMenuController;
+	protected children: AbstractMenuController[] = [];
 
 	opened$: Observable<ElementId>;
 	protected isOpen$: Observable<boolean>;
@@ -254,7 +261,7 @@ export class MenuCoordinator {
 		this.onInit();
 	}
 
-	registerParent(menu: MenuBase): void {
+	registerParent(menu: AbstractMenuController): void {
 		this.parent = menu;
 
 		// Close this menu when another of our parent's menu items is hovered
@@ -266,7 +273,7 @@ export class MenuCoordinator {
 		).subscribe(() => this.close());
 	}
 
-	registerChild(menu: MenuBase): void {
+	registerChild(menu: AbstractMenuController): void {
 		this.children.push(menu);
 	}
 
@@ -319,7 +326,7 @@ export class MenuCoordinator {
  * This class represents an ordinary menu which is opened by pressing a trigger
  * button.
  */
- class Menu extends MenuBase {
+ class MenuController extends AbstractMenuController {
 	protected get openEvents$(): Observable<Event> {
 		let click$ = fromEvent(this.triggerElement, "click");
 		let arrowupdown$ = fromKeydown(this.triggerElement, /^Arrow(Up|Down)$/);
@@ -341,7 +348,7 @@ export class MenuCoordinator {
  * This class represents a context menu, opened by right-clicking (or pressing
  * the "menu" key) within a defined area.
 */
-class ContextMenu extends MenuBase {
+class ContextMenuController extends AbstractMenuController {
 	protected get openEvents$(): Observable<Event> {
 		return fromEvent(this.triggerElement, "contextmenu")
 			.pipe(takeUntil(this.onDestroy$));
@@ -371,7 +378,7 @@ class ContextMenu extends MenuBase {
  * This class represents a submenu, which is opened by hovering or pressing a
  * menu item within its parent menu.
  */
- class Submenu extends MenuBase {
+ class SubmenuController extends AbstractMenuController {
 	protected get openEvents$(): Observable<Event> {
 		let hover$ = fromEvent(this.triggerElement, "mouseenter").pipe(
 			startWith(((): MouseEvent|void => {
