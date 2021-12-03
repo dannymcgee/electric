@@ -3,14 +3,20 @@ import { CommonModule } from "@angular/common";
 
 import { IconModule } from "@electric/components/icon";
 
-import { ButtonComponent } from "./button.component";
+import { ButtonComponent, PrimaryButtonComponent } from "./button.component";
 
 @NgModule({
 	imports: [
 		CommonModule,
 		IconModule,
 	],
-	declarations: [ButtonComponent],
-	exports: [ButtonComponent],
+	declarations: [
+		ButtonComponent,
+		PrimaryButtonComponent,
+	],
+	exports: [
+		ButtonComponent,
+		PrimaryButtonComponent,
+	],
 })
 export class ButtonModule {}

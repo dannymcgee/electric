@@ -9,7 +9,6 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	ContentChild,
-	ContentChildren,
 	Directive,
 	ElementRef,
 	EventEmitter,
@@ -21,13 +20,16 @@ import {
 	OnDestroy,
 	OnInit,
 	Output,
-	QueryList,
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { ButtonComponent } from "@electric/components/button";
 import { IconName } from "@electric/components/icon";
-import { Coerce, GlobalFocusManager } from "@electric/ng-utils";
+import {
+	Coerce,
+	Focusable,
+	GlobalFocusManager,
+	INITIAL_FOCUS_TARGET,
+} from "@electric/ng-utils";
 
 @Component({
 	selector: "elx-dialog",
@@ -97,14 +99,11 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 				.withHandles([this._heading._elementRef]);
 		}
 
-		let primaryButtons = this._footer
-			?._buttons
-			?.filter(btn => btn.variant === "primary");
-
-		if (primaryButtons?.length) {
+		let focusTarget = this._footer?.initialFocusTarget;
+		if (focusTarget) {
 			this._focusTrap.attachAnchors();
 			setTimeout(() => {
-				primaryButtons?.[0]?.focus("keyboard");
+				focusTarget!.focus("keyboard");
 			});
 		} else {
 			this._focusTrap.attachAnchors();
@@ -162,8 +161,6 @@ export class DialogFooterDirective {
 	@HostBinding("class")
 	readonly hostClass = "elx-dialog-footer";
 
-	// TODO: This reduces interop flexibility and bloats this module's dependencies;
-	// Consider using a specific InjectionToken instead
-	@ContentChildren(ButtonComponent)
-	_buttons?: QueryList<ButtonComponent>;
+	@ContentChild(INITIAL_FOCUS_TARGET)
+	initialFocusTarget?: Focusable;
 }

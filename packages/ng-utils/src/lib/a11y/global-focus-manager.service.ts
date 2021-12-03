@@ -1,8 +1,9 @@
 import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable } from "@angular/core";
+
 import { array } from "@electric/utils";
 
-import { Loop } from "./loop";
+import { Loop } from "../loop";
 
 @Injectable({
 	providedIn: "root",

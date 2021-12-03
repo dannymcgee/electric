@@ -1,4 +1,4 @@
-import { FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
+import { FocusMonitor, FocusOrigin, FocusOptions } from "@angular/cdk/a11y";
 import {
 	Component,
 	OnInit,
@@ -11,17 +11,18 @@ import {
 } from "@angular/core";
 
 import { IconName } from "@electric/components/icon";
+import { Focusable, INITIAL_FOCUS_TARGET } from "@electric/ng-utils";
 
 import { ButtonSize, ButtonVariant } from "./button.types";
 
 @Component({
-	selector: "[elx-btn]",
+	selector: `[elx-btn]:not([elx-btn="primary"])`,
 	templateUrl: "./button.component.html",
 	styleUrls: ["./button.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ButtonComponent implements OnInit, OnDestroy {
+export class ButtonComponent implements Focusable, OnInit, OnDestroy {
 	@Input("elx-btn")
 	get variant() { return this._variant; }
 	set variant(value) { if (value) this._variant = value; }
@@ -55,7 +56,25 @@ export class ButtonComponent implements OnInit, OnDestroy {
 		this._focusMonitor.stopMonitoring(this._elementRef);
 	}
 
-	focus(origin?: FocusOrigin): void {
-		this._focusMonitor.focusVia(this._elementRef, origin ?? null);
+	focus(origin?: FocusOrigin, options?: FocusOptions): void {
+		this._focusMonitor.focusVia(this._elementRef, origin ?? null, options);
 	}
+}
+
+
+@Component({
+	selector: `[elx-btn="primary"]`,
+	templateUrl: "./button.component.html",
+	styleUrls: ["./button.component.scss"],
+	providers: [{
+		provide: INITIAL_FOCUS_TARGET,
+		useExisting: PrimaryButtonComponent,
+	}],
+	encapsulation: ViewEncapsulation.None,
+	changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PrimaryButtonComponent extends ButtonComponent {
+	// This extremely hacky component only exists to provide the
+	// `INITIAL_FOCUS_TARGET` token exclusively for "primary" buttons,
+	// accomplished by abusing the `selector` metadata.
 }
