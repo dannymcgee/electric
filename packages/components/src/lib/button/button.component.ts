@@ -10,6 +10,8 @@ import {
 	HostBinding,
 } from "@angular/core";
 
+import { IconName } from "@electric/components/icon";
+
 import { ButtonSize, ButtonVariant } from "./button.types";
 
 @Component({
@@ -26,7 +28,7 @@ export class ButtonComponent implements OnInit, OnDestroy {
 	private _variant: ButtonVariant = "tertiary";
 
 	@Input() size: ButtonSize = "md";
-	@Input() icon?: string;
+	@Input() icon?: IconName;
 
 	@HostBinding("attr.role")
 	@Input() role = "button";

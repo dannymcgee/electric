@@ -1,10 +1,10 @@
 import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable } from "@angular/core";
 
-import { SvgIconsConfig, SvgIcon } from "@electric/style";
+import { SvgIcon } from "@electric/style";
 import { entries } from "@electric/utils";
 
-import { SVG_ICONS_CONFIG } from "./icon.types";
+import { ICON_LIBRARY } from "./icon.types";
 
 @Injectable()
 export class IconRegistry {
@@ -12,11 +12,9 @@ export class IconRegistry {
 
 	constructor (
 		@Inject(DOCUMENT) private _document: Document,
-		@Inject(SVG_ICONS_CONFIG) config: SvgIconsConfig,
+		@Inject(ICON_LIBRARY) icons: Record<string, string>,
 	) {
-		if (config.icons) {
-			this.register(config.icons);
-		}
+		this.register(icons);
 	}
 
 	has(id: string) {

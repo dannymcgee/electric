@@ -27,7 +27,6 @@
 		margin-right: 48px;
 
 		&:first-child {
-			// FIXME: icon width is dependent on user-config
 			margin-left: calc(#{rem(18)} + 10px);
 		}
 	}

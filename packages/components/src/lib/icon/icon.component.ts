@@ -4,16 +4,15 @@ import {
 	ChangeDetectionStrategy,
 	Input,
 	ElementRef,
-	Inject,
 	isDevMode,
 	HostBinding,
 } from "@angular/core";
 
-import { IconSize, SvgIconsConfig } from "@electric/style";
+import { a11y } from "@electric/style";
 import { camelToKebabCase } from "@electric/utils";
 
 import { IconRegistry } from "./icon.service";
-import { SVG_ICONS_CONFIG } from "./icon.types";
+import { IconName, IconSize } from "./icon.types";
 
 @Component({
 	selector: "elx-icon",
@@ -29,7 +28,7 @@ export class IconComponent {
 		this._icon = value;
 		if (value) this.render();
 	}
-	private _icon?: string;
+	private _icon?: IconName;
 
 	@Input() size: IconSize = "md";
 
@@ -47,7 +46,12 @@ export class IconComponent {
 
 	@HostBinding("style.fontSize")
 	get fontSize() {
-		return this._config.sizes[this.size] ?? null;
+		switch (this.size) {
+			case "xs": return a11y.rem(16);
+			case "sm": return a11y.rem(18);
+			case "md": return a11y.rem(20);
+			case "lg": return a11y.rem(24);
+		}
 	}
 
 	private get _element() {
@@ -57,7 +61,6 @@ export class IconComponent {
 	constructor (
 		private _elementRef: ElementRef<HTMLElement>,
 		private _registry: IconRegistry,
-		@Inject(SVG_ICONS_CONFIG) private _config: SvgIconsConfig,
 	) {}
 
 	private render(): void {

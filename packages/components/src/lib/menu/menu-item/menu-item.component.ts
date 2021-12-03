@@ -16,6 +16,7 @@ import {
 import { fromEvent, Observable, Subject, timer } from "rxjs";
 import { filter, map, take, takeUntil } from "rxjs/operators";
 
+import { IconName } from "@electric/components/icon";
 import { Coerce } from "@electric/ng-utils";
 import { array } from "@electric/utils";
 
@@ -45,7 +46,7 @@ export class MenuItemComponent implements MenuItem, OnInit, OnDestroy {
 	@HostBinding("attr.role")
 	readonly role = "menuitem";
 
-	@Input() icon?: string;
+	@Input() icon?: IconName;
 	@Input() keybind?: string;
 
 	@HostBinding("class.disabled")

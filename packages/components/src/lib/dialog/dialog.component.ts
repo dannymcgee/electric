@@ -26,6 +26,7 @@ import {
 } from "@angular/core";
 
 import { ButtonComponent } from "@electric/components/button";
+import { IconName } from "@electric/components/icon";
 import { Coerce, GlobalFocusManager } from "@electric/ng-utils";
 
 @Component({
@@ -147,7 +148,7 @@ export class DialogHeadingComponent {
 	@HostBinding("class")
 	readonly hostClass = "elx-dialog-heading";
 
-	@Input() icon?: string;
+	@Input() icon?: IconName;
 
 	constructor (
 		public _elementRef: ElementRef,

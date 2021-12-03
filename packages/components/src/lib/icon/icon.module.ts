@@ -1,20 +1,21 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
-import { SvgIconsConfig } from "@electric/style";
 
 import { IconComponent } from "./icon.component";
 import { IconRegistry } from "./icon.service";
-import { SVG_ICONS_CONFIG } from "./icon.types";
+import { ICON_LIBRARY } from "./icon.types";
 
 @NgModule({
 	declarations: [IconComponent],
 	exports: [IconComponent],
 })
 export class IconModule {
-	static withConfig(config: SvgIconsConfig): ModuleWithProviders<IconModule> {
+	static withIcons(
+		library: Record<string, string>
+	): ModuleWithProviders<IconModule> {
 		return {
 			ngModule: IconModule,
 			providers: [
-				{ provide: SVG_ICONS_CONFIG, useValue: config },
+				{ provide: ICON_LIBRARY, useValue: library },
 				IconRegistry,
 			],
 		};

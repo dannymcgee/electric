@@ -1,4 +1,4 @@
-import { SpectatorHost, createHostFactory } from "@ngneat/spectator/jest";
+import { SpectatorHost, createHostFactory } from "@ngneat/spectator";
 
 import { IconModule } from "./icon.module";
 import { IconComponent } from './icon.component';
@@ -9,17 +9,7 @@ describe("IconComponent", () => {
 	let spectator: SpectatorHost<IconComponent>;
 	let createHost = createHostFactory({
 		component: IconComponent,
-		imports: [
-			IconModule.withConfig({
-				icons: ICONS,
-				sizes: {
-					xs: a11y.rem(16),
-					sm: a11y.rem(18),
-					md: a11y.rem(20),
-					lg: a11y.rem(24),
-				},
-			}),
-		],
+		imports: [IconModule.withIcons(ICONS)],
 		declareComponent: false,
 	});
 
