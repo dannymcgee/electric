@@ -1,3 +1,5 @@
+import { CdkAccordion, CdkAccordionItem } from "@angular/cdk/accordion";
+import { UniqueSelectionDispatcher } from "@angular/cdk/collections";
 import {
 	Component,
 	ViewEncapsulation,
@@ -11,10 +13,11 @@ import {
 	Host,
 	HostListener,
 } from "@angular/core";
-import { CdkAccordion, CdkAccordionItem } from "@angular/cdk/accordion";
-import { UniqueSelectionDispatcher } from "@angular/cdk/collections";
 
-import { ACCORDION_TRIGGER, BLOCK_FIRST_ENTER_ANIM } from "./accordion.animation";
+import {
+	ACCORDION_TRIGGER,
+	BLOCK_FIRST_ENTER_ANIM,
+} from "./accordion.animation";
 
 @Directive({
 	selector: "ng-template[elxAccordionContent]",
@@ -29,7 +32,7 @@ export class AccordionContentDirective {
 }
 
 @Directive({
-	selector: "[elxAccordionToolbar]",
+	selector: "elx-accordion-toolbar, [elxAccordionToolbar]",
 })
 export class AccordionToolbarDirective {
 	@HostBinding("class")
@@ -42,7 +45,7 @@ export class AccordionToolbarDirective {
 }
 
 @Component({
-	selector: "elx-accordion-header, [elx-accordion-header]",
+	selector: "elx-accordion-header, [elxAccordionHeader]",
 	template: `
 		<span class="elx-accordion-header__title">
 			<ng-content></ng-content>
@@ -70,9 +73,13 @@ export class AccordionHeaderComponent {
 }
 
 @Component({
-	selector: "elx-accordion-group, [elx-accordion-group]",
+	selector: "elx-accordion-group, [elxAccordionGroup]",
 	template: `<ng-content></ng-content>`,
 	styleUrls: ["./accordion-group.component.scss"],
+	providers: [{
+		provide: CdkAccordion,
+		useExisting: AccordionGroupComponent,
+	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -82,10 +89,10 @@ export class AccordionGroupComponent extends CdkAccordion {
 }
 
 @Component({
-	selector: "elx-accordion, [elx-accordion]",
+	selector: "elx-accordion, [elxAccordion]",
 	template: `
 		<ng-content
-			select="elx-accordion-header, [elx-accordion-header]"
+			select="elx-accordion-header, [elxAccordionHeader]"
 		></ng-content>
 		<section class="elx-accordion-body"
 			*ngIf="expanded"
@@ -95,6 +102,10 @@ export class AccordionGroupComponent extends CdkAccordion {
 		</section>
 	`,
 	styleUrls: ["./accordion.component.scss"],
+	providers: [{
+		provide: CdkAccordionItem,
+		useExisting: AccordionComponent,
+	}],
 	animations: [ACCORDION_TRIGGER, BLOCK_FIRST_ENTER_ANIM],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

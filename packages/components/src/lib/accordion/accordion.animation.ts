@@ -17,10 +17,7 @@ export const ACCORDION_TRIGGER = trigger("accordion", [
 		paddingBottom: "*",
 		opacity: "*",
 	})),
-	transition(":enter", [
+	transition("* <=> *", [
 		animate("100ms ease-in-out"),
-	]),
-	transition(":leave", [
-		animate("67ms ease-out"),
 	]),
 ]);
