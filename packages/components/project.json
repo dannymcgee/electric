@@ -43,7 +43,9 @@
 					"packages/components/accordion/**/*.ts",
 					"packages/components/accordion/**/*.html",
 					"packages/components/dialog/**/*.ts",
-					"packages/components/dialog/**/*.html"
+					"packages/components/dialog/**/*.html",
+					"packages/components/menu/**/*.ts",
+					"packages/components/menu/**/*.html"
 				]
 			}
 		}

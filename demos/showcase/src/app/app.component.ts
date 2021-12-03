@@ -4,7 +4,7 @@ import { Loop } from "@electric/ng-utils";
 import { Fn } from "@electric/utils";
 
 @Component({
-	selector: "electric-root",
+	selector: "elx-root",
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.scss"],
 })
@@ -15,6 +15,10 @@ export class AppComponent {
 	nonBlocking = false;
 	warning = false;
 	indeterminate = false;
+
+	log(message: string): void {
+		console.log(message);
+	}
 
 	startTimer(seconds: number) {
 		this.timer = new Timer(this.stopTimer, seconds);

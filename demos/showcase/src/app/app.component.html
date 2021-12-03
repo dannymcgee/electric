@@ -67,6 +67,63 @@
 			</button>
 		</section>
 	</elx-accordion>
+
+	<elx-accordion>
+		<elx-accordion-header>
+			Menus
+		</elx-accordion-header>
+
+		<button elx-btn
+			[elxMenuTriggerFor]="menu"
+		>
+			Open menu
+		</button>
+
+		<elx-menu #menu>
+			<elx-menuitem
+				(click)="blocking = true"
+			>
+				Edit...
+			</elx-menuitem>
+			<elx-menuitem icon="Edit" keybind="F2"
+				(click)="log('Rename')"
+			>
+				Rename
+			</elx-menuitem>
+			<hr />
+			<elx-menuitem icon="Cut" keybind="Ctrl + X"
+				(click)="log('Cut')"
+			>
+				Cut
+			</elx-menuitem>
+			<elx-menuitem icon="Copy" keybind="Ctrl + C"
+				(click)="log('Copy')"
+			>
+				Copy
+			</elx-menuitem>
+			<elx-menuitem icon="Paste" keybind="Ctrl + V"
+				(click)="log('Paste')"
+			>
+				Paste
+			</elx-menuitem>
+			<elx-menuitem [elxSubmenuTriggerFor]="submenu">
+				Paste Special
+			</elx-menuitem>
+		</elx-menu>
+
+		<elx-menu #submenu>
+			<elx-menuitem (click)="log('Lorem ipsum')">
+				Lorem ipsum
+			</elx-menuitem>
+			<elx-menuitem (click)="log('Dolor')">
+				Dolor
+			</elx-menuitem>
+			<elx-menuitem (click)="log('Sit amet')">
+				Sit amet
+			</elx-menuitem>
+		</elx-menu>
+
+	</elx-accordion>
 </elx-accordion-group>
 
 <elx-dialog #dialog

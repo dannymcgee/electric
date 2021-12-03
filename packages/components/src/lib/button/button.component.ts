@@ -1,3 +1,4 @@
+import { FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
 import {
 	Component,
 	OnInit,
@@ -8,7 +9,6 @@ import {
 	Input,
 	HostBinding,
 } from "@angular/core";
-import { FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
 
 import { ButtonSize, ButtonVariant } from "./button.types";
 

@@ -2,7 +2,7 @@
 	"projectType": "application",
 	"root": "demos/showcase",
 	"sourceRoot": "demos/showcase/src",
-	"prefix": "electric",
+	"prefix": "elx",
 	"targets": {
 		"build": {
 			"executor": "@angular-devkit/build-angular:browser",

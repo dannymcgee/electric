@@ -20,7 +20,6 @@ import {
 	Input,
 	OnDestroy,
 	OnInit,
-	Optional,
 	Output,
 	QueryList,
 	ViewEncapsulation,
@@ -40,7 +39,7 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	@HostBinding("class")
 	readonly hostClass = "elx-dialog";
 
-	@HostBinding()
+	@HostBinding("attr.role")
 	@Input() role: "dialog"|"alert" = "dialog";
 
 	@HostBinding("class.loader")
@@ -79,7 +78,7 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 		@Inject(DOCUMENT) private _document: Document,
 		private _elementRef: ElementRef<HTMLElement>,
 		private _focusTrapFactory: ConfigurableFocusTrapFactory,
-		@Optional() private _globalFocusManager: GlobalFocusManager,
+		private _globalFocusManager: GlobalFocusManager,
 	) {}
 
 	ngOnInit(): void {
@@ -117,10 +116,9 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 		this._dragRef?.dispose();
 
 		setTimeout(() => {
-			if (this._globalFocusManager) {
-				let lastFocus = this._globalFocusManager.getLastValidFocusTarget();
-				lastFocus?.focus();
-			}
+			this._globalFocusManager
+				.getLastValidFocusTarget()
+				?.focus();
 		});
 	}
 

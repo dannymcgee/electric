@@ -1,0 +1,8 @@
+@use "elx/layout";
+
+:host {
+	padding: 8px;
+	@include layout.fixed(0, 0, 0, 0);
+	opacity: 0;
+	pointer-events: none;
+}

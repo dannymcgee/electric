@@ -1,0 +1,70 @@
+@use "elx/a11y" as *;
+@use "elx/style/color";
+@use "elx/style/type";
+@use "elx/anim";
+@use "elx/layout";
+
+.elx-menuitem {
+	$block: &;
+	@include layout.flex(row, center);
+	min-width: 256px;
+	height: calc(#{rem(12)} + 18px);
+	padding: 0 24px 0 12px;
+	cursor: pointer;
+	color: color.foreground(100);
+	@include anim.transition((background, color));
+	@include type.ui;
+	outline: none !important;
+	user-select: none;
+
+	&__icon {
+		margin-right: 10px;
+		color: color.foreground(300);
+		@include anim.transition(color);
+	}
+
+	&__label {
+		margin-right: 48px;
+
+		&:first-child {
+			// FIXME: icon width is dependent on user-config
+			margin-left: calc(#{rem(18)} + 10px);
+		}
+	}
+
+	&__keybind {
+		margin-left: auto;
+		@include type.ui("sm");
+		color: color.foreground(400);
+		@include anim.transition(color);
+	}
+
+	&__submenu-icon {
+		margin-left: auto;
+		margin-right: -20px;
+		color: color.foreground(300);
+	}
+
+	&:hover  { background: color.background(500) }
+	&:active { background: color.background(400) }
+	&:focus-visible {
+		background: color.accent(100);
+		color: color.accent(700);
+
+		.elx-icon,
+		#{$block}__keybind {
+			color: color.accent(500);
+		}
+	}
+
+	&.disabled {
+		background: transparent !important;
+		color: color.foreground(500) !important;
+		cursor: default;
+
+		.elx-icon,
+		#{$block}__keybind {
+			color: color.foreground(500);
+		}
+	}
+}

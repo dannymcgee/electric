@@ -1,0 +1,21 @@
+<elx-icon class="elx-menuitem__icon"
+	*ngIf="icon"
+	size="sm"
+	[icon]="icon"
+></elx-icon>
+
+<span class="elx-menuitem__label">
+	<ng-content></ng-content>
+</span>
+
+<span class="elx-menuitem__keybind"
+	*ngIf="keybind"
+	aria-hidden="true"
+>
+	{{ keybind }}
+</span>
+
+<elx-icon class="elx-menuitem__submenu-icon"
+	*ngIf="hasSubmenu"
+	icon="ChevronRightSmall"
+></elx-icon>
