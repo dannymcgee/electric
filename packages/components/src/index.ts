@@ -1,4 +1,5 @@
 export * from "./lib/accordion";
+export * from "./lib/app-shell";
 export * from "./lib/button";
 export * from "./lib/dialog";
 export * from "./lib/icon";

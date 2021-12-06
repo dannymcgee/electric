@@ -29,7 +29,7 @@ body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	background-color: color.background(200);
+	background-color: transparent;
 	color: color.foreground();
 	font-family: var(--global-font-family);
 	@include scrollbar(200);

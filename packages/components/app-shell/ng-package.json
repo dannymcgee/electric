@@ -1,0 +1,6 @@
+{
+	"lib": {
+		"entryFile": "../src/lib/app-shell/index.ts",
+		"styleIncludePaths": ["../../style/src"]
+	}
+}

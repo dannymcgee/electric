@@ -45,7 +45,9 @@
 					"packages/components/dialog/**/*.ts",
 					"packages/components/dialog/**/*.html",
 					"packages/components/menu/**/*.ts",
-					"packages/components/menu/**/*.html"
+					"packages/components/menu/**/*.html",
+					"packages/components/app-shell/**/*.ts",
+					"packages/components/app-shell/**/*.html"
 				]
 			}
 		}

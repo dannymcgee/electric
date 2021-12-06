@@ -1,0 +1,47 @@
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+.elx-titlebar {
+	@include layout.flex(row);
+	height: 36px;
+	background: color.background(100);
+
+	&__title {
+		@include layout.flex(row, center, center);
+		@include type.h3;
+		flex: 1 0 0;
+		pointer-events: none;
+		user-select: none;
+	}
+}
+
+.elx-window-controls {
+	@include layout.flex(row);
+
+	&__button {
+		@include layout.flex(row, center, center);
+		@include anim.transition((background, color));
+		width: 48px;
+		height: 100%;
+		color: color.foreground(200);
+
+		&:hover {
+			background: color.background(700);
+			color: color.foreground();
+		}
+		&:active {
+			background: color.background(400);
+		}
+
+		&--close {
+			&:hover {
+				background: color.warning(400);
+			}
+			&:active {
+				background: color.warning(200);
+			}
+		}
+	}
+}

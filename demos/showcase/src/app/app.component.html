@@ -1,130 +1,211 @@
-<elx-accordion-group>
-	<elx-accordion>
-		<elx-accordion-header>
-			Medium
-			<nav elxAccordionToolbar class="toolbar">
-				<elx-icon icon="Cut" size="sm"></elx-icon>
-				<elx-icon icon="Copy" size="sm"></elx-icon>
-				<elx-icon icon="Paste" size="sm"></elx-icon>
-			</nav>
-		</elx-accordion-header>
+<elx-app-shell [maximized]="maximized">
+	<elx-titlebar
+		title="Electric Showcase"
+		(minimize)="log('minimize')"
+		[(maximized)]="maximized"
+		(close)="log('close')"
+	>
+		<div class="favicon" *elxTitlebarIcon>
+			<elx-icon icon="System"></elx-icon>
+		</div>
+		<elx-menubar>
+			<elx-menuitem [elxMenuTriggerFor]="fileMenu">File</elx-menuitem>
+			<elx-menuitem [elxMenuTriggerFor]="editMenu">Edit</elx-menuitem>
+			<elx-menuitem [elxMenuTriggerFor]="helpMenu">Help</elx-menuitem>
+		</elx-menubar>
+	</elx-titlebar>
 
-		<section class="buttons">
-			<button elx-btn>Default</button>
-			<button elx-btn="primary">Primary</button>
-			<button elx-btn="warning">Warning</button>
-			<button elx-btn="secondary">Secondary</button>
-		</section>
-		<hr />
-		<section class="buttons">
-			<button elx-btn icon="Cancel">Cancel</button>
-			<button elx-btn="primary" icon="Confirm">Okay</button>
-			<button elx-btn="warning" icon="Warning">Danger!</button>
-			<button elx-btn="secondary" icon="Save">Save as...</button>
-		</section>
-	</elx-accordion>
+	<elx-accordion-group multi>
+		<elx-accordion>
+			<elx-accordion-header>
+				Medium
+				<nav elxAccordionToolbar class="toolbar">
+					<elx-icon icon="Cut" size="sm"></elx-icon>
+					<elx-icon icon="Copy" size="sm"></elx-icon>
+					<elx-icon icon="Paste" size="sm"></elx-icon>
+				</nav>
+			</elx-accordion-header>
 
-	<elx-accordion>
-		<elx-accordion-header>
-			Small
-		</elx-accordion-header>
-
-		<section class="buttons">
-			<button elx-btn size="sm">Default</button>
-			<button elx-btn="primary" size="sm">Primary</button>
-			<button elx-btn="warning" size="sm">Warning</button>
-			<button elx-btn="secondary" size="sm">Secondary</button>
-		</section>
-		<hr />
-		<section class="buttons">
-			<button elx-btn icon="Cancel" size="sm">Cancel</button>
-			<button elx-btn="primary" icon="Confirm" size="sm">Okay</button>
-			<button elx-btn="warning" icon="Warning" size="sm">Danger!</button>
-			<button elx-btn="secondary" icon="Save" size="sm">Save as...</button>
-		</section>
-	</elx-accordion>
-
-	<elx-accordion>
-		<elx-accordion-header>
-			Dialogs
-		</elx-accordion-header>
-
-		<section class="buttons">
-			<button elx-btn (click)="blocking = true">
-				Blocking
-			</button>
-			<button elx-btn (click)="nonBlocking = true">
-				Non-blocking
-			</button>
-			<button elx-btn="warning" (click)="warning = true">
-				Alert
-			</button>
-			<button elx-btn (click)="startTimer(10)">
-				Loader
-			</button>
-			<button elx-btn (click)="indeterminate = true">
-				Loader (indeterminate)
-			</button>
-		</section>
-	</elx-accordion>
-
-	<elx-accordion>
-		<elx-accordion-header>
-			Menus
-		</elx-accordion-header>
-
-		<button elx-btn
-			[elxMenuTriggerFor]="menu"
-		>
-			Open menu
-		</button>
-
-		<elx-menu #menu>
-			<elx-menuitem
-				(click)="blocking = true"
-			>
-				Edit...
-			</elx-menuitem>
-			<elx-menuitem icon="Edit" keybind="F2"
-				(click)="log('Rename')"
-			>
-				Rename
-			</elx-menuitem>
+			<section class="buttons">
+				<button elx-btn>Default</button>
+				<button elx-btn="primary">Primary</button>
+				<button elx-btn="warning">Warning</button>
+				<button elx-btn="secondary">Secondary</button>
+			</section>
 			<hr />
-			<elx-menuitem icon="Cut" keybind="Ctrl + X"
-				(click)="log('Cut')"
-			>
-				Cut
-			</elx-menuitem>
-			<elx-menuitem icon="Copy" keybind="Ctrl + C"
-				(click)="log('Copy')"
-			>
-				Copy
-			</elx-menuitem>
-			<elx-menuitem icon="Paste" keybind="Ctrl + V"
-				(click)="log('Paste')"
-			>
-				Paste
-			</elx-menuitem>
-			<elx-menuitem [elxSubmenuTriggerFor]="submenu">
-				Paste Special
-			</elx-menuitem>
-		</elx-menu>
+			<section class="buttons">
+				<button elx-btn icon="Cancel">Cancel</button>
+				<button elx-btn="primary" icon="Confirm">Okay</button>
+				<button elx-btn="warning" icon="Warning">Danger!</button>
+				<button elx-btn="secondary" icon="Save">Save as...</button>
+			</section>
+		</elx-accordion>
 
-		<elx-menu #submenu>
-			<elx-menuitem (click)="log('Lorem ipsum')">
-				Lorem ipsum
-			</elx-menuitem>
-			<elx-menuitem (click)="log('Dolor')">
-				Dolor
-			</elx-menuitem>
-			<elx-menuitem (click)="log('Sit amet')">
-				Sit amet
-			</elx-menuitem>
-		</elx-menu>
+		<elx-accordion>
+			<elx-accordion-header>
+				Small
+			</elx-accordion-header>
 
-	</elx-accordion>
-</elx-accordion-group>
+			<section class="buttons">
+				<button elx-btn size="sm">Default</button>
+				<button elx-btn="primary" size="sm">Primary</button>
+				<button elx-btn="warning" size="sm">Warning</button>
+				<button elx-btn="secondary" size="sm">Secondary</button>
+			</section>
+			<hr />
+			<section class="buttons">
+				<button elx-btn icon="Cancel" size="sm">Cancel</button>
+				<button elx-btn="primary" icon="Confirm" size="sm">Okay</button>
+				<button elx-btn="warning" icon="Warning" size="sm">Danger!</button>
+				<button elx-btn="secondary" icon="Save" size="sm">Save as...</button>
+			</section>
+		</elx-accordion>
+
+		<elx-accordion>
+			<elx-accordion-header>
+				Dialogs
+			</elx-accordion-header>
+
+			<section class="buttons">
+				<button elx-btn (click)="blocking = true">
+					Blocking
+				</button>
+				<button elx-btn (click)="nonBlocking = true">
+					Non-blocking
+				</button>
+				<button elx-btn="warning" (click)="warning = true">
+					Alert
+				</button>
+				<button elx-btn (click)="startTimer(10)">
+					Loader
+				</button>
+				<button elx-btn (click)="indeterminate = true">
+					Loader (indeterminate)
+				</button>
+			</section>
+		</elx-accordion>
+
+		<elx-accordion>
+			<elx-accordion-header>
+				Menus
+			</elx-accordion-header>
+
+			<button elx-btn
+				[elxMenuTriggerFor]="menu"
+			>
+				Open menu
+			</button>
+
+			<elx-menu #menu>
+				<elx-menuitem
+					(click)="blocking = true"
+				>
+					Edit...
+				</elx-menuitem>
+				<elx-menuitem icon="Edit" keybind="F2"
+					(click)="log('Rename')"
+				>
+					Rename
+				</elx-menuitem>
+				<hr />
+				<elx-menuitem icon="Cut" keybind="Ctrl + X"
+					(click)="log('Cut')"
+				>
+					Cut
+				</elx-menuitem>
+				<elx-menuitem icon="Copy" keybind="Ctrl + C"
+					(click)="log('Copy')"
+				>
+					Copy
+				</elx-menuitem>
+				<elx-menuitem icon="Paste" keybind="Ctrl + V"
+					(click)="log('Paste')"
+				>
+					Paste
+				</elx-menuitem>
+				<elx-menuitem [elxSubmenuTriggerFor]="submenu">
+					Paste Special
+				</elx-menuitem>
+			</elx-menu>
+
+			<elx-menu #submenu>
+				<elx-menuitem (click)="log('Lorem ipsum')">
+					Lorem ipsum
+				</elx-menuitem>
+				<elx-menuitem (click)="log('Dolor')">
+					Dolor
+				</elx-menuitem>
+				<elx-menuitem (click)="log('Sit amet')">
+					Sit amet
+				</elx-menuitem>
+			</elx-menu>
+
+		</elx-accordion>
+	</elx-accordion-group>
+
+	<div class="spacer">
+		<h4>&lt; This is an empty element to force a scrollbar &gt;</h4>
+	</div>
+</elx-app-shell>
+
+<elx-menu #fileMenu>
+	<elx-menuitem icon="NewFolder" keybind="Ctrl + N">
+		New...
+	</elx-menuitem>
+	<elx-menuitem icon="FolderOpen" keybind="Ctrl + O">
+		Open...
+	</elx-menuitem>
+	<elx-menuitem [elxSubmenuTriggerFor]="recentItemsMenu">
+		Open Recent
+	</elx-menuitem>
+	<elx-menuitem>
+		Close
+	</elx-menuitem>
+	<hr />
+	<elx-menuitem icon="Save" keybind="Ctrl + S">
+		Save
+	</elx-menuitem>
+	<elx-menuitem keybind="Ctrl + Shift + S">
+		Save As...
+	</elx-menuitem>
+	<elx-menuitem>
+		Save All
+	</elx-menuitem>
+</elx-menu>
+
+<elx-menu #editMenu>
+	<elx-menuitem icon="Edit" keybind="F2">
+		Rename...
+	</elx-menuitem>
+	<hr />
+	<elx-menuitem icon="Undo" keybind="Ctrl + Z">
+		Undo
+	</elx-menuitem>
+	<elx-menuitem icon="Redo" keybind="Ctrl + Shift + Z">
+		Redo
+	</elx-menuitem>
+	<hr />
+	<elx-menuitem icon="Cut" keybind="Ctrl + X">
+		Cut
+	</elx-menuitem>
+	<elx-menuitem icon="Copy" keybind="Ctrl + C">
+		Copy
+	</elx-menuitem>
+	<elx-menuitem icon="Paste" keybind="Ctrl + V">
+		Paste
+	</elx-menuitem>
+</elx-menu>
+
+<elx-menu #helpMenu>
+	<elx-menuitem icon="Info">About</elx-menuitem>
+</elx-menu>
+
+<elx-menu #recentItemsMenu>
+	<elx-menuitem>Lorem ipsum</elx-menuitem>
+	<elx-menuitem>Dolor sit amet</elx-menuitem>
+	<elx-menuitem>Consectetur</elx-menuitem>
+	<elx-menuitem>Adipiscing elit</elx-menuitem>
+</elx-menu>
 
 <elx-dialog #dialog
 	*elxDialogTrigger="blocking"

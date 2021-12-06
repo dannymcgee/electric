@@ -3,8 +3,14 @@
 
 :host {
 	display: block;
-	width: 720px;
-	margin: 48px auto;
+	height: 100%;
+}
+
+.favicon {
+	@include layout.flex(row, center, center);
+	width: 48px;
+	height: 36px;
+	color: color.accent(700);
 }
 
 .toolbar {
@@ -23,4 +29,12 @@ hr {
 	border: 0;
 	height: 2px;
 	background: color.background(500);
+}
+
+.spacer {
+	height: 2400px;
+	margin: 24px;
+	padding: 16px;
+	border: 4px dashed color.background(600);
+	text-align: center;
 }

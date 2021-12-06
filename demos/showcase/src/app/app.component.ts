@@ -9,8 +9,9 @@ import { Fn } from "@electric/utils";
 	styleUrls: ["./app.component.scss"],
 })
 export class AppComponent {
-	timer?: Timer;
+	maximized = false;
 
+	timer?: Timer;
 	blocking = false;
 	nonBlocking = false;
 	warning = false;
