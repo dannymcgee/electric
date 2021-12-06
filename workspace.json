@@ -5,6 +5,7 @@
 		"ng-utils": "packages/ng-utils",
 		"showcase": "demos/showcase",
 		"style": "packages/style",
+		"tauri-app": "demos/tauri-app",
 		"utils": "packages/utils"
 	}
 }

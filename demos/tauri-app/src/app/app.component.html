@@ -1,0 +1,80 @@
+<elx-app-shell
+	fakeWindowsChrome
+	[maximized]="maximized"
+>
+	<elx-titlebar
+		title="Tauri App"
+		data-tauri-drag-region
+		(minimize)="minimize()"
+		[(maximized)]="maximized"
+		(close)="close()"
+	>
+		<div class="favicon" *elxTitlebarIcon>
+			<img src="assets/tauri/icons/icon.ico" alt="Tauri" />
+		</div>
+		<elx-menubar>
+			<elx-menuitem [elxMenuTriggerFor]="fileMenu">File</elx-menuitem>
+			<elx-menuitem [elxMenuTriggerFor]="editMenu">Edit</elx-menuitem>
+			<elx-menuitem [elxMenuTriggerFor]="helpMenu">Help</elx-menuitem>
+		</elx-menubar>
+	</elx-titlebar>
+</elx-app-shell>
+
+<elx-menu #fileMenu>
+	<elx-menuitem icon="NewFolder" keybind="Ctrl + N">
+		New...
+	</elx-menuitem>
+	<elx-menuitem icon="FolderOpen" keybind="Ctrl + O">
+		Open...
+	</elx-menuitem>
+	<elx-menuitem [elxSubmenuTriggerFor]="recentItemsMenu">
+		Open Recent
+	</elx-menuitem>
+	<elx-menuitem>
+		Close
+	</elx-menuitem>
+	<hr />
+	<elx-menuitem icon="Save" keybind="Ctrl + S">
+		Save
+	</elx-menuitem>
+	<elx-menuitem keybind="Ctrl + Shift + S">
+		Save As...
+	</elx-menuitem>
+	<elx-menuitem>
+		Save All
+	</elx-menuitem>
+</elx-menu>
+
+<elx-menu #editMenu>
+	<elx-menuitem icon="Edit" keybind="F2">
+		Rename...
+	</elx-menuitem>
+	<hr />
+	<elx-menuitem icon="Undo" keybind="Ctrl + Z">
+		Undo
+	</elx-menuitem>
+	<elx-menuitem icon="Redo" keybind="Ctrl + Shift + Z">
+		Redo
+	</elx-menuitem>
+	<hr />
+	<elx-menuitem icon="Cut" keybind="Ctrl + X">
+		Cut
+	</elx-menuitem>
+	<elx-menuitem icon="Copy" keybind="Ctrl + C">
+		Copy
+	</elx-menuitem>
+	<elx-menuitem icon="Paste" keybind="Ctrl + V">
+		Paste
+	</elx-menuitem>
+</elx-menu>
+
+<elx-menu #helpMenu>
+	<elx-menuitem icon="Info">About</elx-menuitem>
+</elx-menu>
+
+<elx-menu #recentItemsMenu>
+	<elx-menuitem>Lorem ipsum</elx-menuitem>
+	<elx-menuitem>Dolor sit amet</elx-menuitem>
+	<elx-menuitem>Consectetur</elx-menuitem>
+	<elx-menuitem>Adipiscing elit</elx-menuitem>
+</elx-menu>

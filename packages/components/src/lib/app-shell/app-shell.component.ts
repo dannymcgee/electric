@@ -5,6 +5,7 @@ import {
 	HostBinding,
 	Input,
 } from "@angular/core";
+import { Coerce } from "@electric/ng-utils";
 
 @Component({
 	selector: "elx-app-shell",
@@ -19,4 +20,8 @@ export class AppShellComponent {
 
 	@HostBinding("class.elx-app-shell--maximized")
 	@Input() maximized = false;
+
+	@HostBinding("class.elx-app-shell--fake-windows-chrome")
+	@Coerce(Boolean)
+	@Input() fakeWindowsChrome = false;
 }
