@@ -10,7 +10,11 @@ import {
 	TemplateRef,
 	ContentChild,
 	forwardRef,
+	Optional,
+	Inject,
 } from "@angular/core";
+
+import { APP_PLATFORM, AppPlatform } from "@electric/platform";
 
 @Component({
 	selector: "elx-titlebar",
@@ -29,6 +33,16 @@ export class TitlebarComponent {
 	@HostBinding("attr.title")
 	readonly _titleFix = null;
 
+	@HostBinding("attr.data-tauri-drag-region")
+	get tauriDragRegion() {
+		return this._platform === AppPlatform.Tauri ? "" : null;
+	}
+
+	@HostBinding("style.-webkit-app-region")
+	get webkitAppRegion() {
+		return this._platform === AppPlatform.Electron ? "drag" : null;
+	}
+
 	@Input() title?: string;
 	@Input() maximized = false;
 
@@ -38,6 +52,11 @@ export class TitlebarComponent {
 
 	@ContentChild(forwardRef(() => TitlebarIconDirective))
 	_icon?: TitlebarIconDirective;
+
+	constructor (
+		@Optional() @Inject(APP_PLATFORM)
+			private _platform: AppPlatform,
+	) {}
 }
 
 @Directive({

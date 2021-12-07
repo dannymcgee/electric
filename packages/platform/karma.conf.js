@@ -10,7 +10,7 @@ module.exports = function (config) {
 		...baseConfig,
 		coverageIstanbulReporter: {
 			...baseConfig.coverageIstanbulReporter,
-			dir: join(__dirname, "../../coverage/demos/tauri-app"),
+			dir: join(__dirname, "../../coverage/packages/platform"),
 		},
 	});
 };

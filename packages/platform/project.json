@@ -1,0 +1,42 @@
+{
+	"projectType": "library",
+	"root": "packages/platform",
+	"sourceRoot": "packages/platform/src",
+	"prefix": "electric",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/angular:package",
+			"outputs": ["dist/packages/platform"],
+			"options": {
+				"project": "packages/platform/ng-package.json"
+			},
+			"configurations": {
+				"production": {
+					"tsConfig": "packages/platform/tsconfig.lib.prod.json"
+				},
+				"development": {
+					"tsConfig": "packages/platform/tsconfig.lib.json"
+				}
+			},
+			"defaultConfiguration": "production"
+		},
+		"test": {
+			"executor": "@angular-devkit/build-angular:karma",
+			"options": {
+				"main": "packages/platform/src/test.ts",
+				"tsConfig": "packages/platform/tsconfig.spec.json",
+				"karmaConfig": "packages/platform/karma.conf.js"
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"options": {
+				"lintFilePatterns": [
+					"packages/platform/src/**/*.ts",
+					"packages/platform/src/**/*.html"
+				]
+			}
+		}
+	},
+	"tags": []
+}

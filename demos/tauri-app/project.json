@@ -1,120 +1,13 @@
 {
 	"projectType": "application",
 	"root": "demos/tauri-app",
-	"sourceRoot": "demos/tauri-app/src",
-	"prefix": "app",
+	"sourceRoot": "demos/tauri-app/src-tauri",
 	"targets": {
 		"serve": {
 			"executor": "@nrwl/workspace:run-commands",
 			"options": {
 				"command": "tauri dev",
 				"cwd": "demos/tauri-app"
-			}
-		},
-		"build-frontend": {
-			"executor": "@angular-devkit/build-angular:browser",
-			"outputs": ["{options.outputPath}"],
-			"options": {
-				"outputPath": "dist/demos/tauri-app",
-				"index": "demos/tauri-app/src/index.html",
-				"main": "demos/tauri-app/src/main.ts",
-				"polyfills": "demos/tauri-app/src/polyfills.ts",
-				"tsConfig": "demos/tauri-app/tsconfig.app.json",
-				"inlineStyleLanguage": "scss",
-				"assets": [
-					"demos/tauri-app/src/favicon.ico",
-					"demos/tauri-app/src/assets",
-					{
-						"input": "packages/style/src/assets",
-						"glob": "**/*",
-						"output": "assets/elx"
-					},
-					{
-						"input": "demos/tauri-app/src-tauri/icons",
-						"glob": "**/*",
-						"output": "assets/tauri/icons"
-					}
-				],
-				"styles": [
-					"packages/style/src/assets/fonts.css",
-					"packages/style/src/globals.scss",
-					"demos/tauri-app/src/styles.scss"
-				],
-				"stylePreprocessorOptions": {
-					"includePaths": ["packages/style/src"]
-				},
-				"scripts": []
-			},
-			"configurations": {
-				"production": {
-					"budgets": [
-						{
-							"type": "initial",
-							"maximumWarning": "500kb",
-							"maximumError": "1mb"
-						},
-						{
-							"type": "anyComponentStyle",
-							"maximumWarning": "2kb",
-							"maximumError": "4kb"
-						}
-					],
-					"fileReplacements": [
-						{
-							"replace": "demos/tauri-app/src/environments/environment.ts",
-							"with": "demos/tauri-app/src/environments/environment.prod.ts"
-						}
-					],
-					"outputHashing": "all"
-				},
-				"development": {
-					"buildOptimizer": false,
-					"optimization": false,
-					"vendorChunk": true,
-					"extractLicenses": false,
-					"sourceMap": true,
-					"namedChunks": true
-				}
-			},
-			"defaultConfiguration": "production"
-		},
-		"serve-frontend": {
-			"executor": "@angular-devkit/build-angular:dev-server",
-			"configurations": {
-				"production": {
-					"browserTarget": "tauri-app:build-frontend:production"
-				},
-				"development": {
-					"browserTarget": "tauri-app:build-frontend:development"
-				}
-			},
-			"defaultConfiguration": "development"
-		},
-		"extract-i18n": {
-			"executor": "@angular-devkit/build-angular:extract-i18n",
-			"options": {
-				"browserTarget": "tauri-app:build"
-			}
-		},
-		"lint": {
-			"executor": "@nrwl/linter:eslint",
-			"options": {
-				"lintFilePatterns": [
-					"demos/tauri-app/src/**/*.ts",
-					"demos/tauri-app/src/**/*.html"
-				]
-			}
-		},
-		"test": {
-			"executor": "@angular-devkit/build-angular:karma",
-			"options": {
-				"main": "demos/tauri-app/src/test.ts",
-				"tsConfig": "demos/tauri-app/tsconfig.spec.json",
-				"karmaConfig": "demos/tauri-app/karma.conf.js",
-				"polyfills": "demos/tauri-app/src/polyfills.ts",
-				"styles": [],
-				"scripts": [],
-				"assets": []
 			}
 		}
 	},

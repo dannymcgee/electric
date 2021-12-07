@@ -1,12 +1,31 @@
-<elx-app-shell [maximized]="maximized">
+<elx-app-shell
+	[fakeWindowsChrome]="platform === 'tauri'"
+	[maximized]="maximized"
+>
 	<elx-titlebar
-		title="Electric Showcase"
-		(minimize)="log('minimize')"
+		[title]="title"
+		(minimize)="minimize()"
 		[(maximized)]="maximized"
-		(close)="log('close')"
+		(close)="close()"
 	>
-		<div class="favicon" *elxTitlebarIcon>
-			<elx-icon icon="System"></elx-icon>
+		<div *elxTitlebarIcon
+			class="favicon"
+			[ngSwitch]="platform"
+		>
+			<img *ngSwitchCase="'tauri'"
+				class="favicon__icon"
+				src="assets/favicon.tauri.ico"
+				alt="Tauri Favicon"
+			/>
+			<img *ngSwitchCase="'electron'"
+				class="favicon__icon"
+				src="assets/favicon.electron.ico"
+				alt="Electron Favicon"
+			/>
+			<elx-icon *ngSwitchDefault
+				class="favicon__icon"
+				icon="Base"
+			></elx-icon>
 		</div>
 		<elx-menubar>
 			<elx-menuitem [elxMenuTriggerFor]="fileMenu">File</elx-menuitem>

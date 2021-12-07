@@ -61,6 +61,22 @@
 					"extractLicenses": false,
 					"sourceMap": true,
 					"namedChunks": true
+				},
+				"electron": {
+					"fileReplacements": [
+						{
+							"replace": "demos/showcase/src/environments/env-platform.ts",
+							"with": "demos/showcase/src/environments/env-platform.electron.ts"
+						}
+					]
+				},
+				"tauri": {
+					"fileReplacements": [
+						{
+							"replace": "demos/showcase/src/environments/env-platform.ts",
+							"with": "demos/showcase/src/environments/env-platform.tauri.ts"
+						}
+					]
 				}
 			},
 			"defaultConfiguration": "production"
@@ -73,6 +89,12 @@
 				},
 				"development": {
 					"browserTarget": "showcase:build:development"
+				},
+				"electron": {
+					"browserTarget": "showcase:build:electron,development"
+				},
+				"tauri": {
+					"browserTarget": "showcase:build:tauri,development"
 				}
 			},
 			"defaultConfiguration": "development"

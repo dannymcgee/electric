@@ -4,10 +4,10 @@
 		"version": "0.1.0"
 	},
 	"build": {
-		"distDir": "../../../dist/demos/tauri-app",
+		"distDir": "../../../dist/demos/showcase",
 		"devPath": "http://localhost:4200",
-		"beforeDevCommand": "npm run nx serve-frontend tauri-app",
-		"beforeBuildCommand": "npm run nx build-frontend tauri-app"
+		"beforeDevCommand": "npm run nx run showcase:serve:tauri",
+		"beforeBuildCommand": "npm run nx run showcase:build:tauri"
 	},
 	"tauri": {
 		"bundle": {

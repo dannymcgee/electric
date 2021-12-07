@@ -5,6 +5,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { AccordionModule } from "@electric/components/accordion";
 import { AppShellModule } from "@electric/components/app-shell";
 import { ButtonModule } from "@electric/components/button";
+import { PlatformModule } from "@electric/platform";
 import { DialogModule } from "@electric/components/dialog";
 import { IconModule } from "@electric/components/icon";
 import { MenuModule } from "@electric/components/menu";
@@ -15,6 +16,7 @@ import {
 } from "@electric/components/theme";
 import { ICONS } from "@electric/style";
 
+import { ENV_PLATFORM } from "../environments/env-platform";
 import { AppComponent } from "./app.component";
 
 @NgModule({
@@ -24,6 +26,7 @@ import { AppComponent } from "./app.component";
 		BrowserModule,
 		BrowserAnimationsModule,
 		ButtonModule,
+		PlatformModule.forPlatform(ENV_PLATFORM),
 		DialogModule,
 		IconModule.withIcons(ICONS),
 		MenuModule,
