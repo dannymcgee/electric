@@ -9,10 +9,10 @@
 	overflow: hidden;
 
 	&--fake-windows-chrome {
-		width: calc(100% - 2px);
-		height: calc(100% - 4px);
-		margin: 2px 1px;
-		box-shadow: 0 0 0 1px color.foreground(500, 0.5);
+		width: calc(100% - 6px);
+		height: calc(100% - 6px);
+		margin: 3px;
+		box-shadow: 0 0 0 1.5px color.foreground(500, 0.5);
 		border-radius: 8px;
 	}
 
