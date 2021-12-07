@@ -10,14 +10,15 @@
 	max-height: 100%;
 	padding: 10px 0;
 	overflow: hidden auto;
-	background: color.background(600);
+	background: color.background(700, 0.6);
+	backdrop-filter: blur(24px);
 	@include scrollbar(600);
-	@include elevation.shadow(300);
+	@include elevation.shadow(200);
 
 	hr {
 		height: 2px;
 		margin: 8px 0;
-		background: color.background(400);
+		background: color.background(100, 0.333);
 		border: none;
 	}
 }

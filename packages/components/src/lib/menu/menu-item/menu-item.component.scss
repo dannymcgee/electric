@@ -44,8 +44,8 @@
 		color: color.foreground(300);
 	}
 
-	&:hover  { background: color.background(500) }
-	&:active { background: color.background(400) }
+	&:hover  { background: color.background(100, 0.333) }
+	&:active { background: color.background(100, 0.667) }
 	&:focus-visible {
 		background: color.accent(100);
 		color: color.accent(700);
