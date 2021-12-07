@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { OverlayModule } from "@angular/cdk/overlay";
 
 import { IconModule } from "@electric/components/icon";
 
@@ -17,6 +18,7 @@ import {
 	imports: [
 		CommonModule,
 		IconModule,
+		OverlayModule,
 	],
 	declarations: [
 		MenuComponent,
