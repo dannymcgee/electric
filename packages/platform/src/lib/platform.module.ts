@@ -1,7 +1,7 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
 
 import { AppPlatform, APP_PLATFORM } from "./platform.types";
-import { WindowProviderFactory, WINDOW_PROVIDER } from "./window.service";
+import { WindowProviderFactory, WINDOW_PROVIDER } from "./window";
 
 @NgModule({})
 export class PlatformModule {

@@ -1,4 +1,5 @@
-import { Injectable, InjectionToken, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
+import { sleep } from "@electric/utils";
 import type { WebviewWindow } from "@tauri-apps/api/window";
 import {
 	animationFrames,
@@ -6,47 +7,13 @@ import {
 	distinctUntilChanged,
 	firstValueFrom,
 	Observable,
-	of,
 	skip,
 	Subject,
 	switchMap,
 	takeUntil,
 } from "rxjs";
 
-import { sleep } from "@electric/utils";
-
-import { AppPlatform } from "./platform.types";
-
-export interface WindowProvider {
-	readonly maximized$: Observable<boolean>;
-	readonly maximized: boolean;
-
-	minimize(): Promise<void>;
-	close(): Promise<void>;
-	toggleMaximized(): Promise<boolean>;
-}
-
-export const WINDOW_PROVIDER = new InjectionToken<WindowProvider>("WindowProvider");
-
-export function WindowProviderFactory(platform: AppPlatform): WindowProvider {
-	switch (platform) {
-		case AppPlatform.Electron: return new ElectronWindowService();
-		case AppPlatform.Tauri: return new TauriWindowService();
-		case AppPlatform.Web: return new NoopWindowService();
-	}
-}
-
-@Injectable()
-export class NoopWindowService implements WindowProvider {
-	readonly maximized$ = of(false);
-	readonly maximized = false;
-
-	async minimize() {}
-	async close() {}
-	async toggleMaximized() {
-		return false;
-	}
-}
+import { WindowProvider } from "./window.types";
 
 @Injectable()
 export class TauriWindowService implements WindowProvider, OnDestroy {
@@ -59,7 +26,6 @@ export class TauriWindowService implements WindowProvider, OnDestroy {
 	get maximized() { return this._maximizedSubject$.value; }
 
 	private _window?: WebviewWindow;
-
 	private _onDestroy$ = new Subject<void>();
 
 	constructor () {
@@ -104,24 +70,5 @@ export class TauriWindowService implements WindowProvider, OnDestroy {
 			await sleep(10);
 		}
 		return this._window.close();
-	}
-}
-
-// TODO
-@Injectable()
-export class ElectronWindowService implements WindowProvider {
-	maximized$!: Observable<boolean>;
-	maximized!: boolean;
-
-	minimize(): Promise<void> {
-		throw new Error("Method not implemented.");
-	}
-
-	close(): Promise<void> {
-		throw new Error("Method not implemented.");
-	}
-
-	toggleMaximized(): Promise<boolean> {
-		throw new Error("Method not implemented.");
 	}
 }
