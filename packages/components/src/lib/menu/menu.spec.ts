@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { createHostFactory, SpectatorHost } from "@ngneat/spectator/jest";
 
-import { $, $$, html, keyboard, sleep } from "@electric/utils";
+import { $, $$, html, keyboard } from "@electric/utils";
 
 import { MenuComponent } from "./menu.component";
 import { MenuModule } from "./menu.module";
@@ -32,7 +32,7 @@ describe("Menu", () => {
 				Open Menu
 			</button>
 
-			<elx-menu #menu>
+			<elx-menu #menu class="my-menu">
 				<elx-menuitem (click)="foo()">Foo</elx-menuitem>
 				<elx-menuitem (click)="bar()">Bar</elx-menuitem>
 				<elx-menuitem (click)="baz()">Baz</elx-menuitem>
@@ -48,23 +48,26 @@ describe("Menu", () => {
 		expect(triggerElement).toExist();
 	});
 
-	it("should open when its trigger is clicked", () => {
+	it("should toggle open/closed when its trigger is clicked", async () => {
 		spec.dispatchMouseEvent(triggerElement, "mouseenter");
 		spec.click(triggerElement);
+		await spec.hostFixture.whenStable();
 
-		let overlay = $(".cdk-overlay-container");
-		let menuItems = $$("elx-menuitem");
+		expect($("elx-menu-panel")).toExist();
+		expect($$("elx-menuitem")).toHaveLength(3);
 
-		expect(overlay).toExist();
-		expect(menuItems).toHaveLength(3);
-
-		for (let item of menuItems) {
-			expect(overlay).toHaveDescendant(item);
+		for (let item of $$("elx-menuitem")) {
+			expect($("elx-menu-panel")).toHaveDescendant(item);
 		}
 
-		expect(menuItems[0]).toHaveText("Foo");
-		expect(menuItems[1]).toHaveText("Bar");
-		expect(menuItems[2]).toHaveText("Baz");
+		expect($$("elx-menuitem")[0]).toHaveText("Foo");
+		expect($$("elx-menuitem")[1]).toHaveText("Bar");
+		expect($$("elx-menuitem")[2]).toHaveText("Baz");
+
+		spec.click(triggerElement);
+		await spec.hostFixture.whenStable();
+
+		expect($("elx-menu-panel")).not.toExist();
 	});
 
 	it("should assign correct ARIA attributes to elements", async () => {
@@ -72,19 +75,16 @@ describe("Menu", () => {
 
 		spec.dispatchMouseEvent(triggerElement, "mouseenter");
 		spec.click(triggerElement);
-		await sleep(0);
+		await spec.hostFixture.whenStable();
 
 		expect(triggerElement).toHaveAttribute("aria-expanded", "true");
 
-		let menuPanel = $("elx-menu-panel");
-		let menuItems = $$("elx-menuitem");
+		expect($("elx-menu-panel")).toExist();
+		expect($("elx-menu-panel")).toHaveAttribute("role", "menu");
+		expect($$("elx-menuitem")).toHaveLength(3);
 
-		expect(menuPanel).toExist();
-		expect(menuPanel).toHaveAttribute("role", "menu");
-
-		expect(menuItems).toHaveLength(3);
-		for (let item of menuItems) {
-			expect(menuPanel).toHaveDescendant(item);
+		for (let item of $$("elx-menuitem")) {
+			expect($("elx-menu-panel")).toHaveDescendant(item);
 			expect(item).toHaveAttribute("role", "menuitem");
 		}
 	});
@@ -92,78 +92,71 @@ describe("Menu", () => {
 	it("should open and focus the first item when ArrowDown is pressed on the trigger",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 
-		let menuItems = $$("elx-menuitem");
-
-		expect(menuItems[0]).toHaveText("Foo");
-		expect(menuItems[0]).toBeFocused();
+		expect($$("elx-menuitem")[0]).toHaveText("Foo");
+		expect($$("elx-menuitem")[0]).toBeFocused();
 	});
 
 	it("should open and focus the last item when ArrowUp is pressed on the trigger",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 
-		let menuItems = $$("elx-menuitem");
-
-		expect(menuItems[2]).toHaveText("Baz");
-		expect(menuItems[2]).toBeFocused();
+		expect($$("elx-menuitem")[2]).toHaveText("Baz");
+		expect($$("elx-menuitem")[2]).toBeFocused();
 	});
 
 	it("should cycle the focused item when ArrowDown is pressed in the menu",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 
-		let menuItems = $$("elx-menuitem");
-		expect(menuItems[0]).toHaveText("Foo");
-		expect(menuItems[1]).toHaveText("Bar");
-		expect(menuItems[2]).toHaveText("Baz");
+		expect($$("elx-menuitem")[0]).toHaveText("Foo");
+		expect($$("elx-menuitem")[1]).toHaveText("Bar");
+		expect($$("elx-menuitem")[2]).toHaveText("Baz");
 
-		expect(menuItems[0]).toBeFocused();
+		expect($$("elx-menuitem")[0]).toBeFocused();
 
-		await keyboard.press("ArrowDown");
-		expect(menuItems[1]).toBeFocused();
+		await keyboard.press("ArrowDown", spec);
+		expect($$("elx-menuitem")[1]).toBeFocused();
 
-		await keyboard.press("ArrowDown");
-		expect(menuItems[2]).toBeFocused();
+		await keyboard.press("ArrowDown", spec);
+		expect($$("elx-menuitem")[2]).toBeFocused();
 
-		await keyboard.press("ArrowDown");
-		expect(menuItems[0]).toBeFocused();
+		await keyboard.press("ArrowDown", spec);
+		expect($$("elx-menuitem")[0]).toBeFocused();
 	});
 
 	it("should cycle the focused item when ArrowUp is pressed in the menu",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 
-		let menuItems = $$("elx-menuitem");
-		expect(menuItems[0]).toHaveText("Foo");
-		expect(menuItems[1]).toHaveText("Bar");
-		expect(menuItems[2]).toHaveText("Baz");
+		expect($$("elx-menuitem")[0]).toHaveText("Foo");
+		expect($$("elx-menuitem")[1]).toHaveText("Bar");
+		expect($$("elx-menuitem")[2]).toHaveText("Baz");
+		expect($$("elx-menuitem")[2]).toBeFocused();
 
-		expect(menuItems[2]).toBeFocused();
+		await keyboard.press("ArrowUp", spec);
+		expect($$("elx-menuitem")[1]).toBeFocused();
 
-		await keyboard.press("ArrowUp");
-		expect(menuItems[1]).toBeFocused();
+		await keyboard.press("ArrowUp", spec);
+		expect($$("elx-menuitem")[0]).toBeFocused();
 
-		await keyboard.press("ArrowUp");
-		expect(menuItems[0]).toBeFocused();
-
-		await keyboard.press("ArrowUp");
-		expect(menuItems[2]).toBeFocused();
+		await keyboard.press("ArrowUp", spec);
+		expect($$("elx-menuitem")[2]).toBeFocused();
 	});
 
 	it("should close the menu and re-focus the trigger when Esc is pressed",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 
 		expect($("elx-menu-panel")).toExist();
 		expect($$("elx-menuitem")[0]).toBeFocused();
 
-		await keyboard.press("Escape");
+		await keyboard.press("Escape", spec);
 		spec.detectChanges();
 
 		expect($("elx-menu-panel")).not.toExist();
@@ -181,13 +174,21 @@ describe("Menu", () => {
 		for (let i = 0; i < 3; i++) {
 			spec.dispatchMouseEvent(triggerElement, "mouseenter");
 			spec.click(triggerElement);
-			await sleep(0);
+			await spec.hostFixture.whenStable();
 
 			spec.click($$("elx-menuitem")[i]);
-			expect(spies[i]).toHaveBeenCalledTimes(1);
+			await spec.hostFixture.whenStable();
 
-			spec.detectChanges();
+			expect(spies[i]).toHaveBeenCalledTimes(1);
 			expect($("elx-menu-panel")).not.toExist();
 		}
+	});
+
+	it("should forward user classes added to the `elx-menu` to the `elx-menu-panel`",
+	() => {
+		spec.dispatchMouseEvent(triggerElement, "mouseenter");
+		spec.click(triggerElement);
+
+		expect($("elx-menu-panel")).toHaveClass("my-menu");
 	});
 });

@@ -114,10 +114,10 @@ describe("Submenu", () => {
 
 	it("should open when -> is pressed on its trigger", async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown");  // Open menu
-		await keyboard.press("ArrowDown");  // ↓ Bar
-		await keyboard.press("ArrowDown");  // ↓ Baz
-		await keyboard.press("ArrowRight"); // -> Open submenu
+		await keyboard.press("ArrowDown", spec);  // Open menu
+		await keyboard.press("ArrowDown", spec);  // ↓ Bar
+		await keyboard.press("ArrowDown", spec);  // ↓ Baz
+		await keyboard.press("ArrowRight", spec); // -> Open submenu
 
 		let submenu = $$("elx-menu-panel")[1];
 		let submenuItems = $$(submenu, "elx-menuitem");
@@ -133,13 +133,13 @@ describe("Submenu", () => {
 		await keyboard.press("ArrowDown");  // Open menu
 
 		let submenuTrigger = $$("elx-menuitem")[2];
-		await keyboard.press("ArrowDown");  // ↓ Bar
-		await keyboard.press("ArrowDown");  // ↓ Baz
-		await keyboard.press("ArrowRight"); // -> Open submenu
+		await keyboard.press("ArrowDown", spec);  // ↓ Bar
+		await keyboard.press("ArrowDown", spec);  // ↓ Baz
+		await keyboard.press("ArrowRight", spec); // -> Open submenu
 
 		expect($$("elx-menu-panel")[1]).toExist();
 
-		await keyboard.press("ArrowLeft");  // <- Close submenu
+		await keyboard.press("ArrowLeft", spec);  // <- Close submenu
 		spec.detectChanges();
 
 		expect($$("elx-menu-panel")[1]).not.toExist();
@@ -149,16 +149,16 @@ describe("Submenu", () => {
 	it("should close and re-focus the trigger when Esc is pressed within the menu",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown");  // Open menu
+		await keyboard.press("ArrowDown", spec);  // Open menu
 
 		let submenuTrigger = $$("elx-menuitem")[2];
-		await keyboard.press("ArrowDown");  // ↓ Bar
-		await keyboard.press("ArrowDown");  // ↓ Baz
-		await keyboard.press("ArrowRight"); // -> Open submenu
+		await keyboard.press("ArrowDown", spec);  // ↓ Bar
+		await keyboard.press("ArrowDown", spec);  // ↓ Baz
+		await keyboard.press("ArrowRight", spec); // -> Open submenu
 
 		expect($$("elx-menu-panel")[1]).toExist();
 
-		await keyboard.press("Escape");     // Close submenu
+		await keyboard.press("Escape", spec);     // Close submenu
 		spec.detectChanges();
 
 		expect($$("elx-menu-panel")[1]).not.toExist();
@@ -168,7 +168,7 @@ describe("Submenu", () => {
 	it("should exhibit correct navigation behavior when arrow keys are pressed",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowUp");  // Open menu with focus on 'Baz'
+		await keyboard.press("ArrowUp", spec);  // Open menu with focus on 'Baz'
 
 		let menuItems = $$("elx-menuitem");
 		let foo = menuItems[0];
@@ -177,22 +177,22 @@ describe("Submenu", () => {
 
 		expect(baz).toBeFocused();
 
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 		expect(bar).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(baz).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(foo).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(bar).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(baz).toBeFocused();
 
-		await keyboard.press("ArrowRight");
+		await keyboard.press("ArrowRight", spec);
 
 		let submenu = $$("elx-menu-panel")[1];
 		let submenuItems = $$(submenu, "elx-menuitem");
@@ -202,40 +202,42 @@ describe("Submenu", () => {
 
 		expect(lorem).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(ipsum).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(dolor).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(lorem).toBeFocused();
 
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 		expect(dolor).toBeFocused();
 
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 		expect(ipsum).toBeFocused();
 
-		await keyboard.press("ArrowLeft");
+		await keyboard.press("ArrowLeft", spec);
 		spec.detectChanges();
+
 		expect($$("elx-menu-panel")[1]).not.toExist();
 		expect(baz).toBeFocused();
 
-		await keyboard.press("ArrowDown");
+		await keyboard.press("ArrowDown", spec);
 		expect(foo).toBeFocused();
 
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 		expect(baz).toBeFocused();
 
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 		expect(bar).toBeFocused();
 
-		await keyboard.press("ArrowUp");
+		await keyboard.press("ArrowUp", spec);
 		expect(foo).toBeFocused();
 
-		await keyboard.press("Escape");
+		await keyboard.press("Escape", spec);
 		spec.detectChanges();
+
 		expect($("elx-menu-panel")).not.toExist();
 		expect(triggerElement).toBeFocused();
 	});
@@ -246,17 +248,17 @@ describe("Submenu", () => {
 
 		spec.dispatchMouseEvent(triggerElement, "mouseenter");
 		spec.click(triggerElement);
-		await sleep(0);
+		await spec.hostFixture.whenStable();
 
 		let submenuTrigger = $$("elx-menuitem")[2];
 		spec.dispatchMouseEvent(submenuTrigger, "mouseenter");
 		spec.click(submenuTrigger);
-		await sleep(0);
+		await spec.hostFixture.whenStable();
 
 		let submenu = $$("elx-menu-panel")[1];
 		let ipsum = $$(submenu, "elx-menuitem")[1];
 		spec.click(ipsum);
-		await sleep(0);
+		await spec.hostFixture.whenStable();
 		spec.detectChanges();
 
 		expect(spy).toHaveBeenCalledTimes(1);

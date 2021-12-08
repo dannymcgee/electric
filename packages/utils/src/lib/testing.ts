@@ -1,3 +1,6 @@
+// TODO: Extract this to its own library
+
+import { Spectator, SpectatorHost } from "@ngneat/spectator/jest";
 import * as keycode from "keycode";
 
 import { array } from "./array";
@@ -145,7 +148,10 @@ export namespace keyboard {
 	/**
 	 * Emit a realistic synthetic keypress within a Jest test environment.
 	 */
-	export function press(key: KeyboardEvent["key"]) {
+	export function press(
+		key: KeyboardEvent["key"],
+		spectator?: Spectator<any> | SpectatorHost<any>
+	) {
 		let keyCode = getKeyCode(key);
 		let options = {
 			key,
@@ -158,7 +164,15 @@ export namespace keyboard {
 		target.dispatchEvent(new KeyboardEvent("keydown", options));
 		target.dispatchEvent(new KeyboardEvent("keyup", options));
 
-		return sleep(0);
+		// TODO: Refactor to a class to avoid needing to pass the spectator
+		// instance to every `press` call
+		if (!spectator) {
+			return sleep(0);
+		} else if ("hostFixture" in spectator) {
+			return spectator.hostFixture.whenStable();
+		} else {
+			return spectator.fixture.whenStable();
+		}
 	}
 
 	function getKeyCode(key: KeyboardEvent["key"]) {
