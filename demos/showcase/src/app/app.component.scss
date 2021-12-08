@@ -6,18 +6,6 @@
 	height: 100%;
 }
 
-.favicon {
-	@include layout.flex(row, center, center);
-	width: 48px;
-	height: 36px;
-	color: color.accent(700);
-
-	&__icon {
-		width: 18px;
-		height: 18px;
-	}
-}
-
 .toolbar {
 	@include layout.flex(row);
 	gap: 8px;

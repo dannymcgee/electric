@@ -8,10 +8,22 @@
 	height: 36px;
 	background: color.background(100);
 
+	&__icon {
+		@include layout.flex(row, center, center);
+		width: 40px;
+		height: 36px;
+
+		> * {
+			width: 18px;
+			height: 18px;
+		}
+	}
+
 	&__title {
 		@include layout.flex(row, center, center);
 		@include type.h3;
 		flex: 1 0 0;
+		color: color.foreground(300);
 		pointer-events: none;
 		user-select: none;
 	}

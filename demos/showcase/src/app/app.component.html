@@ -8,25 +8,22 @@
 		[(maximized)]="maximized"
 		(close)="close()"
 	>
-		<div *elxTitlebarIcon
-			class="favicon"
+		<ng-container *elxTitlebarIcon
 			[ngSwitch]="platform"
 		>
 			<img *ngSwitchCase="'tauri'"
-				class="favicon__icon"
 				src="assets/favicon.tauri.ico"
 				alt="Tauri Favicon"
 			/>
 			<img *ngSwitchCase="'electron'"
-				class="favicon__icon"
 				src="assets/favicon.electron.ico"
 				alt="Electron Favicon"
 			/>
 			<elx-icon *ngSwitchDefault
-				class="favicon__icon"
 				icon="Base"
 			></elx-icon>
-		</div>
+		</ng-container>
+
 		<elx-menubar>
 			<elx-menuitem [elxMenuTriggerFor]="fileMenu">File</elx-menuitem>
 			<elx-menuitem [elxMenuTriggerFor]="editMenu">Edit</elx-menuitem>

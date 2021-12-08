@@ -1,7 +1,8 @@
-<ng-template
+<div class="elx-titlebar__icon"
 	*ngIf="_icon != null"
-	[ngTemplateOutlet]="_icon!.templateRef"
-></ng-template>
+>
+	<ng-template [ngTemplateOutlet]="_icon!.templateRef"></ng-template>
+</div>
 
 <ng-content select="elx-menubar"></ng-content>
 
