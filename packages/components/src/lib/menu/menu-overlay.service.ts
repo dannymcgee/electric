@@ -5,6 +5,7 @@ import {
 	FlexibleConnectedPositionStrategyOrigin as PositionStrategyOrigin,
 	Overlay,
 	OverlayRef,
+	PositionStrategy,
 } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
 import { ElementRef, Injectable, OnDestroy, TemplateRef } from "@angular/core";
@@ -44,13 +45,15 @@ export class MenuOverlayManager implements OnDestroy {
 	private _panelClass?: string;
 	private _encapsulationId?: string;
 
-	private get _positionStrategy() {
+	private _positionStrategy?: PositionStrategy;
+	private get positionStrategy() {
 		assert(this._origin != null);
 
-		return this._overlay
-			.position()
-			.flexibleConnectedTo(this._origin)
-			.withPositions(this._positions)
+		return this._positionStrategy ??=
+			this._overlay
+				.position()
+				.flexibleConnectedTo(this._origin)
+				.withPositions(this._positions);
 	}
 
 	constructor (
@@ -89,7 +92,8 @@ export class MenuOverlayManager implements OnDestroy {
 		if (orientation) this.orientation = orientation;
 
 		this._overlayRef = this._overlay.create({
-			positionStrategy: this._positionStrategy,
+			positionStrategy: this.positionStrategy,
+			scrollStrategy: this._overlay.scrollStrategies.noop(),
 		});
 	}
 
@@ -135,7 +139,8 @@ export class MenuOverlayManager implements OnDestroy {
 
 	private updatePositionStrategy(origin: PositionStrategyOrigin): void {
 		this._origin = origin;
-		this._overlayRef?.updatePositionStrategy(this._positionStrategy);
+		this._positionStrategy = undefined;
+		this._overlayRef?.updatePositionStrategy(this.positionStrategy);
 	}
 
 	private detach(): void {
