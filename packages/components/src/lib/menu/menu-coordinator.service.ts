@@ -1,24 +1,22 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { Injectable, QueryList } from "@angular/core";
 import {
+	filter,
 	fromEvent,
+	map,
 	merge,
 	Observable,
-	Subject,
-	Subscription,
-	timer,
-} from "rxjs";
-import {
-	delay,
-	filter,
-	map,
 	shareReplay,
 	startWith,
+	Subject,
+	Subscription,
 	switchMap,
 	take,
 	takeUntil,
+	tap,
+	timer,
 	withLatestFrom,
-} from "rxjs/operators";
+} from "rxjs";
 
 import {
 	assert,
@@ -186,12 +184,15 @@ export class MenuCoordinator {
 	}
 	protected get closeEvents$(): Observable<void> {
 		return this._opened$.pipe(
-			delay(100),
 			withLatestFrom(this.items$),
 			switchMap(([{ menuPanel }, items]) => {
 				return merge(
 					// Tabbing out of the menu
-					fromKeydown(menuPanel.elementRef, /^(Tab|Escape)$/),
+					fromKeydown(menuPanel.elementRef, "Tab"),
+					// Pressing Esc (which should re-focus the trigger)
+					fromKeydown(menuPanel.elementRef, "Escape").pipe(
+						tap(() => this.triggerElement.focus({ preventScroll: true })),
+					),
 					// Clicking anywhere but inside the menu or on the trigger
 					fromEvent(document, "click").pipe(
 						filter(event => {
@@ -327,11 +328,28 @@ export class MenuCoordinator {
  * button.
  */
  class MenuController extends AbstractMenuController {
-	protected get openEvents$(): Observable<Event> {
+	protected get openEvents$() {
 		let click$ = fromEvent(this.triggerElement, "click");
 		let arrowupdown$ = fromKeydown(this.triggerElement, /^Arrow(Up|Down)$/);
 
 		return merge(click$, arrowupdown$).pipe(takeUntil(this.onDestroy$));
+	}
+
+	protected get closeEvents$() {
+		return merge(
+			super.closeEvents$,
+			// Clicking the trigger element while the menu is open
+			this._opened$.pipe(
+				switchMap(() => fromEvent(this.triggerElement, "click").pipe(
+					map(NOOP),
+					take(1),
+					takeUntil(this._closed$),
+					takeUntil(this.onDestroy$),
+				)),
+			),
+		).pipe(
+			takeUntil(this.onDestroy$),
+		);
 	}
 
 	protected onInit(): void {
@@ -379,7 +397,7 @@ class ContextMenuController extends AbstractMenuController {
  * menu item within its parent menu.
  */
  class SubmenuController extends AbstractMenuController {
-	protected get openEvents$(): Observable<Event> {
+	protected get openEvents$() {
 		let hover$ = fromEvent(this.triggerElement, "mouseenter").pipe(
 			startWith(((): MouseEvent|void => {
 				// Since the submenu trigger doesn't register itself until the first
@@ -403,6 +421,7 @@ class ContextMenuController extends AbstractMenuController {
 				}
 			})()),
 			filter(isNotNull),
+			// Submenu should open on hover after a brief delay
 			switchMap(event => timer(250).pipe(
 				map(() => event),
 				take(1),
@@ -411,16 +430,16 @@ class ContextMenuController extends AbstractMenuController {
 		);
 
 		let click$ = fromEvent(this.triggerElement, "click");
-		let keyRight$ = fromKeydown(this.triggerElement, "ArrowRight");
+		let keyRight$ = fromKeydown(this.triggerElement, "ArrowRight")
+			.pipe(tap(event => event.stopPropagation()));
 
 		return merge(hover$, click$, keyRight$)
 			.pipe(takeUntil(this.onDestroy$));
 	}
 
-	protected onInit(): void {
-		super.onInit();
-
-		this._opened$.pipe(
+	protected get closeEvents$() {
+		let super$ = super.closeEvents$;
+		let arrowLeft$ = this._opened$.pipe(
 			switchMap(({ menuPanel }) => fromKeydown(
 				menuPanel.elementRef,
 				"ArrowLeft"
@@ -429,10 +448,18 @@ class ContextMenuController extends AbstractMenuController {
 				takeUntil(this.onDestroy$),
 			)),
 			takeUntil(this.onDestroy$),
-		).subscribe(() => {
-			this.close();
-		});
+			tap(event => {
+				event.stopPropagation();
+				this.triggerElement.focus({ preventScroll: true });
+			}),
+			map(NOOP),
+		);
 
+		return merge(super$, arrowLeft$);
+	}
+
+	protected onInit(): void {
+		super.onInit();
 		this.openEvents$.subscribe(event => this.open(event));
 	}
 

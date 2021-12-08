@@ -13,19 +13,22 @@ import {
 	ElementRef,
 	HostListener,
 } from "@angular/core";
-import { combineLatest, fromEvent, merge, Observable, Subject } from "rxjs";
 import {
-	debounceTime,
+	combineLatest,
 	distinctUntilChanged,
 	filter,
+	fromEvent,
 	map,
+	merge,
+	Observable,
 	shareReplay,
 	startWith,
+	Subject,
 	switchMap,
 	takeUntil,
 	tap,
 	withLatestFrom,
-} from "rxjs/operators";
+} from "rxjs";
 
 import { fromKeydown } from "@electric/utils";
 
@@ -95,6 +98,7 @@ export class MenubarComponent implements AfterContentInit, OnDestroy {
 
 		let focusOrigin$ = this._focusMonitor.monitor(this._elementRef, true);
 
+		// Pipe <-/-> keypresses to the FocusKeyManager
 		this._keyPresses$.pipe(
 			withLatestFrom(focusOrigin$),
 			filter(([, origin]) => origin !== null),
@@ -105,6 +109,7 @@ export class MenubarComponent implements AfterContentInit, OnDestroy {
 			this._keyManager!.onKeydown(event);
 		});
 
+		// Switch the open menu when mousing over menu items while a menu is open
 		this._menuItems$.pipe(
 			switchMap(items =>
 				merge(...items.map(({ elementRef }, idx) =>
@@ -118,6 +123,21 @@ export class MenubarComponent implements AfterContentInit, OnDestroy {
 			takeUntil(this._onDestroy$),
 		).subscribe(idx => {
 			this.openMenu(idx, "mouse");
+		});
+
+		// Switch the open menu when pressing <-/-> while a menu is open
+		this._keyPresses$.pipe(
+			map(event => /Right$/.test(event.key) ? 1 : -1),
+			withLatestFrom(this._openMenuIndex$),
+			filter(([, openIdx]) => openIdx !== -1),
+		).subscribe(([delta, openIdx]) => {
+			let len = this._menuTriggers!.length;
+			let idx = openIdx + delta;
+
+			if (idx >= len) idx = 0;
+			else if (idx < 0) idx = len - 1;
+
+			this.openMenu(idx, "keyboard");
 		});
 	}
 
@@ -162,7 +182,6 @@ export class MenubarComponent implements AfterContentInit, OnDestroy {
 					classList.remove("active");
 				}
 			})),
-			debounceTime(70),
 			shareReplay(),
 			takeUntil(this._onDestroy$),
 		);

@@ -12,7 +12,6 @@ import { ElementRef, Injectable, OnDestroy, TemplateRef } from "@angular/core";
 import { Subject } from "rxjs";
 import { share } from "rxjs/operators";
 
-import { GlobalFocusManager } from "@electric/ng-utils";
 import { assert } from "@electric/utils";
 
 import { MenuPanelComponent } from "./menu-panel/menu-panel.component";
@@ -58,7 +57,6 @@ export class MenuOverlayManager implements OnDestroy {
 
 	constructor (
 		private _overlay: Overlay,
-		private _globalFocusManager: GlobalFocusManager,
 	) {}
 
 	ngOnDestroy(): void {
@@ -129,12 +127,6 @@ export class MenuOverlayManager implements OnDestroy {
 	close(): void {
 		this.detach();
 		this._events$.next({ isOpen: false });
-
-		setTimeout(() => {
-			this._globalFocusManager
-				.getLastValidFocusTarget()
-				?.focus();
-		});
 	}
 
 	private updatePositionStrategy(origin: PositionStrategyOrigin): void {
