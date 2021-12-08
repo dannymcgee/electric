@@ -16,12 +16,8 @@
 		font-weight: 600;
 		cursor: default;
 
-		&:hover {
-			color: color.foreground(100);
-		}
-
-		&.active {
-			background: color.background(100);
+		&:hover, &.active {
+			background: color.background(200);
 			color: color.foreground(100);
 		}
 

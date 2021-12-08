@@ -40,7 +40,6 @@ h2 { @include type.h2; }
 h3 { @include type.h3; }
 h4 { @include type.h4; }
 h1, h2, h3, h4 {
-	margin: 0 0 rem(24);
 	line-height: 1;
 }
 

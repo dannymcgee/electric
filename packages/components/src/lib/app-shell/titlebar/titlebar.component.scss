@@ -37,22 +37,22 @@
 		@include anim.transition((background, color));
 		width: 48px;
 		height: 100%;
-		color: color.foreground(200);
+		color: color.foreground(300);
 
 		&:hover {
-			background: color.background(700);
+			background: color.background(400);
 			color: color.foreground();
 		}
 		&:active {
-			background: color.background(400);
+			background: color.background(300);
 		}
 
 		&--close {
 			&:hover {
-				background: color.warning(400);
+				background: color.warning(200);
 			}
 			&:active {
-				background: color.warning(200);
+				background: color.warning(100);
 			}
 		}
 	}
