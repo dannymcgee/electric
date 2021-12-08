@@ -2,11 +2,12 @@
 	"version": 2,
 	"projects": {
 		"components": "packages/components",
-		"platform": "packages/platform",
 		"ng-utils": "packages/ng-utils",
+		"platform": "packages/platform",
 		"showcase": "demos/showcase",
 		"style": "packages/style",
 		"tauri-app": "demos/tauri-app",
+		"testing": "packages/testing",
 		"utils": "packages/utils"
 	}
 }

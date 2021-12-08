@@ -24,9 +24,10 @@
 			"@electric/components/icon": ["packages/components/src/lib/icon/index.ts"],
 			"@electric/components/menu": ["packages/components/src/lib/menu/index.ts"],
 			"@electric/components/theme": ["packages/components/src/lib/theme/index.ts"],
-			"@electric/platform": ["packages/platform/src/index.ts"],
 			"@electric/ng-utils": ["packages/ng-utils/src/index.ts"],
+			"@electric/platform": ["packages/platform/src/index.ts"],
 			"@electric/style": ["packages/style/src/index.ts"],
+			"@electric/testing": ["packages/testing/src/index.ts"],
 			"@electric/utils": ["packages/utils/src/index.ts"]
 		}
 	},

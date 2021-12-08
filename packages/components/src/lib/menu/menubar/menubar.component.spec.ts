@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { createHostFactory, SpectatorHost } from "@ngneat/spectator/jest";
 
 import { ICONS } from "@electric/style";
-import { $, html, keyboard } from "@electric/utils";
+import { $, html, VirtualKeyboard } from "@electric/testing";
 
 import { IconModule } from "../../icon";
 import { MenuModule } from "../menu.module";
@@ -16,6 +16,7 @@ type Spectator = SpectatorHost<MenubarComponent, MenubarHostComponent>;
 describe("Menubar", () => {
 	let spec: Spectator;
 	let menubarElement: HTMLElement;
+	let keyboard: VirtualKeyboard<Spectator>;
 
 	let createHost = createHostFactory({
 		host: MenubarHostComponent,
@@ -90,6 +91,7 @@ describe("Menubar", () => {
 		`);
 
 		menubarElement = spec.element;
+		keyboard = new VirtualKeyboard(spec);
 	});
 
 	// Validate the testing setup
@@ -115,19 +117,19 @@ describe("Menubar", () => {
 		await spec.hostFixture.whenStable();
 		expect($(".foo")).toBeFocused();
 
-		await keyboard.press("ArrowRight", spec);
+		await keyboard.press("ArrowRight");
 		expect($(".bar")).toBeFocused();
 
-		await keyboard.press("ArrowRight", spec);
+		await keyboard.press("ArrowRight");
 		expect($(".baz")).toBeFocused();
 
-		await keyboard.press("ArrowRight", spec);
+		await keyboard.press("ArrowRight");
 		expect($(".foo")).toBeFocused();
 
-		await keyboard.press("ArrowLeft", spec);
+		await keyboard.press("ArrowLeft");
 		expect($(".baz")).toBeFocused();
 
-		await keyboard.press("ArrowLeft", spec);
+		await keyboard.press("ArrowLeft");
 		expect($(".bar")).toBeFocused();
 	});
 
@@ -158,18 +160,18 @@ describe("Menubar", () => {
 		await spec.hostFixture.whenStable();
 		expect($(".foo")).toBeFocused();
 
-		await keyboard.press("ArrowDown", spec);
+		await keyboard.press("ArrowDown");
 		expect($("elx-menu-panel.foo-menu")).toExist();
 
-		await keyboard.press("ArrowRight", spec);
+		await keyboard.press("ArrowRight");
 		expect($("elx-menu-panel.foo-menu")).not.toExist();
 		expect($("elx-menu-panel.bar-menu")).toExist();
 
-		await keyboard.press("ArrowRight", spec);
+		await keyboard.press("ArrowRight");
 		expect($("elx-menu-panel.bar-menu")).not.toExist();
 		expect($("elx-menu-panel.baz-menu")).toExist();
 
-		await keyboard.press("ArrowLeft", spec);
+		await keyboard.press("ArrowLeft");
 		expect($("elx-menu-panel.baz-menu")).not.toExist();
 		expect($("elx-menu-panel.bar-menu")).toExist();
 	});
@@ -180,44 +182,44 @@ describe("Menubar", () => {
 	async () => {
 		spec.focus(menubarElement);
 
-		await keyboard.press("ArrowDown", spec);  // ↓  Foo Foo
-		await keyboard.press("ArrowDown", spec);  // ↓  Foo Bar
-		await keyboard.press("ArrowRight", spec); // -> Foobar Foo
+		await keyboard.press("ArrowDown");  // ↓  Foo Foo
+		await keyboard.press("ArrowDown");  // ↓  Foo Bar
+		await keyboard.press("ArrowRight"); // -> Foobar Foo
 
 		expect($("elx-menu-panel.foo-menu")).toExist();
 		expect($("elx-menu-panel.foobar-menu")).toExist();
 		expect($(".foobar-foo")).toBeFocused();
 
-		await keyboard.press("ArrowRight", spec); // -> Bar Foo
+		await keyboard.press("ArrowRight"); // -> Bar Foo
 
 		expect($("elx-menu-panel.foo-menu")).not.toExist();
 		expect($("elx-menu-panel.foobar-menu")).not.toExist();
 		expect($("elx-menu-panel.bar-menu")).toExist();
 		expect($(".bar-foo")).toBeFocused();
 
-		await keyboard.press("ArrowLeft", spec);  // <- Foo Foo
-		await keyboard.press("ArrowDown", spec);  // ↓  Foo Bar
-		await keyboard.press("ArrowRight", spec); // -> Foobar Foo
+		await keyboard.press("ArrowLeft");  // <- Foo Foo
+		await keyboard.press("ArrowDown");  // ↓  Foo Bar
+		await keyboard.press("ArrowRight"); // -> Foobar Foo
 
 		expect($("elx-menu-panel.bar-menu")).not.toExist();
 		expect($("elx-menu-panel.foo-menu")).toExist();
 		expect($("elx-menu-panel.foobar-menu")).toExist();
 		expect($(".foobar-foo")).toBeFocused();
 
-		await keyboard.press("ArrowDown", spec);  // ↓ Foobar Bar
-		await keyboard.press("ArrowDown", spec);  // ↓ Foobar Baz
+		await keyboard.press("ArrowDown");  // ↓ Foobar Bar
+		await keyboard.press("ArrowDown");  // ↓ Foobar Baz
 
 		expect($("elx-menu-panel.foo-menu")).toExist();
 		expect($("elx-menu-panel.foobar-menu")).toExist();
 		expect($(".foobar-baz")).toBeFocused();
 
-		await keyboard.press("ArrowLeft", spec);  // <- Foo Bar
+		await keyboard.press("ArrowLeft");  // <- Foo Bar
 
 		expect($("elx-menu-panel.foobar-menu")).not.toExist();
 		expect($("elx-menu-panel.foo-menu")).toExist();
 		expect($(".foo-bar")).toBeFocused();
 
-		await keyboard.press("ArrowLeft", spec);  // <- Baz Foo
+		await keyboard.press("ArrowLeft");  // <- Baz Foo
 
 		expect($("elx-menu-panel.foo-menu")).not.toExist();
 		expect($("elx-menu-panel.baz-menu")).toExist();

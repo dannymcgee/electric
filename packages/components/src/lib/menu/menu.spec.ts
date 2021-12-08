@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { createHostFactory, SpectatorHost } from "@ngneat/spectator/jest";
 
-import { $, $$, html, keyboard } from "@electric/utils";
+import { $, $$, html, VirtualKeyboard } from "@electric/testing";
 
 import { MenuComponent } from "./menu.component";
 import { MenuModule } from "./menu.module";
@@ -18,6 +18,7 @@ class MenuHostComponent {
 describe("Menu", () => {
 	let spec: Spectator;
 	let triggerElement: HTMLElement;
+	let keyboard: VirtualKeyboard<Spectator>;
 
 	let createHost = createHostFactory({
 		host: MenuHostComponent,
@@ -40,6 +41,7 @@ describe("Menu", () => {
 		`);
 
 		triggerElement = spec.queryHost("#trigger")!;
+		keyboard = new VirtualKeyboard(spec);
 	});
 
 	// Validate the testing setup
@@ -92,7 +94,7 @@ describe("Menu", () => {
 	it("should open and focus the first item when ArrowDown is pressed on the trigger",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown", spec);
+		await keyboard.press("ArrowDown");
 
 		expect($$("elx-menuitem")[0]).toHaveText("Foo");
 		expect($$("elx-menuitem")[0]).toBeFocused();
@@ -101,7 +103,7 @@ describe("Menu", () => {
 	it("should open and focus the last item when ArrowUp is pressed on the trigger",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowUp", spec);
+		await keyboard.press("ArrowUp");
 
 		expect($$("elx-menuitem")[2]).toHaveText("Baz");
 		expect($$("elx-menuitem")[2]).toBeFocused();
@@ -110,7 +112,7 @@ describe("Menu", () => {
 	it("should cycle the focused item when ArrowDown is pressed in the menu",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown", spec);
+		await keyboard.press("ArrowDown");
 
 		expect($$("elx-menuitem")[0]).toHaveText("Foo");
 		expect($$("elx-menuitem")[1]).toHaveText("Bar");
@@ -118,45 +120,45 @@ describe("Menu", () => {
 
 		expect($$("elx-menuitem")[0]).toBeFocused();
 
-		await keyboard.press("ArrowDown", spec);
+		await keyboard.press("ArrowDown");
 		expect($$("elx-menuitem")[1]).toBeFocused();
 
-		await keyboard.press("ArrowDown", spec);
+		await keyboard.press("ArrowDown");
 		expect($$("elx-menuitem")[2]).toBeFocused();
 
-		await keyboard.press("ArrowDown", spec);
+		await keyboard.press("ArrowDown");
 		expect($$("elx-menuitem")[0]).toBeFocused();
 	});
 
 	it("should cycle the focused item when ArrowUp is pressed in the menu",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowUp", spec);
+		await keyboard.press("ArrowUp");
 
 		expect($$("elx-menuitem")[0]).toHaveText("Foo");
 		expect($$("elx-menuitem")[1]).toHaveText("Bar");
 		expect($$("elx-menuitem")[2]).toHaveText("Baz");
 		expect($$("elx-menuitem")[2]).toBeFocused();
 
-		await keyboard.press("ArrowUp", spec);
+		await keyboard.press("ArrowUp");
 		expect($$("elx-menuitem")[1]).toBeFocused();
 
-		await keyboard.press("ArrowUp", spec);
+		await keyboard.press("ArrowUp");
 		expect($$("elx-menuitem")[0]).toBeFocused();
 
-		await keyboard.press("ArrowUp", spec);
+		await keyboard.press("ArrowUp");
 		expect($$("elx-menuitem")[2]).toBeFocused();
 	});
 
 	it("should close the menu and re-focus the trigger when Esc is pressed",
 	async () => {
 		spec.focus(triggerElement);
-		await keyboard.press("ArrowDown", spec);
+		await keyboard.press("ArrowDown");
 
 		expect($("elx-menu-panel")).toExist();
 		expect($$("elx-menuitem")[0]).toBeFocused();
 
-		await keyboard.press("Escape", spec);
+		await keyboard.press("Escape");
 		spec.detectChanges();
 
 		expect($("elx-menu-panel")).not.toExist();

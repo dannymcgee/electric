@@ -23,13 +23,13 @@
 		"@nrwl/angular:application": {
 			"style": "scss",
 			"linter": "eslint",
-			"unitTestRunner": "karma",
+			"unitTestRunner": "jest",
 			"e2eTestRunner": "none"
 		},
 		"@nrwl/angular:library": {
 			"style": "scss",
 			"linter": "eslint",
-			"unitTestRunner": "karma"
+			"unitTestRunner": "jest"
 		},
 		"@nrwl/angular:component": {
 			"style": "scss"

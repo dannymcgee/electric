@@ -1,0 +1,25 @@
+{
+	"projectType": "library",
+	"root": "packages/testing",
+	"sourceRoot": "packages/testing/src",
+	"prefix": "electric",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/angular:package",
+			"outputs": ["dist/packages/testing"],
+			"options": {
+				"project": "packages/testing/ng-package.json"
+			},
+			"configurations": {
+				"production": {
+					"tsConfig": "packages/testing/tsconfig.lib.prod.json"
+				},
+				"development": {
+					"tsConfig": "packages/testing/tsconfig.lib.json"
+				}
+			},
+			"defaultConfiguration": "production"
+		}
+	},
+	"tags": []
+}
