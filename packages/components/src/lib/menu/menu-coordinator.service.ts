@@ -157,7 +157,7 @@ export class MenuCoordinator {
  * concrete implementations derive -- it defines only the generic behavior which
  * is shared between all variants.
  */
- class AbstractMenuController {
+class AbstractMenuController {
 	readonly id: ElementId;
 
 	protected overlay: MenuOverlayManager;
@@ -205,7 +205,7 @@ export class MenuCoordinator {
 					merge(...items
 						.filter(item => !item.hasSubmenu)
 						.map(item => item.pressed$)
-					)
+					),
 				).pipe(
 					take(1),
 					takeUntil(this.onDestroy$),
@@ -327,7 +327,7 @@ export class MenuCoordinator {
  * This class represents an ordinary menu which is opened by pressing a trigger
  * button.
  */
- class MenuController extends AbstractMenuController {
+class MenuController extends AbstractMenuController {
 	protected get openEvents$() {
 		let click$ = fromEvent(this.triggerElement, "click");
 		let arrowupdown$ = fromKeydown(this.triggerElement, /^Arrow(Up|Down)$/);
@@ -396,7 +396,7 @@ class ContextMenuController extends AbstractMenuController {
  * This class represents a submenu, which is opened by hovering or pressing a
  * menu item within its parent menu.
  */
- class SubmenuController extends AbstractMenuController {
+class SubmenuController extends AbstractMenuController {
 	protected get openEvents$() {
 		let hover$ = fromEvent(this.triggerElement, "mouseenter").pipe(
 			startWith(((): MouseEvent|void => {
