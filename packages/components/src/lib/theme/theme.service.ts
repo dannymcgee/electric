@@ -5,7 +5,12 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { shareReplay } from "rxjs/operators";
 
 import { ReadonlyThemeColorStore, ThemeColorStore } from "./theme.store";
-import { ColorSchemeName, ThemeColor, ThemeColorShade, ThemeDefinition } from "./theme.types";
+import {
+	ColorSchemeName,
+	ThemeColor,
+	ThemeColorShade,
+	ThemeDefinition,
+} from "./theme.types";
 
 export const THEME = new InjectionToken<ThemeDefinition>("Theme");
 export const COLOR_SCHEME = new InjectionToken<ColorSchemeName>("ColorScheme");

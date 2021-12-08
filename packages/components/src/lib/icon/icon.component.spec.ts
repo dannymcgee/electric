@@ -1,9 +1,10 @@
-import { SpectatorHost, createHostFactory } from "@ngneat/spectator";
+import { SpectatorHost, createHostFactory } from "@ngneat/spectator/jest";
+
+import { a11y, ICONS } from "@electric/style";
+import { html } from "@electric/utils";
 
 import { IconModule } from "./icon.module";
 import { IconComponent } from './icon.component';
-import { a11y, ICONS } from "@electric/style";
-import { html } from "@electric/utils";
 
 describe("IconComponent", () => {
 	let spectator: SpectatorHost<IconComponent>;

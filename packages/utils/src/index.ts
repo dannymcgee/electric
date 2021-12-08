@@ -7,4 +7,5 @@ export * from "./lib/html";
 export * from "./lib/object";
 export * from "./lib/rxjs";
 export * from "./lib/sleep";
+export * from "./lib/testing";
 export * from "./lib/types";

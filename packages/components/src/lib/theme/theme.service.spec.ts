@@ -82,7 +82,7 @@ describe("ThemeService", () => {
 		});
 
 		it("should log a warning if the color scheme doesn't exist", () => {
-			let spy = spyOn(console, "warn");
+			let spy = jest.spyOn(console, "warn");
 			service.setColorScheme("highContrast");
 
 			expect(spy).toHaveBeenCalledWith(
