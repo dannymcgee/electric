@@ -1,0 +1,38 @@
+@use "elx/a11y" as *;
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+.elx-radio {
+	@include layout.flex(row, center);
+	gap: 8px;
+
+	&__radio {
+		@include layout.flex(row, center, center);
+		@include layout.circle(8px);
+		@include anim.transition(border-color, 4);
+		border: 2px solid color.foreground(400);
+
+		&--checked {
+			border-color: color.accent(400);
+		}
+	}
+
+	&__input {
+		@include layout.circle(4px);
+		@include anim.transition(transform, 3, anim.$ease-in-out-sine);
+		transform: scale(0);
+		margin: 0;
+		background: color.accent(700);
+
+		&:checked {
+			transform: scale(1);
+		}
+	}
+
+	&__label {
+		@include type.font(rem(13), 400);
+		line-height: 1;
+	}
+}

@@ -5,7 +5,7 @@ import { html } from "@electric/testing";
 import { FormControlsModule } from "../form-controls.module";
 import { FormFieldComponent } from "./form-field.component";
 
-type Spectator = SpectatorHost<FormFieldComponent<any>>;
+type Spectator = SpectatorHost<FormFieldComponent>;
 
 describe("FormFieldComponent", () => {
 	let spec: Spectator;

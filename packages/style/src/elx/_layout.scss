@@ -67,3 +67,9 @@
 		}
 	}
 }
+
+@mixin circle($radius) {
+	width: $radius * 2;
+	height: $radius * 2;
+	border-radius: $radius;
+}

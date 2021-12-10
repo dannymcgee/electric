@@ -12,7 +12,7 @@ import {
 
 import { DetectChanges } from "@electric/ng-utils";
 
-import { FormLabel, FORM_LABEL } from "../form-controls.types";
+import { FormLabel, FORM_LABEL, LEGEND, Legend } from "../form-controls.types";
 
 @Component({
 	selector: "elx-label",
@@ -40,6 +40,29 @@ export class LabelComponent implements FormLabel {
 
 	@ContentChild(forwardRef(() => LabelPostfixDirective))
 	private _postfix?: LabelPostfixDirective;
+}
+
+@Component({
+	selector: "elx-legend",
+	templateUrl: "./legend.component.html",
+	styleUrls: ["./label.component.scss"],
+	providers: [{
+		provide: LEGEND,
+		useExisting: LegendComponent,
+	}],
+	encapsulation: ViewEncapsulation.None,
+	changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class LegendComponent
+extends LabelComponent
+implements Legend {
+	override for?: string;
+
+	@DetectChanges()
+	@Input() id?: string;
+
+	@HostBinding("attr.id")
+	readonly _idFix = null;
 }
 
 @Directive({

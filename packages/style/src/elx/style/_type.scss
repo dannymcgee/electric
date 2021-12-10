@@ -19,7 +19,7 @@
 }
 
 @mixin h4 {
-	@include font(rem(10), 800);
+	@include font(rem(11), 800);
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: color.foreground(300);

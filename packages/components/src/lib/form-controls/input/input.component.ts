@@ -12,7 +12,11 @@ import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Coerce } from "@electric/ng-utils";
 import { Fn } from "@electric/utils";
 
-import { FormControl, FORM_CONTROL } from "../form-controls.types";
+import {
+	FormControl,
+	FORM_CONTROL,
+	ValueAccessor,
+} from "../form-controls.types";
 
 export type InputType =
 	| "text"
@@ -39,7 +43,7 @@ export type InputType =
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputComponent<T extends string|number>
-implements FormControl<T> {
+implements FormControl, ValueAccessor<T> {
 	@HostBinding("class")
 	readonly hostClass = "elx-input";
 

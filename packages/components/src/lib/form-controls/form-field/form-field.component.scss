@@ -3,7 +3,7 @@
 
 .elx-form-field:not(.inline) {
 	@include layout.flex(column);
-	gap: 4px;
+	gap: 8px;
 
 	.elx-label {
 		@include layout.flex(row, baseline);
@@ -13,7 +13,7 @@
 			display: block;
 			flex: 1 0 0;
 			height: 2px;
-			margin-left: 4px;
+			margin-left: 6px;
 			background: color.background(600);
 		}
 	}

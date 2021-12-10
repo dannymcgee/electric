@@ -74,13 +74,15 @@ function modifyMethodDescriptor<
 	T extends Object,
 	K extends string & keyof T,
 >(proto: T, propName: K, descriptor: TypedPropertyDescriptor<T[K]>) {
-	let originalMethod = (proto[propName] ?? NOOP) as Fn<any[]> & T[K];
+	let originalMethod = descriptor.value as Fn<any[]> & T[K];
 
-	descriptor.value = function (this: T, ...args: any[]) {
-		let sideEffects = getSideEffects(proto, propName);
-		for (let sideEffect of sideEffects) {
-			sideEffect.call(this);
+	Object.defineProperty(proto, propName, {
+		value(this: T, ...args: any[]) {
+			let sideEffects = getSideEffects(proto, propName);
+			for (let sideEffect of sideEffects) {
+				sideEffect.call(this);
+			}
+			return originalMethod.call(this, ...args);
 		}
-		return originalMethod.call(this, ...args);
-	} as unknown as T[K];
+	});
 }

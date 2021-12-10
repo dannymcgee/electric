@@ -7,7 +7,10 @@ import {
 	LabelComponent,
 	LabelPostfixDirective,
 	LabelPrefixDirective,
+	LegendComponent,
 } from "./label/label.component";
+import { RadioGroupComponent } from './radio/radio-group/radio-group.component';
+import { RadioComponent } from './radio/radio.component';
 
 @NgModule({
 	imports: [CommonModule],
@@ -17,6 +20,9 @@ import {
 		LabelComponent,
 		LabelPrefixDirective,
 		LabelPostfixDirective,
+		LegendComponent,
+		RadioGroupComponent,
+		RadioComponent,
 	],
 	exports: [
 		FormFieldComponent,
@@ -24,6 +30,9 @@ import {
 		LabelComponent,
 		LabelPrefixDirective,
 		LabelPostfixDirective,
+		LegendComponent,
+		RadioGroupComponent,
+		RadioComponent,
 	],
 })
 export class FormControlsModule {}
