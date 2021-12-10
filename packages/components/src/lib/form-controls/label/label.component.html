@@ -1,0 +1,13 @@
+<ng-template
+	*ngIf="_prefixTemplate"
+	[ngTemplateOutlet]="_prefixTemplate"
+></ng-template>
+
+<label class="elx-label__label"
+	[attr.for]="for"
+><ng-content></ng-content></label>
+
+<ng-template
+	*ngIf="_postfixTemplate"
+	[ngTemplateOutlet]="_postfixTemplate"
+></ng-template>

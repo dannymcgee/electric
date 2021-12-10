@@ -1,0 +1,6 @@
+{
+	"lib": {
+		"entryFile": "../src/lib/form-controls/index.ts",
+		"styleIncludePaths": ["../../style/src"]
+	}
+}

@@ -1,0 +1,29 @@
+@use "elx/layout";
+@use "elx/style/color";
+
+.elx-form-field:not(.inline) {
+	@include layout.flex(column);
+	gap: 4px;
+
+	.elx-label {
+		@include layout.flex(row, baseline);
+
+		&::after {
+			content: "";
+			display: block;
+			flex: 1 0 0;
+			height: 2px;
+			margin-left: 4px;
+			background: color.background(600);
+		}
+	}
+}
+
+.elx-form-field.inline {
+	@include layout.flex(row-reverse, center);
+	gap: 8px;
+
+	.elx-label {
+		@include layout.inline-flex(row, center);
+	}
+}

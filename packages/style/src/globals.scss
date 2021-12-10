@@ -62,6 +62,12 @@ button {
 	}
 }
 
+input {
+	appearance: none;
+	outline: none !important;
+	border: none;
+}
+
 .row {
 	display: flex;
 	width: calc(100% + #{rem(64)});

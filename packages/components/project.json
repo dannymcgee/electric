@@ -50,7 +50,9 @@
 					"packages/components/menu/**/*.ts",
 					"packages/components/menu/**/*.html",
 					"packages/components/app-shell/**/*.ts",
-					"packages/components/app-shell/**/*.html"
+					"packages/components/app-shell/**/*.html",
+					"packages/components/form-controls/**/*.ts",
+					"packages/components/form-controls/**/*.html"
 				]
 			}
 		}

@@ -21,6 +21,7 @@
 			"@electric/components/app-shell": ["packages/components/src/lib/app-shell/index.ts"],
 			"@electric/components/button": ["packages/components/src/lib/button/index.ts"],
 			"@electric/components/dialog": ["packages/components/src/lib/dialog/index.ts"],
+			"@electric/components/form-controls": ["packages/components/src/lib/form-controls/index.ts"],
 			"@electric/components/icon": ["packages/components/src/lib/icon/index.ts"],
 			"@electric/components/menu": ["packages/components/src/lib/menu/index.ts"],
 			"@electric/components/theme": ["packages/components/src/lib/theme/index.ts"],

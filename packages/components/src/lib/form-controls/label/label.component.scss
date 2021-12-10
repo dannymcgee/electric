@@ -1,0 +1,12 @@
+@use "elx/layout";
+@use "elx/style/type";
+
+.elx-label {
+	@include layout.flex(row, center);
+	@include type.h4;
+
+	&__label {
+		font: inherit;
+		font-size: inherit;
+	}
+}

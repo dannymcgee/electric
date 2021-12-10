@@ -2,41 +2,41 @@
 @use "color";
 
 @mixin h1 {
-	@include _font(rem(36), 500);
+	@include font(rem(36), 500);
 	color: color.foreground();
 }
 
 @mixin h2 {
-	@include _font(rem(16), 700);
+	@include font(rem(16), 700);
 	color: color.foreground(100);
 }
 
 @mixin h3 {
-	@include _font(rem(12), 700);
+	@include font(rem(12), 700);
 	letter-spacing: 0.07em;
 	text-transform: uppercase;
 	color: color.foreground(200);
 }
 
 @mixin h4 {
-	@include _font(rem(10), 800);
+	@include font(rem(10), 800);
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: color.foreground(300);
 }
 
 @mixin text {
-	@include _font(rem(14), 400);
+	@include font(rem(14), 400);
 	line-height: 1.6;
 	color: color.foreground();
 }
 
 @mixin ui($size: "md") {
 	@if $size == "md" {
-		@include _font(rem(14), 600);
+		@include font(rem(14), 600);
 	}
 	@else if $size == "sm" {
-		@include _font(rem(12), 600);
+		@include font(rem(12), 600);
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
 	}
@@ -78,7 +78,7 @@
 	white-space: nowrap;
 }
 
-@mixin _font($size, $weight) {
+@mixin font($size, $weight) {
 	font: unset;
 	font-family: var(--global-font-family);
 	font-size: $size;
