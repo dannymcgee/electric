@@ -10,7 +10,7 @@ import { Loop } from "@electric/ng-utils";
 import { Fn } from "@electric/utils";
 
 @Component({
-	selector: "elx-root",
+	selector: "showcase-root",
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.scss"],
 })

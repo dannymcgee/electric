@@ -2,7 +2,7 @@
 	"projectType": "application",
 	"root": "demos/showcase",
 	"sourceRoot": "demos/showcase/src",
-	"prefix": "elx",
+	"prefix": "showcase",
 	"targets": {
 		"build": {
 			"executor": "@angular-devkit/build-angular:browser",
@@ -28,7 +28,10 @@
 					"demos/showcase/src/styles.scss"
 				],
 				"stylePreprocessorOptions": {
-					"includePaths": ["packages/style/src"]
+					"includePaths": [
+						"node_modules",
+						"packages/style/src"
+					]
 				},
 				"scripts": []
 			},
@@ -103,15 +106,6 @@
 			"executor": "@angular-devkit/build-angular:extract-i18n",
 			"options": {
 				"browserTarget": "showcase:build"
-			}
-		},
-		"lint": {
-			"executor": "@nrwl/linter:eslint",
-			"options": {
-				"lintFilePatterns": [
-					"demos/showcase/src/**/*.ts",
-					"demos/showcase/src/**/*.html"
-				]
 			}
 		}
 	},

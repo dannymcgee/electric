@@ -1,0 +1,42 @@
+@use "elx/a11y" as *;
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+:host {
+	display: grid;
+	grid-template-areas:
+		"component controls"
+		"code      controls";
+	grid-template-columns: 1fr 256px;
+	grid-template-rows: 1fr max-content;
+}
+.component { grid-area: component; }
+.controls  { grid-area: controls; }
+.code      { grid-area: code; }
+
+.component {
+	@include layout.flex(column, center, center);
+	background: color.background(300);
+	padding: 32px;
+}
+
+.controls {
+	@include layout.flex(column);
+	gap: 16px;
+	padding: 16px;
+	background: color.background(400);
+}
+
+.code {
+	padding: 16px;
+	background: color.background(200);
+	font-size: rem(14);
+
+	::ng-deep {
+		.op { color: color.foreground(200) }
+		.tag { color: color.warning(700) }
+		.attr { color: color.warning(600) }
+		.attr-value { color: color.accent(600) }
+	}
+}
