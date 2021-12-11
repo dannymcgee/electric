@@ -16,7 +16,23 @@ import { FormLabel, FORM_LABEL, LEGEND, Legend } from "../form-controls.types";
 
 @Component({
 	selector: "elx-label",
-	templateUrl: "./label.component.html",
+	template: `
+
+<ng-template
+	*ngIf="_prefixTemplate"
+	[ngTemplateOutlet]="_prefixTemplate"
+></ng-template>
+
+<label class="elx-label__label"
+	[attr.for]="for"
+><ng-content></ng-content></label>
+
+<ng-template
+	*ngIf="_postfixTemplate"
+	[ngTemplateOutlet]="_postfixTemplate"
+></ng-template>
+
+	`,
 	styleUrls: ["./label.component.scss"],
 	providers: [{
 		provide: FORM_LABEL,
@@ -44,7 +60,23 @@ export class LabelComponent implements FormLabel {
 
 @Component({
 	selector: "elx-legend",
-	templateUrl: "./legend.component.html",
+	template: `
+
+<ng-template
+	*ngIf="_prefixTemplate"
+	[ngTemplateOutlet]="_prefixTemplate"
+></ng-template>
+
+<span class="elx-label__label"
+	[id]="id"
+><ng-content></ng-content></span>
+
+<ng-template
+	*ngIf="_postfixTemplate"
+	[ngTemplateOutlet]="_postfixTemplate"
+></ng-template>
+
+	`,
 	styleUrls: ["./label.component.scss"],
 	providers: [{
 		provide: LEGEND,

@@ -8,36 +8,33 @@ import {
 	HostListener,
 	Output,
 	EventEmitter,
-	ElementRef,
-	ViewChildren,
 	Pipe,
 	PipeTransform,
 } from "@angular/core";
 
-import { DetectChanges, QueryList } from "@electric/ng-utils";
+import { DetectChanges } from "@electric/ng-utils";
 
-import { OPTION } from "../select.types";
 import { OverlayData } from "../select-overlay-data.service";
 
 @Component({
 	selector: "elx-option-list",
 	template: `
-		<ng-container
-			*ngIf="template != null"
-			[ngTemplateOutlet]="template"
-		></ng-container>
 
-		<ng-container
-			*ngIf="_overlayData as data"
-		>
-			<div class="elx-option-list__lens"
-				*elxUnwrap="(data.activeIndex$ | async) as idx"
-				[attr.data-active-index]="idx"
-				[attr.data-option-height]="data.optionHeight"
-				[style.height]="data.optionHeight + 'px'"
-				[style.transform]="idx | lensXform : data.optionHeight"
-			></div>
-		</ng-container>
+<ng-container
+	*ngIf="template != null"
+	[ngTemplateOutlet]="template"
+></ng-container>
+
+<ng-container
+	*ngIf="_overlayData as data"
+>
+	<div class="elx-option-list__lens"
+		*elxUnwrap="(data.activeIndex$ | async) as idx"
+		[style.height]="data.optionHeight + 'px'"
+		[style.transform]="idx | lensXform : data.optionHeight"
+	></div>
+</ng-container>
+
 	`,
 	styleUrls: ["./option-list.component.scss"],
 	encapsulation: ViewEncapsulation.None,
@@ -55,9 +52,6 @@ export class OptionListComponent {
 	@Input() template?: TemplateRef<void>;
 
 	@Output() close = new EventEmitter<void>();
-
-	@ViewChildren(OPTION, { read: ElementRef })
-	_options?: QueryList<ElementRef<HTMLElement>>;
 
 	constructor (
 		public _overlayData: OverlayData,

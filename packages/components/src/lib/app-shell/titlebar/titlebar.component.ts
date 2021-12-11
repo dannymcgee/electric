@@ -18,7 +18,47 @@ import { APP_PLATFORM, AppPlatform } from "@electric/platform";
 
 @Component({
 	selector: "elx-titlebar",
-	templateUrl: "./titlebar.component.html",
+	template: `
+
+<div class="elx-titlebar__icon"
+	*ngIf="_icon != null"
+>
+	<ng-template [ngTemplateOutlet]="_icon!.templateRef"></ng-template>
+</div>
+
+<ng-content select="elx-menubar"></ng-content>
+
+<div class="elx-titlebar__title"
+	*ngIf="title != null"
+>
+	{{ title }}
+</div>
+
+<ng-content></ng-content>
+
+<div class="elx-window-controls">
+	<div class="elx-window-controls__button"
+		(click)="minimize.emit()"
+	>
+		<elx-icon icon="WindowsMinimize"></elx-icon>
+	</div>
+	<div class="elx-window-controls__button"
+		(click)="maximizedChange.emit(!maximized)"
+	>
+		<elx-icon
+			[icon]="maximized ? 'WindowsRestore' : 'WindowsMaximize'"
+		></elx-icon>
+	</div>
+	<div
+		class="elx-window-controls__button
+		       elx-window-controls__button--close"
+		(click)="close.emit()"
+	>
+		<elx-icon icon="WindowsClose"></elx-icon>
+	</div>
+</div>
+
+	`,
 	styleUrls: ["./titlebar.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

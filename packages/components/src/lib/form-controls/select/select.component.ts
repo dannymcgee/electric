@@ -64,7 +64,39 @@ const VALUE_ACCESSOR_PROVIDER = {
 
 @Component({
 	selector: "elx-select",
-	templateUrl: "./select.component.html",
+	template: `
+
+<span class="
+		elx-select__value
+		elx-select__value--placeholder"
+	*ngIf="!value"
+>{{ placeholder }}</span>
+
+<span class="elx-select__value">
+	<ng-container #outlet></ng-container>
+</span>
+
+<div class="elx-select__icon">
+	<elx-icon
+		icon="ChevronDownSmall"
+		size="sm"
+	></elx-icon>
+</div>
+
+<div class="elx-select__hidden-options"
+	[id]="_optionListId"
+	*ngIf="!_menuOpen"
+>
+	<ng-template
+		[ngTemplateOutlet]="optionsTemplate"
+	></ng-template>
+</div>
+
+<ng-template #optionsTemplate>
+	<ng-content></ng-content>
+</ng-template>
+
+	`,
 	styleUrls: ["./select.component.scss"],
 	providers: [
 		FIELD_SET_PROVIDER,

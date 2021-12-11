@@ -9,7 +9,15 @@ import { Coerce } from "@electric/ng-utils";
 
 @Component({
 	selector: "elx-app-shell",
-	templateUrl: "./app-shell.component.html",
+	template: `
+
+<ng-content select="elx-titlebar"></ng-content>
+
+<main class="elx-app-shell__main">
+	<ng-content></ng-content>
+</main>
+
+	`,
 	styleUrls: ["./app-shell.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

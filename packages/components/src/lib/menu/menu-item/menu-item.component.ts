@@ -30,7 +30,31 @@ import {
 
 @Component({
 	selector: "elx-menuitem",
-	templateUrl: "./menu-item.component.html",
+	template: `
+
+<elx-icon class="elx-menuitem__icon"
+	*ngIf="icon"
+	size="sm"
+	[icon]="icon"
+></elx-icon>
+
+<span class="elx-menuitem__label">
+	<ng-content></ng-content>
+</span>
+
+<span class="elx-menuitem__keybind"
+	*ngIf="keybind"
+	aria-hidden="true"
+>
+	{{ keybind }}
+</span>
+
+<elx-icon class="elx-menuitem__submenu-icon"
+	*ngIf="hasSubmenu"
+	icon="ChevronRightSmall"
+></elx-icon>
+
+	`,
 	styleUrls: ["./menu-item.component.scss"],
 	providers: [{
 		provide: MENU_ITEM,

@@ -12,7 +12,14 @@ import { MenuPanel } from "../menu.types";
 
 @Component({
 	selector: "elx-menu-panel",
-	templateUrl: "./menu-panel.component.html",
+	template: `
+
+<ng-container
+	*ngIf="template != null"
+	[ngTemplateOutlet]="template"
+></ng-container>
+
+	`,
 	styleUrls: ["./menu-panel.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

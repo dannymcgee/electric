@@ -19,7 +19,17 @@ import { Option, OPTION } from "../select.types";
 
 @Component({
 	selector: "elx-option",
-	templateUrl: "./option.component.html",
+	template: `
+
+<ng-template
+	[ngTemplateOutlet]="contentTemplate"
+></ng-template>
+
+<ng-template #contentTemplate>
+	<ng-content></ng-content>
+</ng-template>
+
+	`,
 	styleUrls: ["./option.component.scss"],
 	providers: [{
 		provide: OPTION,

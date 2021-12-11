@@ -21,7 +21,24 @@ import { RADIO, Radio } from "./radio.types";
 
 @Component({
 	selector: "elx-radio",
-	templateUrl: "./radio.component.html",
+	template: `
+
+<div class="elx-radio__radio"
+	[class.elx-radio__radio--checked]="checked"
+>
+	<input class="elx-radio__input"
+		type="radio"
+		[name]="name"
+		[id]="id"
+		[checked]="checked"
+		(change)="checkedChange.emit(true)"
+	/>
+</div>
+<label class="elx-radio__label"
+	[attr.for]="id"
+><ng-content></ng-content></label>
+
+	`,
 	styleUrls: ["./radio.component.scss"],
 	providers: [{
 		provide: RADIO,

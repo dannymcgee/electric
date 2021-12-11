@@ -25,7 +25,12 @@ import {
 
 @Component({
 	selector: "elx-form-field",
-	templateUrl: "./form-field.component.html",
+	template: `
+
+<ng-content select="elx-label"></ng-content>
+<ng-content></ng-content>
+
+	`,
 	styleUrls: ["./form-field.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

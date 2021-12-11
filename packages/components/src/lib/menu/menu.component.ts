@@ -14,7 +14,13 @@ import { MENU, MENU_ITEM, Menu, MenuItem } from "./menu.types";
 
 @Component({
 	selector: "elx-menu",
-	templateUrl: "./menu.component.html",
+	template: `
+
+<ng-template>
+	<ng-content></ng-content>
+</ng-template>
+
+	`,
 	styleUrls: ["./menu.component.scss"],
 	providers: [{
 		provide: MENU,

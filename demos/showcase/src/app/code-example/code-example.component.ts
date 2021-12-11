@@ -18,7 +18,17 @@ export type Inputs = Record<string, any>;
 
 @Component({
 	selector: "showcase-code-example",
-	templateUrl: "./code-example.component.html",
+	template: `
+
+<div class="component">
+	<ng-container #componentOutlet></ng-container>
+</div>
+<div class="controls">
+	<ng-content></ng-content>
+</div>
+<pre class="code" [innerHtml]="template"></pre>
+
+	`,
 	styleUrls: ["./code-example.component.scss"],
 })
 export class CodeExampleComponent<C> implements OnInit, OnChanges, DoCheck {

@@ -33,7 +33,26 @@ import {
 
 @Component({
 	selector: "elx-dialog",
-	templateUrl: "./dialog.component.html",
+	template: `
+
+<div class="elx-dialog-main">
+	<div *ngIf="loader"
+		class="elx-dialog-progress"
+		[class.elx-dialog-progress--indeterminate]="indeterminate"
+	>
+		<div *ngIf="!indeterminate"
+			class="elx-dialog-progress__value"
+			[style.width]="completed! / total! | percent : '1.0-3'"
+		></div>
+	</div>
+	<ng-content select="elx-dialog-heading, [elx-dialog-heading]"></ng-content>
+	<section class="elx-dialog-body">
+		<ng-content></ng-content>
+	</section>
+</div>
+<ng-content select="elx-dialog-footer, [elx-dialog-footer]"></ng-content>
+
+	`,
 	styleUrls: ["./dialog.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	exportAs: "dialog",

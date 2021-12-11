@@ -30,7 +30,7 @@ import { Radio, RADIO } from "../radio.types";
 
 @Component({
 	selector: "elx-radio-group",
-	templateUrl: "./radio-group.component.html",
+	template: `<ng-content></ng-content>`,
 	styleUrls: ["./radio-group.component.scss"],
 	providers: [{
 		provide: FIELD_SET,
