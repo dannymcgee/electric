@@ -38,7 +38,7 @@ export function Coerce(
 				this[symbol] = coerce(value);
 			},
 			enumerable: true,
-			configurable: false,
+			configurable: true,
 		});
 	};
 }

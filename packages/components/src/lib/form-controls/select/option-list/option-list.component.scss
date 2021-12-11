@@ -1,0 +1,38 @@
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/elevation";
+@use "elx/style/scrollbar" as *;
+
+// TODO: Dedupe with menu/menu-panel
+.elx-option-list {
+	display: block;
+	width: 100%;
+	height: max-content;
+	max-height: 100%;
+	padding: 8px 0;
+	position: relative;
+	overflow: hidden auto;
+	background: color.background(700, 0.6);
+	backdrop-filter: blur(24px);
+	@include scrollbar(600);
+	@include elevation.shadow(200);
+
+	hr {
+		height: 2px;
+		margin: 8px 0;
+		background: color.background(100, 0.333);
+		border: none;
+	}
+
+	&__lens {
+		@include layout.absolute(0, 0, null, 0);
+		background: color.accent(100);
+		transition: transform anim.frame-time(2) anim.$ease-out-sine;
+	}
+
+	.elx-option {
+		position: relative;
+		z-index: 1;
+	}
+}

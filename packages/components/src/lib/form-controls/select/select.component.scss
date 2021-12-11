@@ -1,0 +1,45 @@
+@use "elx/a11y";
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+.elx-select {
+	@include layout.flex(row, center);
+	@include anim.transition((box-shadow, color));
+	min-height: calc(#{a11y.rem(14)} + 18px);
+	background: color.background(200);
+	color: color.foreground(100);
+	outline: none !important;
+	cursor: pointer;
+	box-shadow: 0 0 0 0 transparent;
+
+	&:hover:not(.menu-open) {
+		box-shadow: 0 2px 0 0 color.foreground(50, 0.1);
+	}
+
+	&:focus-visible:not(.menu-open) {
+		box-shadow: 0 0 0 2px color.accent(600);
+		color: color.foreground(50);
+	}
+
+	&__value {
+		&--placeholder {
+			padding-left: 8px;
+			@include type.font(a11y.rem(14), 400);
+			color: color.foreground(400);
+		}
+	}
+
+	&__icon {
+		@include layout.flex(row, center, center);
+		height: 100%;
+		width: 36px;
+		margin-left: auto;
+		color: color.foreground(400);
+	}
+
+	&__hidden-options {
+		@include a11y.visually-hidden;
+	}
+}

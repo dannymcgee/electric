@@ -1,4 +1,11 @@
+@use "@angular/cdk";
 @use "sass:math";
+
+@include cdk.a11y-visually-hidden;
+
+@mixin visually-hidden {
+	@extend .cdk-visually-hidden;
+}
 
 @function rem($px) {
 	@return math.div($px, 16) * 1rem;

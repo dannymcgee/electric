@@ -32,7 +32,7 @@ export function DetectChanges(): PropertyDecorator {
 				}
 			},
 			enumerable: true,
-			configurable: false,
+			configurable: true,
 		});
 	}
 }
