@@ -64,8 +64,8 @@ export class IconComponent {
 	) {}
 
 	private render(): void {
-		if (this.icon && this._registry.has(this.icon)) {
-			this._element.innerHTML = this._registry.get(this.icon)!;
+		if (this._registry.has(this.icon!)) {
+			this._element.innerHTML = this._registry.get(this.icon!)!;
 		} else if (isDevMode()) {
 			console.warn(`No definition found for icon '${this.icon}'!`);
 		}

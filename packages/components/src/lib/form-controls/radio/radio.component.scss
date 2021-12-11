@@ -6,33 +6,65 @@
 
 .elx-radio {
 	@include layout.flex(row, center);
+	@include anim.transition((background-color, box-shadow));
 	gap: 8px;
+	padding: 6px 8px;
+	margin: 0 -8px;
+	cursor: pointer;
+	box-shadow: 0 0 0 0 transparent;
+
+	&.focus {
+		background: color.accent(100, 0.4);
+	}
 
 	&__radio {
 		@include layout.flex(row, center, center);
 		@include layout.circle(8px);
-		@include anim.transition(border-color, 4);
+		@include anim.transition(border-color, anim.frame-time(4));
 		border: 2px solid color.foreground(400);
 
-		&--checked {
+		.elx-radio.focus &--checked {
 			border-color: color.accent(400);
 		}
 	}
 
 	&__input {
 		@include layout.circle(4px);
-		@include anim.transition(transform, 3, anim.$ease-in-out-sine);
+		@include anim.transition(
+			(background-color, transform),
+			anim.frame-time(3),
+			anim.$ease-in-out-sine,
+		);
 		transform: scale(0);
 		margin: 0;
 		background: color.accent(700);
 
 		&:checked {
+			background: color.foreground(200);
+			transform: scale(1);
+		}
+		&:focus-visible:checked {
+			background: color.accent(700);
 			transform: scale(1);
 		}
 	}
 
 	&__label {
 		@include type.font(rem(13), 400);
+		@include anim.transition(color);
+		color: color.foreground(200);
 		line-height: 1;
+		cursor: pointer;
+
+		&:hover,
+		.elx-radio.focus &,
+		.elx-radio:hover & {
+			color: color.foreground(50);
+		}
+
+		.checked & {
+			color: color.foreground(100);
+			font-weight: 500;
+		}
 	}
 }

@@ -365,7 +365,7 @@ class MenuController extends AbstractMenuController {
 /**
  * This class represents a context menu, opened by right-clicking (or pressing
  * the "menu" key) within a defined area.
-*/
+ */
 class ContextMenuController extends AbstractMenuController {
 	protected get openEvents$(): Observable<Event> {
 		return fromEvent(this.triggerElement, "contextmenu")
