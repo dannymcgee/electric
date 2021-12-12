@@ -172,8 +172,6 @@ class OptionListPositionStrategy implements PositionStrategy {
 	}
 
 	apply(): void {
-		assert(this._overlayData != null);
-		assert(this._origin != null);
 		assert(this._anchor != null);
 		assert(this._overlay != null);
 		assert(this._optionList != null);
