@@ -163,6 +163,12 @@ class OptionListPositionStrategy implements PositionStrategy {
 
 		this._optionList = optionList;
 		this._lens = lens;
+
+		let { offsetTop, scrollTop, lensY } = this.calculateUiValues();
+
+		this._offsetTop = offsetTop;
+		this._scrollTop = scrollTop;
+		this._lensY = lensY;
 	}
 
 	apply(): void {
@@ -186,7 +192,6 @@ class OptionListPositionStrategy implements PositionStrategy {
 
 		// Calculate and clamp the option-list's height
 		let {
-			activeIndex,
 			optionHeight,
 			optionCount,
 			maxDisplayCount,
@@ -200,30 +205,8 @@ class OptionListPositionStrategy implements PositionStrategy {
 			viewportHeight,
 		);
 
-		// Calculate the `top` offset of the overlay pane
-		// and the `scrollTop` of the option-list.
-		// See the doc comment at the top of this class for an explanation.
-		let offsetTop = 0;
-		let scrollTop = 0;
-
-		let len = Math.min(optionCount, maxDisplayCount);
-		let middleIdx = Math.floor(len / 2);
-		let maxScrollIdx = optionCount - Math.ceil(len / 2);
-
-		if (activeIndex > middleIdx) {
-			offsetTop = -middleIdx * optionHeight - 8;
-			scrollTop = (activeIndex - middleIdx) * optionHeight;
-
-			if (activeIndex > maxScrollIdx) {
-				offsetTop -= (activeIndex - maxScrollIdx) * optionHeight;
-			}
-		} else {
-			offsetTop = -activeIndex * optionHeight;
-			if (activeIndex > -1) offsetTop -= 8;
-		}
-
-		let lensY = activeIndex * optionHeight;
-		if (activeIndex > -1) lensY += 8;
+		// Calculate the new UI values
+		let { offsetTop, scrollTop, lensY } = this.calculateUiValues();
 
 		// Setup the start/end variables for the animation
 		let otStart = this._offsetTop ?? offsetTop;
@@ -295,4 +278,44 @@ class OptionListPositionStrategy implements PositionStrategy {
 	}
 
 	dispose(): void {}
+
+	/**
+	 * Calculate the `top` offset of the overlay pane,
+	 * the `scrollTop` of the option-list,
+	 * and the `y` offset of the selection "lens".
+	 *
+	 * See the doc comment at the top of this class for an explanation.
+	 */
+	private calculateUiValues() {
+		let {
+			activeIndex,
+			optionHeight,
+			optionCount,
+			maxDisplayCount,
+		} = this._overlayData;
+
+		let offsetTop = 0;
+		let scrollTop = 0;
+
+		let len = Math.min(optionCount, maxDisplayCount);
+		let middleIdx = Math.floor(len / 2);
+		let maxScrollIdx = optionCount - Math.ceil(len / 2);
+
+		if (activeIndex > middleIdx) {
+			offsetTop = -middleIdx * optionHeight - 8;
+			scrollTop = (activeIndex - middleIdx) * optionHeight;
+
+			if (activeIndex > maxScrollIdx) {
+				offsetTop -= (activeIndex - maxScrollIdx) * optionHeight;
+			}
+		} else {
+			offsetTop = -activeIndex * optionHeight;
+			if (activeIndex > -1) offsetTop -= 8;
+		}
+
+		let lensY = activeIndex * optionHeight;
+		if (activeIndex > -1) lensY += 8;
+
+		return { offsetTop, scrollTop, lensY };
+	}
 }
