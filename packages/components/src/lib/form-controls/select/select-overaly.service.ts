@@ -68,7 +68,9 @@ export class SelectOverlayManager {
 	}
 
 	updatePosition(): void {
-		this._overlayRef?.updatePosition();
+		if (this._portal?.isAttached) {
+			this._overlayRef?.updatePosition();
+		}
 	}
 }
 
