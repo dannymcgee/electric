@@ -4,24 +4,26 @@ import {
 	Highlightable,
 } from "@angular/cdk/a11y";
 import {
-	Component,
-	ViewEncapsulation,
+	AfterContentInit,
 	ChangeDetectionStrategy,
-	Input,
+	Component,
+	ContentChildren,
+	ElementRef,
+	forwardRef,
 	HostBinding,
 	HostListener,
-	ContentChildren,
+	Injector,
+	Input,
+	NgZone,
+	OnChanges,
+	OnDestroy,
+	OnInit,
+	Self,
+	SimpleChanges,
+	TemplateRef,
 	ViewChild,
 	ViewContainerRef,
-	AfterContentInit,
-	OnDestroy,
-	ElementRef,
-	TemplateRef,
-	OnInit,
-	forwardRef,
-	Self,
-	NgZone,
-	Injector,
+	ViewEncapsulation,
 } from "@angular/core";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import {
@@ -39,7 +41,7 @@ import {
 } from "rxjs";
 
 import { Coerce, DetectChanges, QueryList } from "@electric/ng-utils";
-import { array, elementId, Fn, fromKeydown } from "@electric/utils";
+import { array, assert, elementId, Fn, fromKeydown } from "@electric/utils";
 
 import {
 	CustomControl,
@@ -49,7 +51,7 @@ import {
 import { Option, OPTION } from "./select.types";
 import { SelectOverlayManager } from "./select-overaly.service";
 import { OptionListComponent } from "./option-list/option-list.component";
-import { OverlayData } from "./select-overlay-data.service";
+import { OptionListOverlayData } from "./select-overlay-data.service";
 
 const CUSTOM_CONTROL_PROVIDER = {
 	provide: CUSTOM_CONTROL,
@@ -101,7 +103,7 @@ const VALUE_ACCESSOR_PROVIDER = {
 	providers: [
 		CUSTOM_CONTROL_PROVIDER,
 		VALUE_ACCESSOR_PROVIDER,
-		OverlayData,
+		OptionListOverlayData,
 		SelectOverlayManager,
 	],
 	encapsulation: ViewEncapsulation.None,
@@ -111,6 +113,7 @@ export class SelectComponent<T>
 implements
 	CustomControl,
 	ValueAccessor<T>,
+	OnChanges,
 	OnInit,
 	AfterContentInit,
 	OnDestroy
@@ -139,6 +142,9 @@ implements
 	}
 
 	@Input() placeholder = "None";
+
+	@Coerce(Number)
+	@Input() maxDisplayCount = 9;
 
 	@HostBinding("attr.aria-disabled")
 	@HostBinding("class.disabled")
@@ -178,13 +184,19 @@ implements
 		private _elementRef: ElementRef<HTMLElement>,
 		private _focusMonitor: FocusMonitor,
 		private _injector: Injector,
-		@Self() private _overlayData: OverlayData,
+		@Self() private _overlayData: OptionListOverlayData,
 		@Self() private _overlay: SelectOverlayManager,
 		private _viewContainer: ViewContainerRef,
 		private _zone: NgZone,
 	) {}
 
 	// #region Angular lifecycle ------------------------------------------------
+
+	ngOnChanges(changes: SimpleChanges): void {
+		if ("maxDisplayCount" in changes) {
+			this._overlayData.maxDisplayCount = this.maxDisplayCount;
+		}
+	}
 
 	ngOnInit(): void {
 		let focusChanges$ = this._focusMonitor
@@ -218,16 +230,25 @@ implements
 	}
 
 	ngAfterContentInit(): void {
+		assert(this._options != null);
+
 		// Init key manager
-		this._keyManager = new ActiveDescendantKeyManager(this._options!)
+		this._keyManager = new ActiveDescendantKeyManager(this._options)
 			.withVerticalOrientation(true)
 			.withWrap(true)
 			.withHomeAndEnd(true)
 			.withTypeAhead();
 
-		// Invoke change handler when key manager signals active item change
-		this._overlayData.optionHeight = 32; // TODO
+		// Init overlay data
 		this._overlayData.connect(this._keyManager.change);
+		this._options.changes
+			.pipe(startWith(this._options))
+			.subscribe(options => {
+				this._overlayData.optionCount = options.length;
+				this._overlayData.optionHeight = options.get(0)?.elementHeight ?? 0;
+			});
+
+		// Invoke change handler when key manager signals active item change
 		this._keyManager.change.pipe(
 			map(idx => this._options!.get(idx)!),
 			takeUntil(this._onDestroy$),
@@ -236,8 +257,8 @@ implements
 		});
 
 		// Set active item via key manager when an option is clicked
-		this._options!.changes.pipe(
-			startWith(this._options!),
+		this._options.changes.pipe(
+			startWith(this._options),
 			switchMap(options =>
 				merge(...options.map((option, idx) =>
 					option.select.pipe(mapTo(idx))
@@ -245,7 +266,7 @@ implements
 			),
 			takeUntil(this._onDestroy$),
 		).subscribe(idx => {
-			this._keyManager?.setActiveItem(idx);
+			this._keyManager!.setActiveItem(idx);
 		});
 	}
 

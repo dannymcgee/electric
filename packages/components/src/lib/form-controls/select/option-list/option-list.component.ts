@@ -8,13 +8,9 @@ import {
 	HostListener,
 	Output,
 	EventEmitter,
-	Pipe,
-	PipeTransform,
 } from "@angular/core";
 
 import { DetectChanges } from "@electric/ng-utils";
-
-import { OverlayData } from "../select-overlay-data.service";
 
 @Component({
 	selector: "elx-option-list",
@@ -24,16 +20,6 @@ import { OverlayData } from "../select-overlay-data.service";
 	*ngIf="template != null"
 	[ngTemplateOutlet]="template"
 ></ng-container>
-
-<ng-container
-	*ngIf="_overlayData as data"
->
-	<div class="elx-option-list__lens"
-		*elxUnwrap="(data.activeIndex$ | async) as idx"
-		[style.height]="data.optionHeight + 'px'"
-		[style.transform]="idx | lensXform : data.optionHeight"
-	></div>
-</ng-container>
 
 	`,
 	styleUrls: ["./option-list.component.scss"],
@@ -53,26 +39,8 @@ export class OptionListComponent {
 
 	@Output() close = new EventEmitter<void>();
 
-	constructor (
-		public _overlayData: OverlayData,
-	) {}
-
 	@HostListener("window:click")
-	_close(): void {
+	private onClose(): void {
 		this.close.emit();
-	}
-}
-
-@Pipe({
-	name: "lensXform",
-	pure: true,
-})
-export class OptionListLensTransformPipe implements PipeTransform {
-	transform(activeIndex: number, optionHeight: number) {
-		let offset = activeIndex * optionHeight;
-		if (activeIndex > -1) {
-			offset += 8;
-		}
-		return `translate3d(0px, ${offset}px, 0px)`;
 	}
 }

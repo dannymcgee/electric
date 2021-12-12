@@ -1,6 +1,53 @@
+import { Fn } from "@electric/utils";
+import { bezier } from "./internal/bezier";
+
 export namespace anim {
 	export function frameTime(frames: number): number {
 		return frames / 30 * 1000;
+	}
+
+	export function lerp(t: number, [from, to]: [number, number]) {
+		return (1 - t) * from + t * to;
+	}
+
+	export function invLerp(v: number, [from, to]: [number, number]) {
+		return (v - from) / (to - from);
+	}
+
+	export function clamp(n: number, [min, max]: [number, number]) {
+		return Math.max(min, Math.min(n, max));
+	}
+
+	type Easing = EaseIn | EaseOut | EaseInOut;
+
+	export function ease(t: number, easing: Easing): number;
+	export function ease(t: number, [from, to]: [number, number], easing: Easing): number;
+
+	export function ease(...args: any[]) {
+		if (args.length === 2) {
+			let [t, easing] = args;
+
+			return easingFn(easing)(t);
+		}
+
+		let [t, [from, to], [easing]] = args;
+		t = easingFn(easing)(t);
+
+		return lerp(t, [from, to]);
+	}
+
+	const EASING_FUNCTIONS = new Map<Easing, Fn<[number], number>>();
+
+	function easingFn(easing: Easing): Fn<[number], number> {
+		if (!EASING_FUNCTIONS.has(easing)) {
+			let values = easing
+				.match(/^cubic-bezier\(((?:[0-9.]+,?\s*){4})\)/)![1]
+				.split(", ")
+				.map(parseFloat) as [number, number, number, number];
+
+			EASING_FUNCTIONS.set(easing, bezier(...values));
+		}
+		return EASING_FUNCTIONS.get(easing)!;
 	}
 }
 

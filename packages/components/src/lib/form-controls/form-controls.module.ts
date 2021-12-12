@@ -19,10 +19,7 @@ import {
 	SelectedValueComponent,
 } from './select/select.component';
 import { OptionComponent } from './select/option/option.component';
-import {
-	OptionListComponent,
-	OptionListLensTransformPipe,
-} from './select/option-list/option-list.component';
+import { OptionListComponent } from './select/option-list/option-list.component';
 
 @NgModule({
 	imports: [
@@ -43,7 +40,6 @@ import {
 		SelectedValueComponent,
 		OptionComponent,
 		OptionListComponent,
-		OptionListLensTransformPipe,
 	],
 	exports: [
 		FormFieldComponent,

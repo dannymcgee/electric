@@ -1,4 +1,5 @@
 import { Highlightable, ListKeyManagerOption } from "@angular/cdk/a11y";
+import { DOCUMENT } from "@angular/common";
 import {
 	Component,
 	ViewEncapsulation,
@@ -11,8 +12,11 @@ import {
 	EventEmitter,
 	HostListener,
 	ElementRef,
+	Inject,
 } from "@angular/core";
+
 import { DetectChanges } from "@electric/ng-utils";
+import { a11y } from "@electric/style";
 import { elementId } from "@electric/utils";
 
 import { Option, OPTION } from "../select.types";
@@ -67,9 +71,21 @@ implements
 	@DetectChanges()
 	template!: TemplateRef<void>
 
+	get elementHeight() {
+		let remBase = parseInt(
+			getComputedStyle(this._document.documentElement)
+				.getPropertyValue("font-size")
+				.replace("px", ""),
+			10,
+		);
+		// NOTE: Must be kept in sync with the stylesheet property
+		return (14 / a11y.REM_BASE_DEFAULT) * remBase + 18;
+	}
+
 	@Output() select = new EventEmitter<Option<T>>();
 
 	constructor (
+		@Inject(DOCUMENT) private _document: Document,
 		private _elementRef: ElementRef<HTMLElement>,
 	) {}
 

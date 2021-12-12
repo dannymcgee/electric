@@ -25,12 +25,6 @@
 		border: none;
 	}
 
-	&__lens {
-		@include layout.absolute(0, 0, null, 0);
-		background: color.accent(100);
-		transition: transform anim.frame-time(2) anim.$ease-out-sine;
-	}
-
 	.elx-option {
 		position: relative;
 		z-index: 1;
