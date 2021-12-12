@@ -9,24 +9,20 @@ export interface ValueAccessor<T> extends ControlValueAccessor {
 	setDisabledState(value: boolean): void;
 }
 
-export interface FormControl {
+export interface NativeControl {
 	fieldId?: string;
 }
 
-export interface FormLabel {
-	for?: string;
-}
-
-export const FORM_CONTROL = new InjectionToken<FormControl>("FormControl");
-export const FORM_LABEL = new InjectionToken<FormLabel>("FormLabel");
-
-export interface FieldSet {
+export interface CustomControl {
 	labelId?: string;
 }
 
-export interface Legend {
+export interface FormLabel {
 	id?: string;
+	for?: string;
+	useNative?: boolean;
 }
 
-export const FIELD_SET = new InjectionToken<FieldSet>("FieldSet");
-export const LEGEND = new InjectionToken<Legend>("Legend");
+export const NATIVE_CONTROL = new InjectionToken<NativeControl>("FormControl");
+export const CUSTOM_CONTROL = new InjectionToken<CustomControl>("CustomControl");
+export const FORM_LABEL = new InjectionToken<FormLabel>("FormLabel");

@@ -42,8 +42,8 @@ import { Coerce, DetectChanges, QueryList } from "@electric/ng-utils";
 import { array, elementId, Fn, fromKeydown } from "@electric/utils";
 
 import {
-	FieldSet,
-	FIELD_SET,
+	CustomControl,
+	CUSTOM_CONTROL,
 	ValueAccessor,
 } from "../form-controls.types";
 import { Option, OPTION } from "./select.types";
@@ -51,8 +51,8 @@ import { SelectOverlayManager } from "./select-overaly.service";
 import { OptionListComponent } from "./option-list/option-list.component";
 import { OverlayData } from "./select-overlay-data.service";
 
-const FIELD_SET_PROVIDER = {
-	provide: FIELD_SET,
+const CUSTOM_CONTROL_PROVIDER = {
+	provide: CUSTOM_CONTROL,
 	useExisting: forwardRef(() => SelectComponent),
 };
 
@@ -99,7 +99,7 @@ const VALUE_ACCESSOR_PROVIDER = {
 	`,
 	styleUrls: ["./select.component.scss"],
 	providers: [
-		FIELD_SET_PROVIDER,
+		CUSTOM_CONTROL_PROVIDER,
 		VALUE_ACCESSOR_PROVIDER,
 		OverlayData,
 		SelectOverlayManager,
@@ -109,7 +109,7 @@ const VALUE_ACCESSOR_PROVIDER = {
 })
 export class SelectComponent<T>
 implements
-	FieldSet,
+	CustomControl,
 	ValueAccessor<T>,
 	OnInit,
 	AfterContentInit,

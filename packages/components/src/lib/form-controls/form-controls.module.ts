@@ -11,7 +11,6 @@ import {
 	LabelComponent,
 	LabelPostfixDirective,
 	LabelPrefixDirective,
-	LegendComponent,
 } from "./label/label.component";
 import { RadioGroupComponent } from './radio/radio-group/radio-group.component';
 import { RadioComponent } from './radio/radio.component';
@@ -38,7 +37,6 @@ import {
 		LabelComponent,
 		LabelPrefixDirective,
 		LabelPostfixDirective,
-		LegendComponent,
 		RadioGroupComponent,
 		RadioComponent,
 		SelectComponent,
@@ -53,7 +51,6 @@ import {
 		LabelComponent,
 		LabelPrefixDirective,
 		LabelPostfixDirective,
-		LegendComponent,
 		RadioGroupComponent,
 		RadioComponent,
 		SelectComponent,

@@ -10,9 +10,9 @@ import {
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { DetectChanges } from "@electric/ng-utils";
+import { Coerce, DetectChanges } from "@electric/ng-utils";
 
-import { FormLabel, FORM_LABEL, LEGEND, Legend } from "../form-controls.types";
+import { FormLabel, FORM_LABEL } from "../form-controls.types";
 
 @Component({
 	selector: "elx-label",
@@ -24,8 +24,22 @@ import { FormLabel, FORM_LABEL, LEGEND, Legend } from "../form-controls.types";
 ></ng-template>
 
 <label class="elx-label__label"
+	*ngIf="useNative"
 	[attr.for]="for"
-><ng-content></ng-content></label>
+>
+	<ng-template [ngTemplateOutlet]="labelContent"></ng-template>
+</label>
+
+<span class="elx-label__label"
+	*ngIf="!useNative"
+	[id]="id"
+>
+	<ng-template [ngTemplateOutlet]="labelContent"></ng-template>
+</span>
+
+<ng-template #labelContent>
+	<ng-content></ng-content>
+</ng-template>
 
 <ng-template
 	*ngIf="_postfixTemplate"
@@ -46,7 +60,20 @@ export class LabelComponent implements FormLabel {
 	readonly hostClass = "elx-label";
 
 	@DetectChanges()
+	@Input() id?: string;
+
+	@DetectChanges()
 	@Input() for?: string;
+
+	@DetectChanges()
+	@Coerce(Boolean)
+	@Input() useNative?: boolean;
+
+	@HostBinding("attr.id")
+	readonly _idFix = null;
+
+	@HostBinding("attr.for")
+	readonly _forFix = null;
 
 	get _prefixTemplate() { return this._prefix?.templateRef; }
 	get _postfixTemplate() { return this._postfix?.templateRef; }
@@ -56,45 +83,6 @@ export class LabelComponent implements FormLabel {
 
 	@ContentChild(forwardRef(() => LabelPostfixDirective))
 	private _postfix?: LabelPostfixDirective;
-}
-
-@Component({
-	selector: "elx-legend",
-	template: `
-
-<ng-template
-	*ngIf="_prefixTemplate"
-	[ngTemplateOutlet]="_prefixTemplate"
-></ng-template>
-
-<span class="elx-label__label"
-	[id]="id"
-><ng-content></ng-content></span>
-
-<ng-template
-	*ngIf="_postfixTemplate"
-	[ngTemplateOutlet]="_postfixTemplate"
-></ng-template>
-
-	`,
-	styleUrls: ["./label.component.scss"],
-	providers: [{
-		provide: LEGEND,
-		useExisting: LegendComponent,
-	}],
-	encapsulation: ViewEncapsulation.None,
-	changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class LegendComponent
-extends LabelComponent
-implements Legend {
-	override for?: string;
-
-	@DetectChanges()
-	@Input() id?: string;
-
-	@HostBinding("attr.id")
-	readonly _idFix = null;
 }
 
 @Directive({

@@ -23,7 +23,7 @@ import { html } from "../code-example/code-example.component";
 			</elx-form-field>
 
 			<elx-form-field>
-				<elx-legend>Variant</elx-legend>
+				<elx-label>Variant</elx-label>
 				<elx-radio-group name="variant"
 					[(ngModel)]="inputs.variant"
 				>
@@ -35,7 +35,7 @@ import { html } from "../code-example/code-example.component";
 			</elx-form-field>
 
 			<elx-form-field>
-				<elx-legend>Size</elx-legend>
+				<elx-label>Size</elx-label>
 				<elx-radio-group name="size"
 					[(ngModel)]="inputs.size"
 				>
@@ -45,7 +45,7 @@ import { html } from "../code-example/code-example.component";
 			</elx-form-field>
 
 			<elx-form-field>
-				<elx-legend>Icon</elx-legend>
+				<elx-label>Icon</elx-label>
 				<elx-select [(ngModel)]="inputs.icon">
 					<elx-option>None</elx-option>
 					<elx-option *ngFor="let icon of icons"

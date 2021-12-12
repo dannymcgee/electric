@@ -13,14 +13,12 @@ import { Coerce } from "@electric/ng-utils";
 import { elementId } from "@electric/utils";
 
 import {
-	FieldSet,
-	FIELD_SET,
+	CustomControl,
+	CUSTOM_CONTROL,
 	FormLabel,
 	FORM_LABEL,
-	FormControl,
-	FORM_CONTROL,
-	Legend,
-	LEGEND,
+	NativeControl,
+	NATIVE_CONTROL,
 } from "../form-controls.types";
 
 @Component({
@@ -43,52 +41,51 @@ export class FormFieldComponent implements DoCheck {
 	@Coerce(Boolean)
 	@Input() inline = false;
 
-	@ContentChild(FORM_CONTROL)
-	private _control?: FormControl;
+	@ContentChild(NATIVE_CONTROL)
+	private _nativeControl?: NativeControl;
+
+	@ContentChild(CUSTOM_CONTROL)
+	private _customControl?: CustomControl;
 
 	@ContentChild(FORM_LABEL)
 	private _label?: FormLabel;
-
-	@ContentChild(FIELD_SET)
-	private _fieldset?: FieldSet;
-
-	@ContentChild(LEGEND)
-	private _legend?: Legend;
 
 	constructor (
 		private _changeDetector: ChangeDetectorRef,
 	) {}
 
 	ngDoCheck(): void {
-		if (this._label && this._control) {
+		if (this._label && this._nativeControl) {
 			if (
-				this._label.for && this._control.fieldId
-				&& this._label.for === this._control.fieldId
+				this._label.for && this._nativeControl.fieldId
+				&& this._label.for === this._nativeControl.fieldId
 			) {
 				return;
 			}
 
-			let id = this._control.fieldId || elementId("form-control");
-			if (this._control.fieldId !== id) {
-				this._control.fieldId = id;
+			let id = this._nativeControl.fieldId || elementId("form-control");
+			if (this._nativeControl.fieldId !== id) {
+				this._nativeControl.fieldId = id;
 			}
 			this._label.for = id;
+			this._label.useNative = true;
 
 			this._changeDetector.detectChanges();
 		}
-		else if (this._legend && this._fieldset) {
+		else if (this._label && this._customControl) {
 			if (
-				this._legend.id && this._fieldset.labelId
-				&& this._legend.id === this._fieldset.labelId
+				this._label.id && this._customControl.labelId
+				&& this._label.id === this._customControl.labelId
 			) {
 				return;
 			}
 
-			let id = this._legend.id || elementId("legend");
-			if (this._legend.id !== id) {
-				this._legend.id = id;
+			let id = this._label.id || elementId("form-label");
+			if (this._label.id !== id) {
+				this._label.id = id;
 			}
-			this._fieldset.labelId = id;
+			this._customControl.labelId = id;
+			this._label.useNative = false;
 
 			this._changeDetector.detectChanges();
 		}

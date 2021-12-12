@@ -13,8 +13,8 @@ import { Coerce } from "@electric/ng-utils";
 import { Fn } from "@electric/utils";
 
 import {
-	FormControl,
-	FORM_CONTROL,
+	NativeControl,
+	NATIVE_CONTROL,
 	ValueAccessor,
 } from "../form-controls.types";
 
@@ -32,7 +32,7 @@ export type InputType =
 	template: ``,
 	styleUrls: ["./input.component.scss"],
 	providers: [{
-		provide: FORM_CONTROL,
+		provide: NATIVE_CONTROL,
 		useExisting: InputComponent,
 	}, {
 		provide: NG_VALUE_ACCESSOR,
@@ -43,7 +43,7 @@ export type InputType =
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputComponent<T extends string|number>
-implements FormControl, ValueAccessor<T> {
+implements NativeControl, ValueAccessor<T> {
 	@HostBinding("class")
 	readonly hostClass = "elx-input";
 

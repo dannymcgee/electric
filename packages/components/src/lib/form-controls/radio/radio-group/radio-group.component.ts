@@ -25,7 +25,11 @@ import {
 import { DetectChanges, QueryList } from "@electric/ng-utils";
 import { assert, Fn } from "@electric/utils";
 
-import { FieldSet, FIELD_SET, ValueAccessor } from "../../form-controls.types";
+import {
+	CustomControl,
+	CUSTOM_CONTROL,
+	ValueAccessor,
+} from "../../form-controls.types";
 import { Radio, RADIO } from "../radio.types";
 
 @Component({
@@ -33,7 +37,7 @@ import { Radio, RADIO } from "../radio.types";
 	template: `<ng-content></ng-content>`,
 	styleUrls: ["./radio-group.component.scss"],
 	providers: [{
-		provide: FIELD_SET,
+		provide: CUSTOM_CONTROL,
 		useExisting: RadioGroupComponent,
 	}, {
 		provide: NG_VALUE_ACCESSOR,
@@ -46,7 +50,7 @@ import { Radio, RADIO } from "../radio.types";
 export class RadioGroupComponent<T>
 implements
 	ValueAccessor<T>,
-	FieldSet,
+	CustomControl,
 	OnInit,
 	AfterContentInit,
 	OnDestroy
