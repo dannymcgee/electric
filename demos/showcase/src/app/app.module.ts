@@ -20,7 +20,10 @@ import { ICONS } from "@electric/style";
 
 import { ENV_PLATFORM } from "../environments/env-platform";
 import { AppComponent } from "./app.component";
-import { CodeExampleComponent } from './code-example/code-example.component';
+import {
+	CodeExampleComponent,
+	TokenizePipe,
+} from './code-example/code-example.component';
 import { ButtonExample } from "./examples/button.example";
 
 @NgModule({
@@ -44,6 +47,7 @@ import { ButtonExample } from "./examples/button.example";
 		AppComponent,
 		CodeExampleComponent,
 		ButtonExample,
+		TokenizePipe,
 	],
 	bootstrap: [
 		AppComponent,

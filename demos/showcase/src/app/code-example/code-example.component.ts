@@ -1,4 +1,5 @@
 import {
+	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	ComponentRef,
@@ -6,15 +7,32 @@ import {
 	Input,
 	OnChanges,
 	OnInit,
+	Pipe,
+	PipeTransform,
 	SimpleChange,
 	Type,
 	ViewChild,
 	ViewContainerRef,
 } from "@angular/core";
+import hljs from "highlight.js/lib/core";
 
-import { array, entries } from "@electric/utils";
+import { array, entries, isNotNull } from "@electric/utils";
+
+import htmlLang, { IDENT as HTML_IDENT } from "./html.language";
+import { regex } from "@vscode-devkit/grammar";
+
+hljs.registerLanguage("html", htmlLang);
 
 export type Inputs = Record<string, any>;
+
+export type Defaults = {
+	[key: string]: string | DefaultOptions;
+}
+
+interface DefaultOptions {
+	value: string;
+	keepAttr: boolean;
+}
 
 @Component({
 	selector: "showcase-code-example",
@@ -26,14 +44,20 @@ export type Inputs = Record<string, any>;
 <div class="controls">
 	<ng-content></ng-content>
 </div>
-<pre class="code" [innerHtml]="template"></pre>
+<pre class="code"
+	><code class="language-html"
+		[innerHtml]="template | tokenize : defaults"
+	></code
+></pre>
 
 	`,
 	styleUrls: ["./code-example.component.scss"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CodeExampleComponent<C> implements OnInit, OnChanges, DoCheck {
 	@Input() Component!: Type<C>;
 	@Input() inputs!: Partial<C>;
+	@Input() defaults?: Defaults;
 	@Input() content?: Node[][];
 	@Input() template!: string;
 
@@ -92,6 +116,76 @@ export class CodeExampleComponent<C> implements OnInit, OnChanges, DoCheck {
 	}
 }
 
+@Pipe({
+	name: "tokenize",
+	pure: true,
+})
+export class TokenizePipe implements PipeTransform {
+	transform(markup: string, defaults?: Defaults): string {
+		markup = this
+			.stripLeadingIndents(markup)
+			.map(line => this.stripDefaults(line, defaults))
+			.filter(isNotNull)
+			.join("\n");
+
+		markup = this.format(markup);
+		markup = hljs.highlight(markup, { language: "html" }).value;
+
+		return markup
+			.split("\n")
+			.map((line, idx) =>
+				`<span class="hljs-line-num">${
+					idx + 1
+				}</span>${
+					line.replace("\t", "   ")
+				}`
+			)
+			.join("\n");
+	}
+
+	private stripLeadingIndents(markup: string): string[] {
+		let leadingIndent = "";
+		return markup
+			.split("\n")
+			.filter(line => !/^\s*$/.test(line))
+			.map((line, idx) => {
+				if (idx === 0) {
+					leadingIndent = line.match(/^\t+/)?.[0] ?? "";
+				}
+				return line.replace(leadingIndent, "");
+			});
+	}
+
+	private stripDefaults(line: string, defaults?: Defaults): string | null {
+		if (!defaults) return line;
+
+		let match = line.match(regex`/(${HTML_IDENT})="([^"]*)"/`);
+		if (!match) return line;
+
+		let [_, matchKey, matchValue] = match;
+		for (let [key, options] of entries(defaults)) {
+			if (matchKey !== key)
+				continue;
+
+			let value = typeof options === "object"
+				? options.value
+				: options;
+
+			if (matchValue === value) {
+				if (typeof options === "object" && options.keepAttr) {
+					return line.replace(/="([^"]*)"/, "");
+				}
+				return null;
+			}
+		}
+
+		return line;
+	}
+
+	private format(markup: string): string {
+		return markup.replace(/(<)([^\n]+)\n(s*>)/g, "$1$2$3");
+	}
+}
 
 export function html(strings: TemplateStringsArray, ...values: any[]) {
 	let markup = interpolate(strings, ...values);

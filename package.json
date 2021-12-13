@@ -24,6 +24,8 @@
 		"@angular/platform-browser-dynamic": "^13.0.0",
 		"@angular/router": "^13.0.0",
 		"@tauri-apps/api": "^1.0.0-beta.8",
+		"@vscode-devkit/grammar": "0.0.1",
+		"highlight.js": "^11.3.1",
 		"rxjs": "~7.4.0",
 		"tslib": "^2.0.0",
 		"zone.js": "~0.11.4"

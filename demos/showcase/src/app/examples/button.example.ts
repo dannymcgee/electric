@@ -4,7 +4,11 @@ import { ButtonComponent } from "@electric/components/button";
 import { ICONS } from "@electric/style";
 import { keys } from "@electric/utils";
 
-import { html } from "../code-example/code-example.component";
+import {
+	Defaults,
+	html,
+	template,
+} from "../code-example/code-example.component";
 
 @Component({
 	selector: "showcase-button-example",
@@ -12,6 +16,7 @@ import { html } from "../code-example/code-example.component";
 		<showcase-code-example class="example"
 			[Component]="ButtonComponent"
 			[inputs]="inputs"
+			[defaults]="defaults"
 			[content]="content"
 			[template]="template"
 		>
@@ -86,10 +91,20 @@ export class ButtonExample {
 		size: "md",
 	};
 
+	readonly defaults: Defaults = {
+		"elx-btn": {
+			value: "tertiary",
+			keepAttr: true,
+		},
+		icon: "undefined",
+		size: "md",
+	};
+
 	testSelect?: string;
 
 	private _cachedLabel?: string;
 	private _cachedContent?: Node[][];
+
 	get content() {
 		if (this.label !== this._cachedLabel) {
 			this._cachedLabel = this.label;
@@ -99,37 +114,14 @@ export class ButtonExample {
 	}
 
 	get template() {
-		let content = `<span class="op">&lt;</span>`
-			+ `<span class="tag">button</span> `
-			+ `<span class="attr">elx-btn</span>`;
-
-		if (this.inputs.variant && this.inputs.variant !== "tertiary")
-			content += `&equals;`
-				+ `<span class="attr-value">&quot;${
-					this.inputs.variant
-				}&quot;</span>`;
-
-		if (this.inputs.icon)
-			content += `\n  `
-				+ `<span class="attr">icon</span>`
-				+ `&equals;`
-				+ `<span class="attr-value">&quot;${this.inputs.icon}&quot;</span>`;
-
-		if (this.inputs.size && this.inputs.size !== "md")
-			content += `\n  `
-				+ `<span class="attr">size</span>`
-				+ `&equals;`
-				+ `<span class="attr-value">&quot;${this.inputs.size}&quot;</span>`;
-
-		if (content.includes("\n"))
-			content += "\n";
-
-		content += `<span class="op">&gt;</span>`
-			+ `\n  ${this.label}\n`
-			+ `<span class="op">&lt;/</span>`
-			+ `<span class="tag">button</span>`
-			+ `<span class="op">&gt;</span>`;
-
-		return content;
+		let { variant, icon, size } = this.inputs;
+		return template`
+			<button elx-btn="${variant}"
+				icon="${icon}"
+				size="${size}"
+			>
+				${this.label}
+			</button>
+		`;
 	}
 }

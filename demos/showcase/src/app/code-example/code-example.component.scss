@@ -29,14 +29,43 @@
 }
 
 .code {
-	padding: 16px;
+	margin: 0;
+	padding: 24px;
 	background: color.background(200);
 	font-size: rem(14);
+	line-height: 1.4;
 
 	::ng-deep {
-		.op { color: color.foreground(200) }
-		.tag { color: color.warning(700) }
-		.attr { color: color.warning(600) }
-		.attr-value { color: color.accent(600) }
+		.hljs-line-num {
+			color: color.foreground(500);
+			padding-right: 2em;
+		}
+		.hljs-indent {
+			position: relative;
+
+			&::before {
+				@include layout.absolute(-0.2em, null, -0.2em, 0);
+				content: "";
+				width: 2px;
+				background: color.background(600);
+			}
+		}
+		.hljs-operator,
+		.hljs-punctuation {
+			color: color.foreground(200);
+		}
+		.hljs-tag-name {
+			color: color.warning(700);
+		}
+		.hljs-attr-name {
+			color: color.warning(600);
+		}
+		.hljs-string {
+			color: color.accent(600);
+
+			.hljs-delimiter {
+				opacity: 0.5;
+			}
+		}
 	}
 }
