@@ -19,16 +19,16 @@
 		background: color.primary(400);
 		color: color.white();
 
-		&:hover  { background: color.primary(500); }
-		&:active { background: color.primary(300); }
+		&:hover, &.hover   { background: color.primary(500); }
+		&:active, &.active { background: color.primary(300); }
 	}
 
 	&--warning {
 		background: color.warning(300);
 		color: color.white();
 
-		&:hover  { background: color.warning(400); }
-		&:active { background: color.warning(200); }
+		&:hover, &.hover   { background: color.warning(400); }
+		&:active, &.active { background: color.warning(200); }
 
 		.elx-icon {
 			color: color.warning(800);
@@ -39,8 +39,8 @@
 		background: color.accent(100);
 		color: color.accent(700);
 
-		&:hover  { background: color.accent(200); }
-		&:active { background: color.accent(50); }
+		&:hover, &.hover   { background: color.accent(200); }
+		&:active, &.active { background: color.accent(50); }
 	}
 
 	&--primary, &--secondary {
@@ -57,16 +57,18 @@
 			color: color.foreground(300);
 		}
 
-		&:hover  { background: color.background(800); }
-		&:active { background: color.background(600); }
+		&:hover, &.hover   { background: color.background(800); }
+		&:active, &.active { background: color.background(600); }
 	}
 
-	&:focus-visible {
+	&:focus-visible,
+	&.focus {
 		box-shadow: 0 0 0 4px color.accent(600);
 		color: color.white();
 	}
 
-	&:disabled {
+	&:disabled,
+	&.disabled {
 		background: color.background(500);
 		color: color.foreground(500);
 		cursor: default;

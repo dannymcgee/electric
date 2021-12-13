@@ -1,4 +1,5 @@
 import { FocusMonitor, FocusOrigin, FocusOptions } from "@angular/cdk/a11y";
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import {
 	Component,
 	OnInit,
@@ -23,17 +24,6 @@ import { ButtonSize, ButtonVariant } from "./button.types";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonComponent implements Focusable, OnInit, OnDestroy {
-	@Input("elx-btn")
-	get variant() { return this._variant; }
-	set variant(value) { if (value) this._variant = value; }
-	private _variant: ButtonVariant = "tertiary";
-
-	@Input() size: ButtonSize = "md";
-	@Input() icon?: IconName;
-
-	@HostBinding("attr.role")
-	@Input() role = "button";
-
 	@HostBinding("class")
 	get hostClasses(): string[] {
 		let base = "elx-btn";
@@ -42,6 +32,39 @@ export class ButtonComponent implements Focusable, OnInit, OnDestroy {
 
 		return [base, size, variant];
 	}
+
+	@HostBinding("attr.role")
+	@Input() role = "button";
+
+	@Input("elx-btn")
+	get variant() { return this._variant; }
+	set variant(value) { if (value) this._variant = value; }
+	private _variant: ButtonVariant = "tertiary";
+
+	@Input() size: ButtonSize = "md";
+	@Input() icon?: IconName;
+
+	@HostBinding("class.disabled")
+	@Input()
+	get disabled() { return this._disabled; }
+	set disabled(value) {
+		this._disabled = coerceBooleanProperty(value);
+		if (
+			this._element instanceof HTMLButtonElement
+			|| this._element instanceof HTMLInputElement
+		) {
+			this._element.disabled = this._disabled;
+		} else {
+			if (value) {
+				this._element.setAttribute("aria-disabled", "true");
+			} else {
+				this._element.removeAttribute("aria-disabled");
+			}
+		}
+	}
+	private _disabled?: boolean;
+
+	private get _element() { return this._elementRef.nativeElement; }
 
 	constructor (
 		private _elementRef: ElementRef<HTMLElement>,
