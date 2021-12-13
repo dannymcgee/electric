@@ -47,15 +47,17 @@ export class AccordionToolbarDirective {
 @Component({
 	selector: "elx-accordion-header, [elxAccordionHeader]",
 	template: `
-		<span class="elx-accordion-header__title">
-			<ng-content></ng-content>
-		</span>
-		<ng-content select="[elxAccordionToolbar]"></ng-content>
-		<div class="elx-accordion-header__icon"
-			[class.elx-accordion-header__icon--expanded]="accordion.expanded"
-		>
-			<elx-icon icon="ChevronRightSmall"></elx-icon>
-		</div>
+
+<span class="elx-accordion-header__title">
+	<ng-content></ng-content>
+</span>
+<ng-content select="[elxAccordionToolbar]"></ng-content>
+<div class="elx-accordion-header__icon"
+	[class.elx-accordion-header__icon--expanded]="accordion.expanded"
+>
+	<elx-icon icon="ChevronRightSmall"></elx-icon>
+</div>
+
 	`
 })
 export class AccordionHeaderComponent {
@@ -91,15 +93,17 @@ export class AccordionGroupComponent extends CdkAccordion {
 @Component({
 	selector: "elx-accordion, [elxAccordion]",
 	template: `
-		<ng-content
-			select="elx-accordion-header, [elxAccordionHeader]"
-		></ng-content>
-		<section class="elx-accordion-body"
-			*ngIf="expanded"
-			@accordion
-		>
-			<ng-content></ng-content>
-		</section>
+
+<ng-content
+	select="elx-accordion-header, [elxAccordionHeader]"
+></ng-content>
+<section class="elx-accordion-body"
+	*ngIf="expanded"
+	@accordion
+>
+	<ng-content></ng-content>
+</section>
+
 	`,
 	styleUrls: ["./accordion.component.scss"],
 	providers: [{

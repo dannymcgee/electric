@@ -56,38 +56,45 @@ export class FormFieldComponent implements DoCheck {
 
 	ngDoCheck(): void {
 		if (this._label && this._nativeControl) {
-			if (
-				this._label.for && this._nativeControl.fieldId
-				&& this._label.for === this._nativeControl.fieldId
-			) {
-				return;
-			}
-
-			let id = this._nativeControl.fieldId || elementId("form-control");
-			if (this._nativeControl.fieldId !== id) {
-				this._nativeControl.fieldId = id;
-			}
-			this._label.for = id;
-			this._label.useNative = true;
-
-			this._changeDetector.detectChanges();
+			this.linkNativeControlAndLabel();
+		} else if (this._label && this._customControl) {
+			this.linkCustomControlAndLabel();
 		}
-		else if (this._label && this._customControl) {
-			if (
-				this._label.id && this._customControl.labelId
-				&& this._label.id === this._customControl.labelId
-			) {
-				return;
-			}
+	}
 
-			let id = this._label.id || elementId("form-label");
-			if (this._label.id !== id) {
-				this._label.id = id;
-			}
-			this._customControl.labelId = id;
-			this._label.useNative = false;
-
-			this._changeDetector.detectChanges();
+	private linkNativeControlAndLabel(): void {
+		if (
+			this._label!.for && this._nativeControl!.fieldId
+			&& this._label!.for === this._nativeControl!.fieldId
+		) {
+			return;
 		}
+
+		let id = this._nativeControl!.fieldId || elementId("form-control");
+		if (this._nativeControl!.fieldId !== id) {
+			this._nativeControl!.fieldId = id;
+		}
+		this._label!.for = id;
+		this._label!.useNative = true;
+
+		this._changeDetector.detectChanges();
+	}
+
+	private linkCustomControlAndLabel(): void {
+		if (
+			this._label!.id && this._customControl!.labelId
+			&& this._label!.id === this._customControl!.labelId
+		) {
+			return;
+		}
+
+		let id = this._label!.id || elementId("form-label");
+		if (this._label!.id !== id) {
+			this._label!.id = id;
+		}
+		this._customControl!.labelId = id;
+		this._label!.useNative = false;
+
+		this._changeDetector.detectChanges();
 	}
 }

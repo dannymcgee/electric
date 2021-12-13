@@ -150,14 +150,16 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 @Component({
 	selector: "elx-dialog-heading, [elx-dialog-heading]",
 	template: `
-		<elx-icon class="elx-dialog-heading__icon"
-			*ngIf="icon"
-			[icon]="icon"
-		></elx-icon>
 
-		<h3 class="elx-dialog-heading__title">
-			<ng-content></ng-content>
-		</h3>
+<elx-icon class="elx-dialog-heading__icon"
+	*ngIf="icon"
+	[icon]="icon"
+></elx-icon>
+
+<h3 class="elx-dialog-heading__title">
+	<ng-content></ng-content>
+</h3>
+
 	`,
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
