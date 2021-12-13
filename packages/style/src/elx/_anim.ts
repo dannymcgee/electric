@@ -30,7 +30,7 @@ export namespace anim {
 			return easingFn(easing)(t);
 		}
 
-		let [t, [from, to], [easing]] = args;
+		let [t, [from, to], easing] = args;
 		t = easingFn(easing)(t);
 
 		return lerp(t, [from, to]);
