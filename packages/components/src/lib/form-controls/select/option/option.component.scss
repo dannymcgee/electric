@@ -11,14 +11,17 @@
 	min-height: calc(#{a11y.rem(14)} + 18px);
 	padding: 0 8px;
 	cursor: pointer;
+	user-select: none;
 
 	&:hover {
 		background: color.background(100, 0.333);
 	}
+
 	&.active {
 		background: transparent;
 		color: color.accent(700);
 	}
+
 	&.disabled {
 		background: transparent;
 		color: color.foreground(500);

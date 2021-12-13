@@ -25,6 +25,7 @@
 
 	&__label {
 		margin-right: 48px;
+		user-select: none;
 
 		&:first-child {
 			margin-left: calc(#{rem(18)} + 10px);

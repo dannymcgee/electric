@@ -24,6 +24,8 @@
 	}
 
 	&__value {
+		user-select: none;
+
 		&--placeholder {
 			padding-left: 8px;
 			@include type.font(a11y.rem(14), 400);

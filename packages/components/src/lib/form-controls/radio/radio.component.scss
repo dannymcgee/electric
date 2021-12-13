@@ -23,7 +23,7 @@
 		@include anim.transition(border-color, anim.frame-time(4));
 		border: 2px solid color.foreground(400);
 
-		.elx-radio.focus &--checked {
+		&--checked {
 			border-color: color.accent(400);
 		}
 	}
@@ -40,11 +40,6 @@
 		background: color.accent(700);
 
 		&:checked {
-			background: color.foreground(200);
-			transform: scale(1);
-		}
-		&:focus-visible:checked {
-			background: color.accent(700);
 			transform: scale(1);
 		}
 	}

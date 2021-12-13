@@ -68,6 +68,12 @@ input {
 	border: none;
 }
 
+input:not([type="text"]),
+button,
+label {
+	user-select: none;
+}
+
 .row {
 	display: flex;
 	width: calc(100% + #{rem(64)});
