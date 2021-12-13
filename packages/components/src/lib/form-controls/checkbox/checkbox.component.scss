@@ -1,0 +1,80 @@
+@use "elx/a11y";
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+.elx-checkbox {
+	$root: &;
+
+	@include layout.flex(row, center);
+	@include anim.transition(background-color);
+	gap: 8px;
+	cursor: pointer;
+
+	&.focus {
+		background: color.accent(100, 0.4);
+	}
+
+	&.disabled {
+		pointer-events: none;
+	}
+
+	&__checkbox {
+		@include layout.flex(row, center, center);
+		@include anim.transition((background-color, border-color));
+		position: relative;
+		width: 16px;
+		height: 16px;
+		border: 2px solid color.foreground(400);
+
+		#{$root}.focus & {
+			border-color: color.accent(700);
+		}
+
+		#{$root}.checked & {
+			background: color.accent(500);
+			border-color: color.accent(500);
+		}
+
+		#{$root}.disabled & {
+			border-color: color.foreground(500);
+		}
+
+		#{$root}.disabled.checked & {
+			background: color.foreground(500);
+		}
+	}
+
+	&__icon {
+		@include layout.absolute(-2px, -2px, -2px, -2px);
+		color: color.background(100);
+	}
+
+	&__input {
+		@include a11y.visually-hidden;
+	}
+
+	&__label {
+		@include type.font(a11y.rem(13), 400);
+		@include anim.transition(color);
+		color: color.foreground(200);
+		line-height: 1;
+		pointer-events: none;
+
+		&:hover,
+		#{$root}.focus &,
+		#{$root}:hover & {
+			color: color.foreground(50);
+		}
+
+		#{$root}.checked & {
+			color: color.foreground(100);
+			font-weight: 500;
+		}
+
+		#{$root}.disabled & {
+			color: color.foreground(400);
+		}
+	}
+}

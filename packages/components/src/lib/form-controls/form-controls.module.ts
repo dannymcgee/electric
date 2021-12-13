@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { IconModule } from "@electric/components/icon";
 import { UtilityModule } from "@electric/ng-utils";
 
+import { CheckboxComponent } from "./checkbox/checkbox.component";
 import { FormFieldComponent } from "./form-field/form-field.component";
 import { InputComponent } from "./input/input.component";
 import {
@@ -29,6 +30,7 @@ import { OptionListComponent } from './select/option-list/option-list.component'
 		UtilityModule,
 	],
 	declarations: [
+		CheckboxComponent,
 		FormFieldComponent,
 		InputComponent,
 		LabelComponent,
@@ -42,6 +44,7 @@ import { OptionListComponent } from './select/option-list/option-list.component'
 		OptionListComponent,
 	],
 	exports: [
+		CheckboxComponent,
 		FormFieldComponent,
 		InputComponent,
 		LabelComponent,
