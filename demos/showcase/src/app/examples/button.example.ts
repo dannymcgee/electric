@@ -66,14 +66,8 @@ import {
 			</elx-form-field>
 		</showcase-code-example>
 	`,
+	styleUrls: ["./example.scss"],
 	styles: [`
-		:host {
-			display: block;
-		}
-		:host, .example {
-			width: 100%;
-			height: 100%;
-		}
 		.icon {
 			margin-right: 8px;
 			opacity: 0.667;
