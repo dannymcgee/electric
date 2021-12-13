@@ -1,0 +1,11 @@
+@use "elx/layout";
+@use "elx/style/color";
+
+:host {
+	background: color.background(400);
+}
+
+.controls-section {
+	@include layout.flex(column);
+	gap: 12px;
+}

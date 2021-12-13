@@ -1,0 +1,94 @@
+<showcase-example class="example">
+	<showcase-example-demo>
+		<button [elx-btn]="inputs.variant"
+			[class.focus]="state.focused"
+			[class.hover]="state.hovered"
+			[class.active]="state.pressed"
+			[icon]="inputs.icon"
+			[size]="inputs.size"
+			[disabled]="state.disabled"
+		>
+			{{ label }}
+		</button>
+	</showcase-example-demo>
+
+	<showcase-example-controls>
+		<ng-container *showcaseControlsSection="'Inputs'">
+			<elx-form-field>
+				<elx-label>Label</elx-label>
+				<input elx-input
+					[(ngModel)]="label"
+				/>
+			</elx-form-field>
+
+			<elx-form-field>
+				<elx-label>Variant</elx-label>
+				<elx-radio-group name="variant"
+					[(ngModel)]="inputs.variant"
+				>
+					<elx-radio value="primary">Primary</elx-radio>
+					<elx-radio value="secondary">Secondary</elx-radio>
+					<elx-radio value="tertiary">Tertiary</elx-radio>
+					<elx-radio value="warning">Warning</elx-radio>
+				</elx-radio-group>
+			</elx-form-field>
+
+			<elx-form-field>
+				<elx-label>Size</elx-label>
+				<elx-radio-group name="size"
+					[(ngModel)]="inputs.size"
+				>
+					<elx-radio value="sm">Small</elx-radio>
+					<elx-radio value="md">Medium</elx-radio>
+				</elx-radio-group>
+			</elx-form-field>
+
+			<elx-form-field>
+				<elx-label>Icon</elx-label>
+				<elx-select [(ngModel)]="inputs.icon">
+					<elx-option>None</elx-option>
+					<elx-option *ngFor="let icon of icons"
+						[value]="icon"
+					>
+						<elx-icon class="icon"
+							size="sm"
+							[icon]="icon"
+						></elx-icon>
+						{{ icon }}
+					</elx-option>
+				</elx-select>
+			</elx-form-field>
+		</ng-container>
+
+		<ng-container *showcaseControlsSection="'State'">
+			<elx-checkbox
+				[(ngModel)]="state.disabled"
+			>
+				Disabled
+			</elx-checkbox>
+			<elx-checkbox
+				[disabled]="state.disabled"
+				[(ngModel)]="state.hovered"
+			>
+				Hovered
+			</elx-checkbox>
+			<elx-checkbox
+				[disabled]="state.disabled"
+				[(ngModel)]="state.focused"
+			>
+				Focused
+			</elx-checkbox>
+			<elx-checkbox
+				[disabled]="state.disabled"
+				[(ngModel)]="state.pressed"
+			>
+				Pressed
+			</elx-checkbox>
+		</ng-container>
+	</showcase-example-controls>
+
+	<showcase-example-code
+		[template]="template"
+		[templateDefaults]="defaults"
+	></showcase-example-code>
+</showcase-example>

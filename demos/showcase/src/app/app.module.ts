@@ -19,12 +19,9 @@ import {
 import { ICONS } from "@electric/style";
 
 import { ENV_PLATFORM } from "../environments/env-platform";
+import { ExampleModule } from "./example/example.module";
+import { ButtonExample } from "./examples/button/button.example";
 import { AppComponent } from "./app.component";
-import {
-	CodeExampleComponent,
-	TokenizePipe,
-} from './code-example/code-example.component';
-import { ButtonExample } from "./examples/button.example";
 
 @NgModule({
 	imports: [
@@ -42,12 +39,12 @@ import { ButtonExample } from "./examples/button.example";
 		MenuModule,
 		PlatformModule.forPlatform(ENV_PLATFORM),
 		ThemeModule.withTheme(DEFAULT_THEME, "dark"),
+		// App modules
+		ExampleModule,
 	],
 	declarations: [
 		AppComponent,
-		CodeExampleComponent,
 		ButtonExample,
-		TokenizePipe,
 	],
 	bootstrap: [
 		AppComponent,
