@@ -1,0 +1,22 @@
+@use "elx/a11y" as *;
+@use "elx/style/color";
+
+:host {
+	list-style: none;
+	list-style-type: none;
+	counter-reset: line;
+	margin: 0;
+	padding: 0 1.5em 0 0;
+}
+
+.line-number {
+	counter-increment: line;
+	text-align: right;
+
+	&::after {
+		content: counter(line);
+		font: inherit;
+		color: color.foreground(500);
+		user-select: none;
+	}
+}

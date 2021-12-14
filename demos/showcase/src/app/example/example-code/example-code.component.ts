@@ -25,11 +25,20 @@ import htmlLang from "./html.language";
 ></elx-resize-handle>
 
 <div class="showcase-example-code__scroll-container"
-	><code class="language-html"
-		*ngIf="template != null"
-		[innerHtml]="template | tokenize : templateDefaults"
-	></code
-></div>
+	*elxUnwrap="(
+		template
+			| lines
+			| slice : 1
+			| stripIndents
+			| stripDefaults : templateDefaults
+			| fmt
+		) as lines"
+>
+	<ol [showcaseLineNumbersFor]="lines"></ol>
+	<code class="language-html showcase-example-code__code"
+		[innerHtml]="lines | joinLines | highlight : 'html'"
+	></code>
+</div>
 
 	`,
 	styleUrls: ["./example-code.component.scss"],
