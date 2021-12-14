@@ -24,26 +24,28 @@ import { QueryList } from "@electric/ng-utils";
 	align="left"
 ></elx-resize-handle>
 
-<elx-accordion-group multi
-	*ngIf="_sections"
->
-	<elx-accordion expanded
-		*ngFor="let section of _sections"
+<div class="scroll-container">
+	<elx-accordion-group multi
+		*ngIf="_sections"
 	>
-		<elx-accordion-header>
-			{{ section.name }}
-		</elx-accordion-header>
+		<elx-accordion expanded
+			*ngFor="let section of _sections"
+		>
+			<elx-accordion-header>
+				{{ section.name }}
+			</elx-accordion-header>
 
-		<section class="controls-section">
-			<ng-template
-				[ngTemplateOutlet]="section.template"
-			></ng-template>
-		</section>
+			<section class="controls-section">
+				<ng-template
+					[ngTemplateOutlet]="section.template"
+				></ng-template>
+			</section>
 
-	</elx-accordion>
+		</elx-accordion>
 
-	<ng-content></ng-content>
-</elx-accordion-group>
+		<ng-content></ng-content>
+	</elx-accordion-group>
+</div>
 
 	`,
 	styleUrls: ["./example-controls.component.scss"],
