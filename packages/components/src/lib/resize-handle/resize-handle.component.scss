@@ -1,0 +1,38 @@
+@use "elx/anim";
+@use "elx/layout";
+
+.elx-resize-handle {
+	@include anim.transition(background-color, anim.frame-time(4));
+
+	&--vertical {
+		width: 100%;
+		height: 6px;
+		cursor: ns-resize;
+	}
+
+	&--horizontal {
+		width: 6px;
+		height: 100%;
+		cursor: ew-resize;
+	}
+
+	&--top {
+		@include layout.absolute(0, 0, null, 0);
+	}
+	&--right {
+		@include layout.absolute(0, 0, 0, null);
+	}
+	&--bottom {
+		@include layout.absolute(null, 0, 0, 0);
+	}
+	&--left {
+		@include layout.absolute(0, null, 0, 0);
+	}
+
+	&--top,
+	&--right,
+	&--bottom,
+	&--left {
+		z-index: 1;
+	}
+}

@@ -1,18 +1,33 @@
 @use "elx/a11y" as *;
+@use "elx/anim";
 @use "elx/layout";
 @use "elx/style/color";
+@use "elx/style/scrollbar" as *;
 
 .showcase-example-code {
-	margin: 0;
-	padding: 24px;
-	background: color.background(200);
-	white-space: pre;
-	font-size: rem(14);
-	line-height: 1.4;
+	position: relative;
 
-	&::selection,
-	*::selection {
-		background: color.background(700);
+	&__resize-handle {
+		&:hover, &.active {
+			background: color.background(500);
+		}
+	}
+
+	&__scroll-container {
+		@include layout.absolute(6px, 0, 0, 0);
+		@include scrollbar(200);
+		overflow-y: auto;
+		margin: 0;
+		padding: 24px;
+		background: color.background(200);
+		white-space: pre;
+		font-size: rem(14);
+		line-height: 1.4;
+
+		&::selection,
+		*::selection {
+			background: color.background(700);
+		}
 	}
 }
 

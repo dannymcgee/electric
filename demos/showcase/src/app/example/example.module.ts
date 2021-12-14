@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
-import { AccordionModule } from "@electric/components";
-import { ExampleCodeComponent } from "./example-code/example-code.component";
+import { AccordionModule } from "@electric/components/accordion";
+import { ResizeHandleModule } from "@electric/components/resize-handle";
 
+import { ExampleCodeComponent } from "./example-code/example-code.component";
 import {
 	ExampleControlsComponent,
 	ExampleControlsSectionDirective,
@@ -16,6 +17,7 @@ import { TokenizePipe } from "./example-code/tokenize.pipe";
 	imports: [
 		AccordionModule,
 		CommonModule,
+		ResizeHandleModule,
 	],
 	declarations: [
 		ExampleComponent,

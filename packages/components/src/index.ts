@@ -5,4 +5,5 @@ export * from "./lib/dialog";
 export * from "./lib/form-controls";
 export * from "./lib/icon";
 export * from "./lib/menu";
+export * from "./lib/resize-handle";
 export * from "./lib/theme";

@@ -6,12 +6,23 @@ import {
 	HostBinding,
 	Input,
 	TemplateRef,
+	ViewChild,
 } from "@angular/core";
+
+import {
+	ResizeHandle,
+	RESIZE_HANDLE,
+} from "@electric/components/resize-handle";
 import { QueryList } from "@electric/ng-utils";
 
 @Component({
 	selector: "showcase-example-controls",
 	template: `
+
+<elx-resize-handle class="resize-handle"
+	direction="horizontal"
+	align="left"
+></elx-resize-handle>
 
 <elx-accordion-group multi
 	*ngIf="_sections"
@@ -43,6 +54,9 @@ export class ExampleControlsComponent {
 
 	@HostBinding("style.grid-area")
 	readonly gridArea = "example-controls";
+
+	@ViewChild(RESIZE_HANDLE, { static: true })
+	resizeHandle!: ResizeHandle;
 
 	@ContentChildren(forwardRef(() => ExampleControlsSectionDirective))
 	_sections?: QueryList<ExampleControlsSectionDirective>;
