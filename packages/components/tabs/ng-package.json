@@ -1,0 +1,9 @@
+{
+	"lib": {
+		"entryFile": "../src/lib/tabs/index.ts",
+		"styleIncludePaths": [
+			"../../../node_modules",
+			"../../style/src"
+		]
+	}
+}

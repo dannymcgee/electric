@@ -1,0 +1,47 @@
+@use "elx/anim";
+@use "elx/style/color";
+@use "elx/style/type";
+
+.elx-tab {
+	@include anim.transition((background-color, color));
+	@include type.ui;
+	padding: 12px;
+	color: color.foreground(200);
+	font-weight: 400;
+	cursor: pointer;
+	outline: none !important;
+	user-select: none;
+
+	&:hover {
+		background: color.background(900, 0.333);
+		color: color.foreground(100);
+	}
+
+	&.active {
+		color: color.foreground(100);
+		font-weight: 500;
+	}
+
+	&.active:hover {
+		color: color.foreground(50);
+	}
+
+	&:focus-visible {
+		background: color.accent(100);
+		color: color.foreground(50);
+	}
+
+	&.disabled {
+		color: color.foreground(500);
+		pointer-events: none;
+	}
+
+	&::after {
+		display: block;
+		content: attr(data-label);
+		font-size: inherit;
+		font-weight: 500;
+		height: 1px;
+		visibility: hidden;
+	}
+}

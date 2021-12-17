@@ -1,0 +1,53 @@
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+
+.elx-tab-list {
+	$root: &;
+
+	display: block;
+	outline: none !important;
+	border-bottom: 2px solid transparent;
+
+	&--underlined {
+		border-color: color.background(900, 0.333)
+	}
+
+	&__container {
+		@include layout.flex(row);
+		position: relative;
+	}
+
+	&__active-indicator {
+		@include layout.absolute($bottom: -2px);
+		@include anim.transition(
+			(left, width, height, padding),
+			anim.frame-time(3),
+			anim.$ease-out-sine,
+		);
+		height: 2px;
+		padding: 0 12px;
+		pointer-events: none;
+
+		#{$root}.focus-visible &,
+		#{$root}.active-hover & {
+			padding: 0;
+		}
+
+		#{$root}.active-hover & {
+			height: 4px;
+		}
+
+		&::after {
+			@include anim.transition(background-color);
+			content: "";
+			display: block;
+			height: 100%;
+			background: color.primary(600);
+
+			#{$root}.focus-visible & {
+				background: color.accent(700);
+			}
+		}
+	}
+}

@@ -17,7 +17,7 @@ import {
 
 import { DetectChanges } from "@electric/ng-utils";
 import { a11y } from "@electric/style";
-import { elementId } from "@electric/utils";
+import { elementId, getLabel } from "@electric/utils";
 
 import { Option, OPTION } from "../select.types";
 
@@ -95,40 +95,7 @@ implements
 	}
 
 	getLabel(): string {
-		let result = [] as string[];
-		this._elementRef.nativeElement.childNodes.forEach(node => {
-			this.accumLabel(node, result);
-		});
-		return result.join(" ");
-	}
-
-	private accumLabel(node: Node, accum: string[]): void {
-		switch (node.nodeType) {
-			case Node.TEXT_NODE: {
-				if (node.nodeValue)
-					accum.push(node.nodeValue.trim());
-				break;
-			}
-			case Node.ELEMENT_NODE: {
-				let element = node as Element;
-				let attrs = element.attributes;
-
-				if (attrs.getNamedItem("aria-hidden"))
-					break;
-
-				let ariaLabel: string | undefined;
-				if ((ariaLabel = attrs.getNamedItem("aria-label")?.value)) {
-					accum.push(ariaLabel);
-					break;
-				}
-
-				node.childNodes.forEach(node => {
-					this.accumLabel(node, accum)
-				});
-
-				break;
-			}
-		}
+		return getLabel(this._elementRef.nativeElement);
 	}
 
 	setActiveStyles(): void {

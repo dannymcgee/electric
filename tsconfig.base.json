@@ -25,6 +25,7 @@
 			"@electric/components/icon": ["packages/components/src/lib/icon/index.ts"],
 			"@electric/components/menu": ["packages/components/src/lib/menu/index.ts"],
 			"@electric/components/resize-handle": ["packages/components/src/lib/resize-handle/index.ts"],
+			"@electric/components/tabs": ["packages/components/src/lib/tabs/index.ts"],
 			"@electric/components/theme": ["packages/components/src/lib/theme/index.ts"],
 			"@electric/ng-utils": ["packages/ng-utils/src/index.ts"],
 			"@electric/platform": ["packages/platform/src/index.ts"],
