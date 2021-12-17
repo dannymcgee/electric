@@ -1,6 +1,9 @@
 {
 	"lib": {
 		"entryFile": "../src/lib/theme/index.ts",
-		"styleIncludePaths": ["../../style/src"]
+		"styleIncludePaths": [
+			"../../../node_modules",
+			"../../style/src"
+		]
 	}
 }

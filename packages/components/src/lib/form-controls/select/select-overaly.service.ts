@@ -14,12 +14,12 @@ import {
 } from "@angular/core";
 import { animationFrames, merge, Subject, takeUntil } from "rxjs";
 
+import { ThemeService } from "@electric/components/theme";
 import { anim, EaseOut } from "@electric/style";
 import { assert, sleep } from "@electric/utils";
 
 import { OptionListComponent } from "./option-list/option-list.component";
 import { OptionListOverlayData } from "./select-overlay-data.service";
-import { ThemeService } from "../../theme/theme.service";
 
 export interface OverlayConfig {
 	origin: ElementRef<HTMLElement>,
