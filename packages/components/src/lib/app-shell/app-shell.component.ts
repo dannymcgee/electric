@@ -12,10 +12,7 @@ import { Coerce } from "@electric/ng-utils";
 	template: `
 
 <ng-content select="elx-titlebar"></ng-content>
-
-<main class="elx-app-shell__main">
-	<ng-content></ng-content>
-</main>
+<ng-content select="elx-main-viewport, [elx-main-viewport]"></ng-content>
 
 	`,
 	styleUrls: ["./app-shell.component.scss"],

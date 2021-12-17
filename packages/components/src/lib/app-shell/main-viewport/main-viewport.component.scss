@@ -1,0 +1,12 @@
+@use "elx/style/color";
+@use "elx/style/scrollbar" as *;
+
+.elx-main-viewport {
+	flex: 1 0 0;
+	background: color.background(200);
+
+	&--scroll {
+		@include scrollbar(200);
+		overflow: auto;
+	}
+}

@@ -3,13 +3,11 @@ import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { AccordionModule } from "@electric/components/accordion";
 import { AppShellModule } from "@electric/components/app-shell";
 import { ButtonModule } from "@electric/components/button";
-import { DialogModule } from "@electric/components/dialog";
-import { FormControlsModule } from "@electric/components/form-controls";
 import { IconModule } from "@electric/components/icon";
 import { MenuModule } from "@electric/components/menu";
+import { ResizeHandleModule } from "@electric/components/resize-handle";
 import { PlatformModule } from "@electric/platform";
 import {
 	ThemeModule,
@@ -19,9 +17,9 @@ import {
 import { ICONS } from "@electric/style";
 
 import { ENV_PLATFORM } from "../environments/env-platform";
-import { ExampleModule } from "./example/example.module";
-import { ButtonExample } from "./examples/button/button.example";
 import { AppComponent } from "./app.component";
+import { AppRoutingModule } from "./app.routes";
+import { NavComponent } from './nav/nav.component';
 
 @NgModule({
 	imports: [
@@ -30,21 +28,19 @@ import { AppComponent } from "./app.component";
 		BrowserAnimationsModule,
 		FormsModule,
 		// Electric modules
-		AccordionModule,
 		AppShellModule,
 		ButtonModule,
-		DialogModule,
-		FormControlsModule,
 		IconModule.withIcons(ICONS),
 		MenuModule,
 		PlatformModule.forPlatform(ENV_PLATFORM),
+		ResizeHandleModule,
 		ThemeModule.withTheme(DEFAULT_THEME, "dark"),
-		// App modules
-		ExampleModule,
+		// Routing
+		AppRoutingModule,
 	],
 	declarations: [
 		AppComponent,
-		ButtonExample,
+		NavComponent,
 	],
 	bootstrap: [
 		AppComponent,

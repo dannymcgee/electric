@@ -4,8 +4,7 @@ import { ButtonSize, ButtonVariant } from "@electric/components/button";
 import { ICONS } from "@electric/style";
 import { keys } from "@electric/utils";
 
-import {	template } from "../../example/example.utilities";
-import { Defaults } from "../../example/example.types";
+import { Defaults } from "../../examples.types";
 
 class StateModel {
 	private _disabled = false;
@@ -25,9 +24,11 @@ class StateModel {
 }
 
 @Component({
-	selector: "showcase-button-example",
 	templateUrl: "./button.example.html",
-	styleUrls: ["./button.example.scss"],
+	styleUrls: [
+		"../example.shared.scss",
+		"./button.example.scss",
+	],
 })
 export class ButtonExample {
 	icons = keys(ICONS);
@@ -53,7 +54,7 @@ export class ButtonExample {
 		let { variant, icon, size } = this.inputs;
 		let { disabled } = this.state;
 
-		return template`
+		return `
 			<button elx-btn="${variant}"
 				icon="${icon}"
 				size="${size}"

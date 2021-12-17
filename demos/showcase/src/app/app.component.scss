@@ -7,7 +7,7 @@
 }
 
 .main {
-	padding: 16px;
+	@include layout.flex(row, stretch, stretch);
 }
 
 .toolbar {

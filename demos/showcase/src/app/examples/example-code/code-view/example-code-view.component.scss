@@ -1,0 +1,96 @@
+@use "elx/layout";
+@use "elx/style/color";
+
+.showcase-example-code-view {
+	@include layout.flex(row);
+	white-space: pre;
+	tab-size: 2;
+
+	&::selection,
+	*::selection {
+		background: color.background(700);
+	}
+}
+
+.hljs-indent {
+	position: relative;
+
+	&::before {
+		@include layout.absolute(-0.2em, null, -0.2em, 1.5px);
+		content: "";
+		width: 1.25px;
+		background: color.background(500);
+	}
+}
+
+.hljs-comment {
+	color: color.foreground(500);
+	font-style: italic;
+
+	> .hljs-delimiter {
+		color: inherit;
+		font-style: normal;
+	}
+}
+
+.hljs-brace {
+	color: color.foreground(100);
+}
+
+.hljs-keyword,
+.hljs-storage {
+	color: color.primary(800);
+	font-style: italic;
+}
+
+.hljs-decorator {
+	> .hljs-delimiter {
+		color: color.foreground(200);
+	}
+
+	.hljs-decorator-name {
+		color: color.primary(700);
+	}
+}
+
+.hljs-operator,
+.hljs-punctuation,
+.hljs-interpolation > .hljs-delimiter {
+	color: color.foreground(200);
+}
+
+.hljs-tag-name,
+.hljs-selector-class,
+.hljs-class-name {
+	color: color.warning(700);
+}
+
+.hljs-attr-name,
+.hljs-prop-name,
+.hljs-attribute {
+	color: color.warning(600);
+
+	.hljs-delimiter {
+		color: color.foreground(200);
+	}
+}
+
+.hljs-string {
+	color: color.accent(600);
+
+	.hljs-delimiter {
+		color: color.accent(600, 0.5);
+	}
+}
+
+.hljs-number {
+	color: color.accent(600);
+}
+
+.hljs-expression > .hljs-delimiter {
+	color: color.accent(600, 0.5);
+}
+
+.hljs-variable {
+	color: color.warning(900);
+}

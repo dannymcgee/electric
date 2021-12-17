@@ -1,0 +1,55 @@
+<showcase-example>
+	<showcase-example-demo>
+		<elx-accordion-group class="accordion-group"
+			[multi]="accordionGroup.multi"
+		>
+			<elx-accordion
+				*ngFor="
+					let accordion of accordions;
+					let first = first;"
+				[expanded]="first"
+			>
+				<elx-accordion-header>
+					{{ accordion.header }}
+				</elx-accordion-header>
+				<p>{{ accordion.content }}</p>
+			</elx-accordion>
+		</elx-accordion-group>
+	</showcase-example-demo>
+
+	<showcase-example-controls>
+		<ng-container *showcaseControlsSection="'Accordion Group'">
+			<elx-checkbox [(ngModel)]="accordionGroup.multi">
+				Multi
+			</elx-checkbox>
+		</ng-container>
+
+		<ng-container *showcaseControlsSection="'Accordions'">
+			<ng-container
+				*ngFor="let accordion of accordions;
+					let i = index;"
+			>
+				<elx-form-field>
+					<elx-label>Header</elx-label>
+					<input elx-input
+						[(ngModel)]="accordions[i].header"
+					/>
+				</elx-form-field>
+
+				<elx-form-field>
+					<elx-label>Content</elx-label>
+					<input elx-input
+						[(ngModel)]="accordions[i].content"
+					/>
+				</elx-form-field>
+
+			</ng-container>
+		</ng-container>
+	</showcase-example-controls>
+
+	<showcase-example-code
+		[controller]="controller"
+		[template]="template"
+		[stylesheet]="stylesheet"
+	></showcase-example-code>
+</showcase-example>

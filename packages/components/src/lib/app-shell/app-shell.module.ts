@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { IconModule } from "@electric/components/icon";
 
 import { AppShellComponent } from "./app-shell.component";
+import { MainViewportComponent } from './main-viewport/main-viewport.component';
 import {
 	TitlebarComponent,
 	TitlebarIconDirective,
@@ -16,11 +17,13 @@ import {
 	],
 	declarations: [
 		AppShellComponent,
+		MainViewportComponent,
 		TitlebarComponent,
 		TitlebarIconDirective,
 	],
 	exports: [
 		AppShellComponent,
+		MainViewportComponent,
 		TitlebarComponent,
 		TitlebarIconDirective,
 	],

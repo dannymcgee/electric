@@ -1,0 +1,34 @@
+@use "elx/a11y" as *;
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/scrollbar" as *;
+
+:host {
+	position: relative;
+}
+
+.resize-handle {
+	top: -3px;
+
+	&:hover, &.active {
+		background: color.background(600);
+	}
+}
+
+.tabs {
+	padding-left: 8px;
+	background: color.background(400);
+}
+
+.scroll-container {
+	@include layout.absolute(calc(#{rem(14)} + 27px), 0, 0, 0);
+	@include scrollbar(200);
+	overflow-y: auto;
+	margin: 0;
+	padding: 24px;
+	background: color.background(200);
+	font-family: monospace;
+	font-size: rem(14);
+	line-height: 1.4;
+}

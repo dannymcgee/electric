@@ -9,9 +9,7 @@ import { Subject, takeUntil } from "rxjs";
 
 import { anim } from "@electric/style";
 
-import {
-	ExampleControlsComponent
-} from "./example-controls/example-controls.component";
+import { ExampleControlsComponent } from "./example-controls/example-controls.component";
 import { ExampleCodeComponent } from "./example-code/example-code.component";
 
 @Component({
@@ -19,8 +17,8 @@ import { ExampleCodeComponent } from "./example-code/example-code.component";
 	template: `
 
 <ng-content select="showcase-example-demo"></ng-content>
-<ng-content select="showcase-example-controls"></ng-content>
 <ng-content select="showcase-example-code"></ng-content>
+<ng-content select="showcase-example-controls"></ng-content>
 
 	`,
 	styles: [`
@@ -48,7 +46,7 @@ export class ExampleComponent implements AfterContentInit, OnDestroy {
 	}
 
 	private _controlsWidth = 256;
-	private _codeHeight = 200;
+	private _codeHeight = 352;
 
 	@ContentChild(ExampleControlsComponent, { static: true })
 	private _controls!: ExampleControlsComponent;
@@ -70,7 +68,7 @@ export class ExampleComponent implements AfterContentInit, OnDestroy {
 			.pipe(takeUntil(this._onDestroy$))
 			.subscribe(event => {
 				let updated = this._codeHeight - event.y;
-				this._codeHeight = anim.clamp(updated, [128, 512]);
+				this._codeHeight = anim.clamp(updated, [128, 640]);
 			});
 	}
 

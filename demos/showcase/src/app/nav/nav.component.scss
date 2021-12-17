@@ -1,0 +1,48 @@
+@use "elx/a11y";
+@use "elx/anim";
+@use "elx/style/color";
+@use "elx/style/type";
+
+:host {
+	position: relative;
+	flex: 0 0 auto;
+	padding: 8px 0;
+	background: color.background(400);
+}
+
+.nav-item {
+	@include type.font(a11y.rem(16), 400);
+	@include anim.transition((background-color, color, border-color));
+	display: block;
+	width: 100%;
+	padding: 8px 16px 12px;
+	position: relative;
+	border-right: 2px solid transparent;
+	color: color.foreground(100);
+	line-height: 1;
+	text-decoration: none !important;
+
+	&:hover {
+		background: color.background(500);
+	}
+
+	&:hover,
+	&.active {
+		color: color.foreground(50);
+	}
+
+	&.active {
+		background: color.background(200);
+		border-color: color.primary(600);
+		font-weight: 600;
+		z-index: 100;
+	}
+}
+
+.resize-handle {
+	right: -3px;
+
+	&:hover {
+		background: color.background(600);
+	}
+}

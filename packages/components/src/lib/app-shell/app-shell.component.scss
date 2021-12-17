@@ -22,11 +22,4 @@
 		margin: 0 !important;
 		border-radius: 0 !important;
 	}
-
-	&__main {
-		flex: 1 0 0;
-		overflow: auto;
-		@include scrollbar(200);
-		background: color.background(200);
-	}
 }

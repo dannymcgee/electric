@@ -1,10 +1,16 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
 import { AccordionModule } from "@electric/components/accordion";
+import { ButtonModule } from "@electric/components/button";
+import { FormControlsModule } from "@electric/components/form-controls";
+import { IconModule } from "@electric/components/icon";
 import { ResizeHandleModule } from "@electric/components/resize-handle";
+import { TabsModule } from "@electric/components/tabs";
 import { UtilityModule } from "@electric/ng-utils";
 
+import { ExampleCodeViewComponent } from "./example-code/code-view/example-code-view.component";
 import { ExampleCodeComponent } from "./example-code/example-code.component";
 import {
 	FormatCodePipe,
@@ -14,7 +20,7 @@ import {
 	StripIndentsPipe,
 	HighlightPipe,
 } from "./example-code/example-code.pipe";
-import { LineNumbersComponent } from "./example-code/line-numbers.component";
+import { LineNumbersComponent } from "./example-code/line-numbers/line-numbers.component";
 import {
 	ExampleControlsComponent,
 	ExampleControlsSectionDirective,
@@ -22,16 +28,31 @@ import {
 import { ExampleDemoComponent } from "./example-demo/example-demo.component";
 import { ExampleComponent } from "./example.component";
 
+import { ExamplesRoutingModule } from "./routes/examples.routes";
+import { AccordionExample } from "./routes/accordion/accordion.example";
+import { ButtonExample } from "./routes/button/button.example";
+
 @NgModule({
 	imports: [
-		AccordionModule,
+		// Angular modules
 		CommonModule,
+		FormsModule,
+		// Electric modules
+		AccordionModule,
+		ButtonModule,
+		IconModule,
+		FormControlsModule,
 		ResizeHandleModule,
+		TabsModule,
 		UtilityModule,
+		// Routing
+		ExamplesRoutingModule,
 	],
 	declarations: [
+		// Shared
 		ExampleComponent,
 		ExampleCodeComponent,
+		ExampleCodeViewComponent,
 		ExampleControlsComponent,
 		ExampleControlsSectionDirective,
 		ExampleDemoComponent,
@@ -42,13 +63,9 @@ import { ExampleComponent } from "./example.component";
 		StripDefaultsPipe,
 		JoinLinesPipe,
 		FormatCodePipe,
-	],
-	exports: [
-		ExampleComponent,
-		ExampleCodeComponent,
-		ExampleControlsComponent,
-		ExampleControlsSectionDirective,
-		ExampleDemoComponent,
+		// Routes
+		AccordionExample,
+		ButtonExample,
 	],
 })
 export class ExampleModule {}
