@@ -61,7 +61,7 @@ implements
 	@HostBinding("attr.role")
 	readonly role = "radiogroup";
 
-	@HostBinding("attr.aria-labeledby")
+	@HostBinding("attr.aria-labelledby")
 	@DetectChanges()
 	@Input() labelId?: string;
 
