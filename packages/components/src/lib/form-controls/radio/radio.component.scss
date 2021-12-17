@@ -5,6 +5,8 @@
 @use "elx/style/type";
 
 .elx-radio {
+	$root: &;
+
 	@include layout.flex(row, center);
 	@include anim.transition((background-color, box-shadow));
 	gap: 8px;
@@ -24,6 +26,10 @@
 		border: 2px solid color.foreground(400);
 
 		&--checked {
+			border-color: color.primary(400);
+		}
+
+		#{$root}.focus &--checked {
 			border-color: color.accent(400);
 		}
 	}
@@ -37,7 +43,11 @@
 		);
 		transform: scale(0);
 		margin: 0;
-		background: color.accent(700);
+		background: color.primary(700);
+
+		#{$root}.focus & {
+			background: color.accent(700);
+		}
 
 		&:checked {
 			transform: scale(1);

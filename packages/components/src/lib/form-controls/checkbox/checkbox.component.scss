@@ -33,8 +33,13 @@
 		}
 
 		#{$root}.checked & {
-			background: color.accent(500);
-			border-color: color.accent(500);
+			background: color.primary(600);
+			border-color: color.primary(600);
+		}
+
+		#{$root}.focus.checked & {
+			background: color.accent(700);
+			border-color: color.accent(700);
 		}
 
 		#{$root}.disabled & {
