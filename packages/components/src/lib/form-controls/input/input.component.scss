@@ -2,17 +2,21 @@
 @use "elx/anim";
 @use "elx/layout";
 @use "elx/style/color";
+@use "elx/style/scrollbar" as *;
 @use "elx/style/type";
 
 .elx-input {
 	@include layout.flex(row, center);
 	@include type.font(rem(14), 400);
 	@include anim.transition((background-color, color, box-shadow));
+	@include scrollbar(200);
 	height: calc(#{rem(14)} + 18px);
-	padding: 0 8px;
+	padding: calc(9px - #{rem(2.8)}) 8px;
+	line-height: 1.4;
 	background: color.background(200);
 	color: color.foreground(100);
 	box-shadow: 0 0 0 0 transparent;
+	resize: vertical;
 
 	&:hover {
 		box-shadow: 0 2px 0 0 color.foreground(50, 0.1);

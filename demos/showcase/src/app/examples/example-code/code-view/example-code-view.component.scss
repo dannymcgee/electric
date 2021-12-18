@@ -65,6 +65,11 @@
 	color: color.warning(700);
 }
 
+.hljs-type-name {
+	color: color.warning(700);
+	font-style: italic;
+}
+
 .hljs-attr-name,
 .hljs-prop-name,
 .hljs-attribute {
@@ -75,7 +80,8 @@
 	}
 }
 
-.hljs-string {
+.hljs-string,
+.hljs-number {
 	color: color.accent(600);
 
 	.hljs-delimiter {
@@ -83,14 +89,16 @@
 	}
 }
 
-.hljs-number {
+.hljs-const-literal {
 	color: color.accent(600);
+	font-style: italic;
 }
 
 .hljs-expression > .hljs-delimiter {
 	color: color.accent(600, 0.5);
 }
 
-.hljs-variable {
+.hljs-variable,
+.hljs-function {
 	color: color.warning(900);
 }

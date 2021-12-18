@@ -5,6 +5,7 @@ import { regex } from "./util";
 
 export default function (): Language {
 	let expression: Mode[] = [
+		INDENT,
 		{
 			scope: "operator",
 			begin: /[-+*\/=;:]+/,
@@ -18,7 +19,7 @@ export default function (): Language {
 			begin: regex`/${JS_IDENT}(?=\()/`
 		},
 		{
-			begin: [/\./, JS_IDENT],
+			begin: [/[?!]?\./, JS_IDENT],
 			beginScope: {
 				1: "punctuation",
 				2: "variable",
@@ -28,8 +29,19 @@ export default function (): Language {
 			scope: "variable",
 			begin: JS_IDENT,
 		},
-		INDENT,
+		{
+			scope: "brace",
+			begin: /[()]/,
+		},
 	];
+
+	let ref: Mode = {
+		begin: [/#/, HTML_IDENT],
+		beginScope: {
+			1: "punctuation",
+			2: "variable",
+		},
+	};
 
 	let propertyBinding: Mode = {
 		scope: "binding",
@@ -54,6 +66,32 @@ export default function (): Language {
 				endScope: "delimiter",
 				contains: expression,
 			},
+		],
+	};
+
+	let eventBinding: Mode = {
+		scope: "event",
+		begin: regex`/(?=\(${HTML_IDENT}\)(="[^"]*")?)/`,
+		contains: [
+			{
+				scope: "prop-name",
+				begin: /\(/,
+				beginScope: "delimiter",
+				end: /\)/,
+				endScope: "delimiter",
+			},
+			{
+				scope: "operator",
+				begin: /=/,
+			},
+			{
+				scope: "expression",
+				begin: /"/,
+				beginScope: "delimiter",
+				end: /"/,
+				endScope: "delimiter",
+				contains: expression,
+			}
 		],
 	};
 
@@ -85,9 +123,9 @@ export default function (): Language {
 	let interpolation: Mode = {
 		scope: "interpolation",
 		begin: /\{\{/,
-		beginScope: "delimiter",
+		beginScope: "brace",
 		end: /\}\}/,
-		endScope: "delimiter",
+		endScope: "brace",
 		contains: expression,
 	};
 
@@ -125,7 +163,9 @@ export default function (): Language {
 			end: ">",
 			endScope: "punctuation",
 			contains: [
+				ref,
 				propertyBinding,
+				eventBinding,
 				structuralDirective,
 				attr,
 				INDENT,

@@ -1,14 +1,10 @@
 import type { HLJSApi, Language, Mode } from "highlight.js";
 
 import { COMMENTS, INDENT, JS_IDENT, stringLit } from "./common";
+import { regex } from "./util";
 
 export default function (hljs: HLJSApi): Language {
-	let keywords = [
-		"export",
-		"public",
-		"private",
-		"static",
-	];
+	let keywords = ["export"];
 
 	let stringLiteral: Mode = {};
 	let numLiteral: Mode = {};
@@ -103,6 +99,87 @@ export default function (hljs: HLJSApi): Language {
 		],
 	};
 
+	let typeAnnotation: Mode = {
+		scope: "type-annotation",
+		begin: /\??:/,
+		beginScope: "punctuation",
+		end: /(?=[;={),])/,
+		contains: [
+			INDENT,
+			...COMMENTS,
+			constLiteral,
+			{
+				scope: "keyword",
+				begin: /\b(void|string|number|bigint|boolean)\b/
+			},
+			{
+				scope: "brace",
+				begin: /[<>]/,
+			},
+			{
+				scope: "operator",
+				begin: /[&|]/,
+			},
+			{
+				scope: "type-name",
+				begin: JS_IDENT,
+			},
+		],
+	};
+
+	let assignment: Mode = {
+		begin: /=/,
+		beginScope: "operator",
+		end: /(?=[;,)])/,
+		contains: [
+			INDENT,
+			...literals,
+		],
+	};
+
+	let block: Mode = {};
+
+	Object.assign(block, {
+		scope: "block",
+		begin: /\{/,
+		beginScope: "brace",
+		end: /\}/,
+		endScope: "brace",
+		contains: [
+			INDENT,
+			...COMMENTS,
+			block,
+			...literals,
+			{
+				begin: [/\b(new)\b\s+/, JS_IDENT],
+				beginScope: {
+					1: "keyword",
+					2: "class-name",
+				},
+			},
+			{
+				scope: "keyword",
+				begin: /\b(this|return|if|for|switch|case|break|continue)\b/,
+			},
+			{
+				scope: "brace",
+				begin: /[()]/,
+			},
+			{
+				scope: "punctuation",
+				begin: /[,;?.]/,
+			},
+			{
+				scope: "operator",
+				begin: /[-+*\/^&|=!<>]+/,
+			},
+			{
+				scope: "variable",
+				begin: JS_IDENT,
+			},
+		],
+	});
+
 	let classDecl: Mode = {
 		scope: "class-decl",
 		begin: [
@@ -123,24 +200,132 @@ export default function (hljs: HLJSApi): Language {
 			INDENT,
 			...COMMENTS,
 			decorator,
-			// TODO: methods
 			{
+				scope: "keyword",
+				begin: /\b(private|public|static)\b/,
+			},
+			{
+				scope: "method-decl",
+				begin: regex`/${JS_IDENT}(?=\s*=?\s*\()/`,
+				beginScope: "function",
+				end: /\}/,
+				endScope: "brace",
+				contains: [
+					{
+						scope: "method-args",
+						begin: /\(/,
+						beginScope: "brace",
+						end: /\)/,
+						endScope: "brace",
+						contains: [
+							INDENT,
+							...COMMENTS,
+							decorator,
+							typeAnnotation,
+							assignment,
+							{
+								scope: "punctuation",
+								begin: /,/,
+							},
+							{
+								scope: "keyword",
+								begin: /\b(private|public|protected)\b/,
+							},
+							{
+								scope: "variable",
+								begin: JS_IDENT,
+							},
+						],
+					},
+					typeAnnotation,
+					{
+						scope: "operator",
+						begin: /=>?/,
+					},
+					{
+						...block,
+						endsParent: true,
+					},
+				],
+			},
+			{
+				scope: "accessor-get",
+				begin: [/\bget\b\s+/, JS_IDENT, /\(\)/],
+				beginScope: {
+					1: "keyword",
+					2: "prop-name",
+					3: "brace",
+				},
+				end: /\}/,
+				endScope: "brace",
+				contains: [
+					typeAnnotation,
+					{
+						...block,
+						endsParent: true,
+					},
+				],
+			},
+			{
+				scope: "accessor-set",
+				begin: [
+					/\bset\b\s+/,
+					JS_IDENT,
+					/\(/,
+					JS_IDENT,
+					/\)/
+				],
+				beginScope: {
+					1: "keyword",
+					2: "prop-name",
+					3: "brace",
+					4: "variable",
+					5: "brace",
+				},
+				contains: [
+					{
+						...block,
+						endsParent: true,
+					},
+				],
+			},
+			{
+				scope: "prop-decl",
 				begin: JS_IDENT,
 				beginScope: "prop-name",
 				end: /;/,
 				endScope: "punctuation",
 				contains: [
-					// TODO: type annotation
-					{
-						begin: /=/,
-						beginScope: "operator",
-						end: /(?=;)/,
-						contains: [
-							INDENT,
-							...literals,
-						],
-					},
+					typeAnnotation,
+					assignment,
 				],
+			},
+			{
+				scope: "punctuation",
+				begin: /;/,
+			},
+		],
+	};
+
+	let importStmt: Mode = {
+		scope: "import",
+		begin: /\b(import)\b/,
+		beginScope: "keyword",
+		end: /;/,
+		endScope: "punctuation",
+		contains: [
+			{
+				scope: "brace",
+				begin: /[{}]/,
+			},
+			stringLiteral,
+			{
+				scope: "keyword",
+				begin: /\b(as|from)\b/,
+			},
+			{
+				scope: "variable",
+				begin: JS_IDENT,
 			},
 		],
 	};
@@ -153,6 +338,7 @@ export default function (hljs: HLJSApi): Language {
 			...COMMENTS,
 			decorator,
 			classDecl,
+			importStmt,
 			// TODO: function decl
 		],
 	};

@@ -35,7 +35,8 @@ export class DialogTriggerDirective<T> {
 	}
 
 	private get _isBlocking() {
-		return coerceBooleanProperty(this._blockingAttr);
+		return coerceBooleanProperty(this._blockingAttr)
+			|| this._roleAttr === "alert";
 	}
 
 	private _portal: TemplatePortal<DialogTriggerContext<T>> | null = null;
@@ -46,6 +47,7 @@ export class DialogTriggerDirective<T> {
 		private _template: TemplateRef<DialogTriggerContext<T>>,
 		private _viewContainer: ViewContainerRef,
 		@Attribute("blocking") private _blockingAttr: string,
+		@Attribute("role") private _roleAttr: string,
 	) {}
 
 	private onTriggerChange(value?: T): void {

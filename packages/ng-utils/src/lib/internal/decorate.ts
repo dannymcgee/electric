@@ -18,6 +18,7 @@ export type NgClass =
 
 const SIDE_EFFECTS_MAP = new WeakMap<Object, Map<string, Fn<any[]>[]>>();
 const NOOP = () => {};
+const NG_LIFECYCLE = /^ng(OnChanges|OnInit|AfterContentInit|AfterViewInit|OnDestroy)$/;
 
 export function decorateMethod<
 	T extends Object,
@@ -76,13 +77,19 @@ function modifyMethodDescriptor<
 >(proto: T, propName: K, descriptor: TypedPropertyDescriptor<T[K]>) {
 	let originalMethod = descriptor.value as Fn<any[]> & T[K];
 
-	Object.defineProperty(proto, propName, {
-		value(this: T, ...args: any[]) {
-			let sideEffects = getSideEffects(proto, propName);
-			for (let sideEffect of sideEffects) {
-				sideEffect.call(this);
-			}
-			return originalMethod.call(this, ...args);
+	let updated = function (this: T, ...args: any[]) {
+		let sideEffects = getSideEffects(proto, propName);
+		for (let sideEffect of sideEffects) {
+			sideEffect.call(this);
 		}
-	});
+		return originalMethod.call(this, ...args);
+	} as unknown as T[K];
+
+	if (NG_LIFECYCLE.test(propName)) {
+		Object.defineProperty(proto, propName, {
+			value: updated,
+		});
+	} else {
+		descriptor.value = updated;
+	}
 }

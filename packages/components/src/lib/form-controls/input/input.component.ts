@@ -47,10 +47,15 @@ implements NativeControl, ValueAccessor<T> {
 	@HostBinding("class")
 	readonly hostClass = "elx-input";
 
-	@HostBinding("type")
 	@Input("elx-input")
 	get type() { return this._type; }
-	set type(value) { if (value) this._type = value; }
+	set type(value) {
+		if (value) {
+			this._type = value;
+			if (this._element instanceof HTMLInputElement)
+				this._element.type = value;
+		}
+	}
 	private _type: InputType = "text";
 
 	@HostBinding("attr.id")

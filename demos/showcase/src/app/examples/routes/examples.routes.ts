@@ -3,6 +3,7 @@ import { RouterModule } from "@angular/router";
 
 import { AccordionExample } from "./accordion/accordion.example";
 import { ButtonExample } from "./button/button.example";
+import { DialogExample } from "./dialog/dialog.example";
 
 export const ROUTES = [{
 	path: "",
@@ -14,6 +15,10 @@ export const ROUTES = [{
 		path: "button",
 		name: "Button",
 		component: ButtonExample,
+	}, {
+		path: "dialog",
+		name: "Dialog",
+		component: DialogExample,
 	}, {
 		path: "",
 		redirectTo: "accordion",

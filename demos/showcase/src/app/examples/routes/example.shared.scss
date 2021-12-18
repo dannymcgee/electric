@@ -1,3 +1,13 @@
+@use "elx/style/color";
+
 :host {
 	flex: 1 0 0;
+}
+
+hr {
+	width: 100%;
+	height: 2px;
+	margin: 0;
+	border: none;
+	background: color.background(600);
 }

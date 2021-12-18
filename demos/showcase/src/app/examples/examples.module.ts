@@ -4,6 +4,7 @@ import { FormsModule } from "@angular/forms";
 
 import { AccordionModule } from "@electric/components/accordion";
 import { ButtonModule } from "@electric/components/button";
+import { DialogModule } from "@electric/components/dialog";
 import { FormControlsModule } from "@electric/components/form-controls";
 import { IconModule } from "@electric/components/icon";
 import { ResizeHandleModule } from "@electric/components/resize-handle";
@@ -31,6 +32,7 @@ import { ExampleComponent } from "./example.component";
 import { ExamplesRoutingModule } from "./routes/examples.routes";
 import { AccordionExample } from "./routes/accordion/accordion.example";
 import { ButtonExample } from "./routes/button/button.example";
+import { DialogExample } from "./routes/dialog/dialog.example";
 
 @NgModule({
 	imports: [
@@ -40,6 +42,7 @@ import { ButtonExample } from "./routes/button/button.example";
 		// Electric modules
 		AccordionModule,
 		ButtonModule,
+		DialogModule,
 		IconModule,
 		FormControlsModule,
 		ResizeHandleModule,
@@ -66,6 +69,7 @@ import { ButtonExample } from "./routes/button/button.example";
 		// Routes
 		AccordionExample,
 		ButtonExample,
+		DialogExample,
 	],
 })
 export class ExampleModule {}

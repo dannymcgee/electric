@@ -2,10 +2,12 @@ import {
 	ConfigurableFocusTrap,
 	ConfigurableFocusTrapFactory,
 } from "@angular/cdk/a11y";
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { DragRef, DragDrop } from "@angular/cdk/drag-drop";
 import { DOCUMENT } from "@angular/common";
 import {
 	AfterContentInit,
+	Attribute,
 	ChangeDetectionStrategy,
 	Component,
 	ContentChild,
@@ -93,7 +95,12 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	_footer?: DialogFooterDirective;
 
 	private _dragRef?: DragRef;
-	private _focusTrap!: ConfigurableFocusTrap;
+	private _focusTrap?: ConfigurableFocusTrap;
+
+	private get _isBlocking() {
+		return coerceBooleanProperty(this._blockingAttr)
+			|| this.role === "alert";
+	}
 
 	constructor (
 		private _dragDrop: DragDrop,
@@ -101,13 +108,16 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 		private _elementRef: ElementRef<HTMLElement>,
 		private _focusTrapFactory: ConfigurableFocusTrapFactory,
 		private _globalFocusManager: GlobalFocusManager,
+		@Attribute("blocking") private _blockingAttr: string,
 	) {}
 
 	ngOnInit(): void {
-		this._focusTrap = this._focusTrapFactory.create(
-			this._elementRef.nativeElement,
-			{ defer: true },
-		);
+		if (this._isBlocking) {
+			this._focusTrap = this._focusTrapFactory.create(
+				this._elementRef.nativeElement,
+				{ defer: true },
+			);
+		}
 	}
 
 	ngAfterContentInit(): void {
@@ -117,6 +127,10 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 				.withBoundaryElement(this._document.body)
 				.withHandles([this._heading._elementRef]);
 		}
+
+		// TODO: Should we still auto-focus the first tabbable dialog element if
+		// there's no focus trap?
+		if (!this._focusTrap) return;
 
 		let focusTarget = this._footer?.initialFocusTarget;
 		if (focusTarget) {
@@ -131,7 +145,7 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this._focusTrap.destroy();
+		this._focusTrap?.destroy();
 		this._dragRef?.dispose();
 
 		setTimeout(() => {
