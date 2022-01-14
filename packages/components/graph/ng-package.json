@@ -1,0 +1,9 @@
+{
+	"lib": {
+		"entryFile": "../src/lib/graph/index.ts",
+		"styleIncludePaths": [
+			"../../../node_modules",
+			"../../style/src"
+		]
+	}
+}
