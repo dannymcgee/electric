@@ -14,6 +14,15 @@ export namespace anim {
 		return (v - from) / (to - from);
 	}
 
+	export function remap(
+		v: number,
+		from: [number, number],
+		to: [number, number],
+	) {
+		let t = invLerp(v, from);
+		return lerp(t, to);
+	}
+
 	export function clamp(n: number, [min, max]: [number, number]) {
 		return Math.max(min, Math.min(n, max));
 	}

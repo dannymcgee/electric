@@ -1,5 +1,7 @@
 import { Component } from "@angular/core";
 
+import { PortType } from "@electric/components";
+
 @Component({
 	templateUrl: "./graph.example.html",
 	styleUrls: [
@@ -8,4 +10,5 @@ import { Component } from "@angular/core";
 	],
 })
 export class GraphExample {
+	PortType = PortType;
 }

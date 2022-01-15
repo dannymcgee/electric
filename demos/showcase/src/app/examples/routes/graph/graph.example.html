@@ -1,6 +1,29 @@
 <showcase-example>
 	<showcase-example-demo>
-		<elx-graph></elx-graph>
+		<elx-graph>
+			<elx-reroute-node
+				id="reroute-1"
+				x="-10" y="-8"
+				[outputs]="[{
+					type: PortType.Main,
+					connectedTo: {
+						nodeId: 'reroute-2',
+						portIndex: 0
+					}
+				}]"
+			></elx-reroute-node>
+			<elx-reroute-node
+				id="reroute-2"
+				x="10" y="3"
+				[inputs]="[{
+					type: PortType.Main,
+					connectedTo: {
+						nodeId: 'reroute-1',
+						portIndex: 0
+					}
+				}]"
+			></elx-reroute-node>
+		</elx-graph>
 	</showcase-example-demo>
 	<showcase-example-controls>
 

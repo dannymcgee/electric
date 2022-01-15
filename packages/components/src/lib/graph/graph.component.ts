@@ -1,18 +1,40 @@
 import { DOCUMENT } from "@angular/common";
 import {
-	Component,
-	ViewEncapsulation,
+	AfterContentInit,
 	ChangeDetectionStrategy,
+	Component,
+	ElementRef,
 	HostBinding,
 	HostListener,
-	ElementRef,
 	Inject,
 	Input,
+	OnDestroy,
+	ViewEncapsulation,
 } from "@angular/core";
+import { path } from "d3-path";
 import { fromEvent, merge, Subject, takeUntil } from "rxjs";
 
 import { Coerce, DetectChanges } from "@electric/ng-utils";
 import { anim } from "@electric/style";
+import { assert } from "@electric/utils";
+
+import { GRAPH, GraphNode } from "./graph.types";
+
+interface Point {
+	x: number;
+	y: number;
+}
+
+interface BezierParams {
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	cpx1: number;
+	cpy1: number;
+	cpx2: number;
+	cpy2: number;
+}
 
 @Component({
 	selector: "elx-graph",
@@ -22,32 +44,48 @@ import { anim } from "@electric/style";
 	[style.transform]="_nodesXform"
 	[style.transform-origin]="_nodesXformOrigin"
 >
+	<svg class="elx-graph__wires">
+		<path class="elx-graph__wire"
+			*ngFor="let p of _paths"
+			[attr.d]="p"
+		></path>
+
+		<ng-container *ngIf="_debugControlPoints">
+			<path class="elx-graph__control-point"
+				*ngFor="let p of _controlPoints"
+				[attr.d]="p"
+			></path>
+		</ng-container>
+	</svg>
 	<ng-content></ng-content>
-	<div class="elx-graph__test"></div>
 </div>
 
 <div class="elx-graph__cursor-pos">
 	{{
-		(_cursorX - _offsetX) / _scale / cellSize | number:'1.0-0'
+		(cursorX - offsetX) / scale / cellSize | number:'1.0-0'
 	}}, {{
-		(_cursorY - _offsetY) / _scale / cellSize | number:'1.0-0'
+		(cursorY - offsetY) / scale / cellSize | number:'1.0-0'
 	}}
 </div>
 <div class="elx-graph__scale">
-	{{ _scale | number:'1.2-2' }}
+	{{ scale | number:'1.2-2' }}
 </div>
 
 	`,
 	styleUrls: ["./graph.component.scss"],
+	providers: [{
+		provide: GRAPH,
+		useExisting: GraphComponent,
+	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GraphComponent {
+export class GraphComponent implements AfterContentInit, OnDestroy {
 	@HostBinding("class")
-	readonly hostClass = "elx-graph";
+	readonly _hostClass = "elx-graph";
 
 	@HostBinding("style.background-size")
-	get backgroundSize() {
+	get _backgroundSize() {
 		let cellSize = this.cellSize * this._scale;
 		while (cellSize < this.cellSize) cellSize *= 2;
 
@@ -58,7 +96,7 @@ export class GraphComponent {
 	}
 
 	@HostBinding("style.background-position")
-	get backgroundPosition() {
+	get _backgroundPosition() {
 		let x = this._offsetX + "px";
 		let y = this._offsetY + "px";
 
@@ -78,15 +116,26 @@ export class GraphComponent {
 
 	@Input() @Coerce(Number) cellSize = 16;
 
-	@DetectChanges() _offsetX = 0;
-	@DetectChanges() _offsetY = 0;
-
 	@Input() @Coerce(Number) minScale = 0.1;
 	@Input() @Coerce(Number) maxScale = 2.0;
-	@DetectChanges() _scale = 1.0;
+	get scale() { return this._scale; }
+	@DetectChanges() private _scale = 1.0;
 
-	@DetectChanges() _cursorX = 0.0;
-	@DetectChanges() _cursorY = 0.0;
+	get offsetX() { return this._offsetX; }
+	@DetectChanges() private _offsetX = 0;
+	get offsetY() { return this._offsetY; }
+	@DetectChanges() private _offsetY = 0;
+
+	get cursorX() { return this._cursorX; }
+	@DetectChanges() private _cursorX = 0.0;
+	get cursorY() { return this._cursorY; }
+	@DetectChanges() private _cursorY = 0.0;
+
+	private _nodes = new Map<string, GraphNode>();
+	@DetectChanges() _paths: string[] = [];
+
+	@DetectChanges() _controlPoints: string[] = [];
+	_debugControlPoints = false;
 
 	private _onDestroy$ = new Subject<void>();
 
@@ -96,6 +145,33 @@ export class GraphComponent {
 		@Inject(DOCUMENT) private _document: Document,
 		private _elementRef: ElementRef<HTMLElement>,
 	) {}
+
+	ngAfterContentInit(): void {
+		this.drawConnections();
+	}
+
+	ngOnDestroy(): void {
+		this._onDestroy$.next();
+		this._onDestroy$.complete();
+	}
+
+	registerNode(node: GraphNode): void {
+		assert(
+			!this._nodes.has(node.id),
+			`Graph node with id "${node.id}" was registered more than once!`,
+		);
+		this._nodes.set(node.id, node);
+
+		node.changes$
+			.pipe(takeUntil(this._onDestroy$))
+			.subscribe(() => {
+				this.drawConnections();
+			});
+	}
+
+	unregisterNode(node: GraphNode): void {
+		this._nodes.delete(node.id);
+	}
 
 	@HostListener("wheel", ["$event"])
 	onZoom({ deltaX, deltaY, deltaZ }: WheelEvent): void {
@@ -116,14 +192,14 @@ export class GraphComponent {
 			return;
 
 		// Center the transform on the cursor position
-		this._offsetX += ((this._cursorX - this._offsetX) / this._scale) * deltaScale;
-		this._offsetY += ((this._cursorY - this._offsetY) / this._scale) * deltaScale;
+		this._offsetX += ((this.cursorX - this._offsetX) / this._scale) * deltaScale;
+		this._offsetY += ((this.cursorY - this._offsetY) / this._scale) * deltaScale;
 
 		this._scale = scale;
 	}
 
-	@HostListener("mousedown", ["$event"])
-	onMousedown(event: MouseEvent): void {
+	@HostListener("pointerdown", ["$event"])
+	onMousedown(event: PointerEvent): void {
 		if (event.button !== 1) return;
 
 		event.preventDefault();
@@ -139,9 +215,83 @@ export class GraphComponent {
 		});
 	}
 
-	@HostListener("mousemove", ["$event"])
-	onMousemove(event: MouseEvent): void {
+	@HostListener("pointermove", ["$event"])
+	onMousemove(event: PointerEvent): void {
 		this._cursorX = event.clientX - this._element.offsetLeft;
 		this._cursorY = event.clientY - this._element.offsetTop;
+	}
+
+	private drawConnections(): void {
+		let connections = [] as [Point, Point][];
+		for (let node of this._nodes.values()) {
+			let outs = node.outputs.filter(o => o.connectedTo != null);
+			for (let out of outs) {
+				let n2 = this._nodes.get(out.connectedTo!.nodeId);
+				if (!n2) continue;
+
+				let p1 = { x: node.x, y: node.y };
+				let p2 = { x: n2.x, y: n2.y };
+
+				connections.push([p1, p2]);
+			}
+		}
+
+		let paths = [] as string[];
+		let cPoints = [] as string[];
+
+		for (let [p1, p2] of connections) {
+			let {
+				x1, y1,
+				x2, y2,
+				cpx1, cpy1,
+				cpx2, cpy2,
+			} = this.drawConnection(p1, p2);
+
+			let p = path();
+			p.moveTo(x1, y1);
+			p.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x2, y2);
+
+			paths.push(p.toString());
+
+			if (this._debugControlPoints) {
+				let cp1 = path();
+				cp1.moveTo(x1, y1);
+				cp1.lineTo(cpx1, cpy1);
+
+				let cp2 = path();
+				cp2.moveTo(x2, y2);
+				cp2.lineTo(cpx2, cpy2);
+
+				cPoints.push(cp1.toString(), cp2.toString());
+			}
+		}
+
+		this._paths = paths;
+
+		if (this._debugControlPoints)
+			this._controlPoints = cPoints;
+	}
+
+	private drawConnection(p1: Point, p2: Point): BezierParams {
+		let x1 = p1.x * this.cellSize;
+		let y1 = p1.y * this.cellSize;
+
+		let x2 = p2.x * this.cellSize;
+		let y2 = p2.y * this.cellSize;
+
+		let dist = Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
+		let cpLen = dist / 3;
+
+		let dx = p2.x - p1.x;
+		if (dx <= 6)
+			cpLen *= anim.clamp(anim.remap(dx, [6, 0], [1, 2]), [1, 3]);
+
+		if (dx <= 0)
+			cpLen = Math.max(cpLen, 4 * this.cellSize);
+
+		let cpx1 = x1 + cpLen, cpx2 = x2 - cpLen;
+		let cpy1 = y1, cpy2 = y2;
+
+		return { x1,y1, x2,y2, cpx1,cpy1, cpx2,cpy2 };
 	}
 }

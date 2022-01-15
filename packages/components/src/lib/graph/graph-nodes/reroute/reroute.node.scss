@@ -1,0 +1,19 @@
+@use "elx/style/color";
+
+.elx-reroute-node {
+	padding: 8px;
+
+	&:hover { cursor: grab; }
+	&:active { cursor: grabbing; }
+
+	&__shape {
+		width: 8px;
+		height: 8px;
+		transform: rotate(45deg);
+		background: color.white();
+
+		&:hover {
+			cursor: crosshair;
+		}
+	}
+}
