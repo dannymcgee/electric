@@ -19,6 +19,7 @@ import {
 	GRAPH,
 	GraphNode,
 	Port,
+	Point,
 } from "../graph.types";
 
 @Component({
@@ -122,5 +123,13 @@ implements OnInit, OnDestroy, GraphNode {
 
 		this.graph.unregisterNode(this);
 		this.changes$.complete();
+	}
+
+	inputOffset(_: number): Point {
+		return { x: 0, y: 0 };
+	}
+
+	outputOffset(_: number): Point {
+		return { x: 0, y: 0 };
 	}
 }

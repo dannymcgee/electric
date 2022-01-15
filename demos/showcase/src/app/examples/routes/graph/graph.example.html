@@ -3,26 +3,75 @@
 		<elx-graph>
 			<elx-reroute-node
 				id="reroute-1"
-				x="-10" y="-8"
+				x="0" y="-8"
 				[outputs]="[{
 					type: PortType.Main,
 					connectedTo: {
-						nodeId: 'reroute-2',
+						nodeId: 'function-1',
 						portIndex: 0
 					}
 				}]"
 			></elx-reroute-node>
 			<elx-reroute-node
 				id="reroute-2"
-				x="10" y="3"
+				x="0" y="-6"
+				[outputs]="[{
+					type: PortType.Main,
+					connectedTo: {
+						nodeId: 'function-1',
+						portIndex: 1
+					}
+				}]"
+			></elx-reroute-node>
+
+			<elx-function-node
+				id="function-2"
+				name="Function with Outputs"
+				x="-20" y="8"
 				[inputs]="[{
+					name: 'Input',
+					type: PortType.Main
+				}]"
+				[outputs]="[{
+					name: 'Lorem ipsum',
 					type: PortType.Main,
 					connectedTo: {
 						nodeId: 'reroute-1',
 						portIndex: 0
 					}
+				}, {
+					name: 'Dolor sit amet',
+					type: PortType.Main,
+					connectedTo: {
+						nodeId: 'reroute-2',
+						portIndex: 0
+					}
 				}]"
-			></elx-reroute-node>
+			></elx-function-node>
+
+			<elx-function-node
+				id="function-1"
+				name="Function with Inputs"
+				x="10" y="3"
+				[inputs]="[{
+					name: 'Lorem ipsum',
+					type: PortType.Main,
+					connectedTo: {
+						nodeId: 'reroute-1',
+						portIndex: 0
+					}
+				}, {
+					name: 'Dolor sit amet',
+					type: PortType.Main,
+					connectedTo: {
+						nodeId: 'reroute-2',
+						portIndex: 0
+					}
+				}, {
+					name: 'Consectetur',
+					type: PortType.Main
+				}]"
+			></elx-function-node>
 		</elx-graph>
 	</showcase-example-demo>
 	<showcase-example-controls>

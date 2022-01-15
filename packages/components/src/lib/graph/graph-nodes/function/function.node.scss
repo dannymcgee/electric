@@ -1,0 +1,108 @@
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/elevation";
+@use "elx/style/type";
+
+.elx-function-node {
+	display: block;
+	min-width: 256px;
+	overflow: visible;
+
+	&__title {
+		@include layout.flex(row, center);
+		@include type.h3;
+		height: 36px;
+		margin: 0;
+		padding: 0 16px;
+		background: color.primary(400);
+		color: color.white();
+		user-select: none;
+		cursor: grab;
+
+		&:active {
+			cursor: grabbing;
+		}
+	}
+
+	&__body {
+		@include layout.flex(row);
+		@include elevation.shadow(200);
+		gap: 16px;
+		padding: 12px 0;
+		margin: 0 4px;
+		position: relative;
+		background: color.background(600, 0.6);
+		backdrop-filter: blur(16px);
+	}
+
+	&__ports {
+		&--output {
+			margin-left: auto;
+		}
+	}
+
+	&__port {
+		@include layout.flex(row, center);
+		@include type.h3;
+		@include anim.transition((color, border-color));
+		height: 32px;
+		padding: 0 12px;
+		color: color.foreground(300);
+		user-select: none;
+		cursor: crosshair;
+
+		&--input { justify-content: flex-start; }
+		&--output { justify-content: flex-end; }
+
+		&:hover {
+			color: color.foreground(200);
+		}
+
+		&.connected {
+			color: color.foreground(50);
+			border-color: color.primary(600);
+		}
+	}
+
+	&__connections {
+		@include layout.flex(column);
+		@include layout.absolute(36px, null, 0, null);
+		width: 4px;
+
+		&--input { left: 0 }
+		&--output { right: 0 }
+
+		&::after {
+			@include layout.absolute(0, 0, 0, 0);
+			content: "";
+			display: block;
+			background: #FFFFFF01;
+			backdrop-filter: blur(2px);
+		}
+	}
+
+	&__connection {
+		width: 100%;
+		height: 32px;
+		background: color.background(600, 0.5);
+
+		&:first-child { height: 12px; }
+		&:last-child { flex: 1 0 0; }
+
+		&.connected {
+			background: color.foreground(50);
+			box-shadow: 0 0 24px 3px color.foreground(50, 0.5);
+		}
+
+		// TODO
+		&--float {
+			background: color.accent(400, 0.5);
+
+			&.connected {
+				background: color.accent(700);
+				box-shadow: 0 0 24px 3px color.accent(500, 0.5);
+			}
+		}
+	}
+}

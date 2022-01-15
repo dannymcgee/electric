@@ -24,7 +24,7 @@
 	}
 	&__wire {
 		fill: none;
-		stroke: color.white();
+		stroke: color.foreground(50);
 		stroke-width: 4px;
 	}
 	&__control-point {

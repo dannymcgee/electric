@@ -1,6 +1,6 @@
 import { DOCUMENT } from "@angular/common";
 import {
-	AfterContentInit,
+	AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
 	ElementRef,
@@ -18,12 +18,7 @@ import { Coerce, DetectChanges } from "@electric/ng-utils";
 import { anim } from "@electric/style";
 import { assert } from "@electric/utils";
 
-import { GRAPH, GraphNode } from "./graph.types";
-
-interface Point {
-	x: number;
-	y: number;
-}
+import { GRAPH, GraphNode, Point } from "./graph.types";
 
 interface BezierParams {
 	x1: number;
@@ -80,7 +75,7 @@ interface BezierParams {
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GraphComponent implements AfterContentInit, OnDestroy {
+export class GraphComponent implements AfterViewInit, OnDestroy {
 	@HostBinding("class")
 	readonly _hostClass = "elx-graph";
 
@@ -106,8 +101,8 @@ export class GraphComponent implements AfterContentInit, OnDestroy {
 	get _nodesXform() {
 		return `
 			scale(${this._scale})
-			translateX(${this._offsetX}px)
-			translateY(${this._offsetY}px)`
+			translateX(${Math.round(this._offsetX)}px)
+			translateY(${Math.round(this._offsetY)}px)`
 	}
 
 	get _nodesXformOrigin() {
@@ -117,7 +112,8 @@ export class GraphComponent implements AfterContentInit, OnDestroy {
 	@Input() @Coerce(Number) cellSize = 16;
 
 	@Input() @Coerce(Number) minScale = 0.1;
-	@Input() @Coerce(Number) maxScale = 2.0;
+	@Input() @Coerce(Number) maxScale = 1.0;
+
 	get scale() { return this._scale; }
 	@DetectChanges() private _scale = 1.0;
 
@@ -146,7 +142,7 @@ export class GraphComponent implements AfterContentInit, OnDestroy {
 		private _elementRef: ElementRef<HTMLElement>,
 	) {}
 
-	ngAfterContentInit(): void {
+	ngAfterViewInit(): void {
 		this.drawConnections();
 	}
 
@@ -185,6 +181,8 @@ export class GraphComponent implements AfterContentInit, OnDestroy {
 		let roundingFactor = scale >= 1 ? 10 : 100;
 		scale = Math.round(scale * roundingFactor) / roundingFactor;
 		scale = anim.clamp(scale, [this.minScale, this.maxScale]);
+		if (Math.abs(scale - 1) < 0.05)
+			scale = 1;
 
 		// Bail if the difference ~= 0.0
 		let deltaScale = this._scale - scale;
@@ -203,15 +201,23 @@ export class GraphComponent implements AfterContentInit, OnDestroy {
 		if (event.button !== 1) return;
 
 		event.preventDefault();
+		this._document.documentElement.style
+			.setProperty("cursor", "grabbing");
 
 		fromEvent<PointerEvent>(this._document, "pointermove").pipe(
 			takeUntil(merge(
 				fromEvent(this._document, "pointerup"),
 				this._onDestroy$,
 			)),
-		).subscribe(event => {
-			this._offsetX += event.movementX / window.devicePixelRatio;
-			this._offsetY += event.movementY / window.devicePixelRatio;
+		).subscribe({
+			next: event => {
+				this._offsetX += event.movementX / window.devicePixelRatio;
+				this._offsetY += event.movementY / window.devicePixelRatio;
+			},
+			complete: () => {
+				this._document.documentElement.style
+					.removeProperty("cursor");
+			},
 		});
 	}
 
@@ -222,48 +228,53 @@ export class GraphComponent implements AfterContentInit, OnDestroy {
 	}
 
 	private drawConnections(): void {
-		let connections = [] as [Point, Point][];
-		for (let node of this._nodes.values()) {
-			let outs = node.outputs.filter(o => o.connectedTo != null);
-			for (let out of outs) {
-				let n2 = this._nodes.get(out.connectedTo!.nodeId);
-				if (!n2) continue;
-
-				let p1 = { x: node.x, y: node.y };
-				let p2 = { x: n2.x, y: n2.y };
-
-				connections.push([p1, p2]);
-			}
-		}
-
 		let paths = [] as string[];
 		let cPoints = [] as string[];
 
-		for (let [p1, p2] of connections) {
-			let {
-				x1, y1,
-				x2, y2,
-				cpx1, cpy1,
-				cpx2, cpy2,
-			} = this.drawConnection(p1, p2);
+		for (let node of this._nodes.values()) {
+			node.outputs.forEach((out, idx) => {
+				if (!out.connectedTo) return;
 
-			let p = path();
-			p.moveTo(x1, y1);
-			p.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x2, y2);
+				let inputNode = this._nodes.get(out.connectedTo.nodeId);
+				if (!inputNode) return;
 
-			paths.push(p.toString());
+				let p1Offset = node.outputOffset(idx);
+				let p2Offset = inputNode.inputOffset(out.connectedTo.portIndex);
 
-			if (this._debugControlPoints) {
-				let cp1 = path();
-				cp1.moveTo(x1, y1);
-				cp1.lineTo(cpx1, cpy1);
+				let p1 = {
+					x: node.x + p1Offset.x,
+					y: node.y + p1Offset.y,
+				};
+				let p2 = {
+					x: inputNode.x + p2Offset.x,
+					y: inputNode.y + p2Offset.y,
+				};
 
-				let cp2 = path();
-				cp2.moveTo(x2, y2);
-				cp2.lineTo(cpx2, cpy2);
+				let {
+					x1, y1,
+					x2, y2,
+					cpx1, cpy1,
+					cpx2, cpy2,
+				} = this.drawConnection(p1, p2);
 
-				cPoints.push(cp1.toString(), cp2.toString());
-			}
+				let p = path();
+				p.moveTo(x1, y1);
+				p.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x2, y2);
+
+				paths.push(p.toString());
+
+				if (this._debugControlPoints) {
+					let cp1 = path();
+					cp1.moveTo(x1, y1);
+					cp1.lineTo(cpx1, cpy1);
+
+					let cp2 = path();
+					cp2.moveTo(x2, y2);
+					cp2.lineTo(cpx2, cpy2);
+
+					cPoints.push(cp1.toString(), cp2.toString());
+				}
+			});
 		}
 
 		this._paths = paths;
@@ -283,14 +294,15 @@ export class GraphComponent implements AfterContentInit, OnDestroy {
 		let cpLen = dist / 3;
 
 		let dx = p2.x - p1.x;
-		if (dx <= 6)
-			cpLen *= anim.clamp(anim.remap(dx, [6, 0], [1, 2]), [1, 3]);
+		if (dx <= 6) {
+			cpLen *= anim.clamp(anim.remap(dx, [6, 0], [1, 2]), [1, 2]);
+			cpLen = anim.clamp(cpLen, [-20 * this.cellSize, 20 * this.cellSize]);
+		}
 
-		if (dx <= 0)
-			cpLen = Math.max(cpLen, 4 * this.cellSize);
-
-		let cpx1 = x1 + cpLen, cpx2 = x2 - cpLen;
-		let cpy1 = y1, cpy2 = y2;
+		let cpx1 = x1 + cpLen;
+		let cpx2 = x2 - cpLen;
+		let cpy1 = y1;
+		let cpy2 = y2;
 
 		return { x1,y1, x2,y2, cpx1,cpy1, cpx2,cpy2 };
 	}

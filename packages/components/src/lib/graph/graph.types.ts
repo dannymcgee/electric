@@ -28,6 +28,13 @@ export interface GraphNode {
 	inputs: Port[];
 	outputs: Port[];
 	changes$: Observable<void>;
+	inputOffset(index: number): Point;
+	outputOffset(index: number): Point;
+}
+
+export interface Point {
+	x: number;
+	y: number;
 }
 
 export interface Port {

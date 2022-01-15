@@ -2,8 +2,11 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
 import { GraphComponent } from "./graph.component";
-import { BaseNode } from './graph-nodes/base.node';
-import { RerouteNode } from "./graph-nodes/reroute/reroute.node";
+import {
+	BaseNode,
+	FunctionNode,
+	RerouteNode
+} from "./graph-nodes";
 
 @NgModule({
 	imports: [
@@ -12,11 +15,13 @@ import { RerouteNode } from "./graph-nodes/reroute/reroute.node";
 	declarations: [
 		GraphComponent,
 		BaseNode,
+		FunctionNode,
 		RerouteNode,
 	],
 	exports: [
 		GraphComponent,
 		BaseNode,
+		FunctionNode,
 		RerouteNode,
 	]
 })

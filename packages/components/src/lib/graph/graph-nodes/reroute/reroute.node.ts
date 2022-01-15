@@ -45,27 +45,36 @@ export class RerouteNode extends BaseNode {
 
 		event.preventDefault();
 
+		this._document.documentElement.style
+			.setProperty("cursor", "grabbing");
+
 		animationFrames().pipe(
 			takeUntil(merge(
 				fromEvent(this._document, "pointerup"),
 				this.onDestroy$,
 			)),
-		).subscribe(_ => {
-			let {
-				cursorX, cursorY,
-				offsetX, offsetY,
-				scale,
-				cellSize,
-			} = this.graph;
+		).subscribe({
+			next: _ => {
+				let {
+					cursorX, cursorY,
+					offsetX, offsetY,
+					scale,
+					cellSize,
+				} = this.graph;
 
-			let x = Math.round((cursorX - offsetX) / scale / cellSize);
-			let y = Math.round((cursorY - offsetY) / scale / cellSize);
+				let x = Math.round((cursorX - offsetX) / scale / cellSize);
+				let y = Math.round((cursorY - offsetY) / scale / cellSize);
 
-			if (x !== this.x || y !== this.y) {
-				this.x = x;
-				this.y = y;
-				this.changes$.next();
-			}
+				if (x !== this.x || y !== this.y) {
+					this.x = x;
+					this.y = y;
+					this.changes$.next();
+				}
+			},
+			complete: () => {
+				this._document.documentElement.style
+					.removeProperty("cursor");
+			},
 		});
 	}
 }
