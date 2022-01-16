@@ -4,10 +4,13 @@ export function keys<T extends Obj>(obj: T): Array<keyof T> {
 	return Object.keys(obj);
 }
 
-type EntriesReturn<T> = T extends Map<infer K, infer V> ? Array<[K, V]>
-	: T extends Record<infer K, infer V> ? Array<[K, V]>
+type EntriesReturn<T> = T extends ReadonlyMap<infer K, infer V>
+	? Array<[K, V]>
+	: T extends Record<infer K, infer V>
+	? Array<[K, V]>
 	: never;
 
+export function entries<K, V>(map: ReadonlyMap<K, V>): Array<[K, V]>;
 export function entries<K, V>(map: Map<K, V>): Array<[K, V]>;
 export function entries<T extends Obj>(obj: T): Array<[keyof T, T[keyof T]]>;
 
@@ -21,9 +24,11 @@ export function entries<K, V, T>(
 	return Object.entries(objOrMap);
 }
 
-type ValuesReturn<T> = T extends Map<any, infer V> ? V[]
+type ValuesReturn<T> = T extends ReadonlyMap<any, infer V>
+	? V[]
 	: Array<T[keyof T]>;
 
+export function values<K, V>(map: ReadonlyMap<K, V>): V[];
 export function values<K, V>(map: Map<K, V>): V[];
 export function values<T extends Obj>(obj: T): Array<T[keyof T]>;
 export function values<K, V, T extends Obj>(

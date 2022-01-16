@@ -9,7 +9,13 @@ import {
 } from "@angular/core";
 import { fromEvent, merge, takeUntil } from "rxjs";
 
-import { Graph, GRAPH, Point } from "../../graph.types";
+import {
+	GraphViewModel,
+	GRAPH,
+	Point,
+	Graph,
+	GRAPH_VIEW_MODEL,
+} from "../../graph.types";
 import { BaseNode } from "../base.node";
 
 @Component({
@@ -93,11 +99,12 @@ export class FunctionNode extends BaseNode {
 	protected get element() { return this.elementRef.nativeElement; }
 
 	constructor (
-		@Inject(GRAPH) public graph: Graph,
+		@Inject(GRAPH) graph: Graph,
+		@Inject(GRAPH_VIEW_MODEL) vm: GraphViewModel,
 		@Inject(DOCUMENT) protected document: Document,
 		protected elementRef: ElementRef<HTMLElement>,
 	) {
-		super(graph);
+		super(graph, vm);
 	}
 
 	inputOffset(idx: number): Point {
@@ -109,7 +116,7 @@ export class FunctionNode extends BaseNode {
 
 	outputOffset(idx: number): Point {
 		return {
-			x: this.element.clientWidth / this.graph.cellSize,
+			x: this.element.clientWidth / this.vm.cellSize,
 			y: 4 + idx * 2,
 		};
 	}
@@ -132,7 +139,7 @@ export class FunctionNode extends BaseNode {
 			)),
 		).subscribe({
 			next: ({ movementX, movementY }) => {
-				let { scale, cellSize } = this.graph;
+				let { scale, cellSize } = this.vm;
 
 				xCurrent += movementX / window.devicePixelRatio / scale;
 				yCurrent += movementY / window.devicePixelRatio / scale;

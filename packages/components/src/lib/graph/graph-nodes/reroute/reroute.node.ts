@@ -9,7 +9,15 @@ import {
 } from "@angular/core";
 import { animationFrames, fromEvent, merge, takeUntil } from "rxjs";
 
-import { GRAPH, Graph, NodeAlignment, Port, PortType } from "../../graph.types";
+import {
+	Graph,
+	GRAPH,
+	GraphViewModel,
+	GRAPH_VIEW_MODEL,
+	NodeAlignment,
+	Port,
+	PortType,
+} from "../../graph.types";
 import { BaseNode } from "../base.node";
 
 @Component({
@@ -34,9 +42,10 @@ export class RerouteNode extends BaseNode {
 
 	constructor (
 		@Inject(GRAPH) graph: Graph,
+		@Inject(GRAPH_VIEW_MODEL) vm: GraphViewModel,
 		@Inject(DOCUMENT) private _document: Document,
 	) {
-		super(graph);
+		super(graph, vm);
 	}
 
 	@HostListener("pointerdown", ["$event"])
@@ -55,15 +64,10 @@ export class RerouteNode extends BaseNode {
 			)),
 		).subscribe({
 			next: _ => {
-				let {
-					cursorX, cursorY,
-					offsetX, offsetY,
-					scale,
-					cellSize,
-				} = this.graph;
+				let { cursor, offset, scale, cellSize } = this.vm;
 
-				let x = Math.round((cursorX - offsetX) / scale / cellSize);
-				let y = Math.round((cursorY - offsetY) / scale / cellSize);
+				let x = Math.round((cursor.x - offset.x) / scale / cellSize);
+				let y = Math.round((cursor.y - offset.y) / scale / cellSize);
 
 				if (x !== this.x || y !== this.y) {
 					this.x = x;

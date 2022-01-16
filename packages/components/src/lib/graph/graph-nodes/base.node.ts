@@ -14,12 +14,14 @@ import { Coerce } from "@electric/ng-utils";
 import { elementId } from "@electric/utils";
 
 import {
-	NodeAlignment,
-	Graph,
+	GRAPH_VIEW_MODEL,
 	GRAPH,
+	Graph,
 	GraphNode,
-	Port,
+	GraphViewModel,
+	NodeAlignment,
 	Point,
+	Port,
 } from "../graph.types";
 
 @Component({
@@ -36,10 +38,10 @@ implements OnInit, OnDestroy, GraphNode {
 	readonly _position = "absolute";
 
 	@HostBinding("style.left.px")
-	get _offsetX() { return this.x * this.graph.cellSize; }
+	get _offsetX() { return this.x * this.vm.cellSize; }
 
 	@HostBinding("style.top.px")
-	get _offsetY() { return this.y * this.graph.cellSize; }
+	get _offsetY() { return this.y * this.vm.cellSize; }
 
 	@HostBinding("style.transform")
 	get _transform() {
@@ -111,6 +113,7 @@ implements OnInit, OnDestroy, GraphNode {
 
 	constructor (
 		@Inject(GRAPH) protected graph: Graph,
+		@Inject(GRAPH_VIEW_MODEL) public vm: GraphViewModel,
 	) {}
 
 	ngOnInit(): void {
