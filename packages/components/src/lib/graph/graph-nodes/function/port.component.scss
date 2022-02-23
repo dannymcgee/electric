@@ -1,0 +1,26 @@
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+.elx-function-port {
+	@include layout.flex(row, center);
+	@include type.h3;
+	@include anim.transition((color, border-color));
+	height: 32px;
+	padding: 0 12px;
+	color: color.foreground(300);
+	user-select: none;
+	cursor: crosshair;
+
+	&--input { justify-content: flex-start; }
+	&--output { justify-content: flex-end; }
+
+	&:hover {
+		color: color.foreground(200);
+	}
+
+	&.connected {
+		color: color.foreground(50);
+	}
+}

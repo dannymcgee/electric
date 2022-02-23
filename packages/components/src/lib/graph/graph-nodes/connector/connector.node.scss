@@ -1,0 +1,7 @@
+@use "elx/layout";
+
+.elx-connector-node {
+	&__shape {
+		@include layout.circle(2px);
+	}
+}

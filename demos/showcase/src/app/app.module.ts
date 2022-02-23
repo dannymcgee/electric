@@ -38,7 +38,7 @@ import { NavComponent } from './nav/nav.component';
 		GraphModule.withLibrary({
 			types: [{
 				type: PortType.Main,
-				color: "#FFFFFFF",
+				color: "#FFFFFF",
 			}, {
 				type: "float",
 				color: "#00E676",

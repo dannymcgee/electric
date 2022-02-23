@@ -1,6 +1,7 @@
 import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	ElementRef,
 	HostBinding,
@@ -14,14 +15,15 @@ import {
 	ViewContainerRef,
 	ViewEncapsulation,
 } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { delay, merge, Subject, take, takeUntil } from "rxjs";
 
 import { Coerce } from "@electric/ng-utils";
-import { assert, entries } from "@electric/utils";
+import { array, assert, entries } from "@electric/utils";
 
-import { Graph, GRAPH, GRAPH_VIEW_MODEL, GraphNode } from "./graph.types";
+import { Graph, GRAPH, GRAPH_VIEW_MODEL, GraphNode, Point, Port } from "./graph.types";
 import { GraphViewModelService } from "./graph-view-model.service";
 import { GraphLibrary } from "./graph-library.service";
+import { ConnectorNode } from "./graph-nodes/connector/connector.node";
 
 interface GraphNodeMenuItem {
 	id: string;
@@ -73,16 +75,13 @@ interface GraphNodeMenuItem {
 
 	`,
 	styleUrls: ["./graph.component.scss"],
-	providers: [
-		{
-			provide: GRAPH,
-			useExisting: GraphComponent,
-		},
-		{
-			provide: GRAPH_VIEW_MODEL,
-			useClass: GraphViewModelService,
-		},
-	],
+	providers: [{
+		provide: GRAPH,
+		useExisting: GraphComponent,
+	}, {
+		provide: GRAPH_VIEW_MODEL,
+		useClass: GraphViewModelService,
+	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -124,6 +123,7 @@ implements Graph, OnInit, AfterViewInit, OnDestroy {
 
 	constructor (
 		@Self() @Inject(GRAPH_VIEW_MODEL) public vm: GraphViewModelService,
+		private _changeDetector: ChangeDetectorRef,
 		private _elementRef: ElementRef<HTMLElement>,
 		private _library: GraphLibrary,
 	) {}
@@ -190,5 +190,119 @@ implements Graph, OnInit, AfterViewInit, OnDestroy {
 		node.y = Math.round(this.vm.gridCursor.y);
 		node.inputs = desc.inputs;
 		node.outputs = desc.outputs;
+	}
+
+	spawnConnector(
+		nodeId: string,
+		direction: "input"|"output",
+		type: string,
+		portIndex: number,
+	): void {
+		let node = this._nodes.get(nodeId);
+		if (!node)
+			throw new Error("Couldn't find node that spawned connector!");
+
+		let p: Point;
+		if (direction === "input") {
+			p = node.inputOffset(portIndex);
+			p.x -= 1;
+		} else {
+			p = node.outputOffset(portIndex);
+			p.x += 1;
+		}
+		p.x += node.x;
+		p.y += node.y;
+
+		let ref = this._nodeOutlet.createComponent(ConnectorNode);
+		let cx = ref.instance;
+
+		cx.type = type;
+		cx.x = p.x;
+		cx.y = p.y;
+
+		let nodePort: Port = {
+			type,
+			connectedTo: {
+				nodeId: cx.id,
+				portIndex: 0,
+			},
+		};
+		if (direction === "input") {
+			nodePort.name = node.inputs[portIndex].name;
+			node.inputs[portIndex] = nodePort;
+		} else {
+			nodePort.name = node.outputs[portIndex].name;
+			node.outputs[portIndex] = nodePort;
+		}
+
+		let cxPort: Port = {
+			type,
+			connectedTo: {
+				nodeId,
+				portIndex,
+			},
+		};
+		if (direction === "input") {
+			cx.outputs.push(cxPort);
+		} else {
+			cx.inputs.push(cxPort);
+		}
+
+		let cancelled$ = cx.dropped.pipe(delay(100));
+		let succeeded = false;
+
+		merge(
+			...array(this._nodes.values())
+				.map(node => node.connected)
+		).pipe(
+			take(1),
+			takeUntil(merge(cancelled$, this._onDestroy$)),
+		).subscribe({
+			next: e => {
+				let receiver = this._nodes.get(e.receivingNodeId);
+				if (!receiver)
+					throw new Error("Couldn't find receiving node!");
+
+				// TODO: Validate!
+
+				nodePort.connectedTo = {
+					nodeId: e.receivingNodeId,
+					portIndex: e.portIndex,
+				};
+
+				if (e.direction === "input") {
+					cxPort.name = receiver.inputs[e.portIndex].name;
+					receiver.inputs[e.portIndex] = cxPort;
+				} else {
+					cxPort.name = receiver.outputs[e.portIndex].name;
+					receiver.outputs[e.portIndex] = cxPort;
+				}
+
+				succeeded = true;
+			},
+			complete: () => {
+				if (!succeeded) {
+					delete cxPort.connectedTo;
+					delete nodePort.connectedTo;
+					this._changeDetector.markForCheck();
+				}
+
+				let idx = this._nodeOutlet.indexOf(ref.hostView);
+				if (idx === -1)
+					return;
+
+				this._nodeOutlet.remove(idx);
+				this.vm.drawConnections(this._nodes);
+			},
+		});
+	}
+
+	completeConnection(
+		nodeId: string,
+		direction: "input"|"output",
+		type: string,
+		portIndex: number,
+	): void {
+
 	}
 }

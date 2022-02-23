@@ -3,8 +3,10 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	ElementRef,
+	EventEmitter,
 	Inject,
 	Input,
+	Output,
 	ViewEncapsulation,
 } from "@angular/core";
 import { fromEvent, merge, takeUntil } from "rxjs";
@@ -34,11 +36,11 @@ import { BaseNode } from "../base.node";
 	elx-function-node__connections--input"
 >
 	<div class="elx-function-node__connection"></div>
-	<div *ngFor="let input of inputs"
-		class="elx-function-node__connection
-		       elx-function-node__connection--{{ input.type }}"
-		[class.connected]="input.connectedTo != null"
-	></div>
+	<elx-function-cx
+		*ngFor="let input of inputs"
+		[type]="input.type"
+		[connected]="input.connectedTo != null"
+	></elx-function-cx>
 	<div class="elx-function-node__connection"></div>
 </div>
 
@@ -48,11 +50,11 @@ import { BaseNode } from "../base.node";
 	elx-function-node__connections--output"
 >
 	<div class="elx-function-node__connection"></div>
-	<div *ngFor="let output of outputs"
-		class="elx-function-node__connection
-		       elx-function-node__connection--{{ output.type }}"
-		[class.connected]="output.connectedTo != null"
-	></div>
+	<elx-function-cx
+		*ngFor="let output of outputs"
+		[type]="output.type"
+		[connected]="output.connectedTo != null"
+	></elx-function-cx>
 	<div class="elx-function-node__connection"></div>
 </div>
 
@@ -63,26 +65,30 @@ import { BaseNode } from "../base.node";
 		elx-function-node__ports
 		elx-function-node__ports--input"
 	>
-		<div *ngFor="let input of inputs"
-			class="elx-function-node__port
-			       elx-function-node__port--input"
-			[class.connected]="input.connectedTo != null"
-		>
-			{{ input.name ?? "" }}
-		</div>
+		<elx-function-port
+			*ngFor="let input of inputs
+				let idx = index"
+			direction="input"
+			[name]="input.name"
+			[connected]="input.connectedTo != null"
+			(draggedOut)="spawnConnector('input', input.type, idx)"
+			(receivedDrop)="tryConnect('input', input.type, idx)"
+		></elx-function-port>
 	</div>
 	<!-- Outputs -->
 	<div class="
 		elx-function-node__ports
 		elx-function-node__ports--output"
 	>
-		<div *ngFor="let output of outputs"
-			class="elx-function-node__port
-			       elx-function-node__port--output"
-			[class.connected]="output.connectedTo != null"
-		>
-			{{ output.name ?? "" }}
-		</div>
+		<elx-function-port
+			*ngFor="let output of outputs
+				let idx = index"
+			direction="output"
+			[name]="output.name"
+			[connected]="output.connectedTo != null"
+			(draggedOut)="spawnConnector('output', output.type, idx)"
+			(receivedDrop)="tryConnect('output', output.type, idx)"
+		></elx-function-port>
 	</div>
 </div>
 
@@ -156,6 +162,28 @@ export class FunctionNode extends BaseNode {
 				this.document.documentElement.style
 					.removeProperty("cursor");
 			},
+		});
+	}
+
+	spawnConnector(
+		direction: "input"|"output",
+		type: string,
+		portIndex: number,
+	): void {
+		console.log("spawnConnector:", { direction, type, portIndex });
+		this.graph.spawnConnector(this.id, direction, type, portIndex);
+	}
+
+	tryConnect(
+		direction: "input"|"output",
+		type: string,
+		portIndex: number,
+	): void {
+		this.connected.emit({
+			receivingNodeId: this.id,
+			direction,
+			type,
+			portIndex,
 		});
 	}
 }

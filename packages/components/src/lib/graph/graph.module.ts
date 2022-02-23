@@ -4,18 +4,21 @@ import { CommonModule } from "@angular/common";
 import { MenuModule } from "@electric/components/menu";
 
 import { GraphComponent } from "./graph.component";
+import { GraphLibrary } from "./graph-library.service";
 import {
 	BaseNode,
 	FunctionNode,
 	RerouteNode
 } from "./graph-nodes";
+import { ConnectorNode } from "./graph-nodes/connector/connector.node";
+import { FunctionPortComponent } from "./graph-nodes/function/port.component";
+import { FunctionConnectionComponent } from "./graph-nodes/function/connection.component";
 import {
 	GraphNodeDescriptorSet,
 	GraphType,
 	GRAPH_NODE_DESCRIPTOR_SET,
 	GRAPH_TYPES,
 } from "./graph.types";
-import { GraphLibrary } from "./graph-library.service";
 import { SpuriousErrorCatcher } from "./spurious-error-catcher.service";
 
 interface ModuleParams {
@@ -31,7 +34,10 @@ interface ModuleParams {
 	declarations: [
 		GraphComponent,
 		BaseNode,
+		ConnectorNode,
 		FunctionNode,
+		FunctionPortComponent,
+		FunctionConnectionComponent,
 		RerouteNode,
 	],
 	exports: [

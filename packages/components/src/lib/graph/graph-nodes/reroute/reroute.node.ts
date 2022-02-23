@@ -2,12 +2,15 @@ import { DOCUMENT } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	Component,
+	HostBinding,
 	HostListener,
 	Inject,
 	Input,
+	OnInit,
 	ViewEncapsulation,
 } from "@angular/core";
 import { animationFrames, fromEvent, merge, takeUntil } from "rxjs";
+import { GraphLibrary } from "../..";
 
 import {
 	Graph,
@@ -24,7 +27,9 @@ import { BaseNode } from "../base.node";
 	selector: "elx-reroute-node",
 	template: `
 
-<div class="elx-reroute-node__shape"></div>
+<div class="elx-reroute-node__shape"
+	[style.background-color]="color"
+></div>
 
 	`,
 	styleUrls: ["./reroute.node.scss"],
@@ -37,13 +42,19 @@ export class RerouteNode extends BaseNode {
 	protected xAlign: NodeAlignment = "center";
 	protected yAlign: NodeAlignment = "center";
 
+	@Input() type!: string;
+
 	@Input() inputs: Port[] = [{ type: PortType.Main }];
 	@Input() outputs: Port[] = [{ type: PortType.Main }];
+
+	get color() { return this._color ??= this._library.typeColor(this.type); }
+	private _color?: string;
 
 	constructor (
 		@Inject(GRAPH) graph: Graph,
 		@Inject(GRAPH_VIEW_MODEL) vm: GraphViewModel,
 		@Inject(DOCUMENT) private _document: Document,
+		private _library: GraphLibrary,
 	) {
 		super(graph, vm);
 	}

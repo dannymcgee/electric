@@ -1,0 +1,11 @@
+.elx-function-cx {
+	display: block;
+	width: 100%;
+	height: 32px;
+	background: var(--color-dim);
+
+	&.connected {
+		background: var(--color-base);
+		box-shadow: 0 0 24px 3px var(--color-glow);
+	}
+}

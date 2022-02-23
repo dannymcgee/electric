@@ -7,6 +7,8 @@ import {
 	OnInit,
 	OnDestroy,
 	ViewEncapsulation,
+	Output,
+	EventEmitter,
 } from "@angular/core";
 import { Subject } from "rxjs";
 
@@ -23,6 +25,7 @@ import {
 	Point,
 	Port,
 } from "../graph.types";
+import { PortConnectionEvent } from "..";
 
 @Component({
 	template: ``,
@@ -73,6 +76,8 @@ implements OnInit, OnDestroy, GraphNode {
 
 	@Input() inputs: Port[] = [];
 	@Input() outputs: Port[] = [];
+
+	@Output() connected = new EventEmitter<PortConnectionEvent>();
 
 	@Input("xAlign")
 	get xAlignInput() { return this.xAlign; }

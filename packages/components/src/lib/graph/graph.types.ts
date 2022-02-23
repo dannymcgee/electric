@@ -1,4 +1,4 @@
-import { InjectionToken, Type } from "@angular/core";
+import { EventEmitter, InjectionToken, Type } from "@angular/core";
 import { Observable } from "rxjs";
 
 export type NodeAlignment =
@@ -22,6 +22,19 @@ export interface GraphViewModel {
 export interface Graph {
 	registerNode(node: GraphNode): void;
 	unregisterNode(node: GraphNode): void;
+	spawnNode(id: string): void;
+	spawnConnector(
+		nodeId: string,
+		direction: "input"|"output",
+		type: string,
+		portIndex: number,
+	): void;
+	completeConnection(
+		nodeId: string,
+		direction: "input"|"output",
+		type: string,
+		portIndex: number,
+	): void;
 }
 
 export interface GraphNode {
@@ -32,6 +45,7 @@ export interface GraphNode {
 	inputs: Port[];
 	outputs: Port[];
 	changes$: Observable<void>;
+	connected: EventEmitter<PortConnectionEvent>;
 	inputOffset(index: number): Point;
 	outputOffset(index: number): Point;
 }
@@ -53,6 +67,13 @@ export enum PortType {
 
 export interface PortConnection {
 	nodeId: string;
+	portIndex: number;
+}
+
+export interface PortConnectionEvent {
+	receivingNodeId: string;
+	direction: "input"|"output";
+	type: string;
 	portIndex: number;
 }
 
