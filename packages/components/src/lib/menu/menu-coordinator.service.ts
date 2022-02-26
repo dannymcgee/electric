@@ -328,14 +328,14 @@ class AbstractMenuController {
  * button.
  */
 class MenuController extends AbstractMenuController {
-	protected get openEvents$() {
+	protected override get openEvents$() {
 		let click$ = fromEvent(this.triggerElement, "click");
 		let arrowupdown$ = fromKeydown(this.triggerElement, /^Arrow(Up|Down)$/);
 
 		return merge(click$, arrowupdown$).pipe(takeUntil(this.onDestroy$));
 	}
 
-	protected get closeEvents$() {
+	protected override get closeEvents$() {
 		return merge(
 			super.closeEvents$,
 			// Clicking the trigger element while the menu is open
@@ -352,7 +352,7 @@ class MenuController extends AbstractMenuController {
 		);
 	}
 
-	protected onInit(): void {
+	protected override onInit(): void {
 		this.openEvents$.subscribe(event => this.open(event));
 		super.onInit();
 	}
@@ -367,12 +367,12 @@ class MenuController extends AbstractMenuController {
  * the "menu" key) within a defined area.
  */
 class ContextMenuController extends AbstractMenuController {
-	protected get openEvents$(): Observable<Event> {
+	protected override get openEvents$(): Observable<Event> {
 		return fromEvent(this.triggerElement, "contextmenu")
 			.pipe(takeUntil(this.onDestroy$));
 	}
 
-	protected onInit(): void {
+	protected override onInit(): void {
 		super.onInit();
 		this.openEvents$.subscribe(event => this.open(event as MouseEvent));
 	}
@@ -397,7 +397,7 @@ class ContextMenuController extends AbstractMenuController {
  * menu item within its parent menu.
  */
 class SubmenuController extends AbstractMenuController {
-	protected get openEvents$() {
+	protected override get openEvents$() {
 		let hover$ = fromEvent(this.triggerElement, "mouseenter").pipe(
 			startWith(((): MouseEvent|void => {
 				// Since the submenu trigger doesn't register itself until the first
@@ -437,7 +437,7 @@ class SubmenuController extends AbstractMenuController {
 			.pipe(takeUntil(this.onDestroy$));
 	}
 
-	protected get closeEvents$() {
+	protected override get closeEvents$() {
 		let super$ = super.closeEvents$;
 		let arrowLeft$ = this._opened$.pipe(
 			switchMap(({ menuPanel }) => fromKeydown(
@@ -458,7 +458,7 @@ class SubmenuController extends AbstractMenuController {
 		return merge(super$, arrowLeft$);
 	}
 
-	protected onInit(): void {
+	protected override onInit(): void {
 		super.onInit();
 		this.openEvents$.subscribe(event => this.open(event));
 	}

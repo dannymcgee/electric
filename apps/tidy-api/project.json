@@ -1,0 +1,45 @@
+{
+	"root": "apps/tidy-api",
+	"sourceRoot": "apps/tidy-api/src",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/node:build",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/apps/tidy-api",
+				"main": "apps/tidy-api/src/main.ts",
+				"tsConfig": "apps/tidy-api/tsconfig.app.json",
+				"assets": ["apps/tidy-api/src/assets"]
+			},
+			"configurations": {
+				"production": {
+					"optimization": true,
+					"extractLicenses": true,
+					"inspect": false,
+					"fileReplacements": [
+						{
+							"replace": "apps/tidy-api/src/environments/environment.ts",
+							"with": "apps/tidy-api/src/environments/environment.prod.ts"
+						}
+					]
+				}
+			}
+		},
+		"serve": {
+			"executor": "@nrwl/node:execute",
+			"options": {
+				"buildTarget": "tidy-api:build"
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/apps/tidy-api"],
+			"options": {
+				"jestConfig": "apps/tidy-api/jest.config.js",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": []
+}

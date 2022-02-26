@@ -17,6 +17,7 @@
 		"useUnknownInCatchVariables": false,
 		"baseUrl": ".",
 		"paths": {
+			"@tidy-api": ["apps/tidy-api/src/index.ts"],
 			"@electric/components": ["packages/components/src/index.ts"],
 			"@electric/components/accordion": ["packages/components/src/lib/accordion/index.ts"],
 			"@electric/components/app-shell": ["packages/components/src/lib/app-shell/index.ts"],

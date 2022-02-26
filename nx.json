@@ -2,7 +2,7 @@
 	"extends": "@nrwl/workspace/presets/npm.json",
 	"npmScope": "electric",
 	"workspaceLayout": {
-		"appsDir": "demos",
+		"appsDir": "apps",
 		"libsDir": "packages"
 	},
 	"affected": {
@@ -27,9 +27,9 @@
 			"e2eTestRunner": "none"
 		},
 		"@nrwl/angular:library": {
-			"style": "scss",
 			"linter": "eslint",
-			"unitTestRunner": "jest"
+			"unitTestRunner": "jest",
+			"style": "scss"
 		},
 		"@nrwl/angular:component": {
 			"style": "scss"

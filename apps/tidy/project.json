@@ -1,0 +1,108 @@
+{
+	"projectType": "application",
+	"root": "apps/tidy",
+	"sourceRoot": "apps/tidy/src",
+	"prefix": "td",
+	"targets": {
+		"build": {
+			"executor": "@angular-devkit/build-angular:browser",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"outputPath": "dist/apps/tidy",
+				"index": "apps/tidy/src/index.html",
+				"main": "apps/tidy/src/main.ts",
+				"polyfills": "apps/tidy/src/polyfills.ts",
+				"tsConfig": "apps/tidy/tsconfig.app.json",
+				"inlineStyleLanguage": "scss",
+				"assets": [
+					"apps/tidy/src/favicon.ico",
+					"apps/tidy/src/assets",
+					{
+						"input": "packages/style/src/assets",
+						"glob": "**/*",
+						"output": "assets/elx"
+					}
+				],
+				"styles": [
+					"packages/style/src/assets/fonts.css",
+					"packages/style/src/globals.scss",
+					"apps/tidy/src/styles.scss"
+				],
+				"stylePreprocessorOptions": {
+					"includePaths": ["node_modules", "packages/style/src"]
+				},
+				"scripts": []
+			},
+			"configurations": {
+				"production": {
+					"budgets": [
+						{
+							"type": "initial",
+							"maximumWarning": "500kb",
+							"maximumError": "1mb"
+						},
+						{
+							"type": "anyComponentStyle",
+							"maximumWarning": "2kb",
+							"maximumError": "4kb"
+						}
+					],
+					"fileReplacements": [
+						{
+							"replace": "apps/tidy/src/environments/environment.ts",
+							"with": "apps/tidy/src/environments/environment.prod.ts"
+						}
+					],
+					"outputHashing": "all"
+				},
+				"development": {
+					"buildOptimizer": false,
+					"optimization": false,
+					"vendorChunk": true,
+					"extractLicenses": false,
+					"sourceMap": true,
+					"namedChunks": true
+				}
+			},
+			"defaultConfiguration": "production"
+		},
+		"serve": {
+			"executor": "@angular-devkit/build-angular:dev-server",
+			"configurations": {
+				"production": {
+					"browserTarget": "tidy:build:production"
+				},
+				"development": {
+					"browserTarget": "tidy:build:development"
+				}
+			},
+			"defaultConfiguration": "development",
+			"options": {
+				"proxyConfig": "apps/tidy/proxy.conf.json"
+			}
+		},
+		"launch": {
+			"executor": "@nrwl/workspace:run-commands",
+			"options": {
+				"command": "tauri dev",
+				"cwd": "apps/tidy",
+				"color": true
+			}
+		},
+		"extract-i18n": {
+			"executor": "@angular-devkit/build-angular:extract-i18n",
+			"options": {
+				"browserTarget": "tidy:build"
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/apps/tidy"],
+			"options": {
+				"jestConfig": "apps/tidy/jest.config.js",
+				"passWithNoTests": true
+			}
+		}
+	},
+	"tags": []
+}

@@ -1,0 +1,51 @@
+@use "elx/a11y";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/scrollbar" as *;
+@use "elx/style/type";
+
+:host {
+	display: block;
+	height: 100%;
+}
+
+.main {
+	@include layout.flex(row, stretch);
+	max-height: calc(100% - 36px);
+	overflow: auto;
+	@include scrollbar(200);
+}
+
+.cdk-table {
+	display: grid;
+	width: 100%;
+	grid-template-columns: 32px 1fr repeat(3, max-content);
+}
+
+.cdk-header-row,
+.cdk-row {
+	display: contents;
+}
+
+.cdk-header-cell,
+.cdk-cell {
+	@include layout.flex(row, center);
+	height: 36px;
+	padding: 0 48px 0 16px;
+	background: color.background(400);
+	border-bottom: 2px solid color.background(200);
+}
+
+.cdk-header-cell {
+	font-size: a11y.rem(12);
+	color: color.foreground(300);
+}
+.cdk-cell {
+	font-size: a11y.rem(13);
+	color: color.foreground(100);
+
+	&.cdk-column-type {
+		padding: 0;
+		justify-content: flex-end;
+	}
+}

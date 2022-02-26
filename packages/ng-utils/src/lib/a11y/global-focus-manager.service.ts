@@ -65,7 +65,7 @@ class Stack<T> extends Array<T> {
 		return null;
 	}
 
-	push(...items: T[]): number {
+	override push(...items: T[]): number {
 		super.push(...items);
 		if (!this._capacity) return this.length;
 
