@@ -10,58 +10,6 @@
 	></elx-titlebar>
 
 	<elx-main-viewport class="main">
-		<cdk-table [dataSource]="entries$">
-			<!-- Type -->
-			<ng-container cdkColumnDef="type">
-				<cdk-header-cell *cdkHeaderCellDef aria-label="Type"></cdk-header-cell>
-				<cdk-cell *cdkCellDef="let entry">
-					<td-file-icon
-						[type]="entry | filetype"
-						size="16"
-					></td-file-icon>
-				</cdk-cell>
-			</ng-container>
-
-			<!-- Name -->
-			<ng-container cdkColumnDef="basename">
-				<cdk-header-cell *cdkHeaderCellDef>Name</cdk-header-cell>
-				<cdk-cell *cdkCellDef="let entry">
-					{{ entry.basename }}
-				</cdk-cell>
-			</ng-container>
-
-			<!-- Last Accessed -->
-			<ng-container cdkColumnDef="lastAccessed">
-				<cdk-header-cell *cdkHeaderCellDef>Last Accessed</cdk-header-cell>
-				<cdk-cell *cdkCellDef="let entry">
-					{{ entry.lastAccessed | date }}
-				</cdk-cell>
-			</ng-container>
-
-			<!-- Last Modified -->
-			<ng-container cdkColumnDef="lastModified">
-				<cdk-header-cell *cdkHeaderCellDef>Last Modified</cdk-header-cell>
-				<cdk-cell *cdkCellDef="let entry">
-					{{ entry.lastModified | date }}
-				</cdk-cell>
-			</ng-container>
-
-			<!-- Size -->
-			<ng-container cdkColumnDef="size">
-				<cdk-header-cell *cdkHeaderCellDef>Size</cdk-header-cell>
-				<cdk-cell *cdkCellDef="let entry">
-					{{ entry.type === 'file'
-						? (entry.size | filesize)
-						: '' }}
-				</cdk-cell>
-			</ng-container>
-
-			<cdk-header-row
-				*cdkHeaderRowDef="['type', 'basename', 'lastAccessed', 'lastModified', 'size']"
-			></cdk-header-row>
-			<cdk-row *cdkRowDef="let row;
-				columns: ['type', 'basename', 'lastAccessed', 'lastModified', 'size']"
-			></cdk-row>
-		</cdk-table>
+		<td-file-explorer class="explorer" [(path)]="path"></td-file-explorer>
 	</elx-main-viewport>
 </elx-app-shell>

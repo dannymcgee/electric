@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { promises as fs } from "fs";
+import { isHiddenFile } from "is-hidden-file";
 import { Entry } from "./types";
 
 @Injectable()
@@ -17,14 +18,14 @@ export class FileSystemService {
 				else
 					return null;
 
-				let basename = ent.name;
 				let path = `${dir}/${ent.name}`;
 				let stat = await fs.stat(path);
 
 				return {
 					type,
 					path,
-					basename,
+					basename: ent.name,
+					hidden: isHiddenFile(path),
 					size: stat.size,
 					created: stat.birthtimeMs,
 					lastAccessed: stat.atimeMs,

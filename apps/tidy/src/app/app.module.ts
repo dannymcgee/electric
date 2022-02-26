@@ -1,4 +1,3 @@
-import { CdkTableModule } from "@angular/cdk/table";
 import { HttpClientModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -15,22 +14,17 @@ import { AppPlatform, PlatformModule } from "@electric/platform";
 import { ICONS } from "@electric/style";
 
 import { AppComponent } from "./app.component";
-import { FileSizePipe } from "./files/file-size.pipe";
-import { FileIcon } from './files/file-icon.component';
-import { FileTypePipe } from "./files/file-type.pipe";
+import { FilesModule } from "./files/files.module";
 
 @NgModule({
 	declarations: [
 		AppComponent,
-		FileIcon,
-		FileTypePipe,
-		FileSizePipe,
 	],
 	imports: [
 		BrowserModule,
 		BrowserAnimationsModule,
-		CdkTableModule,
 		HttpClientModule,
+		FilesModule,
 		FormsModule,
 		AppShellModule,
 		ButtonModule,
@@ -43,9 +37,6 @@ import { FileTypePipe } from "./files/file-type.pipe";
 	providers: [],
 	bootstrap: [
 		AppComponent,
-	],
-	exports: [
-   FileIcon
 	],
 })
 export class AppModule {

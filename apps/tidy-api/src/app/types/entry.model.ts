@@ -2,6 +2,7 @@ export interface EntryMeta {
 	path: string;
 	basename: string;
 	size: number;
+	hidden: boolean;
 	created: number;
 	lastAccessed: number;
 	lastModified: number;

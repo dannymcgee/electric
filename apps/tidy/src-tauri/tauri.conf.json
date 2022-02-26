@@ -54,8 +54,8 @@
     "windows": [
       {
         "title": "Tidy",
-        "width": 1280,
-        "height": 900,
+        "width": 1080,
+        "height": 600,
         "minWidth": 640,
         "minHeight": 360,
         "resizable": true,

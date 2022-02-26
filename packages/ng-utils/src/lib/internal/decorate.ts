@@ -9,16 +9,16 @@ export interface MethodDecorator<
 		proto: T,
 		methodName: string & keyof T,
 		descriptor: TypedPropertyDescriptor<T[typeof methodName] & Signature>,
-	): typeof descriptor;
+	): (typeof descriptor) | undefined;
 }
 
 export type NgClass =
 	& Record<Exclude<string, "ngOnInit" | "ngOnDestroy">, any>
 	& Partial<OnInit & OnDestroy>;
 
+export const NG_LIFECYCLE = /^ng(OnChanges|OnInit|AfterContentInit|AfterViewInit|OnDestroy)$/;
 const SIDE_EFFECTS_MAP = new WeakMap<Object, Map<string, Fn<any[]>[]>>();
 const NOOP = () => {};
-const NG_LIFECYCLE = /^ng(OnChanges|OnInit|AfterContentInit|AfterViewInit|OnDestroy)$/;
 
 export function decorateMethod<
 	T extends Object,

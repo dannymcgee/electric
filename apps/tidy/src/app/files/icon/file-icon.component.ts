@@ -7,7 +7,7 @@ import {
 } from "@angular/core";
 import { Coerce } from "@electric/ng-utils";
 
-import EXTENSIONS from "./extensions";
+import EXTENSIONS from "../extensions";
 
 @Component({
 	selector: "td-file-icon",

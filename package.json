@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"license": "MIT",
 	"scripts": {
-		"postinstall": "run-p postinstall:* && ngcc --properties es2015 browser module main",
+		"postinstall": "run-p postinstall:*",
 		"postinstall:tools": "npm run build-executors",
 		"postinstall:ngcc": "ngcc --properties es2015 browser module main",
 		"build-executors": "run-s build-executors:*",
@@ -31,6 +31,7 @@
 		"chroma-js": "^2.4.2",
 		"d3": "^7.3.0",
 		"highlight.js": "^11.4.0",
+		"is-hidden-file": "^1.1.2",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "~7.4.0",
 		"tslib": "^2.0.0",

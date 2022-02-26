@@ -1,0 +1,26 @@
+@use "elx/style/color";
+@use "elx/anim";
+
+:host {
+	@include anim.transition((background, color));
+	background: transparent;
+	cursor: pointer;
+
+	&:hover {
+		background: color.background(500);
+		color: color.foreground(200);
+	}
+}
+
+.icon {
+	@include anim.transition((color));
+	color: color.foreground(500);
+
+	:host:hover & {
+		color: color.foreground(300);
+	}
+
+	&.active {
+		color: color.foreground(200) !important;
+	}
+}

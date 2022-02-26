@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Post } from "@nestjs/common";
 import { Entry } from "@tidy-api";
 
 import { FileSystemService } from "./fs.service";
