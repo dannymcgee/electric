@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { promises as fs } from "fs";
+import * as path from "path";
 import { isHiddenFile } from "is-hidden-file";
 import { Entry } from "./types";
 
@@ -10,22 +11,24 @@ export class FileSystemService {
 
 		return Promise.all(entries.map(async ent => {
 			try {
-				let type: "file"|"folder";
+				let type: "file"|"folder"|"symlink";
 				if (ent.isFile())
 					type = "file";
 				else if (ent.isDirectory())
 					type = "folder";
+				else if (ent.isSymbolicLink())
+					type = "symlink";
 				else
 					return null;
 
-				let path = `${dir}/${ent.name}`;
-				let stat = await fs.stat(path);
+				let absPath = path.join(dir, ent.name);
+				let stat = await fs.stat(absPath);
 
 				return {
 					type,
-					path,
+					path: absPath,
 					basename: ent.name,
-					hidden: isHiddenFile(path),
+					hidden: isHiddenFile(absPath),
 					size: stat.size,
 					created: stat.birthtimeMs,
 					lastAccessed: stat.atimeMs,

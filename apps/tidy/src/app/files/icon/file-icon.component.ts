@@ -56,6 +56,9 @@ export class FileIcon {
 			FileIcon.ExtMap = map;
 		}
 
+		if (type === "symlink")
+			return "link";
+
 		return FileIcon.ExtMap.get(type) ?? "genericfile";
 	}
 }

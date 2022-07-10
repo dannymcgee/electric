@@ -12,10 +12,10 @@ export interface EntryMeta {
 export type Entry = FileEntry | FolderEntry;
 
 export interface FileEntry extends EntryMeta {
-	type: "file";
+	type: "file"|"symlink";
 }
 
 export interface FolderEntry extends EntryMeta {
-	type: "folder";
+	type: "folder"|"symlink";
 	children?: Entry[];
 }

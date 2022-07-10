@@ -1,36 +1,23 @@
 @use "sass:list";
 
-@mixin flex(
-	$direction: null,
-	$alignment: null,
-	$justification: null,
-) {
-	@include _flex(flex, $direction, $alignment, $justification);
+@mixin flex($dir: null, $a: null, $j: null) {
+	@include _flex(flex, $dir, $a, $j);
 }
 
-@mixin inline-flex(
-	$direction: null,
-	$alignment: null,
-	$justification: null,
-) {
-	@include _flex(inline-flex, $direction, $alignment, $justification);
+@mixin inline-flex($dir: null, $a: null, $j: null) {
+	@include _flex(inline-flex, $dir, $a, $j);
 }
 
-@mixin _flex(
-	$type,
-	$direction: null,
-	$alignment: null,
-	$justification: null,
-) {
+@mixin _flex($type, $dir: null, $a: null, $j: null) {
 	display: $type;
-	@if $direction != null {
-		flex-direction: $direction;
+	@if $dir != null {
+		flex-direction: $dir;
 	}
-	@if $alignment != null {
-		align-items: $alignment;
+	@if $a != null {
+		align-items: $a;
 	}
-	@if $justification != null {
-		justify-content: $justification;
+	@if $j != null {
+		justify-content: $j;
 	}
 }
 

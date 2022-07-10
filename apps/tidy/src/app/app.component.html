@@ -10,6 +10,19 @@
 	></elx-titlebar>
 
 	<elx-main-viewport class="main">
-		<td-file-explorer class="explorer" [(path)]="path"></td-file-explorer>
+		<div class="navigation">
+			<button class="nav-button" elx-btn icon="Back" size="sm"
+				[disabled]="!canGoBack"
+				(click)="back()"
+			></button>
+			<button class="nav-button" elx-btn icon="Forward" size="sm"
+				[disabled]="!canGoForward"
+				(click)="forward()"
+			></button>
+			<button class="nav-button" elx-btn icon="Up" size="sm"></button>
+		</div>
+		<div class="scroller">
+			<td-file-explorer class="explorer" [(path)]="path"></td-file-explorer>
+		</div>
 	</elx-main-viewport>
 </elx-app-shell>

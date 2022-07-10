@@ -2,6 +2,16 @@
 @use "elx/layout";
 @use "elx/style/color";
 
+@mixin layers($a, $b) {
+	background:
+		linear-gradient($a, $a),
+		linear-gradient($b, $b);
+}
+
+:host {
+	position: relative;
+}
+
 .cdk-table {
 	display: grid;
 	width: 100%;
@@ -23,6 +33,9 @@
 }
 
 .cdk-header-cell {
+	position: sticky;
+	top: 0;
+	z-index: 1;
 	font-size: a11y.rem(12);
 	color: color.foreground(300);
 }
@@ -30,14 +43,37 @@
 .cdk-cell {
 	font-size: a11y.rem(13);
 	color: color.foreground(100);
+	cursor: default;
+	user-select: none;
 
 	&.cdk-column-type {
 		padding: 0;
 		justify-content: flex-end;
 	}
 
+	&.hover {
+		background: color.background(500);
+	}
+	&.active {
+		background: color.background(300);
+	}
+	&.selected {
+		$selected: color.primary(200, 0.5);
+		@include layers($selected, color.background(400));
+
+		&.hover {
+			@include layers($selected, color.background(500));
+		}
+		&.active {
+			@include layers($selected, color.background(300));
+		}
+	}
+
 	&.hidden {
 		color: color.foreground(400);
+	}
+	&.symlink {
+		color: color.primary(700);
 	}
 }
 

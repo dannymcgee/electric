@@ -8,6 +8,7 @@ import { FileIcon } from "./icon/file-icon.component";
 import { FileSizePipe } from "./file-size.pipe";
 import { FileTypePipe } from "./file-type.pipe";
 import { SortHeaderComponent, SortIconPipe } from "./explorer/sort-header.component";
+import { TableRowInteractionDirective } from "./explorer/table-row-interaction.directive";
 
 @NgModule({
 	imports: [
@@ -22,6 +23,7 @@ import { SortHeaderComponent, SortIconPipe } from "./explorer/sort-header.compon
 		FileExplorer,
 		SortHeaderComponent,
 		SortIconPipe,
+		TableRowInteractionDirective,
 	],
 	exports: [
 		FileIcon,

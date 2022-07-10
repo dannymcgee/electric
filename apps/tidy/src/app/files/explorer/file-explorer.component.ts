@@ -8,6 +8,7 @@ import {
 import { Entry } from "@tidy-api";
 
 import { ExplorerDataSource } from "./file-explorer.data-source";
+import { InteractionFlags } from "./table-row-interaction.directive";
 
 type Column = keyof Entry;
 
@@ -19,7 +20,12 @@ type Column = keyof Entry;
 	<!-- Type -->
 	<ng-container cdkColumnDef="type">
 		<cdk-header-cell *cdkHeaderCellDef aria-label="Type"></cdk-header-cell>
-		<cdk-cell *cdkCellDef="let entry">
+		<cdk-cell *cdkCellDef="let entry"
+			[class.selected]="_selected === entry"
+			[entry]="entry"
+			[(tdTableRowInteraction)]="_interactionState"
+			(dblclick)="navigate(entry)"
+		>
 			<td-file-icon [class.hidden]="entry.hidden"
 				[type]="entry | filetype"
 				size="16"
@@ -30,7 +36,14 @@ type Column = keyof Entry;
 	<!-- Name -->
 	<ng-container cdkColumnDef="basename">
 		<td-sort-header *cdkHeaderCellDef>Name</td-sort-header>
-		<cdk-cell *cdkCellDef="let entry" [class.hidden]="entry.hidden">
+		<cdk-cell *cdkCellDef="let entry"
+			[class.hidden]="entry.hidden"
+			[class.symlink]="entry.type === 'symlink'"
+			[class.selected]="_selected === entry"
+			[entry]="entry"
+			[(tdTableRowInteraction)]="_interactionState"
+			(dblclick)="navigate(entry)"
+		>
 			{{ entry.basename }}
 		</cdk-cell>
 	</ng-container>
@@ -38,7 +51,14 @@ type Column = keyof Entry;
 	<!-- Last Accessed -->
 	<ng-container cdkColumnDef="lastAccessed">
 		<td-sort-header *cdkHeaderCellDef>Last Accessed</td-sort-header>
-		<cdk-cell *cdkCellDef="let entry" [class.hidden]="entry.hidden">
+		<cdk-cell *cdkCellDef="let entry"
+			[class.hidden]="entry.hidden"
+			[class.symlink]="entry.type === 'symlink'"
+			[class.selected]="_selected === entry"
+			[entry]="entry"
+			[(tdTableRowInteraction)]="_interactionState"
+			(dblclick)="navigate(entry)"
+		>
 			{{ entry.lastAccessed | date }}
 		</cdk-cell>
 	</ng-container>
@@ -46,7 +66,14 @@ type Column = keyof Entry;
 	<!-- Last Modified -->
 	<ng-container cdkColumnDef="lastModified">
 		<td-sort-header *cdkHeaderCellDef>Last Modified</td-sort-header>
-		<cdk-cell *cdkCellDef="let entry" [class.hidden]="entry.hidden">
+		<cdk-cell *cdkCellDef="let entry"
+			[class.hidden]="entry.hidden"
+			[class.symlink]="entry.type === 'symlink'"
+			[class.selected]="_selected === entry"
+			[entry]="entry"
+			[(tdTableRowInteraction)]="_interactionState"
+			(dblclick)="navigate(entry)"
+		>
 			{{ entry.lastModified | date }}
 		</cdk-cell>
 	</ng-container>
@@ -54,7 +81,14 @@ type Column = keyof Entry;
 	<!-- Size -->
 	<ng-container cdkColumnDef="size">
 		<td-sort-header *cdkHeaderCellDef>Size</td-sort-header>
-		<cdk-cell *cdkCellDef="let entry" [class.hidden]="entry.hidden">
+		<cdk-cell *cdkCellDef="let entry"
+			[class.hidden]="entry.hidden"
+			[class.symlink]="entry.type === 'symlink'"
+			[class.selected]="_selected === entry"
+			[entry]="entry"
+			[(tdTableRowInteraction)]="_interactionState"
+			(dblclick)="navigate(entry)"
+		>
 			{{ entry.type === 'file'
 				? (entry.size | filesize)
 				: '' }}
@@ -81,6 +115,20 @@ export class FileExplorer {
 
 	@Output() pathChange = new EventEmitter<string>();
 
+	private __interactionState?: [Entry, InteractionFlags];
+	get _interactionState() { return this.__interactionState; }
+	set _interactionState(value) {
+		this.__interactionState = value;
+		if (value) {
+			let [entry, flags] = value;
+			if (InteractionFlags.Pressed & flags) {
+				this._selected = entry;
+			}
+		}
+	}
+
+	_selected?: Entry;
+
 	_columns: Column[] = [
 		"type",
 		"basename",
@@ -92,4 +140,9 @@ export class FileExplorer {
 	constructor (
 		public _dataSrc: ExplorerDataSource,
 	) {}
+
+	navigate(entry: Entry): void {
+		if (entry.type === "folder")
+			this.pathChange.emit(entry.path);
+	}
 }
