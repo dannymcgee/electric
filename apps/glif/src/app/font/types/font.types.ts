@@ -2,14 +2,22 @@ import { match, Transparent } from "@electric/utils";
 
 import { PanoseClass } from "./panose.types";
 import {
-	parseDate,
 	parseDecimal,
-	parsef32,
 	parseFlags,
-	parseHex,
-	parseu32version,
 	readString,
 } from "./parse";
+import {
+	Xml,
+	XmlElement,
+	attr,
+	child,
+	date,
+	flags,
+	float,
+	hex,
+	int,
+	str,
+} from "./xml";
 
 export const MAGIC_NUMBER = 0x5F0F3CF5;
 
@@ -221,95 +229,95 @@ export enum FsTypeFlags {
  * should be computed using only glyphs that have contours. Glyphs with no
  * contours should be ignored for the purposes of these calculations.
  */
-export class FontHeaderTable {
-	static fromXml(xml: Element): FontHeaderTable {
-		const result = new FontHeaderTable();
-		for (let i = 0; i < xml.childElementCount; ++i) {
-			const child = xml.children[i];
-			match(child.nodeName, {
-				tableVersion: () => result.tableVersion = parsef32(child),
-				fontRevision: () => result.fontRevision = readString(child),
-				checkSumAdjustment: () => result.checkSumAdjustment = parseHex(child),
-				magicNumber: () => result.magicNumber = MAGIC_NUMBER,
-				flags: () => result.flags = parseFlags<Flags>(child),
-				unitsPerEm: () => result.unitsPerEm = parseDecimal(child),
-				created: () => result.created = parseDate(child),
-				modified: () => result.modified = parseDate(child),
-				xMin: () => {
-					result.xRange ??= {} as Range<i16>;
-					result.xRange.min = parseDecimal(child);
-				},
-				xMax: () => {
-					result.xRange ??= {} as Range<i16>;
-					result.xRange.max = parseDecimal(child);
-				},
-				yMin: () => {
-					result.yRange ??= {} as Range<i16>;
-					result.yRange.min = parseDecimal(child);
-				},
-				yMax: () => {
-					result.yRange ??= {} as Range<i16>;
-					result.yRange.max = parseDecimal(child);
-				},
-				macStyle: () => result.macStyle = parseFlags<MacStyleFlags>(child),
-				lowestRecPPEM: () => result.lowestRecPPEM = parseInt(child.getAttribute("value")!, 10),
-				fontDirectionHint: () => result.fontDirectionHint = parseDecimal(child),
-				indexToLocFormat: () => result.indexToLocFormat = parseDecimal(child),
-				glyphDataFormat: () => result.glyphDataFormat = parseDecimal(child),
-			});
-		}
-		return result;
-	}
+@Xml("head")
+export class FontHeaderTable extends XmlElement {
+	// static fromXml(xml: Element): FontHeaderTable {
+	// 	const result = new FontHeaderTable();
+	// 	for (let i = 0; i < xml.childElementCount; ++i) {
+	// 		const child = xml.children[i];
+	// 		match(child.nodeName, {
+	// 			tableVersion: () => result.tableVersion = parsef32(child),
+	// 			fontRevision: () => result.fontRevision = readString(child),
+	// 			checkSumAdjustment: () => result.checkSumAdjustment = parseHex(child),
+	// 			magicNumber: () => result.magicNumber = MAGIC_NUMBER,
+	// 			flags: () => result.flags = parseFlags<Flags>(child),
+	// 			unitsPerEm: () => result.unitsPerEm = parseDecimal(child),
+	// 			created: () => result.created = parseDate(child),
+	// 			modified: () => result.modified = parseDate(child),
+	// 			xMin: () => {
+	// 				result.xRange ??= {} as Range<i16>;
+	// 				result.xRange.min = parseDecimal(child);
+	// 			},
+	// 			xMax: () => {
+	// 				result.xRange ??= {} as Range<i16>;
+	// 				result.xRange.max = parseDecimal(child);
+	// 			},
+	// 			yMin: () => {
+	// 				result.yRange ??= {} as Range<i16>;
+	// 				result.yRange.min = parseDecimal(child);
+	// 			},
+	// 			yMax: () => {
+	// 				result.yRange ??= {} as Range<i16>;
+	// 				result.yRange.max = parseDecimal(child);
+	// 			},
+	// 			macStyle: () => result.macStyle = parseFlags<MacStyleFlags>(child),
+	// 			lowestRecPPEM: () => result.lowestRecPPEM = parseInt(child.getAttribute("value")!, 10),
+	// 			fontDirectionHint: () => result.fontDirectionHint = parseDecimal(child),
+	// 			indexToLocFormat: () => result.indexToLocFormat = parseDecimal(child),
+	// 			glyphDataFormat: () => result.glyphDataFormat = parseDecimal(child),
+	// 		});
+	// 	}
+	// 	return result;
+	// }
 
-	private constructor () {}
+	// private constructor () {}
 
-	tableVersion!: f32;
-	fontRevision!: string;
-	checkSumAdjustment!: u32;
-	/**
-	 * Set by font manufacturer.
-	 */
-	magicNumber!: typeof MAGIC_NUMBER;
-	/**
-	 * See {@linkcode Flags}
-	 */
+	@child(float) tableVersion!: f32;
+	@child(str) fontRevision!: string;
+	@child(hex) checkSumAdjustment!: u32;
+
+	/** Set by font manufacturer. */
+	readonly magicNumber = MAGIC_NUMBER;
+
+	/** See {@linkcode Flags} */
+	@child(flags<Flags>())
 	flags!: Flags;
+
 	/**
 	 * Set to a value from 16 to 16384. Any value in this range is valid. In
 	 * fonts that have TrueType outlines, a power of 2 is recommended as this
 	 * allows performance optimizations in some rasterizers.
 	 */
-	unitsPerEm!: u16;
-	created!: Date;
-	modified!: Date;
-	/**
-	 * Minimum and maximum x coordinates across all glyph bounding boxes.
-	 */
-	xRange!: Range<i16>;
-	/**
-	 * Minimum and maximum y coordinates across all glyph bounding boxes.
-	 */
-	yRange!: Range<i16>;
-	/**
-	 * See {@linkcode MacStyleFlags}
-	 */
+	@child(int) unitsPerEm!: u16;
+
+	@child(date) created!: Date;
+	@child(date) modified!: Date;
+
+	/** Minimum x coordinates across all glyph bounding boxes. */
+	@child(int) xMin!: i16;
+	/** Maximum x coordinates across all glyph bounding boxes. */
+	@child(int) xMax!: i16;
+
+	/** Minimum y coordinates across all glyph bounding boxes. */
+	@child(int) yMin!: i16;
+	/** Maximum y coordinates across all glyph bounding boxes. */
+	@child(int) yMax!: i16;
+
+	/** See {@linkcode MacStyleFlags} */
+	@child(flags<MacStyleFlags>())
 	macStyle!: MacStyleFlags;
-	/**
-	 * Smallest readable size in pixels.
-	 */
-	lowestRecPPEM!: u16;
-	/**
-	 * See {@linkcode FontDirectionHint}
-	 */
-	fontDirectionHint!: FontDirectionHint;
-	/**
-	 * See {@linkcode IndexToLocFormat}
-	 */
-	indexToLocFormat!: IndexToLocFormat;
-	/**
-	 * 0 for current format.
-	 */
-	glyphDataFormat!: i16;
+
+	/** Smallest readable size in pixels. */
+	@child(int) lowestRecPPEM!: u16;
+
+	/** See {@linkcode FontDirectionHint} */
+	@child(int) fontDirectionHint!: FontDirectionHint;
+
+	/** See {@linkcode IndexToLocFormat} */
+	@child(int) indexToLocFormat!: IndexToLocFormat;
+
+	/** 0 for current format. */
+	@child(int) glyphDataFormat!: i16;
 }
 
 /**
@@ -333,39 +341,39 @@ export class FontHeaderTable {
  * | {@linkcode CaretSlope.run caretSlope.run}   | {@linkcode TODO hcrn} |
  */
 export class HorizontalHeaderTable {
-	static fromXml(xml: Element): HorizontalHeaderTable {
-		const result = new HorizontalHeaderTable();
-		for (let i = 0; i < xml.childElementCount; ++i) {
-			const child = xml.children[i];
-			match(child.nodeName, {
-				tableVersion: () => result.tableVersion = parseu32version(child),
-				ascent: () => result.ascender = parsef32(child),
-				descent: () => result.descender = parsef32(child),
-				lineGap: () => result.lineGap = parsef32(child),
-				advanceWidthMax: () => result.advanceWidthMax = parsef32(child),
-				minLeftSideBearing: () => result.minLeftSideBearing = parsef32(child),
-				minRightSideBearing: () => result.minRightSideBearing = parsef32(child),
-				xMaxExtent: () => result.xMaxExtent = parsef32(child),
-				caretSlopeRise: () => {
-					result.caretSlope ??= {} as CaretSlope;
-					result.caretSlope.rise = parseDecimal(child);
-				},
-				caretSlopeRun: () => {
-					result.caretSlope ??= {} as CaretSlope;
-					result.caretSlope.run = parseDecimal(child);
-				},
-				caretOffset: () => result.caretOffset = parseDecimal(child),
-				metricDataFormat: () => result.metricDataFormat = parseDecimal(child),
-				numberOfHMetrics: () => result.numberOfHMetrics = parseDecimal(child),
-				_: () => {
-					console.warn(`Unhandled hhea field "${child.nodeName}"`);
-				},
-			});
-		}
-		return result;
-	}
+	// static fromXml(xml: Element): HorizontalHeaderTable {
+	// 	const result = new HorizontalHeaderTable();
+	// 	for (let i = 0; i < xml.childElementCount; ++i) {
+	// 		const child = xml.children[i];
+	// 		match(child.nodeName, {
+	// 			tableVersion: () => result.tableVersion = parseu32version(child),
+	// 			ascent: () => result.ascender = parsef32(child),
+	// 			descent: () => result.descender = parsef32(child),
+	// 			lineGap: () => result.lineGap = parsef32(child),
+	// 			advanceWidthMax: () => result.advanceWidthMax = parsef32(child),
+	// 			minLeftSideBearing: () => result.minLeftSideBearing = parsef32(child),
+	// 			minRightSideBearing: () => result.minRightSideBearing = parsef32(child),
+	// 			xMaxExtent: () => result.xMaxExtent = parsef32(child),
+	// 			caretSlopeRise: () => {
+	// 				result.caretSlope ??= {} as CaretSlope;
+	// 				result.caretSlope.rise = parseDecimal(child);
+	// 			},
+	// 			caretSlopeRun: () => {
+	// 				result.caretSlope ??= {} as CaretSlope;
+	// 				result.caretSlope.run = parseDecimal(child);
+	// 			},
+	// 			caretOffset: () => result.caretOffset = parseDecimal(child),
+	// 			metricDataFormat: () => result.metricDataFormat = parseDecimal(child),
+	// 			numberOfHMetrics: () => result.numberOfHMetrics = parseDecimal(child),
+	// 			_: () => {
+	// 				console.warn(`Unhandled hhea field "${child.nodeName}"`);
+	// 			},
+	// 		});
+	// 	}
+	// 	return result;
+	// }
 
-	private constructor () {}
+	// private constructor () {}
 
 	tableVersion!: u32;
 	/**
@@ -565,60 +573,101 @@ export class HorizontalMetricsTable {
  * CFF’s CharStrings INDEX. The OpenType font glyph index is the same as the CFF
  * glyph index for all glyphs in the font.
  */
-export class CFFTable {
-	static fromXml(xml: Element): CFFTable {
-		const result = new CFFTable();
-		let majorVersion: number;
-		let minorVersion: number;
+@Xml("CFF")
+export class CFFTable extends XmlElement {
+	@child("major", int) versionMajor!: number;
+	@child("minor", int) versionMinor!: number;
 
-		for (let i = 0; i < xml.childElementCount; ++i) {
-			const child = xml.children[i];
-			match(child.nodeName, {
-				major: () => majorVersion = parseDecimal(child),
-				minor: () => minorVersion = parseDecimal(child),
-				CFFFont: () => result.font = CFFFont.fromXml(child),
-				GlobalSubrs: () => {
-					const subrs: string[] = new Array(child.childElementCount);
-					for (let j = 0; j < child.childElementCount; ++j)
-						subrs[j] = child.children[j].textContent ?? "";
+	readonly cffFont: CFFFont;
 
-					result.globalSubrs = subrs;
-				},
-			});
-		}
-		return result;
+	constructor (dom: Element) {
+		super(dom);
+		this.cffFont = this["_children"].find(it => it instanceof CFFFont) as CFFFont;
+		// TODO: GlobalSubrs
 	}
-
-	private constructor () {}
-
-	version!: f32;
-	font!: CFFFont;
-	globalSubrs!: string[];
 }
+// export class CFFTable {
+// 	static fromXml(xml: Element): CFFTable {
+// 		const result = new CFFTable();
+// 		let majorVersion: number;
+// 		let minorVersion: number;
 
-export class CFFFont {
-	static fromXml(xml: Element): CFFFont {
-		return new CFFFont();
-	}
+// 		for (let i = 0; i < xml.childElementCount; ++i) {
+// 			const child = xml.children[i];
+// 			match(child.nodeName, {
+// 				major: () => majorVersion = parseDecimal(child),
+// 				minor: () => minorVersion = parseDecimal(child),
+// 				// CFFFont: () => result.font = CFFFont.fromXml(child),
+// 				GlobalSubrs: () => {
+// 					const subrs: string[] = new Array(child.childElementCount);
+// 					for (let j = 0; j < child.childElementCount; ++j)
+// 						subrs[j] = child.children[j].textContent ?? "";
 
-	private constructor () {}
+// 					result.globalSubrs = subrs;
+// 				},
+// 			});
+// 		}
+// 		return result;
+// 	}
 
+// 	private constructor () {}
+
+// 	version!: f32;
+// 	font!: CFFFont;
+// 	globalSubrs!: string[];
+// }
+
+@Xml("CFFFont")
+export class CFFFont extends XmlElement {
+	@attr(str)
 	name!: string;
+
+	@child("version", str)
 	version!: string;
+
+	@child("Notice", str)
 	notice!: string;
+
+	@child("Copyright", str)
 	copyright!: string;
+
+	@child("FullName", str)
 	fullName!: string;
+
+	@child("FamilyName", str)
 	familyName!: string;
+
+	@child("Weight", str)
 	weight!: string;
+
+	@child("isFixedPitch", int) // FIXME
 	isFixedPitch!: boolean;
+
+	@child("ItalicAngle", float)
 	italicAngle!: number;
+
+	@child("UnderlinePosition", float)
 	underlinePosition!: number;
+
+	@child("UnderlineThickness", float)
 	underlineThickness!: number;
+
+	@child("PaintType", int) // TODO: enum
 	paintType!: number;
+
+	@child("CharstringType", int) // TODO: enum
 	charstringType!: number;
+
+	@child("FontMatrix", str)
 	fontMatrix!: string;
+
+	@child("FontBBox", str)
 	fontBBox!: string;
+
+	@child("StrokeWidth", float)
 	strokeWidth!: number;
+
+	@child("Encoding", str, "name")
 	encoding!: string;
 }
 
@@ -630,7 +679,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 		for (let i = 0; i < xml.childElementCount; ++i) {
 			const child = xml.children[i];
 			match(child.nodeName, {
-				version: () => result.version = parseDecimal(child) as 0 | 1 | 2 | 3 | 4 | 5,
+				version: () => result.version = parseDecimal(child) as OS2Version,
 				xAvgCharWidth: () => result.xAvgCharWidth = parseDecimal(child),
 				usWeightClass: () => result.usWeightClass = parseDecimal(child),
 				usWidthClass: () => result.usWidthClass = parseDecimal(child),

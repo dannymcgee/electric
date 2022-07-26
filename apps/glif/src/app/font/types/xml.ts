@@ -1,15 +1,167 @@
-export class XmlElement {
-	static from(dom: Element): XmlElement {
-		return new XmlElement(dom);
-	}
+import { Ctor, exists, match } from "@electric/utils";
 
-	private dom: Element;
-	private constructor (dom: Element) {
-		this.dom = dom;
+const XML_LUT = new Map<string, Ctor<XmlElement, [Element]>>();
+
+/**
+ * Glif uses [`fonttools/ttx`](https://fonttools.readthedocs.io/en/latest/ttx.html)
+ * to parse/compile Open-Type fonts to/from XML. XML is... not the serialization
+ * method I would have chosen, but `ttx` seems to be the most robust and fully-
+ * featured OpenType parser available at the time of writing.
+ *
+ * To make this format workable, we parse the XML output to an in-memory DOM
+ * tree and wrap each node with a subclass of `XMLElement` that knows how to
+ * deserialize its corresponding XML markup. This is done with the aid of a few
+ * decorators:
+ *
+ * * {@linkcode Xml} decorates the class to register itself as the JS object
+ *   representation of the corresponding XML tag.
+ *
+ * * {@linkcode attr} decorates a property to register the {@linkcode Serde}
+ *   implementation for the corresponding attribute.
+ *
+ * * {@linkcode child} decorates a property to register a child element with
+ *   the given tag name as the provider for the decorated property (typically
+ *   via the child's "value" attribute, but this can be overridden).
+ *
+ * The idea is similar to the way browsers parse HTML markup to `HTMLElement`
+ * classes. With this data structure in memory, we can read from and write to
+ * our `XmlElement` class properties, which will update the corresponding XML
+ * attributes. When we're ready to compile the font back to OpenType, we can
+ * just re-stringify the updated XML document and pass it back to `ttx`.
+ *
+ * @example
+ * Given the following XML markup:
+ * ```xml
+ * <Foo bar="42">
+ *   <Baz value="Hello" />
+ * </Foo>
+ * ```
+ * We could declare a class to represent the `Foo` table like so:
+ * ```typescript
+ * import { Xml, XmlElement, attr, child, int, str } from "src/app/font/types/xml";
+ *
+ * ‌@​Xml("Foo")
+ * export class Foo extends XmlElement {
+ *   ‌@attr(int)
+ *   bar!: number;
+ *
+ *   ‌@child("Baz", str)
+ *   baz!: string;
+ * }
+ * ```
+ */
+export class XmlElement {
+	private _dom: Element;
+	private _children: XmlElement[];
+	get nodeName() { return this._dom.nodeName; }
+
+	constructor (dom: Element) {
+		this._dom = dom;
+		this._children = Array
+			.from(dom.children)
+			.map(child =>
+				XML_LUT.has(child.nodeName)
+					? new (XML_LUT.get(child.nodeName)!)(child)
+					: (() => {
+						console.warn(`Unhandled XML element: <${child.nodeName} />`)
+						return null;
+					})()
+			)
+			.filter(exists);
 	}
 }
 
-interface Serde<T> {
+export function Xml<T extends XmlElement>(nodeName: string) {
+	return (Type: Ctor<T, [Element]>) => {
+		XML_LUT.set(nodeName, Type);
+	}
+}
+
+export function attr<V>({ read, write }: Serde<V>) {
+	return <T extends XmlElement, K extends string & keyof T>(target: T, key: K) => {
+		Object.defineProperty(target, key, {
+			get(this: T): V {
+				return read(this["_dom"].getAttribute(key)!);
+			},
+			set(this: T, value: V): void {
+				this["_dom"].setAttribute(key, write(value));
+			},
+		});
+	};
+}
+
+export function child<V>(serde: Serde<V>): PropertyDecorator;
+export function child<V>(nodeName: string, serde: Serde<V>): PropertyDecorator;
+export function child<V>(nodeName: string, serde: Serde<V>, childKey: string): PropertyDecorator;
+
+export function child<V, T extends XmlElement, C extends XmlElement>(...args: unknown[]) {
+	return match(args.length, {
+		1: () => {
+			const [serde] = args as [Serde<V>];
+			return (target: T, key: string & keyof T) => child_impl({
+				childNodeName: key,
+				serde,
+				target,
+				key,
+			});
+		},
+		2: () => {
+			const [childNodeName, serde] = args as [string, Serde<V>];
+			return (target: T, key: string & keyof T) => child_impl({
+				childNodeName,
+				serde,
+				target,
+				key,
+			});
+		},
+		3: () => {
+			const [childNodeName, serde, childKey] = args as [string, Serde<V>, string & keyof C];
+			return (target: T, key: string & keyof T) => child_impl({
+				childNodeName,
+				childKey,
+				serde,
+				target,
+				key,
+			});
+		}
+	});
+}
+
+interface ChildDecoratorParams<V, T extends XmlElement> {
+	childNodeName: string;
+	childKey?: string;
+	serde: Serde<V>;
+	target: T;
+	key: string & keyof T;
+}
+
+function child_impl<V, T extends XmlElement, C extends XmlElement>({
+	childNodeName, childKey = "value", serde, target, key,
+}: ChildDecoratorParams<V, T>) {
+	if (!XML_LUT.has(childNodeName)) {
+		const Child = class extends XmlElement {} as Ctor<C>;
+		attr(serde)(Child.prototype, childKey)
+		XML_LUT.set(childNodeName, Child);
+	}
+
+	let child: C | undefined;
+	const isType = (it: XmlElement): it is C => it.nodeName === childNodeName;
+
+	Object.defineProperty(target, key, {
+		get(this: T): C[keyof C] | undefined {
+			child ??= this["_children"].find(isType);
+			return child?.[childKey as keyof C];
+		},
+		set(this: T, value: C[keyof C]) {
+			child ??= this["_children"].find(isType);
+			if (child) {
+				child[childKey as keyof C] = value;
+			}
+		},
+	});
+}
+
+export interface Serde<T> {
 	read(value: string): T;
 	write(value: T): string;
 	new (): {};
@@ -102,18 +254,5 @@ export const u32version: Serde<number> = class {
 			.toUpperCase();
 
 		return `0x${hexify(major)}${hexify(minor)}`;
-	}
-}
-
-export function serde<V>({ read, write }: Serde<V>) {
-	return <T extends XmlElement, K extends string & keyof T>(target: T, key: K) => {
-		Object.defineProperty(target, key, {
-			get(this: T): V {
-				return read(this["dom"].getAttribute(key)!);
-			},
-			set(this: T, value: V): void {
-				this["dom"].setAttribute(key, write(value));
-			},
-		})
 	}
 }
