@@ -4,6 +4,7 @@
 		"components": "packages/components",
 		"ng-utils": "packages/ng-utils",
 		"platform": "packages/platform",
+		"reader": "apps/reader",
 		"showcase": "demos/showcase",
 		"style": "packages/style",
 		"tauri-app": "demos/tauri-app",

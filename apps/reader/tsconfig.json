@@ -4,13 +4,13 @@
 	"include": [],
 	"references": [
 		{
-			"path": "./tsconfig.lib.json"
-		},
-		{
-			"path": "./tsconfig.lib.prod.json"
+			"path": "./tsconfig.app.json"
 		},
 		{
 			"path": "./tsconfig.spec.json"
+		},
+		{
+			"path": "./tsconfig.editor.json"
 		}
 	],
 	"compilerOptions": {
@@ -23,8 +23,8 @@
 	},
 	"angularCompilerOptions": {
 		"strictInjectionParameters": true,
-		"strictAttributeTypes": false,
 		"strictInputAccessModifiers": true,
-		"strictTemplates": true
+		"strictTemplates": true,
+		"strictAttributeTypes": false
 	}
 }

@@ -1,5 +1,6 @@
 [workspace]
 members = [
 	"demos/tauri-app/src-tauri",
+	"apps/reader/src-tauri",
 	"apps/tidy/src-tauri",
 ]
