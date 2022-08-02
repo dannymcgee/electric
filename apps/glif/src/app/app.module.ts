@@ -14,7 +14,8 @@ import {
 import { AppPlatform, PlatformModule } from "@electric/platform";
 import { ICONS } from "@electric/style";
 
-import { AppComponent } from "./app.component";
+import { AppComponent, CffProgramPipe } from "./app.component";
+import { Interpreter } from "./glyph/vm";
 
 @NgModule({
 	imports: [
@@ -31,6 +32,8 @@ import { AppComponent } from "./app.component";
 	],
 	declarations: [
 		AppComponent,
+		CffProgramPipe,
+		Interpreter,
 	],
 	bootstrap: [
 		AppComponent,

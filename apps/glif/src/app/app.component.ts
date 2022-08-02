@@ -1,8 +1,9 @@
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, Pipe, PipeTransform } from "@angular/core";
+import { SafeHtml } from "@angular/platform-browser";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 import * as dialog from "@tauri-apps/api/dialog";
 
-import { Font } from "./font";
+import { CharString, Font } from "./font";
 import { ProjectService } from "./project.service";
 
 @Component({
@@ -66,12 +67,28 @@ import { ProjectService } from "./project.service";
 	</elx-menu>
 
 	<elx-main-viewport class="main">
-
-		<button elx-btn="primary"
-			(click)="importFont()"
+		<div *ngIf="glyphs.length else getStarted"
+			class="glyphs"
 		>
-			Get Started
-		</button>
+			<div *ngFor="let glyph of glyphs"
+				class="glyph"
+			>
+				<pre class="glyph__program"
+					[name]="glyph.name"
+					[gInterpreter]="glyph.charString.program"
+					[innerHtml]="glyph.charString.program | program"
+				></pre>
+				<div class="glyph__label">{{ glyph.name }}</div>
+			</div>
+		</div>
+
+		<ng-template #getStarted>
+			<button elx-btn="primary"
+				(click)="importFont()"
+			>
+				Get Started
+			</button>
+		</ng-template>
 
 	</elx-main-viewport>
 </elx-app-shell>
@@ -83,7 +100,10 @@ export class AppComponent {
 	get maximized() { return this._win.maximized }
 	set maximized(_) { this._win.toggleMaximized() }
 
+	glyphs: Array<{ name: string, charString: CharString }> = [];
+
 	constructor (
+		private _cdRef: ChangeDetectorRef,
 		@Inject(WINDOW_PROVIDER) private _win: WindowProvider,
 		public _project: ProjectService,
 	) {}
@@ -114,14 +134,51 @@ export class AppComponent {
 				const fonts = await Promise.all(result.map(Font.fromFile));
 				for (let font of fonts)
 					console.log(font);
+
+				this.glyphs = fonts.flatMap(font =>
+					font.cffTable?.cffFont.charStrings
+						? Array
+							.from(font.cffTable.cffFont.charStrings.entries())
+							.map(([name, charString]) => ({ name, charString }))
+						: []
+				);
 			}
 			else {
 				const font = await Font.fromFile(result);
 				console.log(font);
+
+				this.glyphs = font.cffTable?.cffFont.charStrings
+					? Array
+						.from(font.cffTable.cffFont.charStrings.entries())
+						.map(([name, charString]) => ({ name, charString }))
+					: [];
+
+				console.log("glyphs:", this.glyphs);
+				this._cdRef.detectChanges();
 			}
 		}
 		catch (err) {
 			console.error(err);
 		}
+	}
+}
+
+@Pipe({ name: "program" })
+export class CffProgramPipe implements PipeTransform {
+	transform(value: string): SafeHtml {
+		return value
+			.split("\n")
+			.map(line => line.trim())
+			.filter(Boolean)
+			.map(line => line
+				.split(/ +/)
+				.map(token => {
+					if (/^[-.0-9]+$/.test(token))
+						return `<span class="numeric">${token}</span>`;
+					return `<span class="instr">${token}</span>`;
+				})
+				.join(" ")
+			)
+			.join("\n");
 	}
 }

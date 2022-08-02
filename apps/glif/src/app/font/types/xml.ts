@@ -51,22 +51,24 @@ const XML_LUT = new Map<string, Ctor<XmlElement, [Element]>>();
  * ```
  */
 export class XmlElement {
-	private _dom: Element;
-	private _children: XmlElement[];
+	protected _dom: Element;
+	protected _children: XmlElement[];
 	get nodeName() { return this._dom.nodeName; }
 
 	constructor (dom: Element) {
 		this._dom = dom;
 		this._children = Array
 			.from(dom.children)
-			.map(child =>
-				XML_LUT.has(child.nodeName)
-					? new (XML_LUT.get(child.nodeName)!)(child)
-					: (() => {
-						console.warn(`Unhandled XML element: <${child.nodeName} />`)
-						return null;
-					})()
-			)
+			.map(child => {
+				if (XML_LUT.has(`${this.nodeName}:${child.nodeName}`))
+					return new (XML_LUT.get(`${this.nodeName}:${child.nodeName}`)!)(child);
+
+				if (XML_LUT.has(child.nodeName))
+					return new (XML_LUT.get(child.nodeName)!)(child);
+
+				console.warn(`Unhandled XML element: <${child.nodeName} />`)
+				return null;
+			})
 			.filter(exists);
 	}
 }
@@ -138,10 +140,17 @@ interface ChildDecoratorParams<V, T extends XmlElement> {
 function child_impl<V, T extends XmlElement, C extends XmlElement>({
 	childNodeName, childKey = "value", serde, target, key,
 }: ChildDecoratorParams<V, T>) {
-	if (!XML_LUT.has(childNodeName)) {
+	let lutKey!: string;
+	if (childNodeName.includes(" as ")) {
+		[childNodeName, lutKey] = childNodeName.split(" as ");
+	} else {
+		lutKey = childNodeName;
+	}
+
+	if (!XML_LUT.has(lutKey)) {
 		const Child = class extends XmlElement {} as Ctor<C>;
 		attr(serde)(Child.prototype, childKey)
-		XML_LUT.set(childNodeName, Child);
+		XML_LUT.set(lutKey, Child);
 	}
 
 	let child: C | undefined;
@@ -161,6 +170,19 @@ function child_impl<V, T extends XmlElement, C extends XmlElement>({
 	});
 }
 
+export function textContent<V>({ read, write }: Serde<V>) {
+	return <T extends XmlElement, K extends string & keyof T>(target: T, key: K) => {
+		Object.defineProperty(target, key, {
+			get(this: T): V {
+				return read(this["_dom"].textContent!);
+			},
+			set(this: T, value: V): void {
+				this["_dom"].textContent = write(value);
+			},
+		})
+	}
+}
+
 export interface Serde<T> {
 	read(value: string): T;
 	write(value: T): string;
@@ -169,27 +191,39 @@ export interface Serde<T> {
 
 export const float: Serde<number> = class {
 	static read(value: string): number {
-		return parseFloat(value);
+		if (!value) return undefined as any;
+		const result = parseFloat(value);
+		// console.log(`float.read ${value} -> ${result}`);
+		return result;
 	}
 	static write(value: number): string {
+		if (value == null) return "";
 		return value.toString(10);
 	}
 }
 
 export const int: Serde<number> = class {
 	static read(value: string): number {
-		return parseInt(value, 10);
+		if (!value) return undefined as any;
+		const result = parseInt(value, 10);
+		// console.log(`int.read ${value} -> ${result}`);
+		return result;
 	}
 	static write(value: number): string {
+		if (value == null) return "";
 		return value.toString(10);
 	}
 }
 
 export const hex: Serde<number> = class {
 	static read(value: string): number {
-		return parseInt(value, 16);
+		if (!value) return undefined as any;
+		const result = parseInt(value, 16);
+		// console.log(`hex.read ${value} -> ${result}`);
+		return result;
 	}
 	static write(value: number): string {
+		if (value == null) return "";
 		return `0x${value.toString(16)}`;
 	}
 }
@@ -197,9 +231,13 @@ export const hex: Serde<number> = class {
 export function flags<T extends number>(): Serde<T> {
 	return class {
 		static read(value: string): T {
-			return parseInt(value.replace(/ /g, ""), 2) as T;
+			if (!value) return undefined as any;
+			const result = parseInt(value.replace(/ /g, ""), 2) as T;
+			// console.log(`flags.read ${value} -> ${result}`);
+			return result;
 		}
 		static write(value: T): string {
+			if (value == null) return "";
 			return value
 				.toString(2)
 				.replace(/([01]{4})/g, "$1 ")
@@ -210,6 +248,7 @@ export function flags<T extends number>(): Serde<T> {
 
 export const str: Serde<string> = class {
 	static read(value: string): string {
+		// console.log(`str.read ${value} -> ${value}`);
 		return value;
 	}
 	static write(value: string): string {
@@ -238,7 +277,9 @@ export const u32version: Serde<number> = class {
 		while (minor >= 1)
 			minor /= 10;
 
-		return Math.round((major + minor) * 1e5) / 1e5;
+		const result = Math.round((major + minor) * 1e5) / 1e5;
+		// console.log(`u32Version.read ${value} -> ${result}`);
+		return result;
 	}
 
 	static write(value: number): string {

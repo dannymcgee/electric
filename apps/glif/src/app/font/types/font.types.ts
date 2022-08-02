@@ -1,4 +1,4 @@
-import { match, Transparent } from "@electric/utils";
+import { instanceOf, match, Transparent } from "@electric/utils";
 
 import { PanoseClass } from "./panose.types";
 import {
@@ -17,6 +17,8 @@ import {
 	hex,
 	int,
 	str,
+	u32version,
+	textContent,
 } from "./xml";
 
 export const MAGIC_NUMBER = 0x5F0F3CF5;
@@ -224,6 +226,39 @@ export enum FsTypeFlags {
 	RESERVED                    = 0b1111_1100_1111_0001,
 }
 
+export enum FsSelectionFlags {
+	/** Font contains italic or oblique glyphs, otherwise they are upright. */
+	Italic            = 0b0000_0000_0000_0001,
+	/** glyphs are underscored. */
+	Underscore        = 0b0000_0000_0000_0010,
+	/** glyphs have their foreground and background reversed. */
+	Negative          = 0b0000_0000_0000_0100,
+	/** Outline (hollow) glyphs, otherwise they are solid. */
+	Outlined          = 0b0000_0000_0000_1000,
+	/** glyphs are overstruck. */
+	Strikeout         = 0b0000_0000_0001_0000,
+	/** glyphs are emboldened. */
+	Bold              = 0b0000_0000_0010_0000,
+	/** glyphs are in the standard weight/style for the font. */
+	Regular           = 0b0000_0000_0100_0000,
+	/**
+	 * If set, it is strongly recommended that applications use
+	 * OS/2.sTypoAscender - OS/2.sTypoDescender + OS/2.sTypoLineGap as the
+	 * default line spacing for this font.
+	 */
+	UseTypoMetrics    = 0b0000_0000_1000_0000,
+	/**
+	 * The font has 'name' table strings consistent with a weight/width/slope
+	 * family without requiring use of name IDs 21 and 22. (Please see more
+	 * detailed description below.)
+	 */
+	WWS               = 0b0000_0001_0000_0000,
+	/** Font contains oblique glyphs. */
+	Oblique           = 0b0000_0010_0000_0000,
+	/** Reserved; set to 0. */
+	RESERVED          = 0b1111_1100_0000_0000,
+}
+
 /**
  * This table gives global information about the font. The bounding box values
  * should be computed using only glyphs that have contours. Glyphs with no
@@ -231,47 +266,6 @@ export enum FsTypeFlags {
  */
 @Xml("head")
 export class FontHeaderTable extends XmlElement {
-	// static fromXml(xml: Element): FontHeaderTable {
-	// 	const result = new FontHeaderTable();
-	// 	for (let i = 0; i < xml.childElementCount; ++i) {
-	// 		const child = xml.children[i];
-	// 		match(child.nodeName, {
-	// 			tableVersion: () => result.tableVersion = parsef32(child),
-	// 			fontRevision: () => result.fontRevision = readString(child),
-	// 			checkSumAdjustment: () => result.checkSumAdjustment = parseHex(child),
-	// 			magicNumber: () => result.magicNumber = MAGIC_NUMBER,
-	// 			flags: () => result.flags = parseFlags<Flags>(child),
-	// 			unitsPerEm: () => result.unitsPerEm = parseDecimal(child),
-	// 			created: () => result.created = parseDate(child),
-	// 			modified: () => result.modified = parseDate(child),
-	// 			xMin: () => {
-	// 				result.xRange ??= {} as Range<i16>;
-	// 				result.xRange.min = parseDecimal(child);
-	// 			},
-	// 			xMax: () => {
-	// 				result.xRange ??= {} as Range<i16>;
-	// 				result.xRange.max = parseDecimal(child);
-	// 			},
-	// 			yMin: () => {
-	// 				result.yRange ??= {} as Range<i16>;
-	// 				result.yRange.min = parseDecimal(child);
-	// 			},
-	// 			yMax: () => {
-	// 				result.yRange ??= {} as Range<i16>;
-	// 				result.yRange.max = parseDecimal(child);
-	// 			},
-	// 			macStyle: () => result.macStyle = parseFlags<MacStyleFlags>(child),
-	// 			lowestRecPPEM: () => result.lowestRecPPEM = parseInt(child.getAttribute("value")!, 10),
-	// 			fontDirectionHint: () => result.fontDirectionHint = parseDecimal(child),
-	// 			indexToLocFormat: () => result.indexToLocFormat = parseDecimal(child),
-	// 			glyphDataFormat: () => result.glyphDataFormat = parseDecimal(child),
-	// 		});
-	// 	}
-	// 	return result;
-	// }
-
-	// private constructor () {}
-
 	@child(float) tableVersion!: f32;
 	@child(str) fontRevision!: string;
 	@child(hex) checkSumAdjustment!: u32;
@@ -340,42 +334,11 @@ export class FontHeaderTable extends XmlElement {
  * | {@linkcode CaretSlope.rise caretSlope.rise} | {@linkcode TODO hcrs} |
  * | {@linkcode CaretSlope.run caretSlope.run}   | {@linkcode TODO hcrn} |
  */
-export class HorizontalHeaderTable {
-	// static fromXml(xml: Element): HorizontalHeaderTable {
-	// 	const result = new HorizontalHeaderTable();
-	// 	for (let i = 0; i < xml.childElementCount; ++i) {
-	// 		const child = xml.children[i];
-	// 		match(child.nodeName, {
-	// 			tableVersion: () => result.tableVersion = parseu32version(child),
-	// 			ascent: () => result.ascender = parsef32(child),
-	// 			descent: () => result.descender = parsef32(child),
-	// 			lineGap: () => result.lineGap = parsef32(child),
-	// 			advanceWidthMax: () => result.advanceWidthMax = parsef32(child),
-	// 			minLeftSideBearing: () => result.minLeftSideBearing = parsef32(child),
-	// 			minRightSideBearing: () => result.minRightSideBearing = parsef32(child),
-	// 			xMaxExtent: () => result.xMaxExtent = parsef32(child),
-	// 			caretSlopeRise: () => {
-	// 				result.caretSlope ??= {} as CaretSlope;
-	// 				result.caretSlope.rise = parseDecimal(child);
-	// 			},
-	// 			caretSlopeRun: () => {
-	// 				result.caretSlope ??= {} as CaretSlope;
-	// 				result.caretSlope.run = parseDecimal(child);
-	// 			},
-	// 			caretOffset: () => result.caretOffset = parseDecimal(child),
-	// 			metricDataFormat: () => result.metricDataFormat = parseDecimal(child),
-	// 			numberOfHMetrics: () => result.numberOfHMetrics = parseDecimal(child),
-	// 			_: () => {
-	// 				console.warn(`Unhandled hhea field "${child.nodeName}"`);
-	// 			},
-	// 		});
-	// 	}
-	// 	return result;
-	// }
-
-	// private constructor () {}
-
+@Xml("hhea")
+export class HorizontalHeaderTable extends XmlElement {
+	@child("tableVersion as hhea:tableVersion", u32version)
 	tableVersion!: u32;
+
 	/**
 	 * Apple specific; see [Apple's specification](http://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hhea.html)
 	 * for details regarding Apple platforms. The {@linkcode TODO sTypoAscender},
@@ -386,7 +349,9 @@ export class HorizontalHeaderTable {
 	 * or in the OS/2 table to ensure consistent layout. See the descriptions of
 	 * the OS/2 fields for additional details.
 	 */
+	@child("ascent", float)
 	ascender!: FWORD;
+
 	/**
 	 * Apple specific; see [Apple's specification](http://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hhea.html)
 	 * for details regarding Apple platforms. The {@linkcode TODO sTypoAscender},
@@ -397,7 +362,9 @@ export class HorizontalHeaderTable {
 	 * or in the OS/2 table to ensure consistent layout. See the descriptions of
 	 * the OS/2 fields for additional details.
 	 */
+	@child("descent", float)
 	descender!: FWORD;
+
 	/**
 	 * Apple specific; see [Apple's specification](http://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hhea.html)
 	 * for details regarding Apple platforms. The {@linkcode TODO sTypoAscender},
@@ -408,40 +375,62 @@ export class HorizontalHeaderTable {
 	 * or in the OS/2 table to ensure consistent layout. See the descriptions of
 	 * the OS/2 fields for additional details.
 	 */
+	@child(float)
 	lineGap!: FWORD;
+
 	/**
 	 * Maximum advance width value in {@linkcode HorizontalMetricsTable hmtx}
 	 * table.
 	 */
+	@child(float)
 	advanceWidthMax!: UFWORD;
+
 	/**
 	 * Minimum left sidebearing value in {@linkcode HorizontalMetricsTable hmtx}
 	 * table for glyphs with contours (empty glyphs should be ignored).
 	 */
+	@child(float)
 	minLeftSideBearing!: FWORD;
+
 	/**
 	 * Minimum right sidebearing value; calculated as `min(aw - (lsb + xMax - xMin))`
 	 * for glyphs with contours (empty glyphs should be ignored).
 	 */
+	@child(float)
 	minRightSideBearing!: FWORD;
+
 	/**
 	 * `Max(lsb + (xMax - xMin))`
 	 */
+	@child(float)
 	xMaxExtent!: FWORD;
-	caretSlope!: CaretSlope;
+
+	/** Used to calculate the slope of the cursor (rise/run); 1 for vertical. */
+	@child(int)
+	caretSlopeRise!: i16;
+
+	/** 0 for vertical. */
+	@child(int)
+	caretSlopeRun!: i16;
+
 	/**
 	 * The amount by which a slanted highlight on a glyph needs to be shifted to
 	 * produce the best appearance. Set to 0 for non-slanted fonts.
 	 */
+	@child(int)
 	caretOffset!: i16;
+
 	/**
 	 * 0 for current format.
 	 */
+	@child(int)
 	metricDataFormat!: i16;
+
 	/**
 	 * Number of {@linkcode HMetric} entries in {@linkcode HorizontalMetricsTable hmtx}
 	 * table.
 	 */
+	@child(int)
 	numberOfHMetrics!: u16;
 }
 
@@ -524,28 +513,31 @@ export class HorizontalHeaderTable {
  * If a glyph has no contours, xMax/xMin are not defined. The left side bearing
  * indicated in the `hmtx` table for such glyphs should be zero.
  */
-export class HorizontalMetricsTable {
-	static fromXml(xml: Element): HorizontalMetricsTable {
-		const map = new Map<string, HMetric>();
-		const result = new HorizontalMetricsTable(map);
+@Xml("hmtx")
+export class HorizontalMetricsTable extends XmlElement {
+	readonly hMetrics = new Map<string, HMetric>();
 
-		for (let i = 0; i < xml.childElementCount; ++i) {
-			const mtx = xml.children[i];
-			const name = mtx.getAttribute("name")!;
+	constructor (dom: Element) {
+		super(dom);
 
-			map.set(name, new HMetric({
-				width: parseFloat(mtx.getAttribute("width")!),
-				lsb: parseFloat(mtx.getAttribute("lsb")!),
-			}));
-		}
-		return result;
+		for (const child of this._children)
+			if (child instanceof HMetric)
+				this.hMetrics.set(child.name, child);
 	}
+}
 
-	private constructor (metrics: Map<string, HMetric>) {
-		this.hMetrics = metrics;
-	}
+@Xml("mtx")
+export class HMetric extends XmlElement {
+	@attr(str)
+	name!: string;
 
-	hMetrics: Map<string, HMetric>;
+	/** Advance width, in font design units. */
+	@attr(float)
+	width!: number;
+
+	/** Glyph left side bearing, in font design units. */
+	@attr(float)
+	lsb!: number;
 }
 
 /**
@@ -579,43 +571,14 @@ export class CFFTable extends XmlElement {
 	@child("minor", int) versionMinor!: number;
 
 	readonly cffFont: CFFFont;
+	readonly globalSubrs: Subrs;
 
 	constructor (dom: Element) {
 		super(dom);
-		this.cffFont = this["_children"].find(it => it instanceof CFFFont) as CFFFont;
-		// TODO: GlobalSubrs
+		this.cffFont = this._children.find(instanceOf(CFFFont))!;
+		this.globalSubrs = this._children.find(it => it.nodeName === "GlobalSubrs") as Subrs;
 	}
 }
-// export class CFFTable {
-// 	static fromXml(xml: Element): CFFTable {
-// 		const result = new CFFTable();
-// 		let majorVersion: number;
-// 		let minorVersion: number;
-
-// 		for (let i = 0; i < xml.childElementCount; ++i) {
-// 			const child = xml.children[i];
-// 			match(child.nodeName, {
-// 				major: () => majorVersion = parseDecimal(child),
-// 				minor: () => minorVersion = parseDecimal(child),
-// 				// CFFFont: () => result.font = CFFFont.fromXml(child),
-// 				GlobalSubrs: () => {
-// 					const subrs: string[] = new Array(child.childElementCount);
-// 					for (let j = 0; j < child.childElementCount; ++j)
-// 						subrs[j] = child.children[j].textContent ?? "";
-
-// 					result.globalSubrs = subrs;
-// 				},
-// 			});
-// 		}
-// 		return result;
-// 	}
-
-// 	private constructor () {}
-
-// 	version!: f32;
-// 	font!: CFFFont;
-// 	globalSubrs!: string[];
-// }
 
 @Xml("CFFFont")
 export class CFFFont extends XmlElement {
@@ -669,6 +632,110 @@ export class CFFFont extends XmlElement {
 
 	@child("Encoding", str, "name")
 	encoding!: string;
+
+	privateTable: CFFFontPrivateTable;
+	charStrings = new Map<string, CharString>();
+
+	private _charStrings: Subrs;
+
+	constructor (dom: Element) {
+		super(dom);
+
+		this.privateTable = this._children.find(instanceOf(CFFFontPrivateTable))!;
+		this._charStrings = this._children.find(it => it.nodeName === "CharStrings") as Subrs;
+
+		this._charStrings?.value.forEach(it => {
+			if (it.name) this.charStrings.set(it.name, it);
+		});
+	}
+}
+
+@Xml("Private")
+export class CFFFontPrivateTable extends XmlElement {
+	subrs: Subrs;
+
+	constructor (dom: Element) {
+		super(dom);
+		this.subrs = this._children.find(instanceOf(Subrs))!;
+	}
+}
+
+@Xml("Subrs")
+@Xml("GlobalSubrs")
+@Xml("CharStrings")
+export class Subrs extends XmlElement {
+	readonly value: CharString[];
+
+	constructor (dom: Element) {
+		super(dom);
+		this.value = this._children.filter(instanceOf(CharString));
+	}
+}
+
+@Xml("CharString")
+export class CharString extends XmlElement {
+	@attr(int) index?: number;
+	@attr(str) name?: string;
+	@textContent(str) program!: string;
+}
+
+@Xml("cmap")
+export class CharToGlyphIdMappingsTable extends XmlElement {
+	@child(float) tableVersion!: f32;
+
+	maps: CharToGlyphIdMap[];
+
+	constructor (dom: Element) {
+		super(dom);
+		this.maps = this._children.filter(instanceOf(CharToGlyphIdMap));
+	}
+}
+
+enum PlatformID {
+	Unicode = 0,
+	Macintosh = 1,
+	ISO = 2,
+	Windows = 3,
+	Custom = 4,
+}
+
+enum UnicodePlatform {
+	Unicode_1_0 = 0,
+	Unicode_1_1,
+	ISO_IEC_10646,
+	Unicode_2_0_BitmapOnly,
+	Unicode_2_0_Full,
+	UnicodeVariationSequences,
+	UnicodeFull,
+}
+
+@Xml("cmap_format_4")
+@Xml("cmap_format_6")
+export class CharToGlyphIdMap extends XmlElement {
+	@attr(int) platformID!: PlatformID;
+
+	/** Only valid if `platformID === Unicode` */
+	@attr(int) unicodePlatform!: UnicodePlatform;
+
+	/** Only valid if `platformID === Macintosh` */
+	@attr(int) language!: int;
+
+	/** Map of unicode code-points to glyph IDs. */
+	readonly value = new Map<int, string>();
+
+	constructor (dom: Element) {
+		super(dom);
+
+		for (const child of this._children)
+			if (child instanceof CharToGlyphIdMapEntry)
+				this.value.set(child.code, child.name);
+	}
+}
+
+@Xml("map")
+export class CharToGlyphIdMapEntry extends XmlElement {
+	@attr(hex) code!: int;
+	@attr(str) name!: string;
 }
 
 type OS2Version = 0 | 1 | 2 | 3 | 4 | 5;
@@ -750,93 +817,109 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 
 	/** OS/2 table version number. */
 	version!: V;
+
 	/**
 	 * The Average Character Width parameter specifies the arithmetic average of
 	 * the escapement (width) of all non-zero width glyphs in the font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#xavgcharwidth
 	 */
 	xAvgCharWidth!: i16;
+
 	/**
 	 * Indicates the visual weight (degree of blackness or thickness of strokes)
 	 * of the characters in the font. Values from 1 to 1000 are valid.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#usweightclass
 	 */
 	usWeightClass!: u16;
+
 	/**
 	 * Indicates a relative change from the normal aspect ratio (width to height
 	 * ratio) as specified by a font designer for the glyphs in a font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#uswidthclass
 	 */
 	usWidthClass!: u16;
+
 	/**
 	 * Indicates font embedding licensing rights for the font.
 	 * @see {@linkcode FsTypeFlags}
 	 */
 	fsType!: FsTypeFlags;
+
 	/**
 	 * The recommended horizontal size in font design units for subscripts for
 	 * this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysubscriptxsize
 	 */
 	ySubscriptXSize!: i16;
+
 	/**
 	 * The recommended vertical size in font design units for subscripts for
 	 * this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysubscriptysize
 	 */
 	ySubscriptYSize!: i16;
+
 	/**
 	 * The recommended horizontal offset in font design units for subscripts for
 	 * this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysubscriptxoffset
 	 */
 	ySubscriptXOffset!: i16;
+
 	/**
 	 * The recommended vertical offset in font design units from the baseline for
 	 * subscripts for this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysubscriptyoffset
 	 */
 	ySubscriptYOffset!: i16;
+
 	/**
 	 * The recommended horizontal size in font design units for superscripts for
 	 * this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysuperscriptxsize
 	 */
 	ySuperscriptXSize!: i16;
+
 	/**
 	 * The recommended vertical size in font design units for superscripts for
 	 * this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysuperscriptysize
 	 */
 	ySuperscriptYSize!: i16;
+
 	/**
 	 * The recommended horizontal offset in font design units for superscripts
 	 * for this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysuperscriptxoffset
 	 */
 	ySuperscriptXOffset!: i16;
+
 	/**
 	 * The recommended vertical offset in font design units from the baseline for
 	 * superscripts for this font.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ysuperscriptyoffset
 	 */
 	ySuperscriptYOffset!: i16;
+
 	/**
 	 * Thickness of the strikeout stroke in font design units.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ystrikeoutsize
 	 */
 	yStrikeoutSize!: i16;
+
 	/**
 	 * The position of the top of the strikeout stroke relative to the baseline
 	 * in font design units.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ystrikeoutposition
 	 */
 	yStrikeoutPosition!: i16;
+
 	/**
 	 * This parameter is a classification of font-family design.
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#sfamilyclass
 	 */
 	sFamilyClass!: i16;
+
 	/**
 	 * used to describe the visual characteristics of a given typeface. These
 	 * characteristics are then used to associate the font with other fonts of
@@ -847,6 +930,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#panose
 	 */
 	panose!: PanoseClass;
+
 	/**
 	 * This field is used to specify the Unicode blocks or ranges encompassed by
 	 * the font file in 'cmap' subtables for platform 3, encoding ID 1 (Microsoft
@@ -867,17 +951,20 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	ulUnicodeRange2!: u32;
 	ulUnicodeRange3!: u32;
 	ulUnicodeRange4!: u32;
+
 	/**
 	 * Font Vendor Identification
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#achvendid
 	 */
 	achVendID!: string;
+
 	/**
 	 * Font selection flags.
-	 * TODO: Enum
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#fsselection
 	 */
-	fsSelection!: u16;
+	@child(flags<FsSelectionFlags>())
+	fsSelection!: FsSelectionFlags;
+
 	/**
 	 * The minimum Unicode index (character code) in this font, according to the
 	 * 'cmap' subtable for platform ID 3 and platform- specific encoding ID 0 or
@@ -888,6 +975,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * index value is a supplementary character.
 	 */
 	usFirstCharIndex!: u16;
+
 	/**
 	 * The maximum Unicode index (character code) in this font, according to the
 	 * 'cmap' subtable for platform ID 3 and encoding ID 0 or 1. This value
@@ -897,6 +985,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * field to 0xFFFF.
 	 */
 	usLastCharIndex!: u16;
+
 	/**
 	 * The typographic ascender for this font. This field should be combined with
 	 * the sTypoDescender and sTypoLineGap values to determine default line
@@ -936,6 +1025,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * for more on this field.
 	 */
 	sTypoAscender!: i16;
+
 	/**
 	 * The typographic descender for this font. This field should be combined
 	 * with the sTypoAscender and sTypoLineGap values to determine default line
@@ -975,6 +1065,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * for more on this field.
 	 */
 	sTypoDescender!: i16;
+
 	/**
 	 * The typographic line gap for this font. This field should be combined with
 	 * the sTypoAscender and sTypoDescender values to determine default line
@@ -994,6 +1085,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * metrics. See {@linkcode fsSelection} for additional details.
 	 */
 	sTypoLineGap!: i16;
+
 	/**
 	 * The “Windows ascender” metric. This should be used to specify the height
 	 * above the baseline for a clipping region.
@@ -1041,6 +1133,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * glyphs or mark positioning.
 	 */
 	usWinAscent!: u16;
+
 	/**
 	 * The “Windows descender” metric. This should be used to specify the
 	 * vertical extent below the baseline for a clipping region.
@@ -1092,6 +1185,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * accommodate glyphs with low descenders or mark positioning.
 	 */
 	usWinDescent!: u16;
+
 	/**
 	 * This field is used to specify the code pages encompassed by the font file
 	 * in the 'cmap' subtable for platform 3, encoding ID 1 (Microsoft platform,
@@ -1118,6 +1212,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 */
 	ulCodePageRange1?: u32;
 	ulCodePageRange2?: u32;
+
 	/**
 	 * This metric specifies the distance between the baseline and the
 	 * approximate height of non-ascending lowercase letters measured in FUnits.
@@ -1135,6 +1230,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#sxheight
 	 */
 	sxHeight?: i16;
+
 	/**
 	 * This metric specifies the distance between the baseline and the
 	 * approximate height of uppercase letters measured in FUnits. This value
@@ -1152,6 +1248,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#scapheight
 	 */
 	sCapHeight?: i16;
+
 	/**
 	 * This is the Unicode code point, in UTF-16 encoding, of a character that
 	 * can be used for a default glyph if a requested character is not supported
@@ -1163,6 +1260,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#usdefaultchar
 	 */
 	usDefaultChar?: u16;
+
 	/**
 	 * This is the Unicode code point, in UTF-16 encoding, of a character that
 	 * can be used as a default break character. The break character is used to
@@ -1174,6 +1272,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#usbreakchar
 	 */
 	usBreakChar?: u16;
+
 	/**
 	 * The maximum length of a target glyph context for any feature in this font.
 	 * For example, a font which has only a pair kerning feature should set this
@@ -1188,6 +1287,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#usmaxcontext
 	 */
 	usMaxContext?: u16;
+
 	/**
 	 * This field is used for fonts with multiple optical styles.
 	 *
@@ -1220,6 +1320,7 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 	 * @see https://docs.microsoft.com/en-us/typography/opentype/spec/os2#usloweropticalpointsize
 	 */
 	usLowerOpticalPointSize?: u16;
+
 	/**
 	 * This field is used for fonts with multiple optical styles.
 	 *
@@ -1346,23 +1447,6 @@ export type OS2_v5 = Transparent<
 		| "usUpperOpticalPointSize"
 	>>
 >;
-
-interface HMetricParams {
-	width: number;
-	lsb: number;
-}
-
-export class HMetric {
-	constructor ({ width, lsb }: HMetricParams) {
-		this.width = width;
-		this.lsb = lsb;
-	}
-
-	/** Advance width, in font design units. */
-	width: number;
-	/** Glyph left side bearing, in font design units. */
-	lsb: number;
-}
 
 export interface CaretSlope {
 	/** Used to calculate the slope of the cursor (rise/run); 1 for vertical. */
