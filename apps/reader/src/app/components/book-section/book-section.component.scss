@@ -1,0 +1,221 @@
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/type";
+
+@function size($value, $ref: var(--fs)) {
+	@return calc($ref * $value);
+}
+
+.r-book-section {
+	display: block;
+	max-width: 640px;
+	margin-left: -5em;
+	color: color.foreground(200);
+	font-family: "Crimson Pro", serif;
+	font-size: var(--fs);
+	line-height: 1.4;
+	--code-fs: #{size(0.8)};
+
+	h1 { font-size: 36px }
+	h2 { font-size: size(1.142) }
+	h3 { font-size: size(0.857) }
+	h4 { font-size: size(0.714) }
+
+	a {
+		@include anim.transition((color, text-decoration-color));
+		color: color.primary(800);
+		text-decoration: underline {
+			color: color.primary(700, 0.333);
+		}
+
+		&:hover {
+			color: #FFF;
+			text-decoration-color: color.primary(600, 0.75);
+		}
+	}
+
+	pre, code {
+		font-family: "Operator Mono SSm Lig", monospace;
+		font-size: calc(var(--fs) * 0.8);
+		font-weight: 500;
+	}
+
+	p code,
+	li code,
+	dd > code,
+	dd :not(pre) > code {
+		display: inline-block;
+		padding: 2px 6px;
+		border-radius: 4px;
+		background: color.background(500);
+		color: color.foreground(100);
+	}
+
+	figure, table, .r-code-sample {
+		width: calc(100% + size(15, var(--code-fs)));
+		margin: size(1, var(--code-fs)) {
+			right: size(-10, var(--code-fs));
+			left: size(-5, var(--code-fs));
+		}
+	}
+
+	figure table,
+	figure .r-code-sample {
+		width: 100%;
+		margin: 0;
+	}
+
+	figure {
+		background: color.background(200);
+
+		figcaption {
+			padding: 8px 12px;
+			background: color.background(500);
+			font: {
+				family: var(--global-font-family);
+				size: size(0.714);
+				weight: 600;
+			}
+			letter-spacing: 0.025em;
+			text-transform: none;
+		}
+	}
+
+	figure.image {
+		@include layout.flex($dir:column, $a:center, $j:center);
+		width: calc(100% + 20em);
+		margin: {
+			left: -10em;
+			right: -10em;
+		}
+	}
+
+	figure img {
+		max-width: 100%;
+	}
+
+	table {
+		background: color.background(300);
+		border-collapse: separate;
+		border-spacing: 2px;
+
+		th {
+			@include type.h4;
+			padding: size(0.666);
+			background: color.background(200);
+			color: color.foreground(300);
+			border: 0;
+			font-size: size(0.714);
+			text-align: start;
+		}
+
+		td {
+			padding: size(0.333) size(0.666);
+			background: color.background(100);
+			font-size: size(0.875);
+		}
+
+		th, td {
+			> p:last-child {
+				margin: 0;
+			}
+
+			code {
+				font-size: var(--code-fs);
+			}
+		}
+	}
+}
+
+.r-code-sample {
+	position: relative;
+	padding: 1em 0 1em 5em;
+	background: color.background(100);
+	color: color.foreground(100);
+
+	&__line-numbers {
+		@include layout.absolute(0, null, 0, 0);
+		width: 4em;
+		margin: 0;
+		padding: 1em {
+			left: 0;
+		}
+		background: color.background(200);
+		color: color.foreground(500);
+		text-align: right;
+		counter-reset: linenumbers;
+		list-style: none;
+
+		li {
+			counter-increment: linenumbers;
+
+			&::before {
+				content: counter(linenumbers);
+			}
+		}
+	}
+
+	.comment {
+		color: color.foreground(500);
+		font-style: italic;
+	}
+
+	.keyword,
+	.storage {
+		color: color.primary(800);
+		font-style: italic;
+	}
+
+	.entity.name.function {
+		color: #99C4FF;
+	}
+
+	.entity.name.type,
+	.entity.name.scope-resolution {
+		color: color.warning(700);
+		font-style: italic;
+	}
+
+	.entity.name.type.class {
+		color: color.warning(900);
+		font-style: normal;
+	}
+
+	.entity.name.preprocessor,
+	.entity.name.macro {
+		color: color.primary(700);
+		font-weight: 700;
+		font-style: normal;
+	}
+
+	.variable {
+		color: #FF99B4;
+	}
+
+	.string,
+	.constant.numeric {
+		color: color.accent(600);
+	}
+
+	.punctuation.definition.string {
+		color: color.accent(600, 0.5);
+	}
+
+	.punctuation.definition.template-expression {
+		color: color.foreground(200);
+	}
+
+	.punctuation.parenthesis,
+	.punctuation.bracket {
+		color: color.foreground(50);
+	}
+
+	.punctuation.separator,
+	.punctuation.terminator,
+	.keyword.operator,
+	.storage.modifier.pointer {
+		color: color.foreground(200);
+		font-style: normal;
+	}
+}

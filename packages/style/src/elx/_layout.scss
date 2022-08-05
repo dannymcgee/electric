@@ -1,14 +1,15 @@
 @use "sass:list";
+@use "sass:math";
 
-@mixin flex($dir: null, $a: null, $j: null) {
-	@include _flex(flex, $dir, $a, $j);
+@mixin flex($dir:null, $a:null, $j:null, $wrap:null) {
+	@include _flex(flex, $dir, $a, $j, $wrap);
 }
 
-@mixin inline-flex($dir: null, $a: null, $j: null) {
-	@include _flex(inline-flex, $dir, $a, $j);
+@mixin inline-flex($dir:null, $a:null, $j:null, $wrap:null) {
+	@include _flex(inline-flex, $dir, $a, $j, $wrap);
 }
 
-@mixin _flex($type, $dir: null, $a: null, $j: null) {
+@mixin _flex($type, $dir:null, $a:null, $j:null, $wrap:null) {
 	display: $type;
 	@if $dir != null {
 		flex-direction: $dir;
@@ -18,6 +19,9 @@
 	}
 	@if $j != null {
 		justify-content: $j;
+	}
+	@if $wrap != null {
+		flex-wrap: if($wrap, wrap, nowrap);
 	}
 }
 
@@ -63,4 +67,22 @@
 	width: $radius * 2;
 	height: $radius * 2;
 	border-radius: $radius;
+}
+
+///
+/// Sets an element to responsively maintain an aspect ratio with a
+/// pseudo-element child whose height is a factor of the target element's width.
+///
+/// @param {number} $w The horizontal ratio (unitless)
+/// @param {number} $h The vertical ratio (unitless)
+/// @param {before|after} $pseudo The pseudo-element to use. Defaults to `before`
+///
+@mixin aspect-ratio($w, $h, $pseudo:before) {
+	&::#{$pseudo} {
+		content: "";
+		display: block;
+		width: 100%;
+		height: 0;
+		padding-top: math.percentage(math.div($h, $w))
+	}
 }

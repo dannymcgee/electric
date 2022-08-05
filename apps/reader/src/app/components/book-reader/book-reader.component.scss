@@ -1,0 +1,53 @@
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/scrollbar" as *;
+
+:host {
+	@include layout.flex();
+	position: relative;
+	background: color.background(300);
+}
+
+.toc {
+	@include scrollbar(200);
+	flex: 0 0 auto;
+	width: 25%;
+	max-width: 480px;
+	min-width: 352px;
+	height: 100%;
+	padding: 32px 16px;
+	overflow-y: auto;
+	background: color.background(200);
+}
+
+.content {
+	@include layout.flex($dir:column, $a:center);
+	@include scrollbar(300);
+	flex: 1 0 0;
+	overflow-y: auto;
+}
+
+.toolbar {
+	@include layout.flex($a:center, $j:center);
+	@include layout.fixed(36px, 0);
+	height: 36px;
+	padding: 0 16px;
+}
+
+.close {
+	@include layout.circle(12px);
+	@include layout.flex($a:center, $j:center);
+	margin-left: auto;
+	padding: 0;
+
+	::ng-deep {
+		.elx-icon {
+			@include layout.flex($a:center, $j:center);
+			margin: 0;
+		}
+
+		.elx-btn__label {
+			display: none;
+		}
+	}
+}

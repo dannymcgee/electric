@@ -1,3 +1,4 @@
+@use "elx/anim";
 @use "elx/layout";
 @use "elx/style/color";
 @use "elx/style/type";
@@ -10,5 +11,37 @@
 
 .main {
 	@include layout.flex($dir:column, $a:center, $j:center);
+	position: relative;
 	max-height: calc(100% - 36px);
+}
+
+.books {
+	@include layout.flex($j:center, $wrap:true);
+	width: 100%;
+	gap: 32px;
+}
+
+.book {
+	@include layout.aspect-ratio(2, 3);
+	@include anim.transition(transform, short, anim.$ease-in-out-sine);
+	flex: 0 0 auto;
+	width: 25%;
+	min-width: 256px;
+	max-width: 352px;
+	background: {
+		size: contain;
+		position: center center;
+		repeat: no-repeat;
+	}
+	cursor: pointer;
+	transform: scale(1);
+
+	&:hover {
+		transform: scale(1.125);
+	}
+}
+
+.reader {
+	position: absolute;
+	inset: 0;
 }

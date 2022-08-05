@@ -1,0 +1,22 @@
+@use "elx/anim";
+@use "elx/style/color";
+
+:host {
+	display: block;
+	padding: 0 {
+		left: 16px;
+	}
+}
+
+.link {
+	@include anim.transition(color);
+	display: block;
+	padding: 4px 0;
+	color: color.foreground(300);
+	font-weight: 500;
+	text-decoration: none;
+
+	&:hover {
+		color: color.foreground(100);
+	}
+}

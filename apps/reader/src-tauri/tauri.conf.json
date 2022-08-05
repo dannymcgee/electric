@@ -8,12 +8,21 @@
 	},
 	"tauri": {
 		"allowlist": {
-			"all": true
+			"all": true,
+			"fs": {
+				"all": true,
+				"scope": ["**"]
+			},
+			"protocol": {
+				"all": true,
+				"asset": true,
+				"assetScope": ["**"]
+			}
 		},
 		"bundle": {
 			"active": true,
 			"targets": "all",
-			"identifier": "com.tauri.dev",
+			"identifier": "dev.dannymcgee.elx-reader",
 			"icon": [
 				"icons/32x32.png",
 				"icons/128x128.png",
@@ -44,7 +53,7 @@
 			}
 		},
 		"security": {
-			"csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
+			"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
 		},
 		"updater": {
 			"active": false

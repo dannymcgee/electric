@@ -35,6 +35,8 @@
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "~7.4.0",
 		"tslib": "^2.0.0",
+		"vscode-oniguruma": "^1.6.2",
+		"vscode-textmate": "^7.0.1",
 		"zone.js": "~0.11.4"
 	},
 	"devDependencies": {
