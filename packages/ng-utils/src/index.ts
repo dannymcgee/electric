@@ -1,5 +1,7 @@
 export * from "./lib/a11y";
+export * from "./lib/changes";
 export * from "./lib/coerce";
+export * from "./lib/component-outlet.directive";
 export * from "./lib/debounce";
 export * from "./lib/detect-changes";
 export * from "./lib/encapsulation";

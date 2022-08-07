@@ -1,4 +1,3 @@
-import { NgComponentOutlet } from "@angular/common";
 import {
 	Component,
 	ChangeDetectionStrategy,
@@ -14,7 +13,7 @@ import {
 	TrackByFunction,
 	ViewContainerRef,
 } from "@angular/core";
-import { QueryList } from "@electric/ng-utils";
+import { ComponentOutletDirective, QueryList } from "@electric/ng-utils";
 import { isNotNull } from "@electric/utils";
 import { map, startWith, Subject, takeUntil } from "rxjs";
 
@@ -62,8 +61,11 @@ import { BookReaderService, NavPoint } from "./book-reader.service";
 		<ng-container *ngFor="let section of sections">
 			<ng-container *ngIf="(section.content | async) as content">
 				<ng-container
-					*ngComponentOutlet="BookSectionComponent
-						content: content"
+					*elxComponentOutlet="BookSectionComponent
+						content: content
+						inputs: {
+							id: section.id
+						}"
 				></ng-container>
 			</ng-container>
 		</ng-container>
@@ -102,8 +104,8 @@ export class BookReaderComponent implements OnInit, AfterViewInit, OnDestroy {
 	get injector() { return this._viewContainer.injector; }
 	trackByHref: TrackByFunction<NavPoint> = (_, it) => it.href;
 
-	@ViewChildren(NgComponentOutlet)
-	private _componentOutlets!: QueryList<NgComponentOutlet>;
+	@ViewChildren(ComponentOutletDirective)
+	private _componentOutlets!: QueryList<ComponentOutletDirective<BookSectionComponent>>;
 
 	private _scrollSpy!: IntersectionObserver;
 	private _onDestroy$ = new Subject<void>();
@@ -122,14 +124,14 @@ export class BookReaderComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	ngAfterViewInit(): void {
-		// FIXME: This is a pretty janky solution
 		this._componentOutlets.changes
 			.pipe(
 				startWith(this._componentOutlets),
 				map(outlets => outlets
 					.map(outlet => {
-						const content = outlet.ngComponentOutletContent as readonly Node[][];
-						return content[0]?.find(node => node instanceof Element) as Element | undefined;
+						const instance = outlet.instance;
+						if (!instance) return null;
+						return instance.element;
 					})
 					.filter(isNotNull)
 				),
@@ -149,6 +151,7 @@ export class BookReaderComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	scrollSpyCallback: IntersectionObserverCallback = entries => {
+		// FIXME: This doesn't work as well while scrolling up
 		const entry = entries
 			.filter(entry => entry.isIntersecting)
 			.filter(entry => !!entry.target.id)

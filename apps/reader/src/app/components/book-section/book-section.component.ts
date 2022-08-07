@@ -6,6 +6,7 @@ import {
 	AfterViewInit,
 	ElementRef,
 	OnDestroy,
+	Input,
 } from "@angular/core";
 import { assertType, isNotNull } from "@electric/utils";
 import { path, tauri } from "@tauri-apps/api";
@@ -25,7 +26,10 @@ export class BookSectionComponent implements AfterViewInit, OnDestroy {
 	@HostBinding("class")
 	readonly hostClass = "r-book-section";
 
-	private get _element() { return this._elementRef.nativeElement; }
+	@HostBinding("attr.id")
+	@Input() id?: string;
+
+	get element() { return this._elementRef.nativeElement; }
 	private _observers: IntersectionObserver[] = [];
 
 	constructor (
@@ -36,7 +40,7 @@ export class BookSectionComponent implements AfterViewInit, OnDestroy {
 
 	async ngAfterViewInit() {
 		const codeBlocks = Array.from(
-			this._element.querySelectorAll<HTMLPreElement>(".r-code-sample__code")
+			this.element.querySelectorAll<HTMLPreElement>(".r-code-sample__code")
 		);
 		for (const codeBlock of codeBlocks) {
 			const lang = codeBlock.getAttribute("data-lang");
