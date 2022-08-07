@@ -122,9 +122,11 @@ export class Highlighter {
 
 	private getScopeName(lang: string): string {
 		return match(lang, {
+			antlr4: () => "source.antlr",
 			bash: () => "source.shell",
 			cmake: () => "source.cmake",
 			cpp: () => "source.cpp",
+			java: () => "source.java",
 			_: () => "",
 		});
 	}
@@ -134,8 +136,10 @@ export class Highlighter {
 			onigLib: this.loadOnig(),
 			loadGrammar: async (scope: string) => {
 				const module_ = await match(scope, {
+					"source.antlr": () => import("./languages/antlr4.tmLanguage.json"),
 					"source.cmake": () => import("./languages/cmake.tmLanguage.json"),
 					"source.cpp": () => import("./languages/cpp.tmLanguage.json"),
+					"source.java": () => import("./languages/java.tmLanguage.json"),
 					"source.shell": () => import("./languages/shell-unix-bash.tmLanguage.json"),
 					_: () => null,
 				}) as any;

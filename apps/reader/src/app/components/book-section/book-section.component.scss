@@ -134,7 +134,8 @@
 	background: color.background(100);
 	color: color.foreground(100);
 
-	&__line-numbers {
+	&__line-numbers,
+	&__gutter {
 		@include layout.absolute(0, null, 0, 0);
 		width: 4em;
 		margin: 0;
@@ -144,6 +145,14 @@
 		background: color.background(200);
 		color: color.foreground(500);
 		text-align: right;
+
+		.output {
+			font-weight: 700;
+			color: color.accent(400);
+		}
+	}
+
+	&__line-numbers {
 		counter-reset: linenumbers;
 		list-style: none;
 
@@ -154,6 +163,10 @@
 				content: counter(linenumbers);
 			}
 		}
+	}
+
+	&__code--dim {
+		color: color.foreground(300);
 	}
 
 	.comment {
@@ -167,12 +180,14 @@
 		font-style: italic;
 	}
 
-	.entity.name.function {
+	.entity.name.function,
+	.support.function.antlr {
 		color: #99C4FF;
 	}
 
 	.entity.name.type,
-	.entity.name.scope-resolution {
+	.entity.name.scope-resolution,
+	.support.other.token {
 		color: color.warning(700);
 		font-style: italic;
 	}
@@ -193,8 +208,16 @@
 		color: #FF99B4;
 	}
 
-	.string,
-	.constant.numeric {
+	.constant.numeric,
+	.constant.other.antlr {
+		color: color.accent(900);
+
+		.constant.character.escape {
+			color: color.accent(600);
+		}
+	}
+
+	.string {
 		color: color.accent(600);
 	}
 

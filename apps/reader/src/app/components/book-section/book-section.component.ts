@@ -8,7 +8,7 @@ import {
 	OnDestroy,
 	Input,
 } from "@angular/core";
-import { assertType, isNotNull } from "@electric/utils";
+import { assertType, isNotNull, match } from "@electric/utils";
 import { path, tauri } from "@tauri-apps/api";
 
 import { Book } from "../../library.service";
@@ -102,9 +102,7 @@ export class BookSection {
 		if (node.nodeName === "script")
 			return null;
 
-		await this.transform(node);
-
-		return node;
+		return this.transform(node);
 	}
 
 	private async transformInPlace(node: Node, parent: Node): Promise<void> {
@@ -113,10 +111,16 @@ export class BookSection {
 			return;
 		}
 
-		await this.transform(node);
+		const result = await this.transform(node);
+		if (result !== node) {
+			if (result !== null)
+				parent.insertBefore(result, node);
+
+			parent.removeChild(node);
+		}
 	}
 
-	private async transform(node: Node): Promise<void> {
+	private async transform(node: Node): Promise<Node | null> {
 		if (node.nodeType === Node.ELEMENT_NODE) {
 			assertType<Element>(node);
 
@@ -124,8 +128,15 @@ export class BookSection {
 				node.removeAttribute("style");
 
 			if (node.nodeName === "pre") {
-				this.transformPreNode(node as HTMLPreElement);
-				return;
+				return this.transformPreNode(node as HTMLPreElement);
+			}
+
+			if (node.nodeName === "table") {
+				assertType<HTMLTableElement>(node);
+
+				if (node.classList.contains("processedcode")) {
+					return this.transformCodeBlockTable(node);
+				}
 			}
 
 			await this.updateLinks(node);
@@ -134,9 +145,11 @@ export class BookSection {
 				this.transformInPlace(child, node);
 			});
 		}
+
+		return node;
 	}
 
-	private transformPreNode(node: HTMLPreElement): void {
+	private transformPreNode(node: HTMLPreElement): HTMLPreElement {
 		node.className = "r-code-sample";
 
 		const code = node.textContent ?? "";
@@ -161,6 +174,107 @@ export class BookSection {
 		} catch (err) {
 			console.error(err, innerHtml);
 		}
+
+		return node;
+	}
+
+	// Why, ANTLR book? Why??
+	private transformCodeBlockTable(node: HTMLTableElement): HTMLElement {
+		const figure = document.createElement("figure");
+
+		let heading: string | undefined;
+		let gutterLines: string[] = [];
+		const codeLines: string[] = [];
+
+		const clean = (s?: string | null): string => {
+			if (!s) return "";
+			return s.replace(/(&ZeroWidthSpace;|\u200b)/g, "");
+		}
+
+		Array.from(node.querySelectorAll("tr"))
+			.forEach((tr, idx) => {
+				if (idx === 0 && tr.querySelector("td")?.getAttribute("colspan") === "2") {
+					heading = clean(tr.textContent);
+					return;
+				}
+
+				const tds = Array.from(tr.querySelectorAll("td"));
+				match(tds.length, {
+					0: () => {},
+					1: () => {
+						codeLines.push(clean(tds[0].textContent));
+					},
+					2: () => {
+						const [gutterTd, codeTd] = tds;
+						gutterLines.push(clean(gutterTd.textContent).trim());
+						codeLines.push(clean(codeTd.textContent));
+					},
+				});
+			});
+
+		if (!gutterLines.some(Boolean))
+			gutterLines = [];
+
+		let lang = "java";
+		if (codeLines.some(line => line.trim().startsWith("$")))
+			lang = "bash";
+		else if (codeLines.some(line => /^\s*([|;]|[a-zA-Z]+ ?:)/.test(line)))
+			lang = "antlr4";
+
+		let figureMarkup: string[] = [];
+
+		if (heading)
+			figureMarkup.push(`<figcaption>${heading.trim()}</figcaption>`);
+
+		let inputLinesLength = 0;
+
+		figureMarkup.push(`<pre class="r-code-sample">`);
+		if (gutterLines.length) {
+			inputLinesLength = gutterLines.filter(line => line === "=>").length;
+
+			figureMarkup.push(
+				`<div class="r-code-sample__gutter">`,
+				...gutterLines.map(line => {
+					if (line === "=>")
+						return `<div class="input">&gt;</div>`;
+					if (line === "<=")
+						return `<div class="output">&lt;&lt;</div>`;
+
+					return `<div>${line}</div>`;
+				}),
+				`</div>`,
+			);
+		} else {
+			figureMarkup.push(
+				`<ol class="r-code-sample__line-numbers">`,
+				...`<li />`.repeat(codeLines.length),
+				`</ol>`,
+			);
+		}
+
+		const inputLines = codeLines.slice(0, inputLinesLength);
+		if (inputLines.length) {
+			figureMarkup.push(
+				`<code
+					class="r-code-sample__code r-code-sample__code--dim"
+					data-lang="${lang}"
+				>${
+					inputLines.join("\n")
+				}</code>\n`,
+			);
+		}
+
+		figureMarkup.push(
+			`<code class="r-code-sample__code" data-lang="${lang}">${
+				codeLines.slice(inputLinesLength).join("\n")
+			}</code>`,
+		);
+
+		figureMarkup.push(`</pre>`);
+
+		figure.innerHTML = figureMarkup.join("");
+
+		return figure;
 	}
 
 	private escape(content: string): string {
