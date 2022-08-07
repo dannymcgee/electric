@@ -1,3 +1,4 @@
+import { NgComponentOutlet } from "@angular/common";
 import {
 	Component,
 	ChangeDetectionStrategy,
@@ -6,11 +7,20 @@ import {
 	EventEmitter,
 	ViewChild,
 	ElementRef,
+	OnInit,
+	OnDestroy,
+	ViewChildren,
+	AfterViewInit,
+	TrackByFunction,
+	ViewContainerRef,
 } from "@angular/core";
+import { QueryList } from "@electric/ng-utils";
+import { isNotNull } from "@electric/utils";
+import { map, startWith, Subject, takeUntil } from "rxjs";
 
 import { Library } from "../../library.service";
 import { BookSectionComponent } from "../book-section/book-section.component";
-import { BookReaderService } from "./book-reader.service";
+import { BookReaderService, NavPoint } from "./book-reader.service";
 
 @Component({
 	selector: "r-book-reader",
@@ -19,7 +29,10 @@ import { BookReaderService } from "./book-reader.service";
 	*ngIf="(_reader.navPoints$ | async) as navPoints"
 	role="list"
 >
-	<r-nav-point *ngFor="let point of navPoints"
+	<r-nav-point
+		*ngFor="let point of navPoints
+			trackBy: trackByHref"
+		[activeId]="(activeId$ | async) ?? undefined"
 		[href]="point.href"
 		[children]="point.children"
 	>
@@ -47,10 +60,12 @@ import { BookReaderService } from "./book-reader.service";
 
 	<ng-container *ngIf="(_reader.sections$ | async) as sections">
 		<ng-container *ngFor="let section of sections">
-			<ng-container *ngIf="(section.content | async) as content"
-				[ngComponentOutlet]="BookSectionComponent"
-				[ngComponentOutletContent]="content"
-			></ng-container>
+			<ng-container *ngIf="(section.content | async) as content">
+				<ng-container
+					*ngComponentOutlet="BookSectionComponent
+						content: content"
+				></ng-container>
+			</ng-container>
 		</ng-container>
 	</ng-container>
 </main>
@@ -60,7 +75,7 @@ import { BookReaderService } from "./book-reader.service";
 	providers: [BookReaderService],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BookReaderComponent {
+export class BookReaderComponent implements OnInit, AfterViewInit, OnDestroy {
 	@Input()
 	get id() { return this._id; }
 	set id(value) {
@@ -75,14 +90,72 @@ export class BookReaderComponent {
 	@ViewChild("toc", { read: ElementRef })
 	toc?: ElementRef<HTMLElement>;
 
-	@ViewChild("scrollContainer", { read: ElementRef })
+	@ViewChild("scrollContainer", {
+		read: ElementRef,
+		static: true,
+	})
 	scrollContainer?: ElementRef<HTMLElement>;
 
-	fontSize = 20;
 	BookSectionComponent = BookSectionComponent;
+	fontSize = 20;
+	activeId$ = new Subject<string>();
+	get injector() { return this._viewContainer.injector; }
+	trackByHref: TrackByFunction<NavPoint> = (_, it) => it.href;
 
-	constructor(
+	@ViewChildren(NgComponentOutlet)
+	private _componentOutlets!: QueryList<NgComponentOutlet>;
+
+	private _scrollSpy!: IntersectionObserver;
+	private _onDestroy$ = new Subject<void>();
+
+	constructor (
 		private _library: Library,
 		public _reader: BookReaderService,
+		private _viewContainer: ViewContainerRef,
 	) {}
+
+	ngOnInit(): void {
+		this._scrollSpy = new IntersectionObserver(this.scrollSpyCallback, {
+			root: this.scrollContainer!.nativeElement,
+			threshold: 0,
+		});
+	}
+
+	ngAfterViewInit(): void {
+		// FIXME: This is a pretty janky solution
+		this._componentOutlets.changes
+			.pipe(
+				startWith(this._componentOutlets),
+				map(outlets => outlets
+					.map(outlet => {
+						const content = outlet.ngComponentOutletContent as readonly Node[][];
+						return content[0]?.find(node => node instanceof Element) as Element | undefined;
+					})
+					.filter(isNotNull)
+				),
+				takeUntil(this._onDestroy$),
+			)
+			.subscribe(sections => {
+				for (let section of sections)
+					this._scrollSpy.observe(section);
+			});
+	}
+
+	ngOnDestroy(): void {
+		this._scrollSpy.disconnect();
+		this._onDestroy$.next();
+		this._onDestroy$.complete();
+		this.activeId$.complete();
+	}
+
+	scrollSpyCallback: IntersectionObserverCallback = entries => {
+		const entry = entries
+			.filter(entry => entry.isIntersecting)
+			.filter(entry => !!entry.target.id)
+			.pop();
+
+		if (!entry) return;
+
+		this.activeId$.next(entry.target.id);
+	}
 }

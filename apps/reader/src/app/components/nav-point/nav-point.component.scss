@@ -11,12 +11,32 @@
 .link {
 	@include anim.transition(color);
 	display: block;
+	position: relative;
 	padding: 4px 0;
 	color: color.foreground(300);
 	font-weight: 500;
 	text-decoration: none;
 
+	&__content {
+		position: relative;
+	}
+
 	&:hover {
 		color: color.foreground(100);
+	}
+
+	&.active {
+		color: color.white();
+
+		&::before {
+			content: "";
+			position: absolute;
+			top: 4px;
+			right: 0;
+			bottom: 4px;
+			left: calc(var(--depth) * -16px);
+			background: color.background(100);
+			border-left: 3px solid color.accent(700);
+		}
 	}
 }
