@@ -127,6 +127,7 @@ export class Highlighter {
 			cmake: () => "source.cmake",
 			cpp: () => "source.cpp",
 			java: () => "source.java",
+			kotlin: () => "source.kotlin",
 			_: () => "",
 		});
 	}
@@ -141,6 +142,7 @@ export class Highlighter {
 					"source.cpp": () => import("./languages/cpp.tmLanguage.json"),
 					"source.java": () => import("./languages/java.tmLanguage.json"),
 					"source.shell": () => import("./languages/shell-unix-bash.tmLanguage.json"),
+					"source.kotlin": () => import("./languages/kotlin.tmLanguage.json"),
 					_: () => null,
 				}) as any;
 

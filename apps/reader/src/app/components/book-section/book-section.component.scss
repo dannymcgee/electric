@@ -2,6 +2,7 @@
 @use "elx/layout";
 @use "elx/style/color";
 @use "elx/style/type";
+@use "elx/style/scrollbar" as *;
 
 @function size($value, $ref: var(--fs)) {
 	@return calc($ref * $value);
@@ -15,7 +16,7 @@
 	font-family: "Crimson Pro", serif;
 	font-size: var(--fs);
 	line-height: 1.4;
-	--code-fs: #{size(0.8)};
+	--code-fs: #{size(0.7)};
 
 	h1 { font-size: 36px }
 	h2 { font-size: size(1.142) }
@@ -35,10 +36,15 @@
 		}
 	}
 
+	img {
+		max-width: 100%;
+	}
+
 	pre, code {
 		font-family: "Operator Mono SSm Lig", monospace;
-		font-size: calc(var(--fs) * 0.8);
+		font-size: var(--code-fs);
 		font-weight: 500;
+		tab-size: 3;
 	}
 
 	p code,
@@ -91,10 +97,6 @@
 		}
 	}
 
-	figure img {
-		max-width: 100%;
-	}
-
 	table {
 		background: color.background(300);
 		border-collapse: separate;
@@ -130,7 +132,9 @@
 
 .r-code-sample {
 	position: relative;
-	padding: 1em 0 1em 5em;
+	padding: 0 {
+		left: 4em;
+	}
 	background: color.background(100);
 	color: color.foreground(100);
 
@@ -165,8 +169,15 @@
 		}
 	}
 
-	&__code--dim {
-		color: color.foreground(300);
+	&__code {
+		@include scrollbar(100);
+		display: block;
+		padding: 1em;
+		overflow-x: auto;
+
+		&--dim {
+			color: color.foreground(300);
+		}
 	}
 
 	.comment {

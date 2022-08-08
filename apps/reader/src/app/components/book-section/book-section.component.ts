@@ -152,7 +152,12 @@ export class BookSection {
 	private transformPreNode(node: HTMLPreElement): HTMLPreElement {
 		node.className = "r-code-sample";
 
-		const code = node.textContent ?? "";
+		const redundantLineNos = Array.from(node.querySelectorAll(".lineno"));
+		for (let el of redundantLineNos) {
+			node.removeChild(el);
+		}
+
+		const code = node.textContent?.trim() ?? "";
 		let lang = node
 			.querySelector("code")
 			?.getAttribute("data-lang")
