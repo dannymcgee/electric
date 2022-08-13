@@ -139,7 +139,15 @@ export class BookSection {
 				}
 			}
 
-			await this.updateLinks(node);
+			if (node.nodeName === "span"
+				&& node.classList.contains("cf"))
+			{
+				const code = document.createElement("code");
+				code.innerHTML = node.innerHTML;
+				node = code;
+			}
+
+			await this.updateLinks(node as Element);
 
 			node.childNodes.forEach(child => {
 				this.transformInPlace(child, node);
