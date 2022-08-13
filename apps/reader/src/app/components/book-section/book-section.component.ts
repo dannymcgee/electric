@@ -201,9 +201,10 @@ export class BookSection {
 
 		const clean = (s?: string | null): string => {
 			if (!s) return "";
-			return s.replace(/(&ZeroWidthSpace;|\u200b)/g, "");
+			return s.replace(/(&ZeroWidthSpace;|\u200b|\u00a0)/g, "");
 		}
 
+		let ignoreGutter = false;
 		Array.from(node.querySelectorAll("tr"))
 			.forEach((tr, idx) => {
 				if (idx === 0 && tr.querySelector("td")?.getAttribute("colspan") === "2") {
@@ -219,7 +220,13 @@ export class BookSection {
 					},
 					2: () => {
 						const [gutterTd, codeTd] = tds;
-						gutterLines.push(clean(gutterTd.textContent).trim());
+
+						if (clean(gutterTd.textContent).trim() === "Line 1")
+							ignoreGutter = true;
+
+						if (!ignoreGutter)
+							gutterLines.push(clean(gutterTd.textContent).trim());
+
 						codeLines.push(clean(codeTd.textContent));
 					},
 				});
