@@ -246,11 +246,60 @@ export class BookSection {
 		if (heading)
 			figureMarkup.push(`<figcaption>${heading.trim()}</figcaption>`);
 
-		let inputLinesLength = 0;
-
 		figureMarkup.push(`<pre class="r-code-sample">`);
+
+		enum Mode { In = "=>", Out = "<=" }
+
+		const isIoMode = (s: string): s is Mode => /^(=>|<=)$/.test(s);
+
+		class IoWriter {
+			private _current: Mode;
+			private _data: [Mode, number][];
+
+			constructor (init: Mode) {
+				this._current = init;
+				this._data = [[init, 0]];
+			}
+
+			write(mode?: Mode): void {
+				if (!mode || mode === this._current) {
+					this._data[this._data.length-1][1]++;
+				} else {
+					this._data.push([mode, 1]);
+					this._current = mode;
+				}
+			}
+
+			read(): IoReader {
+				return new IoReader(this._data);
+			}
+		}
+
+		class IoReader {
+			private _data: [Mode, number][];
+
+			constructor (data: [Mode, number][]) {
+				this._data = data.slice().reverse();
+			}
+
+			isEmpty(): boolean {
+				return this._data.length === 0;
+			}
+
+			pop(): [Mode, number] | null {
+				return this._data.pop() ?? null;
+			}
+		}
+
+		let ioWriter: IoWriter | undefined;
 		if (gutterLines.length) {
-			inputLinesLength = gutterLines.filter(line => line === "=>").length;
+			ioWriter = new IoWriter(Mode.In);
+
+			for (let line of gutterLines)
+				if (isIoMode(line))
+					ioWriter.write(line);
+				else
+					ioWriter.write();
 
 			figureMarkup.push(
 				`<div class="r-code-sample__gutter">`,
@@ -260,7 +309,7 @@ export class BookSection {
 					if (line === "<=")
 						return `<div class="output">&lt;&lt;</div>`;
 
-					return `<div>${line}</div>`;
+					return `<div>${line || " "}</div>`;
 				}),
 				`</div>`,
 			);
@@ -272,23 +321,44 @@ export class BookSection {
 			);
 		}
 
-		const inputLines = codeLines.slice(0, inputLinesLength);
-		if (inputLines.length) {
+		if (ioWriter) {
+			const ioLines = codeLines.slice();
+			const ioReader = ioWriter.read();
+
+			let mode = Mode.In;
+			let start = 0, end = 0;
+
+			while (end < ioLines.length) {
+				if (!ioReader.isEmpty()) {
+					let count = 0;
+					[mode, count] = ioReader.pop()!;
+					end = start + count;
+				}
+
+				if (end === start)
+					end = ioLines.length;
+
+				const className = match(mode, {
+					[Mode.In]:  () => "r-code-sample__code r-code-sample__code--dim",
+					[Mode.Out]: () => "r-code-sample__code",
+				});
+
+				figureMarkup.push(
+					`<code class="${className}" data-lang="${lang}">${
+						ioLines.slice(start, end).join("\n")
+					}</code>`,
+				);
+
+				start = end;
+			}
+		}
+		else {
 			figureMarkup.push(
-				`<code
-					class="r-code-sample__code r-code-sample__code--dim"
-					data-lang="${lang}"
-				>${
-					inputLines.join("\n")
-				}</code>\n`,
+				`<code class="r-code-sample__code" data-lang="${lang}">${
+					codeLines.join("\n")
+				}</code>`,
 			);
 		}
-
-		figureMarkup.push(
-			`<code class="r-code-sample__code" data-lang="${lang}">${
-				codeLines.slice(inputLinesLength).join("\n")
-			}</code>`,
-		);
 
 		figureMarkup.push(`</pre>`);
 
