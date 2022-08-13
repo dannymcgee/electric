@@ -23,6 +23,10 @@
 	h3 { font-size: size(0.857) }
 	h4 { font-size: size(0.714) }
 
+	sup {
+		line-height: 0;
+	}
+
 	a {
 		@include anim.transition((color, text-decoration-color));
 		color: color.primary(800);
