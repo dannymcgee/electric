@@ -303,6 +303,16 @@ export class BookSection {
 		for (let i = 0; i < node.attributes.length; ++i) {
 			const attr = node.attributes.item(i)!;
 
+			if (attr.name === "href"
+				&& node.nodeName === "a"
+				&& attr.value.includes("#"))
+			{
+				const hashLink = attr.value.match(/#.+/)![0];
+				node.setAttribute(attr.name, hashLink);
+
+				continue;
+			}
+
 			if (/(href|src)$/.test(attr.name)) {
 				const filePath = await path.join(this._book.packageDir, node.getAttribute(attr.name)!);
 				const fileUrl = tauri.convertFileSrc(filePath)
