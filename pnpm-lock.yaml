@@ -15,6 +15,7 @@ specifiers:
   eslint-config-prettier: 8.1.0
   jest: 28.1.1
   jest-environment-jsdom: 28.1.1
+  jsonc-parser: ^3.2.0
   nx: 15.6.3
   prettier: ^2.6.2
   ts-jest: 28.0.5
@@ -40,6 +41,7 @@ devDependencies:
   eslint-config-prettier: 8.1.0_eslint@8.15.0
   jest: 28.1.1_6m7kcbkkzjz4ln6z66tlzx44we
   jest-environment-jsdom: 28.1.1
+  jsonc-parser: 3.2.0
   nx: 15.6.3
   prettier: 2.8.4
   ts-jest: 28.0.5_7fcfng4b65nlbamylqx3bgeyaq

@@ -15,7 +15,10 @@
 		"skipDefaultLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
-			"electric/comptime-decorators": [
+			"@electric/comptime-decorators-e2e": [
+				"packages/comptime-decorators-e2e/src/index.ts"
+			],
+			"@electric/comptime-decorators": [
 				"packages/comptime-decorators/src/index.ts"
 			]
 		}
