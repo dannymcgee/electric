@@ -1,7 +1,7 @@
 import { MethodDecorator } from "@electric/comptime-decorators";
 
 export const methodDecoratorFn: MethodDecorator = function (node, $) {
-	return this.factory.updateMethodDeclaration(
+	return $.updateMethodDecl(
 		node,
 		node.modifiers,
 		node.asteriskToken,

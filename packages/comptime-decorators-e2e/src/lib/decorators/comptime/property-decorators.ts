@@ -7,7 +7,7 @@ export const propDecoratorFn: PropertyDecorator = function (node, $) {
 	const privateIdent = $.PrivateIdentifier(`#${name}`)
 
 	return [
-		this.factory.updatePropertyDeclaration(
+		$.updatePropertyDecl(
 			node,
 			node.modifiers,
 			privateIdent,

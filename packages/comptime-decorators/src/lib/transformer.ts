@@ -14,7 +14,6 @@ import {
 
 export const NODE_FACTORY = Object
 	.keys(ts.factory)
-	.filter(key => key.startsWith("create"))
 	.reduce((mod, verboseKey) => {
 		const key = verboseKey
 			.replace(/^create/, "")
@@ -182,7 +181,7 @@ function stripDecorator<T extends DecoratableNode>(
 	return match(node.kind, {
 		[SyntaxKind.ClassDeclaration]: () => {
 			assertType<ts.ClassDeclaration>(node)
-			return this.factory.updateClassDeclaration(
+			return NODE_FACTORY.updateClassDecl(
 				node,
 				modifiers,
 				node.name,
@@ -193,7 +192,7 @@ function stripDecorator<T extends DecoratableNode>(
 		},
 		[SyntaxKind.MethodDeclaration]: () => {
 			assertType<ts.MethodDeclaration>(node)
-			return this.factory.updateMethodDeclaration(
+			return NODE_FACTORY.updateMethodDecl(
 				node,
 				modifiers,
 				node.asteriskToken,
@@ -207,7 +206,7 @@ function stripDecorator<T extends DecoratableNode>(
 		},
 		[SyntaxKind.PropertyDeclaration]: () => {
 			assertType<ts.PropertyDeclaration>(node)
-			return this.factory.updatePropertyDeclaration(
+			return NODE_FACTORY.updatePropertyDecl(
 				node,
 				modifiers,
 				node.name,

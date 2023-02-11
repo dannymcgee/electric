@@ -1,7 +1,7 @@
 import { ClassDecorator } from "@electric/comptime-decorators";
 
 export const ClassDecoratorFn: ClassDecorator = function (node, $) {
-	return this.factory.updateClassDeclaration(
+	return $.updateClassDecl(
 		node,
 		node.modifiers,
 		node.name,
@@ -29,7 +29,7 @@ export function ClassDecoratorFactory(
 	testNil: null,
 ): ClassDecorator {
 	return function (node, $) {
-		return this.factory.updateClassDeclaration(
+		return $.updateClassDecl(
 			node,
 			node.modifiers,
 			node.name,

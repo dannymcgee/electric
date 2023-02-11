@@ -49,6 +49,11 @@ type BriefNodeFactoryKey<K>
 		: S extends `${infer T}Statement`   ? `${T}Stmt`
 		: S extends `${infer T}Expression`  ? `${T}Expr`
 		: S
+	: K extends `update${any}`
+		? K extends `${infer T}Declaration` ? `${T}Decl`
+		: K extends `${infer T}Statement`   ? `${T}Stmt`
+		: K extends `${infer T}Expression`  ? `${T}Expr`
+		: K
 	: never
 
 interface Fn<Args extends unknown[], R> {
