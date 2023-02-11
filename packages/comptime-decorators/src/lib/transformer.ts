@@ -1,3 +1,4 @@
+import exists from "@electric/exists"
 import match from "@electric/match"
 import assertType from "@electric/assert-type"
 import * as ts from "typescript"
@@ -8,23 +9,57 @@ import {
 	DecoratableNode,
 	Decorator,
 	DecoratorFactory,
-	NodeFactory,
+	NodeFactory as INodeFactory,
 	PluginContext,
 } from "./types";
 
-export const NODE_FACTORY = Object
-	.keys(ts.factory)
-	.reduce((mod, verboseKey) => {
-		const key = verboseKey
-			.replace(/^create/, "")
-			.replace(/Declaration$/, "Decl")
-			.replace(/Statement$/, "Stmt")
-			.replace(/Expression$/, "Expr")
+type ReadonlyWeakSet<T extends object>
+	= Pick<WeakSet<T>, "has">
 
-		;(mod as any)[key] = (ts.factory as any)[verboseKey]
+class NodeFactory {
+	private static _instance: INodeFactory
+	static get instance() {
+		return this._instance ??= new NodeFactory() as unknown as INodeFactory
+	}
 
-		return mod
-	}, {} as NodeFactory)
+	private _updated = new WeakSet<ts.Node>()
+	static get updated(): ReadonlyWeakSet<ts.Node> {
+		return (this.instance as unknown as NodeFactory)._updated
+	}
+
+	private _created = new WeakSet<ts.Node>()
+	static get created(): ReadonlyWeakSet<ts.Node> {
+		return (this.instance as unknown as NodeFactory)._created
+	}
+
+	private constructor () {
+		for (let verboseKey of Object.keys(ts.factory)) {
+			const key = verboseKey
+				.replace(/^create/, "")
+				.replace(/Declaration$/, "Decl")
+				.replace(/Statement$/, "Stmt")
+				.replace(/Expression$/, "Expr")
+
+			if (verboseKey.startsWith("create")) {
+				this.constructor.prototype[key] = (...args: any[]): any => {
+					const result = (ts.factory as any)[verboseKey](...args)
+					this._created.add(result)
+					return result
+				}
+			}
+			else if (verboseKey.startsWith("update")) {
+				this.constructor.prototype[key] = (...args: any[]): any => {
+					const result = (ts.factory as any)[verboseKey](...args)
+					this._updated.add(result)
+					return result
+				}
+			}
+			else {
+				this.constructor.prototype[key] = (ts.factory as any)[verboseKey]
+			}
+		}
+	}
+}
 
 export function decoratorTransformer(decorators: Record<string, Decorator>) {
 	return (program: ts.Program): ts.TransformerFactory<ts.SourceFile> => {
@@ -36,6 +71,12 @@ export function decoratorTransformer(decorators: Record<string, Decorator>) {
 				program,
 				typeChecker,
 			}
+
+			// Note: `decorate` and `walk` are declared in this scope because they
+			// capture `pluginContext`. These could be refactored to be returned
+			// from a simple factory at the top level that takes `pluginContext` as
+			// a parameter. Would save two levels of indentation at the cost of
+			// some extra indirection, but might be worth it eventually.
 
 			function decorate<T extends DecoratableNode>(
 				node: T,
@@ -51,7 +92,7 @@ export function decoratorTransformer(decorators: Record<string, Decorator>) {
 					const decoratorFactory = decorators[ident.text] as DecoratorFactory
 					const decoratorFn = decoratorFactory(...args)
 
-					return decoratorFn.call(pluginContext, node, NODE_FACTORY)
+					return decoratorFn.call(pluginContext, node, NodeFactory.instance)
 				}
 
 				const ident = dec.expression as ts.Identifier
@@ -59,7 +100,7 @@ export function decoratorTransformer(decorators: Record<string, Decorator>) {
 					return node
 
 				const decoratorFn = decorators[ident.text] as ComptimeDecorator<DecoratableNode>
-				return decoratorFn.call(pluginContext, node, NODE_FACTORY)
+				return decoratorFn.call(pluginContext, node, NodeFactory.instance)
 			}
 
 			function walk<T extends ts.Node>(parent: T, sourceFile: ts.SourceFile): T {
@@ -72,7 +113,7 @@ export function decoratorTransformer(decorators: Record<string, Decorator>) {
 						return walk(child, sourceFile)
 					}
 
-					const decorators = ts.getDecorators(child)
+					const decorators = ts.getDecorators(child)?.slice().reverse()
 					if (!decorators) {
 						return walk(child, sourceFile)
 					}
@@ -80,10 +121,23 @@ export function decoratorTransformer(decorators: Record<string, Decorator>) {
 					const result = decorators.reduce<ts.VisitResult<ts.Node>>((accum, dec) => {
 						if (!accum) return accum
 						if (Array.isArray(accum)) {
-							// TODO: Apply decorators to the original / modified
-							// node, while passing any added nodes through.
-							// Need a way to identify which is the original.
+							// If this is an array, it means the original node has
+							// already been processed by a decorator which returned
+							// multiple nodes. Additional decorators shuold be applied
+							// to that original decorated node, but not to the added
+							// ones.
 							return accum
+								.flatMap(n => {
+									if (NodeFactory.updated.has(n))
+										return decorate(
+											stripDecorator.call(pluginContext, n as DecoratableNode, dec),
+											dec,
+											sourceFile
+										)
+
+									return n
+								})
+								.filter(exists)
 						}
 
 						return decorate(
@@ -181,7 +235,7 @@ function stripDecorator<T extends DecoratableNode>(
 	return match(node.kind, {
 		[SyntaxKind.ClassDeclaration]: () => {
 			assertType<ts.ClassDeclaration>(node)
-			return NODE_FACTORY.updateClassDecl(
+			return NodeFactory.instance.updateClassDecl(
 				node,
 				modifiers,
 				node.name,
@@ -192,7 +246,7 @@ function stripDecorator<T extends DecoratableNode>(
 		},
 		[SyntaxKind.MethodDeclaration]: () => {
 			assertType<ts.MethodDeclaration>(node)
-			return NODE_FACTORY.updateMethodDecl(
+			return NodeFactory.instance.updateMethodDecl(
 				node,
 				modifiers,
 				node.asteriskToken,
@@ -206,7 +260,7 @@ function stripDecorator<T extends DecoratableNode>(
 		},
 		[SyntaxKind.PropertyDeclaration]: () => {
 			assertType<ts.PropertyDeclaration>(node)
-			return NODE_FACTORY.updatePropertyDecl(
+			return NodeFactory.instance.updatePropertyDecl(
 				node,
 				modifiers,
 				node.name,

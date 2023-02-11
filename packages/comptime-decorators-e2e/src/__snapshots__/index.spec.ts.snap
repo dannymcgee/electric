@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`TsCompiler should work 1`] = `
-"import { ClassDecoratorFactory, ClassDecoratorFn, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, } from \\"./lib/decorators/runtime\\";
+"import { ClassDecoratorFactory, ClassDecoratorFn, first, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, second, third, } from \\"./lib/decorators/runtime\\";
 // \`ClassDecoratorFn\` should add a \`test\` field to \`DecoratorFnTest\` initialized
 // to a value of \`\\"Hello, world!\\"\`.
 export class DecoratorFnTest {
@@ -33,6 +33,16 @@ export class DecoratorFactoryTest {
     testRegex = /[_a-zA-Z][_a-zA-Z0-9]*/g;
     testBool = true;
     testNil = null;
+}
+export class DecoratorOrdering {
+    // These decorators should be applied in the order implied by their names.
+    // The end result should see \`decoratedProp\` renamed to
+    // \`decoratedProp_first_second_third\`, followed by three new properties in
+    // reverse order, \`#thirdAddtl\`, \`#secondAddtl\`, then \`#firstAddtl\`
+    decoratedProp_first_second_third;
+    #thirdAddtl = \\"third\\";
+    #secondAddtl = \\"second\\";
+    #firstAddtl = \\"first\\";
 }
 "
 `;

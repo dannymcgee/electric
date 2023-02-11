@@ -1,10 +1,13 @@
 import {
 	ClassDecoratorFactory,
 	ClassDecoratorFn,
+	first,
 	methodDecoratorFactory,
 	methodDecoratorFn,
 	propDecoratorFactory,
 	propDecoratorFn,
+	second,
+	third,
 } from "./lib/decorators/runtime";
 
 // `ClassDecoratorFn` should add a `test` field to `DecoratorFnTest` initialized
@@ -43,4 +46,12 @@ export class DecoratorFactoryTest {
 	// decorated method.
 	@methodDecoratorFactory()
 	hello(): void {}
+}
+
+export class DecoratorOrdering {
+	// These decorators should be applied in the order implied by their names.
+	// The end result should see `decoratedProp` renamed to
+	// `decoratedProp_first_second_third`, followed by three new properties in
+	// reverse order, `#thirdAddtl`, `#secondAddtl`, then `#firstAddtl`
+	@third @second @first decoratedProp?: string
 }
