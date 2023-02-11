@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TsCompiler should work 1`] = `
+exports[`comptime-decorators e2e 1`] = `
 "import { ClassDecoratorFactory, ClassDecoratorFn, first, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, second, third, } from \\"./lib/decorators/runtime\\";
 // \`ClassDecoratorFn\` should add a \`test\` field to \`DecoratorFnTest\` initialized
 // to a value of \`\\"Hello, world!\\"\`.

@@ -1,6 +1,8 @@
+import exists from "@electric/exists";
 import * as path from "path"
 import * as ts from "typescript"
 
+// TODO: This doesn't really belong in this library
 export class TsCompiler {
 	program: ts.Program
 	sourceFiles: ts.SourceFile[]
@@ -67,10 +69,6 @@ export class TsCompiler {
 
 		return { fileNames, options }
 	}
-}
-
-function exists<T>(value: T): value is Exclude<T, null|undefined> {
-	return value != null
 }
 
 interface EmitOptions {
