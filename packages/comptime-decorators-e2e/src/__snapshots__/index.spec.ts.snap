@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TsCompiler should work 1`] = `
+"import { ClassDecoratorFactory, ClassDecoratorFn, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, } from \\"./lib/decorators/runtime\\";
+export class DecoratorFnTest {
+    #decoratedProp = \\"Hello, world!\\";
+    get decoratedProp() { return this.#decoratedProp; }
+    set decoratedProp(value) { this.#decoratedProp = value; }
+    hello() { console.log(\\"Hello, world!\\"); }
+    test = \\"Hello, world!\\";
+}
+export class DecoratorFactoryTest {
+    #decoratedProp = \\"Hello, world!\\";
+    get decoratedProp() { return this.#decoratedProp; }
+    set decoratedProp(value) { this.#decoratedProp = value; }
+    hello() { console.log(\\"Hello, world!\\"); }
+    testString = \\"Hello, world!\\";
+    testTemplate = \`Hello, world!\`;
+    testNumber = 42;
+    testBigint = 123456789123456789123456789123456789n;
+    testRegex = /[_a-zA-Z][_a-zA-Z0-9]*/g;
+    testBool = true;
+    testNil = null;
+}
+"
+`;
