@@ -2,17 +2,29 @@
 
 exports[`TsCompiler should work 1`] = `
 "import { ClassDecoratorFactory, ClassDecoratorFn, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, } from \\"./lib/decorators/runtime\\";
+// \`ClassDecoratorFn\` should add a \`test\` field to \`DecoratorFnTest\` initialized
+// to a value of \`\\"Hello, world!\\"\`.
 export class DecoratorFnTest {
+    // \`propDecoratorFn\` should replace \`decoratedProp\` with \`get\`/\`set\`
+    // accessors backed by a private field.
     #decoratedProp = \\"Hello, world!\\";
     get decoratedProp() { return this.#decoratedProp; }
     set decoratedProp(value) { this.#decoratedProp = value; }
+    // \`methodDecoratorFn\` should add a console.log call to the body of the
+    // decorated method.
     hello() { console.log(\\"Hello, world!\\"); }
     test = \\"Hello, world!\\";
 }
+// \`ClassDecoratorFactory\` should add each argument to \`DecoratorFactoryTest\` as
+// a class field initialized to its passed value.
 export class DecoratorFactoryTest {
+    // \`propDecoratorFactory\` should replace \`decoratedProp\` with \`get\`/\`set\`
+    // accessors backed by a private field.
     #decoratedProp = \\"Hello, world!\\";
     get decoratedProp() { return this.#decoratedProp; }
     set decoratedProp(value) { this.#decoratedProp = value; }
+    // \`methodDecoratorFactory\` should add a console.log call to the body of the
+    // decorated method.
     hello() { console.log(\\"Hello, world!\\"); }
     testString = \\"Hello, world!\\";
     testTemplate = \`Hello, world!\`;
