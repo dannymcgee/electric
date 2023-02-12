@@ -38,7 +38,7 @@ export class Plugin {
 				return node
 
 			const args = evalDecoratorArgs(decorator.expression.arguments, sourceFile)
-			const decoratorFactory = this._decorators[ident.text] as DecoratorFactory
+			const decoratorFactory = this._decorators[ident.text] as DecoratorFactory<T>
 			const decoratorFn = decoratorFactory(...args)
 
 			return decoratorFn.call(this._context, node, this._nodeFactory)
@@ -48,7 +48,7 @@ export class Plugin {
 		if (!(ident.text in this._decorators))
 			return node
 
-		const decoratorFn = this._decorators[ident.text] as ComptimeDecorator<DecoratableNode>
+		const decoratorFn = this._decorators[ident.text] as ComptimeDecorator<T>
 		return decoratorFn.call(this._context, node, this._nodeFactory)
 	}
 

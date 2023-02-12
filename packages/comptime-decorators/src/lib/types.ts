@@ -7,16 +7,21 @@ import * as ts from "typescript"
  * node (or array of nodes) substitutes the original node for the return value.
  * Returning `undefined` removes the node from the tree.
  */
-export interface ComptimeDecorator<T extends DecoratableNode> {
+export interface ComptimeDecorator<T extends DecoratableNode = DecoratableNode> {
 	(this: PluginContext, node: T, $: NodeFactory): ts.VisitResult<ts.Node>
 }
 
-export type DecoratorFactory
-	= Fn<any[], ComptimeDecorator<DecoratableNode>>
+export type DecoratorFactory<
+	T extends DecoratableNode,
+	F = (...args: any[]) => ComptimeDecorator<T>
+>
+	= F extends (...args: infer Args) => ComptimeDecorator<T>
+		? (...args: Args) => ComptimeDecorator<T>
+		: never
 
-export type Decorator
-	= ComptimeDecorator<DecoratableNode>
-	| DecoratorFactory
+export type Decorator<T extends DecoratableNode = DecoratableNode>
+	= ComptimeDecorator<T>
+	| DecoratorFactory<T>
 
 export type DecoratableNode
 	= ts.ClassDeclaration
@@ -55,7 +60,3 @@ type BriefNodeFactoryKey<K>
 		: K extends `${infer T}Expression`  ? `${T}Expr`
 		: K
 	: never
-
-interface Fn<Args extends unknown[], R> {
-	(...args: Args): R
-}
