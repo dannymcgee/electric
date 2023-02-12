@@ -18,10 +18,7 @@ export type Matcher<Union extends Key>
 export default function match<K extends Key, T extends Matcher<K>>(
 	subject: K,
 	matcher: T,
-): T[K] extends Fn<[], infer R> ? R
-	: Extract<T, MatcherWithFallback<K>>["_"] extends Fn<[], infer R> ? R
-	: never
-{
+): T[keyof T] extends Fn<[], infer R> ? R : never {
 	if (subject in matcher)
 		return matcher[subject]!()
 
