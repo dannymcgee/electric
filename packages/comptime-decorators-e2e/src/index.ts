@@ -1,5 +1,6 @@
 import {
 	ClassDecoratorFactory,
+	ClassDecoratorFactoryObjectified,
 	ClassDecoratorFn,
 	first,
 	methodDecoratorFactory,
@@ -54,4 +55,20 @@ export class DecoratorOrdering {
 	// `decoratedProp_first_second_third`, followed by three new properties in
 	// reverse order, `#thirdAddtl`, `#secondAddtl`, then `#firstAddtl`
 	@third @second @first decoratedProp?: string
+}
+
+// Just like `DecoratorFactoryTest` above, but this time the decorator receives
+// an object literal. This case also tests evaluation of `false`, `undefined`
+// (vs `true` and `null` in the previous case), and array literals.
+@ClassDecoratorFactoryObjectified({
+	testString: "Hello, world!",
+	testTemplate: `Hello, world!`,
+	testNumber: 42,
+	testBigint: 123456789123456789123456789123456789n,
+	testRegex: /[_a-zA-Z][_a-zA-Z0-9]*/g,
+	testBool: false,
+	testNil: undefined,
+	testNumbers: [1, 2, 3, 4, 5]
+})
+export class DecoratorFactoryObjectifiedTest {
 }

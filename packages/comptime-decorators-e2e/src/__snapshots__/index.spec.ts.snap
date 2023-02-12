@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`comptime-decorators e2e 1`] = `
-"import { ClassDecoratorFactory, ClassDecoratorFn, first, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, second, third, } from \\"./lib/decorators/runtime\\";
+"import { ClassDecoratorFactory, ClassDecoratorFactoryObjectified, ClassDecoratorFn, first, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, second, third, } from \\"./lib/decorators/runtime\\";
 // \`ClassDecoratorFn\` should add a \`test\` field to \`DecoratorFnTest\` initialized
 // to a value of \`\\"Hello, world!\\"\`.
 export class DecoratorFnTest {
@@ -43,6 +43,19 @@ export class DecoratorOrdering {
     #thirdAddtl = \\"third\\";
     #secondAddtl = \\"second\\";
     #firstAddtl = \\"first\\";
+}
+// Just like \`DecoratorFactoryTest\` above, but this time the decorator receives
+// an object literal. This case also tests evaluation of \`false\`, \`undefined\`
+// (vs \`true\` and \`null\` in the previous case), and array literals.
+export class DecoratorFactoryObjectifiedTest {
+    testString = \\"Hello, world!\\";
+    testTemplate = \`Hello, world!\`;
+    testNumber = 42;
+    testBigint = 123456789123456789123456789123456789n;
+    testRegex = /[_a-zA-Z][_a-zA-Z0-9]*/g;
+    testBool = false;
+    testNil = undefined;
+    testNumbers = [1, 2, 3, 4, 5];
 }
 "
 `;

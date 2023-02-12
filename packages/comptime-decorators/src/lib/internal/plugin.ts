@@ -121,6 +121,8 @@ type Literal
 	| boolean
 	| null
 	| undefined
+	| Literal[]
+	| { [key: string]: Literal }
 
 /**
  * Evaluate literal expressions passed to a decorator factory so that we can
@@ -133,6 +135,10 @@ function evalDecoratorArgs(
 	args: readonly ts.Expression[],
 	sourceFile: ts.SourceFile,
 ): Literal[] {
+	return args.map(arg => evalLiteralExpression(arg, sourceFile))
+}
+
+function evalLiteralExpression(expr: ts.Expression, sourceFile: ts.SourceFile): Literal {
 	type LiteralKind
 		= SyntaxKind.StringLiteral
 		| SyntaxKind.NoSubstitutionTemplateLiteral
@@ -143,37 +149,48 @@ function evalDecoratorArgs(
 		| SyntaxKind.FalseKeyword
 		| SyntaxKind.NullKeyword
 		| SyntaxKind.UndefinedKeyword
-		// | ts.SyntaxKind.ArrayLiteralExpression // TODO
-		// | ts.SyntaxKind.ObjectLiteralExpression // TODO
+		| SyntaxKind.ArrayLiteralExpression
+		| SyntaxKind.ObjectLiteralExpression
 
-	return args.map(arg => {
-		if (!(
-			ts.isLiteralExpression(arg)
-			|| arg.kind === SyntaxKind.TrueKeyword
-			|| arg.kind === SyntaxKind.FalseKeyword
-			|| arg.kind === SyntaxKind.NullKeyword
-			|| arg.kind === SyntaxKind.UndefinedKeyword
-		)) {
-			throw new Error(
-				`Arguments passed to compile-time decorators must be literals; found: \`${
-					arg.getText(sourceFile)
-				}\``
-			)
-		}
+	if (!(
+		ts.isLiteralExpression(expr)
+		|| expr.kind === SyntaxKind.TrueKeyword
+		|| expr.kind === SyntaxKind.FalseKeyword
+		|| expr.kind === SyntaxKind.NullKeyword
+		|| expr.kind === SyntaxKind.ArrayLiteralExpression
+		|| expr.kind === SyntaxKind.ObjectLiteralExpression
+		|| (
+			ts.isIdentifier(expr) && expr.text === "undefined"
+		)
+	)) {
+		throw new Error(
+			`Arguments passed to compile-time decorators must be literals; found ${
+				SyntaxKind[expr.kind]
+			}: \`${
+				expr.getText(sourceFile)
+			}\``
+		)
+	}
 
-		const expr = arg as unknown as ts.LiteralLikeNode
+	const lit = expr as unknown as ts.LiteralLikeNode
 
-		return match(expr.kind as LiteralKind, {
-			[SyntaxKind.StringLiteral]: () => expr.text,
-			[SyntaxKind.NoSubstitutionTemplateLiteral]: () => expr.text,
-			[SyntaxKind.NumericLiteral]: () => parseFloat(expr.text),
-			[SyntaxKind.BigIntLiteral]: () => BigInt(expr.text.substring(0, expr.text.length - 1)),
-			[SyntaxKind.RegularExpressionLiteral]: () => parseRegExpLiteral(expr.text),
-			[SyntaxKind.TrueKeyword]: () => true,
-			[SyntaxKind.FalseKeyword]: () => false,
-			[SyntaxKind.NullKeyword]: () => null,
-			[SyntaxKind.UndefinedKeyword]: () => undefined,
-		})
+	return match(expr.kind as LiteralKind, {
+		[SyntaxKind.StringLiteral]: () => lit.text,
+		[SyntaxKind.NoSubstitutionTemplateLiteral]: () => lit.text,
+		[SyntaxKind.NumericLiteral]: () => parseFloat(lit.text),
+		[SyntaxKind.BigIntLiteral]: () => BigInt(lit.text.substring(0, lit.text.length - 1)),
+		[SyntaxKind.RegularExpressionLiteral]: () => parseRegExpLiteral(lit.text),
+		[SyntaxKind.TrueKeyword]: () => true,
+		[SyntaxKind.FalseKeyword]: () => false,
+		[SyntaxKind.NullKeyword]: () => null,
+		[SyntaxKind.UndefinedKeyword]: () => undefined,
+		[SyntaxKind.Identifier]: () => undefined, // NOTE: This has already been checked above
+		[SyntaxKind.ArrayLiteralExpression]: () =>
+			(expr as ts.ArrayLiteralExpression)
+				.elements
+				.map(it => evalLiteralExpression(it, sourceFile)),
+		[SyntaxKind.ObjectLiteralExpression]: () =>
+			evalObjectLiteral(expr as ts.ObjectLiteralExpression, sourceFile),
 	})
 }
 
@@ -183,6 +200,37 @@ function parseRegExpLiteral(text: string) {
 	const src = text.substring(1, endIdx)
 
 	return new RegExp(src, flags)
+}
+
+function evalObjectLiteral(expr: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile) {
+	return expr.properties.reduce((accum, element) => {
+		if (!ts.isPropertyAssignment(element))
+			throw new Error(
+				`Properties of an object literal passed to a compile-time decorator ` +
+				`must be literals; found ${SyntaxKind[element.kind]}: \`${
+					element.getText(sourceFile)
+				}\``
+			)
+
+		const propName = element.name
+		if (
+			!ts.isIdentifier(propName)
+			&& !ts.isStringLiteral(propName)
+			&& !ts.isNumericLiteral(propName)
+		)
+			throw new Error(
+				`Property keys of an object literal passed to a compile-time decorator ` +
+				`must be literal strings or numbers; found ${
+					SyntaxKind[element.name.kind]
+				}: \`${
+					element.name.getText(sourceFile)
+				}\``
+			)
+
+		accum[propName.text] = evalLiteralExpression(element.initializer, sourceFile)
+
+		return accum
+	}, {} as { [key: string]: Literal })
 }
 
 /** Remove the matching `decorator` from `node`. */
