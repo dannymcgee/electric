@@ -40,11 +40,12 @@ export default function (decorators: any) {
 
 		const typeChecker = program.getTypeChecker()
 
-		return (context) => {
+		return context => {
 			const plugin = new Plugin(decorators, {
-				...context,
+				transformContext: context,
 				program,
 				typeChecker,
+				userContext: undefined,
 			})
 
 			return sourceFile => plugin.walk(sourceFile, sourceFile)

@@ -17,6 +17,7 @@ export class Plugin {
 	private _decorators: Record<string, Decorator>
 	private _context: PluginContext
 	private _nodeFactory = NodeFactory.instance
+	private _sourceFile?: ts.SourceFile
 
 	constructor (
 		decorators: Record<string, Decorator>,
@@ -30,14 +31,13 @@ export class Plugin {
 	decorate<T extends DecoratableNode>(
 		node: T,
 		decorator: ts.Decorator,
-		sourceFile: ts.SourceFile,
-	) {
+	): ts.VisitResult<ts.Node> {
 		if (ts.isCallExpression(decorator.expression)) {
 			const ident = decorator.expression.expression as ts.Identifier
 			if (!(ident.text in this._decorators))
 				return node
 
-			const args = evalDecoratorArgs(decorator.expression.arguments, sourceFile)
+			const args = evalDecoratorArgs(decorator.expression.arguments, this._sourceFile)
 			const decoratorFactory = this._decorators[ident.text] as DecoratorFactory<T>
 			const decoratorFn = decoratorFactory(...args)
 
@@ -57,49 +57,18 @@ export class Plugin {
 	 * applicable.
 	 */
 	walk<T extends ts.Node>(parent: T, sourceFile: ts.SourceFile): T {
-		return ts.visitEachChild(parent, child => {
-			if (!(
-				// TODO: Parameter decorators
-				ts.isClassDeclaration(child)
-				|| ts.isMethodDeclaration(child)
-				|| ts.isPropertyDeclaration(child)
-			)) {
-				return this.walk(child, sourceFile)
-			}
+		this._sourceFile = sourceFile
 
-			const decorators = ts.getDecorators(child)?.slice().reverse()
+		return ts.visitEachChild(parent, node => {
+			if (!isDecoratable(node))
+				return this.walk(node, sourceFile)
+
+			const decorators = ts.getDecorators(node)?.slice().reverse()
 			if (!decorators)
-				return this.walk(child, sourceFile)
+				return this.walk(node, sourceFile)
 
 			// Apply each decorator to the node
-			const result = decorators.reduce<ts.VisitResult<ts.Node>>((accum, dec) => {
-				if (!accum) return accum
-				if (Array.isArray(accum)) {
-					// If this is an array, it means the original node has already
-					// been processed by a decorator which returned multiple nodes.
-					// Additional decorators should be applied to that original
-					// decorated node, but not to the added ones.
-					return accum
-						.flatMap(n => {
-							if (NodeFactory.updated.has(n))
-								return this.decorate(
-									stripDecorator(n as DecoratableNode, dec),
-									dec,
-									sourceFile
-								)
-
-							return n
-						})
-						.filter(exists)
-				}
-
-				return this.decorate(
-					stripDecorator(accum as DecoratableNode, dec),
-					dec,
-					sourceFile
-				)
-			}, child)
-
+			const result = this.processDecorators(decorators, node)
 			if (!result) return result
 
 			// If processing the decorator stack resulted in multiple nodes,
@@ -109,8 +78,44 @@ export class Plugin {
 
 			// Walk the processed child node
 			return this.walk(result, sourceFile)
-		}, this._context)
+		}, this._context.transformContext)
 	}
+
+	processDecorators<T extends DecoratableNode>(decorators: ts.Decorator[], node: T) {
+		return decorators.reduce<ts.VisitResult<ts.Node>>((accum, dec) => {
+			if (!accum) return accum
+			if (Array.isArray(accum)) {
+				// If this is an array, it means the original node has already
+				// been processed by a decorator which returned multiple nodes.
+				// Additional decorators should be applied to that original
+				// decorated node, but not to the added ones.
+				return accum
+					.flatMap(n => {
+						if (NodeFactory.updated.has(n))
+							return this.decorate(
+								stripDecorator(n as DecoratableNode, dec),
+								dec,
+							)
+
+						return n
+					})
+					.filter(exists)
+			}
+
+			return this.decorate(
+				stripDecorator(accum as DecoratableNode, dec),
+				dec,
+			)
+		}, node)
+	}
+}
+
+function isDecoratable(node: unknown): node is DecoratableNode {
+	return (
+		ts.isClassDeclaration(node as ts.Node)
+		|| ts.isMethodDeclaration(node as ts.Node)
+		|| ts.isPropertyDeclaration(node as ts.Node)
+	)
 }
 
 type Literal
@@ -133,12 +138,12 @@ type Literal
  */
 function evalDecoratorArgs(
 	args: readonly ts.Expression[],
-	sourceFile: ts.SourceFile,
+	sourceFile?: ts.SourceFile,
 ): Literal[] {
 	return args.map(arg => evalLiteralExpression(arg, sourceFile))
 }
 
-function evalLiteralExpression(expr: ts.Expression, sourceFile: ts.SourceFile): Literal {
+function evalLiteralExpression(expr: ts.Expression, sourceFile?: ts.SourceFile): Literal {
 	type LiteralKind
 		= SyntaxKind.StringLiteral
 		| SyntaxKind.NoSubstitutionTemplateLiteral
@@ -202,7 +207,7 @@ function parseRegExpLiteral(text: string) {
 	return new RegExp(src, flags)
 }
 
-function evalObjectLiteral(expr: ts.ObjectLiteralExpression, sourceFile: ts.SourceFile) {
+function evalObjectLiteral(expr: ts.ObjectLiteralExpression, sourceFile?: ts.SourceFile) {
 	return expr.properties.reduce((accum, element) => {
 		if (!ts.isPropertyAssignment(element))
 			throw new Error(
