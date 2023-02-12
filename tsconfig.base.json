@@ -23,6 +23,7 @@
 				"packages/comptime-decorators-e2e/src/index.ts"
 			],
 			"@electric/exists": ["packages/exists/src/index.ts"],
+			"@electric/framework": ["packages/framework/src/index.ts"],
 			"@electric/match": ["packages/match/src/index.ts"]
 		}
 	},
