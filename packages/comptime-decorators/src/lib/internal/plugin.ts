@@ -9,22 +9,28 @@ import {
 	DecoratableNode,
 	Decorator,
 	DecoratorFactory,
+	PluginConfig,
 	PluginContext,
+	Traversal,
 } from "../types"
 import { NodeFactory } from "./node-factory"
+import { MutableString, printTree } from "./print-tree";
 
 export class Plugin {
 	private _decorators: Record<string, Decorator>
 	private _context: PluginContext
 	private _nodeFactory = NodeFactory.instance
 	private _sourceFile?: ts.SourceFile
+	private _traversal: Traversal
 
 	constructor (
 		decorators: Record<string, Decorator>,
+		config: PluginConfig,
 		context: PluginContext,
 	) {
 		this._decorators = decorators
 		this._context = context
+		this._traversal = config.traversal
 	}
 
 	/** Apply a decorator to a node. */
@@ -32,6 +38,14 @@ export class Plugin {
 		node: T,
 		decorator: ts.Decorator,
 	): ts.VisitResult<ts.Node> {
+		if (ts.isClassDeclaration(node)) {
+			console.log(`Invoking class decorator for \`${node.name!.text}\``)
+		} else if (ts.isMethodDeclaration(node)) {
+			console.log(`Invoking method decorator for \`${(node.name as any).text}\``)
+		} else {
+			console.log(`Invoking property decorator for \`${(node.name as any).text}\``)
+		}
+
 		if (ts.isCallExpression(decorator.expression)) {
 			const ident = decorator.expression.expression as ts.Identifier
 			if (!(ident.text in this._decorators))
@@ -70,6 +84,11 @@ export class Plugin {
 			// Apply each decorator to the node
 			const result = this.processDecorators(decorators, node)
 			if (!result) return result
+
+			const s = new MutableString()
+			s.appendLine(`processDecorator result for ${SyntaxKind[node.kind]}:`)
+			printTree(node, s)
+			console.log(s.valueOf())
 
 			// If processing the decorator stack resulted in multiple nodes,
 			// walk each of them
