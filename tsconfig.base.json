@@ -16,6 +16,7 @@
 		"baseUrl": ".",
 		"paths": {
 			"@electric/assert-type": ["packages/assert-type/src/index.ts"],
+			"@electric/components": ["packages/components/src/index.ts"],
 			"@electric/comptime-decorators": [
 				"packages/comptime-decorators/src/index.ts"
 			],
