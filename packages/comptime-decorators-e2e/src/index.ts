@@ -5,6 +5,8 @@ import {
 	first,
 	methodDecoratorFactory,
 	methodDecoratorFn,
+	postorder,
+	PostorderClass,
 	propDecoratorFactory,
 	propDecoratorFn,
 	second,
@@ -71,4 +73,13 @@ export class DecoratorOrdering {
 	testNumbers: [1, 2, 3, 4, 5]
 })
 export class DecoratorFactoryObjectifiedTest {
+}
+
+// Tests postorder traversal. The static property `decoratedPropNames` should
+// be an array of strings reflecting each of the decorated class property names.
+@PostorderClass
+export class Postorder {
+	@postorder foo?: any
+	@postorder bar?: any
+	@postorder baz?: any
 }

@@ -52,6 +52,50 @@ export interface PluginContext<U = any> {
 	userContext: U
 }
 
+// NOTE: Zero-width whitespace characters (U+200B) are placed before and after
+// each at-symbol in the JSDoc example to prevent VS Code from mangling the
+// rendered tooltips by treating them as JSDoc tags.
+/**
+ * Configures the order in which decorators are applied to nodes.
+ *
+ * Note that regardless of the configured order, multiple decorators on a single
+ * node will _always_ be applied in reverse order for consistency with the
+ * JavaScript specification. For example, given the following declaration:
+ *
+ * ```typescript
+ * ‌​@​third ​@​second ​@​first class Foo {}
+ * ```
+ *
+ * * `first` will be applied to the original `Foo` declaration node
+ * * `second` will be applied to the `first`-modified `Foo` node
+ * * `third` will be applied to the `first`- and `second`-modified `Foo` node
+ *
+ * @see {@linkcode Traversal.Preorder}
+ * @see {@linkcode Traversal.Postorder}
+ */
+export enum Traversal {
+	/**
+	 * Decorators on parent nodes are applied before decorators on their
+	 * children. In other words, decorators will be applied in roughly the same
+	 * order as they appear in the code.
+	 */
+	Preorder = "preorder",
+	/**
+	 * Decorators on child nodes are applied before decorators on their parent.
+	 * This is roughly consistent with the JavaScript specification and is the
+	 * default mode if not overriden.
+	 */
+	Postorder = "postorder",
+}
+
+export interface PluginConfig {
+	/**
+	 * Configures the order in which decorators are applied.
+	 * @see {@linkcode Traversal}
+	 */
+	traversal: Traversal
+}
+
 export type NodeFactory = {
 	[K in keyof ts.NodeFactory as BriefNodeFactoryKey<K>]: ts.NodeFactory[K]
 }

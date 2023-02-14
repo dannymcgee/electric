@@ -9,7 +9,9 @@ import {
 	DecoratableNode,
 	Decorator,
 	DecoratorFactory,
+	PluginConfig,
 	PluginContext,
+	Traversal,
 } from "../types"
 import { NodeFactory } from "./node-factory"
 
@@ -18,13 +20,16 @@ export class Plugin {
 	private _context: PluginContext
 	private _nodeFactory = NodeFactory.instance
 	private _sourceFile?: ts.SourceFile
+	private _traversal: Traversal
 
 	constructor (
 		decorators: Record<string, Decorator>,
+		config: PluginConfig,
 		context: PluginContext,
 	) {
 		this._decorators = decorators
 		this._context = context
+		this._traversal = config.traversal
 	}
 
 	/** Apply a decorator to a node. */
@@ -66,6 +71,17 @@ export class Plugin {
 			const decorators = ts.getDecorators(node)?.slice().reverse()
 			if (!decorators)
 				return this.walk(node, sourceFile)
+
+			if (
+				ts.isClassDeclaration(node)
+				&& this._traversal === Traversal.Postorder
+			) {
+				// Walk children first
+				const result = this.walk(node, sourceFile)
+
+				// Decorate the result node
+				return this.processDecorators(decorators, result)
+			}
 
 			// Apply each decorator to the node
 			const result = this.processDecorators(decorators, node)
