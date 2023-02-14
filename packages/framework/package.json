@@ -1,5 +1,8 @@
 {
 	"name": "@electric/framework",
 	"version": "0.0.1",
-	"type": "commonjs"
+	"exports": {
+		".": "./src/index.js",
+		"./decorators/comptime": "./src/lib/decorators/comptime/index.js"
+	}
 }

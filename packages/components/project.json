@@ -12,7 +12,14 @@
 				"main": "packages/components/src/index.ts",
 				"tsConfig": "packages/components/tsconfig.lib.json",
 				"assets": ["packages/components/*.md"],
-				"transformers": ["@electric/framework"]
+				"transformers": [
+					{
+						"name": "@electric/framework/decorators/comptime",
+						"options": {
+							"traversal": "postorder"
+						}
+					}
+				]
 			}
 		},
 		"publish": {
