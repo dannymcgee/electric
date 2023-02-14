@@ -15,18 +15,16 @@
 		"skipDefaultLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
-			"@electric/assert-type": ["packages/assert-type/src/index.ts"],
-			"@electric/compiler": ["packages/compiler/src/index.ts"],
-			"@electric/components": ["packages/components/src/index.ts"],
-			"@electric/comptime-decorators": [
-				"packages/comptime-decorators/src/index.ts"
-			],
-			"@electric/comptime-decorators-e2e": [
-				"packages/comptime-decorators-e2e/src/index.ts"
-			],
-			"@electric/exists": ["packages/exists/src/index.ts"],
-			"@electric/framework": ["packages/framework/src/index.ts"],
-			"@electric/match": ["packages/match/src/index.ts"]
+			"@electric/compiler": ["packages/build/compiler/src/index.ts"],
+			"@electric/comptime-decorators": ["packages/build/comptime-decorators/src/index.ts"],
+			"@electric/comptime-decorators-e2e": ["packages/build/comptime-decorators-e2e/src/index.ts"],
+
+			"@electric/components": ["packages/core/components/src/index.ts"],
+			"@electric/framework": ["packages/core/framework/src/index.ts"],
+
+			"@electric/assert-type": ["packages/util/assert-type/src/index.ts"],
+			"@electric/exists": ["packages/util/exists/src/index.ts"],
+			"@electric/match": ["packages/util/match/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp"]
