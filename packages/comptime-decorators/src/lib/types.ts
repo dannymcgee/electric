@@ -79,13 +79,13 @@ export enum Traversal {
 	 * children. In other words, decorators will be applied in roughly the same
 	 * order as they appear in the code.
 	 */
-	Preorder,
+	Preorder = "preorder",
 	/**
 	 * Decorators on child nodes are applied before decorators on their parent.
 	 * This is roughly consistent with the JavaScript specification and is the
 	 * default mode if not overriden.
 	 */
-	Postorder,
+	Postorder = "postorder",
 }
 
 export interface PluginConfig {
