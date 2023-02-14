@@ -2,8 +2,7 @@ import exists from "@electric/exists";
 import * as path from "path"
 import * as ts from "typescript"
 
-// TODO: This doesn't really belong in this library
-export class TsCompiler {
+export default class TsCompiler {
 	program: ts.Program
 	sourceFiles: ts.SourceFile[]
 

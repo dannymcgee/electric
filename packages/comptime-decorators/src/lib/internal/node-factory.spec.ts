@@ -1,7 +1,7 @@
+import Compiler from "@electric/compiler"
 import * as path from "path"
 import * as ts from "typescript"
 
-import { TsCompiler } from "../compiler"
 import { NodeFactory } from "./node-factory";
 
 describe("NodeFactory", () => {
@@ -31,7 +31,7 @@ describe("NodeFactory", () => {
 function resolveNodeFactoryTypeMembers(): string[] {
 	const result: string[] = []
 
-	const tsc = new TsCompiler(path.resolve(__dirname, "../../../tsconfig.lib.json"))
+	const tsc = new Compiler(path.resolve(__dirname, "../../../tsconfig.lib.json"))
 	const typeChecker = tsc.program.getTypeChecker()
 	const sourceFile = tsc.sourceFiles.find(f => f.fileName.includes("types.ts"))!
 
