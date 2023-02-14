@@ -20,7 +20,7 @@ import { PluginConfig, Traversal } from "./types";
  */
 export default function (
 	decorators: any,
-	config: PluginConfig = { traversal: Traversal.Preorder } // TODO
+	config: PluginConfig = { traversal: Traversal.Postorder }
 ) {
 	// FIXME: The Nx custom transformers loader automatically prepends a
 	// configuration object as the first argument to this function, even if no

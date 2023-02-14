@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`comptime-decorators e2e 1`] = `
-"import { ClassDecoratorFactory, ClassDecoratorFactoryObjectified, ClassDecoratorFn, first, methodDecoratorFactory, methodDecoratorFn, propDecoratorFactory, propDecoratorFn, second, third, } from \\"./lib/decorators/runtime\\";
+"import { ClassDecoratorFactory, ClassDecoratorFactoryObjectified, ClassDecoratorFn, first, methodDecoratorFactory, methodDecoratorFn, postorder, PostorderClass, propDecoratorFactory, propDecoratorFn, second, third, } from \\"./lib/decorators/runtime\\";
 // \`ClassDecoratorFn\` should add a \`test\` field to \`DecoratorFnTest\` initialized
 // to a value of \`\\"Hello, world!\\"\`.
 export class DecoratorFnTest {
@@ -56,6 +56,14 @@ export class DecoratorFactoryObjectifiedTest {
     testBool = false;
     testNil = undefined;
     testNumbers = [1, 2, 3, 4, 5];
+}
+// Tests postorder traversal. The static property \`decoratedPropNames\` should
+// be an array of strings reflecting each of the decorated class property names.
+export class Postorder {
+    static decoratedPropNames = [\\"foo\\", \\"bar\\", \\"baz\\"];
+    foo;
+    bar;
+    baz;
 }
 "
 `;

@@ -14,7 +14,6 @@ import {
 	Traversal,
 } from "../types"
 import { NodeFactory } from "./node-factory"
-import { MutableString, printTree } from "./print-tree";
 
 export class Plugin {
 	private _decorators: Record<string, Decorator>
@@ -38,14 +37,6 @@ export class Plugin {
 		node: T,
 		decorator: ts.Decorator,
 	): ts.VisitResult<ts.Node> {
-		if (ts.isClassDeclaration(node)) {
-			console.log(`Invoking class decorator for \`${node.name!.text}\``)
-		} else if (ts.isMethodDeclaration(node)) {
-			console.log(`Invoking method decorator for \`${(node.name as any).text}\``)
-		} else {
-			console.log(`Invoking property decorator for \`${(node.name as any).text}\``)
-		}
-
 		if (ts.isCallExpression(decorator.expression)) {
 			const ident = decorator.expression.expression as ts.Identifier
 			if (!(ident.text in this._decorators))
@@ -81,14 +72,20 @@ export class Plugin {
 			if (!decorators)
 				return this.walk(node, sourceFile)
 
+			if (
+				ts.isClassDeclaration(node)
+				&& this._traversal === Traversal.Postorder
+			) {
+				// Walk children first
+				const result = this.walk(node, sourceFile)
+
+				// Decorate the result node
+				return this.processDecorators(decorators, result)
+			}
+
 			// Apply each decorator to the node
 			const result = this.processDecorators(decorators, node)
 			if (!result) return result
-
-			const s = new MutableString()
-			s.appendLine(`processDecorator result for ${SyntaxKind[node.kind]}:`)
-			printTree(node, s)
-			console.log(s.valueOf())
 
 			// If processing the decorator stack resulted in multiple nodes,
 			// walk each of them
