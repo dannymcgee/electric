@@ -1,7 +1,7 @@
 import match from "@electric/match"
 import * as ts from "typescript"
 
-import { Plugin } from "./internal/plugin"
+import { Plugin, PluginContextImpl } from "./internal/plugin"
 import * as types from "./types" // For JSDoc links
 import { PluginConfig, Traversal } from "./types"
 
@@ -51,12 +51,12 @@ export default function (
 		const typeChecker = program.getTypeChecker()
 
 		return context => {
-			const plugin = new Plugin(decorators, config, {
+			const plugin = new Plugin(decorators, config, new PluginContextImpl({
 				transformContext: context,
 				program,
 				typeChecker,
 				userContext: undefined,
-			})
+			}))
 
 			return sourceFile => plugin.walk(sourceFile, sourceFile)
 		}

@@ -50,6 +50,9 @@ export interface PluginContext<U = any> {
 	 * implementations to share information with one another.
 	 */
 	userContext: U
+
+	/** Returns the original, unmodified version of the given node. */
+	original(node: ts.Node): ts.Node
 }
 
 // NOTE: Zero-width whitespace characters (U+200B) are placed before and after
