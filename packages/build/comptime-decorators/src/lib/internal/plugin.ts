@@ -37,6 +37,9 @@ export class Plugin {
 		node: T,
 		decorator: ts.Decorator,
 	): ts.VisitResult<ts.Node> {
+		let result: ts.VisitResult<ts.Node>
+
+		// Decorator factory, e.g. `@MyDecorator(...)`
 		if (ts.isCallExpression(decorator.expression)) {
 			const ident = decorator.expression.expression as ts.Identifier
 			if (!(ident.text in this._decorators))
@@ -46,15 +49,33 @@ export class Plugin {
 			const decoratorFactory = this._decorators[ident.text] as DecoratorFactory<T>
 			const decoratorFn = decoratorFactory(...args)
 
-			return decoratorFn.call(this._context, node, this._nodeFactory)
+			result = decoratorFn.call(this._context, node, this._nodeFactory)
 		}
 
-		const ident = decorator.expression as ts.Identifier
-		if (!(ident.text in this._decorators))
-			return node
+		// Naked decorator, e.g. `@MyDecorator`
+		else {
+			const ident = decorator.expression as ts.Identifier
+			if (!(ident.text in this._decorators))
+				return node
 
-		const decoratorFn = this._decorators[ident.text] as ComptimeDecorator<T>
-		return decoratorFn.call(this._context, node, this._nodeFactory)
+			const decoratorFn = this._decorators[ident.text] as ComptimeDecorator<T>
+			result = decoratorFn.call(this._context, node, this._nodeFactory)
+		}
+
+		// Strip the processed decorator from the transformed node
+		if (!result) return result
+		if (Array.isArray(result)) {
+			const decorated = result.find(n => NodeFactory.updated.has(n))
+			if (!decorated) return result
+
+			const stripped = stripDecorator(decorated as DecoratableNode, decorator)
+			const idx = result.indexOf(decorated)
+			result.splice(idx, 1, stripped)
+
+			return result
+		}
+
+		return stripDecorator(result as DecoratableNode, decorator)
 	}
 
 	/**
@@ -108,20 +129,14 @@ export class Plugin {
 				return accum
 					.flatMap(n => {
 						if (NodeFactory.updated.has(n))
-							return this.decorate(
-								stripDecorator(n as DecoratableNode, dec),
-								dec,
-							)
+							return this.decorate(n as DecoratableNode, dec)
 
 						return n
 					})
 					.filter(exists)
 			}
 
-			return this.decorate(
-				stripDecorator(accum as DecoratableNode, dec),
-				dec,
-			)
+			return this.decorate(accum as DecoratableNode, dec)
 		}, node)
 	}
 }
