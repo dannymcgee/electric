@@ -99,7 +99,7 @@ export class Highlighter {
 					html += `<span class="${scope.replace(/\./g, " ")}">`;
 
 			// Insert the text range for the current token
-			html += src.substring(token.startIndex, token.endIndex);
+			html += this.escape(src.substring(token.startIndex, token.endIndex));
 
 			// If this is the last token in the array, close any tags that are
 			// still open
@@ -167,5 +167,14 @@ export class Highlighter {
 			createOnigScanner: sources => new OnigScanner(sources),
 			createOnigString: str => new OnigString(str),
 		}
+	}
+
+	private escape(content: string): string {
+		return content
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&apos;");
 	}
 }

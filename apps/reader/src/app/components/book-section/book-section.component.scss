@@ -22,6 +22,9 @@
 	h2 { font-size: size(1.142) }
 	h3 { font-size: size(0.857) }
 	h4 { font-size: size(0.714) }
+	h1, h2, h3, h4, h5, h6 {
+		color: color.foreground(50);
+	}
 
 	sup {
 		line-height: 0;
@@ -64,7 +67,7 @@
 
 	figure, table, .r-code-sample {
 		width: calc(100% + size(15, var(--code-fs)));
-		margin: size(1, var(--code-fs)) {
+		margin: size(1.5, var(--code-fs)) {
 			right: size(-10, var(--code-fs));
 			left: size(-5, var(--code-fs));
 		}
@@ -80,6 +83,7 @@
 		background: color.background(200);
 
 		figcaption {
+			width: 100%;
 			padding: 8px 12px;
 			background: color.background(500);
 			font: {
@@ -98,6 +102,10 @@
 		margin: {
 			left: -10em;
 			right: -10em;
+		}
+
+		img {
+			margin: 16px 0;
 		}
 	}
 
@@ -192,7 +200,7 @@
 	}
 
 	.comment {
-		color: color.foreground(500);
+		color: color.foreground(400);
 		font-style: italic;
 	}
 

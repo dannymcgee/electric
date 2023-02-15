@@ -1,12 +1,13 @@
 import {
-	Component,
-	ViewEncapsulation,
-	ChangeDetectionStrategy,
-	HostBinding,
 	AfterViewInit,
+	ChangeDetectionStrategy,
+	Component,
 	ElementRef,
-	OnDestroy,
+	HostBinding,
+	HostListener,
 	Input,
+	OnDestroy,
+	ViewEncapsulation,
 } from "@angular/core";
 import { assertType, isNotNull, match } from "@electric/utils";
 import { path, tauri } from "@tauri-apps/api";
@@ -61,6 +62,16 @@ export class BookSectionComponent implements AfterViewInit, OnDestroy {
 	ngOnDestroy(): void {
 		while (this._observers.length)
 			this._observers.pop()!.disconnect();
+	}
+
+	@HostListener("click", ["$event"])
+	onClick(event: PointerEvent): void {
+		if (!(event.target instanceof HTMLAnchorElement))
+			return;
+
+		if (event.target.getAttribute("href")?.startsWith("#")) {
+			// TODO
+		}
 	}
 
 	observerCallback(codeBlock: HTMLPreElement, language: string) {
@@ -144,10 +155,35 @@ export class BookSection {
 			{
 				const code = document.createElement("code");
 				code.innerHTML = node.innerHTML;
-				node = code;
+				(node as Element) = code;
 			}
 
-			await this.updateLinks(node as Element);
+			if (node.nodeName !== "figure"
+				&& node.classList.contains("figure"))
+			{
+				const figure = document.createElement("figure");
+				const caption = node.querySelector(".figurecaption");
+
+				if (node.id) figure.id = node.id;
+
+				if (node.querySelector("img"))
+					figure.classList.add("image");
+
+				if (caption) {
+					const figcaption = document.createElement("figcaption");
+					figcaption.innerText = caption.textContent ?? "";
+
+					figure.appendChild(figcaption);
+					node.removeChild(caption);
+				}
+
+				for (let child of Array.from(node.children))
+					figure.appendChild(child);
+
+				(node as Element) = figure;
+			}
+
+			await this.updateLinks(node);
 
 			node.childNodes.forEach(child => {
 				this.transformInPlace(child, node);
@@ -235,11 +271,18 @@ export class BookSection {
 		if (!gutterLines.some(Boolean))
 			gutterLines = [];
 
-		let lang = "java";
-		if (codeLines.some(line => line.trim().startsWith("$")))
+		let lang!: string;
+		if (heading && /\.(.+)$/.test(heading)) {
+			lang = match(heading.match(/\.(.+)$/)![1], {
+				g4: () => "antlr4",
+				java: () => "java",
+				_: () => codeLines.some(line => line.trim().startsWith("$"))
+					? "bash"
+					: "java"
+			});
+		} else {
 			lang = "bash";
-		else if (codeLines.some(line => /^\s*([|;]|[a-zA-Z]+ ?:)/.test(line)))
-			lang = "antlr4";
+		}
 
 		let figureMarkup: string[] = [];
 
@@ -253,18 +296,16 @@ export class BookSection {
 		const isIoMode = (s: string): s is Mode => /^(=>|<=)$/.test(s);
 
 		class IoWriter {
-			private _current: Mode;
-			private _data: [Mode, number][];
-
-			constructor (init: Mode) {
-				this._current = init;
-				this._data = [[init, 0]];
-			}
+			private _current?: Mode;
+			private _data: [Mode, number][] = [];
 
 			write(mode?: Mode): void {
-				if (!mode || mode === this._current) {
+				if (this._data.length
+					&& (!mode || mode === this._current))
+				{
 					this._data[this._data.length-1][1]++;
 				} else {
+					mode ??= Mode.Out;
 					this._data.push([mode, 1]);
 					this._current = mode;
 				}
@@ -293,7 +334,7 @@ export class BookSection {
 
 		let ioWriter: IoWriter | undefined;
 		if (gutterLines.length) {
-			ioWriter = new IoWriter(Mode.In);
+			ioWriter = new IoWriter();
 
 			for (let line of gutterLines)
 				if (isIoMode(line))
@@ -316,7 +357,7 @@ export class BookSection {
 		} else {
 			figureMarkup.push(
 				`<ol class="r-code-sample__line-numbers">`,
-				...`<li />`.repeat(codeLines.length),
+					`<li />`.repeat(codeLines.length),
 				`</ol>`,
 			);
 		}
@@ -325,7 +366,7 @@ export class BookSection {
 			const ioLines = codeLines.slice();
 			const ioReader = ioWriter.read();
 
-			let mode = Mode.In;
+			let mode = Mode.Out;
 			let start = 0, end = 0;
 
 			while (end < ioLines.length) {
@@ -345,7 +386,7 @@ export class BookSection {
 
 				figureMarkup.push(
 					`<code class="${className}" data-lang="${lang}">${
-						ioLines.slice(start, end).join("\n")
+						this.escape(ioLines.slice(start, end).join("\n"))
 					}</code>`,
 				);
 
@@ -355,7 +396,7 @@ export class BookSection {
 		else {
 			figureMarkup.push(
 				`<code class="r-code-sample__code" data-lang="${lang}">${
-					codeLines.join("\n")
+					this.escape(codeLines.join("\n"))
 				}</code>`,
 			);
 		}
@@ -391,7 +432,18 @@ export class BookSection {
 			}
 
 			if (/(href|src)$/.test(attr.name)) {
-				const filePath = await path.join(this._book.packageDir, node.getAttribute(attr.name)!);
+				if (/^(https?:\/\/)/.test(attr.value)) {
+					if (node.nodeName === "a") {
+						node.setAttribute("target", "_blank");
+						node.setAttribute("rel", "noopener noreferrer");
+					}
+					continue;
+				}
+
+				if (/^mailto:/.test(attr.value))
+					continue;
+
+				const filePath = await path.join(this._book.packageDir, attr.value); //node.getAttribute(attr.name)!);
 				const fileUrl = tauri.convertFileSrc(filePath)
 
 				node.setAttribute(attr.name, fileUrl);

@@ -1,42 +1,100 @@
 @use "elx/anim";
+@use "elx/layout";
 @use "elx/style/color";
+@use "elx/style/type";
+@use "elx/a11y" as *;
 
 :host {
 	display: block;
+	position: relative;
 	padding: 0 {
 		left: 16px;
 	}
 }
 
-.link {
-	@include anim.transition(color);
-	display: block;
-	position: relative;
-	padding: 4px 0;
-	color: color.foreground(300);
-	font-weight: 500;
-	text-decoration: none;
+.entry {
+	@include layout.flex($a:center);
 
-	&__content {
+	&__tree-toggle {
 		position: relative;
-	}
-
-	&:hover {
-		color: color.foreground(100);
-	}
-
-	&.active {
-		color: color.white();
-
-		&::before {
-			content: "";
-			position: absolute;
-			top: 4px;
-			right: 0;
-			bottom: 4px;
-			left: calc(var(--depth) * -16px);
-			background: color.background(100);
-			border-left: 3px solid color.accent(700);
+		z-index: 1;
+		height: 100%;
+		margin: {
+			left: -8.5px;
+			right: 6px;
 		}
+		color: color.foreground(200);
+	}
+
+	&__link {
+		@include anim.transition(color);
+		flex: 1 0 0;
+		display: block;
+		position: relative;
+		padding: 4px 0;
+		text-decoration: none;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+
+		&--primary   {
+			@include type.h2;
+			color: color.foreground(100);
+			line-height: rem(22);
+		}
+
+		&--secondary {
+			@include type.h3;
+			color: color.foreground(200);
+			line-height: rem(20);
+		}
+
+		&--tertiary {
+			@include type.h4;
+			color: color.foreground(200);
+			font: {
+				size: rem(14);
+				weight: 500;
+			}
+			line-height: rem(20);
+			text-transform: none;
+			letter-spacing: normal;
+		}
+
+
+		&__content {
+			position: relative;
+		}
+
+		&:hover {
+			color: color.foreground(100);
+		}
+
+		&.active {
+			color: color.accent(800);
+			// margin-left: -16px;
+			// padding-left: 16px;
+
+			// &::before {
+			// 	content: "";
+			// 	position: absolute;
+			// 	top: 4px;
+			// 	right: 0;
+			// 	bottom: 4px;
+			// 	left: 0;
+			// 	// left: calc(var(--depth) * -16px);
+			// 	background: color.background(100);
+			// 	// border-left: 2px solid color.accent(700);
+			// }
+		}
+	}
+}
+
+.children {
+	overflow: hidden;
+	margin-left: -1px;
+
+	&--expandable {
+		border-left: 2px solid color.background(500);
 	}
 }

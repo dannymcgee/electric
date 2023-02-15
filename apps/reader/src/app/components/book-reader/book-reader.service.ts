@@ -34,10 +34,14 @@ export class BookReaderService implements OnDestroy {
 		const tocContents = await fs.readTextFile(tocPath);
 		const tocDoc = this._parser.parseFromString(tocContents, "text/xml");
 
-		const navPoints = await Promise.all(
+		let navPoints = await Promise.all(
 			Array.from(tocDoc.querySelectorAll("navMap > navPoint"))
 				.map(el => this.parseNavPoint(el, book.packageDir))
 		);
+
+		if (navPoints.length === 1 && navPoints[0].children.length > 10)
+			navPoints = navPoints[0].children;
+
 		this._navPoints$.next(navPoints);
 
 		const sections = (await Promise.all(
