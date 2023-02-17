@@ -53,6 +53,9 @@ export interface PluginContext<U = any> {
 
 	/** Returns the original, unmodified version of the given node. */
 	original(node: ts.Node): ts.Node
+
+	/** Get the type of the provided node if available. */
+	getType(node: ts.Node): ts.Type | null
 }
 
 // NOTE: Zero-width whitespace characters (U+200B) are placed before and after

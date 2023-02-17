@@ -1,7 +1,8 @@
 import match from "@electric/match"
 import * as ts from "typescript"
 
-import { Plugin, PluginContextImpl } from "./internal/plugin"
+import { PluginContextImpl } from "./internal/context";
+import { Plugin } from "./internal/plugin"
 import * as types from "./types" // For JSDoc links
 import { PluginConfig, Traversal } from "./types"
 
