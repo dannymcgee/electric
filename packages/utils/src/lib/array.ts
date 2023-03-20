@@ -1,6 +1,6 @@
 import { assertType } from "./assert";
 import { keys } from "./object";
-import { Fn, Predicate } from "./types";
+import { Fn, Predicate, TypePredicate } from "./types";
 
 type Collection<T> = T extends Element ? HTMLCollectionOf<T>
 	: Iterable<T> | ArrayLike<T>;
@@ -17,6 +17,9 @@ export function array<T>(collection: Collection<T>): T[] {
 export function last<T>(array: T[]): T {
 	return array[array.length - 1];
 }
+
+export function partition<T, U extends T>(predicate: TypePredicate<T, U>): Fn<[Iterable<T>], [U[], T[]]>;
+export function partition<T>(predicate: Predicate<T>): Fn<[Iterable<T>], [T[], T[]]>;
 
 export function partition<T>(predicate: Predicate<T>) {
 	return (collection: Iterable<T>): [T[], T[]] => {
