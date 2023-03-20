@@ -16,13 +16,15 @@ import { KeybindRegistry } from "./keybind-registry.service";
 })
 export class KeybindDirective implements OnDestroy {
 	@Input()
-	@HostBinding("ariaKeyShortcuts")
 	get keybind() { return this._keybind; }
 	set keybind(value) {
 		this.registerKeybind(value);
 		this._keybind = value;
 	}
 	private _keybind!: string;
+
+	@HostBinding("ariaKeyShortcuts")
+	get _ariaKeyShortcuts() { return this.normalize(this._keybind) || null; }
 
 	@Output() keyShortcut = new EventEmitter<KeyboardEvent>();
 
