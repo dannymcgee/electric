@@ -13,12 +13,13 @@ import {
 import { IconModule } from "@electric/components/icon";
 import { MenuModule } from "@electric/components/menu";
 import { ResizeHandleModule } from "@electric/components/resize-handle";
-import { PlatformModule } from "@electric/platform";
 import {
 	ThemeModule,
 	DEFAULT_THEME,
 	ThemeService,
 } from "@electric/components/theme";
+import { A11yModule } from "@electric/ng-utils";
+import { PlatformModule } from "@electric/platform";
 import { ICONS } from "@electric/style";
 
 import { ENV_PLATFORM } from "../environments/env-platform";
@@ -33,6 +34,7 @@ import { NavComponent } from './nav/nav.component';
 		BrowserAnimationsModule,
 		FormsModule,
 		// Electric modules
+		A11yModule,
 		AppShellModule,
 		ButtonModule,
 		GraphModule.withLibrary({
