@@ -1,24 +1,9 @@
 import { ElementRef } from "@angular/core";
 import { fromEvent, Observable } from "rxjs";
 import { filter } from "rxjs/operators";
-import { Predicate } from "./types";
 
-export enum ModifierKey {
-	Alt = "Alt",
-	AltGraph = "AltGraph",
-	CapsLock = "CapsLock",
-	Control = "Control",
-	Fn = "Fn",
-	FnLock = "FnLock",
-	Hyper = "Hyper",
-	Meta = "Meta",
-	NumLock = "NumLock",
-	ScrollLock = "ScrollLock",
-	Shift = "Shift",
-	Super = "Super",
-	Symbol = "Symbol",
-	SymbolLock = "SymbolLock",
-}
+import { ModifierKey, MODIFIER_KEYS_NOLOCKS } from "./keys";
+import { Predicate } from "./types";
 
 export function fromKeydown(
 	eventTarget: ElementRef<Element> | Element | Document | Window,
@@ -40,8 +25,11 @@ export function fromKeydown(
 	}
 
 	if (modifiers) {
+		const excludedModifiers = MODIFIER_KEYS_NOLOCKS.filter(mod => !modifiers.includes(mod));
+
 		keydown$ = keydown$.pipe(
-			filter(evt => modifiers.every(mod => evt.getModifierState(mod))),
+			filter(evt => modifiers.every(included => evt.getModifierState(included))),
+			filter(evt => !excludedModifiers.some(excluded => evt.getModifierState(excluded))),
 		);
 	}
 
