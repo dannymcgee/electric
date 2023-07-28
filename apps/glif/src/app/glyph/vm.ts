@@ -1,5 +1,6 @@
-import { Directive, Input } from "@angular/core";
-import { Fn } from "@electric/utils";
+import { Directive, ElementRef, HostBinding, Input } from "@angular/core";
+import * as d3 from "d3";
+import { Font } from "../font";
 
 enum OpCode {
 	endchar          = 0x0E,
@@ -38,14 +39,39 @@ type CommandList = {
 	[K in CommandKey]: (...args: number[]) => void;
 }
 
+type Point = [number, number]
+
 @Directive({
 	selector: "[gInterpreter]",
 })
 export class Interpreter implements CommandList {
-	@Input() name!: string;
+	@Input() name?: string;
+	@Input() width?: number;
+	@Input() lsb?: number;
+
+	@Input() font!: Font;
+
+	@HostBinding("attr.viewBox")
+	get viewBox(): string {
+		if (!this.font.cffTable?.cffFont.fontBBox)
+			return "0 0 1000 1000";
+
+		const bboxString = this.font.cffTable?.cffFont.fontBBox;
+		const match = bboxString.match(/^([-.0-9]+) ([-.0-9]+) ([-.0-9]+) ([-.0-9]+)$/);
+		if (match) {
+			const [, x, y, w, h] = match;
+			return `${x} ${y} ${w} ${parseFloat(h) * 1.333333}`;
+		}
+
+		return "0 0 1000 1000";
+	}
 
 	@Input("gInterpreter")
-	set routine(value: string) {
+	set routine(value: string | undefined) {
+		this._currentPoint = [0, 0];
+
+		if (!value) return;
+
 		this.stack = value
 			.split(/\s+/)
 			.map(token => {
@@ -63,12 +89,23 @@ export class Interpreter implements CommandList {
 			.filter(Boolean)
 			.reverse() as Array<Value | OpCode>;
 
-		console.log(this.name, this.stack);
 		this.eval(this.stack.slice());
 	}
 
 	stack: Array<Value | OpCode> = [];
 
+	private _currentPoint: Point = [0, 0];
+	private _path?: d3.Path;
+
+	private get _svg() { return this._svgRef.nativeElement; }
+
+	constructor (private _svgRef: ElementRef<SVGElement>) {}
+
+	/**
+	 * @see https://learn.microsoft.com/en-us/typography/opentype/spec/cff2charstr
+	 * @see https://adobe-type-tools.github.io/font-tech-notes/pdfs/T1_SPEC.pdf
+	 * @see https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf
+	 */
 	eval(stack: Array<Value | OpCode>): void {
 		let ip = stack.length - 1;
 		while (ip > 0) {
@@ -90,8 +127,15 @@ export class Interpreter implements CommandList {
 
 			stack = stack.slice(0, ip);
 
+			if (cmd.length && args.length > cmd.length)
+				console.warn(
+					`Operator "${cmd.name}" expects ${cmd.length} arguments, `
+					+ `but ${args.length} were provided!`
+				);
+
 			console.log(`${cmd.name}(${args.join(", ")})`);
-			// cmd.call(this, ...args);
+
+			cmd.call(this, ...args);
 		}
 	}
 
@@ -109,7 +153,9 @@ export class Interpreter implements CommandList {
 	 * only one path (possibly containing several subpaths) that can be created
 	 * to be filled or stroked by the endchar command.
 	 */
-	endchar(): void {}
+	endchar(): void {
+		this.closepath();
+	}
 
 	/**
 	 * sets the left sidebearing point at (sbx, 0) and sets the character width
@@ -183,65 +229,373 @@ export class Interpreter implements CommandList {
 	 * may cause a “spike” or “hangnail” (if the subpath doubles back onto
 	 * itself) with unexpected results.
 	 */
-	closepath(): void {}
+	closepath(): void {
+		if (!this._path)
+			return;
+
+		this._path.closePath();
+
+		const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+		svgPath.setAttribute("d", this._path.toString());
+		this._svg.appendChild(svgPath);
+
+		this._path = undefined;
+	}
 
 	/**
-	 * for horizontal lineto. Equivalent to dx 0 rlineto.
+	 * Appends a horizontal line of length `dx` to the current point. Equivalent
+	 * to:
+	 *
+	 * ```cff2
+	 * dx 0 rlineto
+	 * ```
 	 */
-	hlineto(dx: number): void {}
+	hlineto(dx: number): void;
 
 	/**
-	 * for horizontal moveto. Equivalent to dx 0 rmoveto.
+	 * Appends a horizontal line of length `dx1` to the current point. Subsequent
+	 * argument pairs are interpreted as alternating values of `dy` and `dx`, for
+	 * which additional `lineto` operators draw alternating vertical and
+	 * horizontal lines.
 	 */
-	hmoveto(dx: number): void {}
+	hlineto(dx1: number, ...dya_dxb: number[]): void
 
 	/**
-	 * for horizontal-vertical curveto. Equivalent to dx1 0 dx2 dy2 0 dy3
-	 * rrcurveto. This command eliminates two arguments from an rrcurveto call
+	 * Appends a horizontal line of length `dx1` to the current point. Remaining
+	 * arguments are interpreted as alternating vertical and horizontal lines.
+	 */
+	hlineto(...dxa_dyb: number[]): void;
+
+	hlineto(...args: number[]): void {
+		if (args.length === 1) {
+			const [dx] = args;
+			return this.rlineto(dx, 0);
+		}
+
+		for (let i = 0; i < args.length; i += 2) {
+			const dx = args[i], dy = args[i+1];
+
+			this.rlineto(dx, 0);
+
+			if (dy != null)
+				this.rlineto(0, dy);
+		}
+	}
+
+	/**
+	 * for horizontal moveto. Equivalent to:
+	 *
+	 * ```cff2
+	 * dx 0 rmoveto
+	 * ```
+	 */
+	hmoveto(dx: number): void {
+		this.rmoveto(dx, 0);
+	}
+
+	/**
+	 * for horizontal-vertical curveto. Equivalent to:
+	 *
+	 * ```cff2
+	 * dx1 0 dx2 dy2 0 dy3 rrcurveto
+	 * ```
+	 *
+	 * This command eliminates two arguments from an rrcurveto call
 	 * when the first Bézier tangent is horizontal and the second Bézier tangent
 	 * is vertical.
 	 */
-	hvcurveto(dx1: number, dx2: number, dy2: number, dy3: number): void {}
+	hvcurveto(dx1: number, dx2: number, dy2: number, dy3: number): void;
 
 	/**
-	 * behaves like rlineto in the PostScript language.
+	 * Appends one or more Bézier curves to the current point. The tangent for
+	 * the first Bézier must be horizontal, and the second must be vertical
+	 * (except as noted below).
+	 *
+	 * If there is a multiple of four arguments, the curve starts horizontal and
+	 * ends vertical. Note that the curves alternate between start horizontal,
+	 * end vertical, and start vertical, and end horizontal. The last curve (the
+	 * odd argument case) need not end horizontal/vertical.
 	 */
-	rlineto(dx: number, dy: number): void {}
+	hvcurveto(
+		dx1: number, dx2: number, dy2: number, dy3: number,
+		...dya_dxb_dyb_dxc__dxd_dxe_dye_dyf__dxf: number[]
+	): void;
+
+	hvcurveto(...args: number[]): void {
+		if (args.length % 4 === 0) {
+			for (let i = 0; i*4 < args.length; ++i) {
+				if (i % 2 === 0) {
+					const [dx1, dx2, dy2, dy3] = args.slice(i*4, i*4+4);
+					console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
+					this.rrcurveto(dx1, 0, dx2, dy2, 0, dy3);
+				}
+				else {
+					const [dy1, dx2, dy2, dx3] = args.slice(i*4, i*4+4);
+					console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
+					this.rrcurveto(0, dy1, dx2, dy2, dx3, 0);
+				}
+			}
+		} else {
+			console.warn(
+				`hvcurveto currently only supports args in multiples of 4, received ${args.length}`
+			);
+		}
+	}
 
 	/**
-	 * behaves like rmoveto in the PostScript language.
+    * (relative `lineto`) appends a straight line segment to the current path
+    * (see Section 4.4, "Path Construction"), starting from the current point
+    * and extending `dx` user space units horizontally and `dy` units
+    * vertically. That is, the operands `dx` and `dy` are interpreted as
+    * relative displacements from the current point rather than as absolute
+    * coordinates. In all other respects, the behavior of `rlineto` is identical
+    * to that of `lineto`.
+	 *
+	 * If the current point is undefined because the current path is empty, a
+    * `nocurrentpoint` error occurs.
 	 */
-	rmoveto(dx: number, dy: number): void {}
+	rlineto(dx: number, dy: number): void;
+
+	/**
+	 * Appends a line from the current point to a position at the relative
+	 * coordinates `dx`, `dy`. Additional `rlineto` operations are performed for
+	 * all subsequent argument pairs. The number of lines is determined from the
+	 * number of arguments on the stack.
+	 */
+	rlineto(...dx_dy: number[]): void;
+
+	rlineto(...args: number[]): void {
+		if (args.length % 2)
+			throw new Error(`Expected args.length to be divisible by two, but received ${args.length}`);
+
+		for (let i = 0; i < args.length; i += 2) {
+			const [x0, y0] = this._currentPoint;
+
+			let [dx, dy] = args.slice(i, i+2);
+			const x1 = x0+dx, y1 = y0+dy;
+
+			this.lineto(x1, y1);
+		}
+	}
+
+	/**
+	 * appends a straight line segment to the current path (see Section 4.4,
+	 * "Path Construction"), starting from the current point and extending to the
+	 * coordinates (x,y) in user space. The endpoint (x,y) becomes the new
+	 * current point.
+	 *
+	 * If the current point is undefined because the current path is empty, a
+	 * `nocurrentpoint` error occurs.
+	 */
+	lineto(x: number, y: number): void {
+		if (!this._path)
+			throw new Error("nocurrentpoint");
+
+		this._path.lineTo(x, y);
+		this._currentPoint = [x, y];
+	}
+
+	/**
+	 * (relative `moveto`) starts a new subpath of the current path (see Section
+	 * 4.4, "Path Construction") by displacing the coordinates of the current
+	 * point `dx` user space units horizontally and `dy` units vertically,
+	 * without connecting it to the previous current point. That is, the operands
+	 * `dx` and `dy` are interpreted as relative displacements from the current
+	 * point rather than as absolute coordinates. In all other respects, the
+	 * behavior of rmoveto is identical to that of moveto.
+	 *
+	 * If the current point is undefined because the current path is empty, a
+	 * `nocurrentpoint` error occurs.
+	 */
+	rmoveto(dx: number, dy: number): void {
+		const [x0, y0] = this._currentPoint;
+		const x1 = x0+dx, y1 = y0+dy;
+
+		this.moveto(x1, y1);
+	}
+
+	/**
+	 * starts a new subpath of the current path (see Section 4.4, "Path
+	 * Construction") by setting the current point in the graphics state to the
+	 * coordinates (x, y) in user space. No new line segments are added to the
+	 * current path.
+	 *
+	 * If the previous path operation in the current path was `moveto` or
+	 * `rmoveto`, that point is deleted from the current path and the new
+	 * `moveto` point replaces it.
+	 */
+	moveto(x: number, y: number): void {
+		if (!this._path)
+			this._path = d3.path();
+
+		this._path.moveTo(x, y);
+		this._currentPoint = [x, y];
+	}
 
 	/**
 	 * for relative rcurveto. Whereas the arguments to the rcurveto operator in
 	 * the PostScript language are all relative to the current point, the
-	 * arguments to rrcurveto are relative to each other. Equivalent to dx1 dy1
-	 * (dx1+dx2) (dy1+dy2) (dx1+dx2+dx3) (dy1+ dy2+dy3) rcurveto.
+	 * arguments to rrcurveto are relative to each other. Equivalent to:
+	 *
+	 * ```cff2
+	 * dx1 dy1 (dx1+dx2) (dy1+dy2) (dx1+dx2+dx3) (dy1+dy2+dy3) rcurveto
+	 * ```
 	 */
 	rrcurveto(
 		dx1: number, dy1: number,
 		dx2: number, dy2: number,
 		dx3: number, dy3: number,
-	): void {}
+	): void;
 
 	/**
-	 * for vertical-horizontal curveto. Equivalent to 0 dy1 dx2 dy2 dx3 0
-	 * rrcurveto. This command eliminates two arguments from an rrcurveto call
+	 * Appends a Bezier curve to the current point. For each subsequent set of
+	 * six arguments, an additional curve is appended to the current point.
+	 */
+	rrcurveto(...dx1_dy1_dx2_dy2_dx2_dy3: number[]): void;
+
+	rrcurveto(...args: number[]): void {
+		if (args.length % 6)
+			throw new Error(`Expected args.length to be divisible by six, but received ${args.length}`);
+
+		for (let i = 0; i < args.length; i += 6) {
+			const [dx1, dy1, dx2, dy2, dx3, dy3] = args.slice(i, i+6);
+			this.rcurveto(dx1, dy1, (dx1+dx2), (dy1+dy2), (dx1+dx2+dx3), (dy1+dy2+dy3));
+		}
+	}
+
+	/**
+	 * (relative curveto) adds a Bezier cubic section to the current path in the
+	 * same manner as `curveto`. However, the three number pairs are interpreted as
+	 * displacements relative to the current point (x0, y0) rather than as
+	 * absolute coordinates. That is, rcurveto constructs a curve from (x0, y0)
+	 * to (x0+dx3, y0+dy3), using (x0+dx1, y0+dy1) and (x0+dx2, y0+dy2) as Bezier
+	 * control points. See the description of `curveto` for complete information.
+	 */
+	rcurveto(
+		dx1: number, dy1: number,
+		dx2: number, dy2: number,
+		dx3: number, dy3: number,
+	): void {
+		const [x0, y0] = this._currentPoint;
+
+		const x1 = x0+dx1, y1 = y0+dy1;
+		const x2 = x0+dx2, y2 = y0+dy2;
+		const x3 = x0+dx3, y3 = y0+dy3;
+
+		this.curveto(x1, y1, x2, y2, x3, y3);
+	}
+
+	/**
+	 * appends a section of a cubic Bézier curve to the current path between the
+	 * current point (x0,y0) and the endpoint (x3,y3), using (x1,y1) and (x2,y2)
+	 * as the Bézier control points. The endpoint (x3,y3) becomes the new current
+	 * point. If the current point is undefined because the current path is
+	 * empty, a `nocurrentpoint` error occurs.
+	 */
+	curveto(
+		x1: number, y1: number,
+		x2: number, y2: number,
+		x3: number, y3: number,
+	): void {
+		if (!this._path)
+			throw new Error("nocurrentpoint");
+
+		this._path.bezierCurveTo(x1, y1, x2, y2, x3, y3);
+		this._currentPoint = [x3, y3];
+	}
+
+	/**
+	 * for vertical-horizontal curveto. Equivalent to:
+	 *
+	 * ```cff2
+	 * 0 dy1 dx2 dy2 dx3 0 rrcurveto
+	 * ```
+	 *
+	 * This command eliminates two arguments from an rrcurveto call
 	 * when the first Bézier tangent is vertical and the second Bézier tangent is
 	 * horizontal.
 	 */
-	vhcurveto(dy1: number, dx2: number, dy2: number, dx3: number): void {}
+	vhcurveto(dy1: number, dx2: number, dy2: number, dx3: number): void;
 
 	/**
-	 * for vertical lineto. Equivalent to 0 dy rlineto.
+	 * Appends one or more Bézier curves to the current point, where the first
+	 * tangent is vertical and the second tangent is horizontal. This command is
+	 * the complement of hvcurveto; see the description of hvcurveto for more
+	 * information.
 	 */
-	vlineto(dy: number): void {}
+	vhcurveto(
+		dy1: number, dx2: number, dy2: number, dx3: number,
+		...rest: number[]
+	): void;
+
+	vhcurveto(...args: number[]): void {
+		if (args.length % 4 === 0) {
+			for (let i = 0; i*4 < args.length; ++i) {
+				if (i % 2 === 0) {
+					const [dy1, dx2, dy2, dx3] = args.slice(i*4, i*4+4);
+					console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
+					this.rrcurveto(0, dy1, dx2, dy2, dx3, 0);
+				}
+				else {
+					const [dx1, dx2, dy2, dy3] = args.slice(i*4, i*4+4);
+					console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
+					this.rrcurveto(dx1, 0, dx2, dy2, 0, dy3);
+
+				}
+			}
+		} else {
+			`vhcurveto currently only supports args in multiples of 4, received ${args.length}`
+		}
+	}
 
 	/**
-	 * for vertical moveto. This is equivalent to 0 dy rmoveto.
+	 * for vertical `lineto`. Equivalent to:
+	 *
+	 * ```cff2
+	 * 0 dy rlineto
+	 * ```
 	 */
-	vmoveto(dy: number): void {}
+	vlineto(dy: number): void;
+
+	/**
+	 * Appends a vertical line of length `dy1` to the current point. Subsequent
+	 * argument pairs are interpreted as alternating values of `dx` and `dy`, for
+	 * which additional `lineto` operators draw alternating horizontal and
+	 * vertical lines.
+	 */
+	vlineto(dy1: number, ...dxa_dyb: number[]): void;
+
+	/**
+	 * Arguments are interpreted as alternating vertical and horizontal lines.
+	 */
+	vlineto(...dya_dxb: number[]): void;
+
+	vlineto(...args: number[]): void {
+		if (args.length === 1) {
+			const [dy] = args;
+			return this.rlineto(0, dy);
+		}
+
+		for (let i = 0; i < args.length; i += 2) {
+			const dy = args[i], dx = args[i+1];
+
+			this.rlineto(0, dy);
+
+			if (dx != null)
+				this.rlineto(dx, 0);
+		}
+	}
+
+	/**
+	 * for vertical `moveto`. This is equivalent to:
+	 *
+	 * ```cff2
+	 * 0 dy rmoveto
+	 * ```
+	 */
+	vmoveto(dy: number): void {
+		this.rmoveto(0, dy);
+	}
 
 	/**
 	 * brackets an outline section for the dots in letters such as “i”,“ j”, and
@@ -339,7 +693,7 @@ export class Interpreter implements CommandList {
 	): void {}
 
 	/**
-	 * behaves like div in the PostScript language.
+	 * behaves like `div` in the PostScript language.
 	 */
 	div(num1: number, num2: number): void {}
 
@@ -399,4 +753,14 @@ export class Interpreter implements CommandList {
 	 * in conjunction with results from OtherSubrs procedures.
 	 */
 	setcurrentpoint(x: number, y: number): void {}
+
+	// TODO:
+	// hhcurveto
+	// rcurveline
+	// rlinecurve
+	// vvcurveto
+	// flex
+	// hflex
+	// hflex1
+	// flex1
 }

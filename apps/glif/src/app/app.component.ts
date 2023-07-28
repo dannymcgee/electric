@@ -3,7 +3,8 @@ import { SafeHtml } from "@angular/platform-browser";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 import * as dialog from "@tauri-apps/api/dialog";
 
-import { CharString, Font } from "./font";
+import { Font } from "./font";
+import { Glyph } from "./glyph";
 import { ProjectService } from "./project.service";
 
 @Component({
@@ -74,13 +75,48 @@ import { ProjectService } from "./project.service";
 				class="glyph"
 			>
 				<pre class="glyph__program"
-					[name]="glyph.name"
-					[gInterpreter]="glyph.charString.program"
-					[innerHtml]="glyph.charString.program | program"
+					[innerHtml]="glyph.program | program"
 				></pre>
-				<div class="glyph__label">{{ glyph.name }}</div>
+				<div role="button" class="glyph__label"
+					(click)="setActiveGlyph(glyph)"
+				>
+					<strong class="glyph__name">{{ glyph.name }}</strong>
+					<span *ngIf="glyph.charCode"
+						class="glyph__char-code"
+					>{{ glyph.charCode | hex }}</span>
+				</div>
 			</div>
 		</div>
+
+		<elx-dialog class="active-glyph__dialog"
+			#activeGlyphDialog
+			*elxDialogTrigger="activeGlyph"
+			blocking
+			(close)="setActiveGlyph(undefined)"
+		>
+			<elx-dialog-heading>
+				{{ activeGlyph?.name ?? "" }}
+			</elx-dialog-heading>
+			<svg class="active-glyph__svg"
+				[gInterpreter]="activeGlyph?.program"
+				[name]="activeGlyph?.name"
+				[width]="activeGlyph?.width"
+				[lsb]="activeGlyph?.lsb"
+				[font]="font!"
+			></svg>
+			<elx-dialog-footer>
+				<button elx-btn
+					(click)="activeGlyphDialog.close()"
+				>
+					Cancel
+				</button>
+				<button elx-btn="primary"
+					(click)="activeGlyphDialog.close()"
+				>
+					Save
+				</button>
+			</elx-dialog-footer>
+		</elx-dialog>
 
 		<ng-template #getStarted>
 			<button elx-btn="primary"
@@ -100,7 +136,10 @@ export class AppComponent {
 	get maximized() { return this._win.maximized }
 	set maximized(_) { this._win.toggleMaximized() }
 
-	glyphs: Array<{ name: string, charString: CharString }> = [];
+	glyphs: readonly Glyph[] = [];
+	activeGlyph?: Glyph;
+
+	font?: Font;
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
@@ -135,25 +174,25 @@ export class AppComponent {
 				for (let font of fonts)
 					console.log(font);
 
-				this.glyphs = fonts.flatMap(font =>
-					font.cffTable?.cffFont.charStrings
-						? Array
-							.from(font.cffTable.cffFont.charStrings.entries())
-							.map(([name, charString]) => ({ name, charString }))
-						: []
-				);
+				this.glyphs = fonts.flatMap(font => font.glyphs);
+				console.log("glyphs:", this.glyphs);
+
+				if (fonts.length === 1)
+					this.font = fonts[0];
+				else if (fonts.length)
+					console.warn("WARNING: Multiple fonts loaded!");
+
+				this._cdRef.detectChanges();
 			}
 			else {
 				const font = await Font.fromFile(result);
 				console.log(font);
 
-				this.glyphs = font.cffTable?.cffFont.charStrings
-					? Array
-						.from(font.cffTable.cffFont.charStrings.entries())
-						.map(([name, charString]) => ({ name, charString }))
-					: [];
-
+				this.glyphs = font.glyphs;
 				console.log("glyphs:", this.glyphs);
+
+				this.font = font;
+
 				this._cdRef.detectChanges();
 			}
 		}
@@ -161,11 +200,18 @@ export class AppComponent {
 			console.error(err);
 		}
 	}
+
+	setActiveGlyph(glyph?: Glyph): void {
+		this.activeGlyph = glyph;
+		this._cdRef.markForCheck();
+	}
 }
 
 @Pipe({ name: "program" })
 export class CffProgramPipe implements PipeTransform {
-	transform(value: string): SafeHtml {
+	transform(value: string | undefined): SafeHtml {
+		if (!value) return "";
+
 		return value
 			.split("\n")
 			.map(line => line.trim())
@@ -180,5 +226,18 @@ export class CffProgramPipe implements PipeTransform {
 				.join(" ")
 			)
 			.join("\n");
+	}
+}
+
+@Pipe({ name: "hex" })
+export class HexPipe implements PipeTransform {
+	transform(value: number | undefined): string {
+		if (value == null) return "";
+
+		let result = value.toString(16).toUpperCase();
+		while (result.length % 2)
+			result = "0" + result;
+
+		return `0x${result}`;
 	}
 }

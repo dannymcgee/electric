@@ -1,4 +1,5 @@
 @use "elx/a11y" as *;
+@use "elx/anim";
 @use "elx/layout";
 @use "elx/style/color";
 @use "elx/style/scrollbar" as *;
@@ -62,9 +63,74 @@
 	}
 
 	&__label {
-		@include layout.flex($a:center, $j:center);
-		padding: 8px 4px;
+		@include layout.flex($a:baseline, $j:center);
+		gap: 1ch;
+		padding: 0 8px;
+		height: rem(32);
 		background: color.background(500);
+		font-size: rem(16);
+		line-height: 2;
+		cursor: pointer;
+		@include anim.transition((background, color, box-shadow));
+		outline: none !important;
+
+		&:hover {
+			background: color.background(700);
+		}
+
+		&:active {
+			background: color.background(600);
+		}
+
+		&:focus-visible {
+			box-shadow: 0 0 0 4px color.accent(600);
+			color: color.white();
+		}
+	}
+
+	&__name,
+	&__char-code {
+		transform: translateY(-0.1rem);
+	}
+
+	&__name {
 		font-weight: 700;
+	}
+
+	&__char-code {
+		color: color.foreground(300);
+		font: {
+			family: monospace;
+			weight: 400;
+		}
+	}
+}
+
+.active-glyph {
+	&__dialog {
+		width: calc(100vw - 64px);
+		height: calc(100vh - 64px);
+
+		::ng-deep {
+			.elx-dialog-main {
+				@include layout.flex(column);
+				flex: 1 0 0;
+			}
+
+			.elx-dialog-body {
+				@include layout.flex(column, $a:center);
+				position: relative;
+				flex: 1 0 0;
+			}
+		}
+	}
+
+	&__svg {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		height: 100%;
+		transform: scale(1, -1);
+		fill: color.foreground();
 	}
 }

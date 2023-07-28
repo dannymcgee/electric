@@ -259,6 +259,22 @@ export enum FsSelectionFlags {
 	RESERVED          = 0b1111_1100_0000_0000,
 }
 
+@Xml("GlyphOrder")
+export class GlyphOrderTable extends XmlElement {
+	readonly glyphIds: GlyphId[];
+
+	constructor (dom: Element) {
+		super(dom);
+		this.glyphIds = this._children.filter(instanceOf(GlyphId));
+	}
+}
+
+@Xml("GlyphID")
+export class GlyphId extends XmlElement {
+	@attr(int) id!: number;
+	@attr(str) name!: string;
+}
+
 /**
  * This table gives global information about the font. The bounding box values
  * should be computed using only glyphs that have contours. Glyphs with no
