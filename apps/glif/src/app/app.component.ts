@@ -2,10 +2,9 @@ import { ChangeDetectorRef, Component, Inject, Pipe, PipeTransform } from "@angu
 import { SafeHtml } from "@angular/platform-browser";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 import * as dialog from "@tauri-apps/api/dialog";
-import * as d3 from "d3";
 
 import { Font, NameID } from "./font";
-import { Glyph, Interpreter } from "./glyph";
+import { Glyph } from "./glyph";
 import { ProjectService } from "./project.service";
 
 @Component({
@@ -82,7 +81,6 @@ import { ProjectService } from "./project.service";
 				<svg class="glyph__svg"
 					*elxUnwrap="(font | svgViewBox : glyph) as viewBox"
 					[attr.viewBox]="viewBox"
-					preserveAspectRatio="xMidyMid meet"
 					fill="currentColor"
 				>
 					<g class="glyph__metrics">
@@ -115,7 +113,7 @@ import { ProjectService } from "./project.service";
 							x2="10000" [attr.y2]="font?.os_2?.sTypoDescender"
 						/>
 					</g>
-					<path [attr.d]="glyph.program | svg : viewBox" />
+					<path [attr.d]="glyph | svg" />
 				</svg>
 				<div role="button" class="glyph__label"
 					(click)="setActiveGlyph(glyph)"
@@ -171,7 +169,57 @@ import { ProjectService } from "./project.service";
 						x2="10000" [attr.y2]="font?.os_2?.sTypoDescender"
 					/>
 				</g>
-				<path [attr.d]="activeGlyph?.program | svg : viewBox" />
+				<path class="active-glyph__path"
+					[attr.d]="activeGlyph | svg"
+				/>
+				<g class="active-glyph__points">
+					<ng-container *ngFor="let c of activeGlyph?.path?.contours">
+						<ng-container
+							*ngFor="let p of c.points
+								let isLast = last"
+						>
+							<line class="active-glyph__path"
+								*ngIf="isLast && c.closed && (
+									p.x !== c.points[0].x || p.y !== c.points[0].y
+								)"
+								[attr.x1]="p.x"
+								[attr.y1]="p.y"
+								[attr.x2]="c.points[0].x"
+								[attr.y2]="c.points[0].y"
+							/>
+
+							<ng-container *ngIf="p.handle_in as handle">
+								<line class="active-glyph__handle active-glyph__handle--line"
+									[attr.x1]="p.x" [attr.y1]="p.y"
+									[attr.x2]="handle.x" [attr.y2]="handle.y"
+								/>
+								<circle class="active-glyph__handle"
+									[attr.cx]="handle.x"
+									[attr.cy]="handle.y"
+									r="5"
+								/>
+							</ng-container>
+							<ng-container *ngIf="p.handle_out as handle">
+								<line class="active-glyph__handle active-glyph__handle--line"
+									[attr.x1]="p.x" [attr.y1]="p.y"
+									[attr.x2]="handle.x" [attr.y2]="handle.y"
+								/>
+								<circle class="active-glyph__handle"
+									[attr.cx]="handle.x"
+									[attr.cy]="handle.y"
+									r="5"
+								/>
+							</ng-container>
+
+							<rect class="active-glyph__point"
+								[attr.x]="p.x - 5"
+								[attr.y]="p.y - 5"
+								width="10"
+								height="10"
+							/>
+						</ng-container>
+					</ng-container>
+				</g>
 			</svg>
 			<elx-dialog-footer>
 				<button elx-btn
@@ -276,6 +324,7 @@ export class AppComponent {
 
 	setActiveGlyph(glyph?: Glyph): void {
 		this.activeGlyph = glyph;
+		console.log("active glyph:", glyph);
 		this._cdRef.markForCheck();
 	}
 }
@@ -317,16 +366,9 @@ export class HexPipe implements PipeTransform {
 
 @Pipe({ name: "svg" })
 export class GlyphToSvgPipe implements PipeTransform {
-	transform(program: string | undefined, viewBox: string | undefined) {
-		if (!program || !viewBox) return;
-
-		const vm = new Interpreter(program);
-		vm.exec();
-
-		const d3Path = d3.path();
-		vm.path.replay(d3Path);
-
-		return d3Path.toString();
+	transform(glyph: Glyph | undefined) {
+		if (!glyph) return "";
+		return glyph.toString();
 	}
 }
 

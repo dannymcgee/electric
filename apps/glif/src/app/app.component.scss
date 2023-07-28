@@ -58,11 +58,6 @@
 		color: color.foreground();
 		flex: 1 0 0;
 		transform: scale(1, -1);
-
-		// ::ng-deep {
-		// 	.numeric { color: color.accent(700) }
-		// 	.instr   { color: color.primary(800) }
-		// }
 	}
 
 	&__metrics {
@@ -148,7 +143,25 @@
 	&__svg {
 		flex: 1 0 0;
 		transform: scale(1, -1);
-		fill: color.foreground();
+	}
+
+	&__path {
+		stroke: color.foreground();
+		stroke-width: 2px;
+		fill: none;
+	}
+
+	&__point {
+		fill: #FF80FF;
+	}
+
+	&__handle {
+		fill: color.accent(700);
+
+		&--line {
+			stroke: color.accent(700, 0.5);
+			stroke-width: 2px;
+		}
 	}
 
 	&__metrics {
