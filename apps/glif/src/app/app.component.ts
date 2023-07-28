@@ -2,9 +2,10 @@ import { ChangeDetectorRef, Component, Inject, Pipe, PipeTransform } from "@angu
 import { SafeHtml } from "@angular/platform-browser";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 import * as dialog from "@tauri-apps/api/dialog";
+import * as d3 from "d3";
 
 import { Font } from "./font";
-import { Glyph } from "./glyph";
+import { Glyph, Interpreter } from "./glyph";
 import { ProjectService } from "./project.service";
 
 @Component({
@@ -74,9 +75,44 @@ import { ProjectService } from "./project.service";
 			<div *ngFor="let glyph of glyphs"
 				class="glyph"
 			>
-				<pre class="glyph__program"
-					[innerHtml]="glyph.program | program"
-				></pre>
+				<svg class="glyph__svg"
+					*elxUnwrap="(font | svgViewBox : glyph) as viewBox"
+					[attr.viewBox]="viewBox"
+					preserveAspectRatio="xMidyMid meet"
+					fill="currentColor"
+				>
+					<g class="glyph__metrics">
+						<line class="glyph__baseline"
+							x1="-10000" y1="0"
+							x2="10000" y2="0"
+						/>
+						<line class="glyph__left"
+							x1="0" y1="-10000"
+							x2="0" y2="10000"
+						/>
+						<line class="glyph__right"
+							[attr.x1]="glyph.width" y1="-10000"
+							[attr.x2]="glyph.width" y2="10000"
+						/>
+						<line class="glyph__xheight"
+							x1="-10000" [attr.y1]="font?.os_2?.sxHeight"
+							x2="10000" [attr.y2]="font?.os_2?.sxHeight"
+						/>
+						<line class="glyph__cap"
+							x1="-10000" [attr.y1]="font?.os_2?.sCapHeight"
+							x2="10000" [attr.y2]="font?.os_2?.sCapHeight"
+						/>
+						<line class="glyph__asc"
+							x1="-10000" [attr.y1]="font?.os_2?.sTypoAscender"
+							x2="10000" [attr.y2]="font?.os_2?.sTypoAscender"
+						/>
+						<line class="glyph__dsc"
+							x1="-10000" [attr.y1]="font?.os_2?.sTypoDescender"
+							x2="10000" [attr.y2]="font?.os_2?.sTypoDescender"
+						/>
+					</g>
+					<path [attr.d]="glyph.program | svg : viewBox" />
+				</svg>
 				<div role="button" class="glyph__label"
 					(click)="setActiveGlyph(glyph)"
 				>
@@ -98,12 +134,41 @@ import { ProjectService } from "./project.service";
 				{{ activeGlyph?.name ?? "" }}
 			</elx-dialog-heading>
 			<svg class="active-glyph__svg"
-				[gInterpreter]="activeGlyph?.program"
-				[name]="activeGlyph?.name"
-				[width]="activeGlyph?.width"
-				[lsb]="activeGlyph?.lsb"
-				[font]="font!"
-			></svg>
+				*elxUnwrap="(font | svgViewBox : activeGlyph) as viewBox"
+				[attr.viewBox]="viewBox"
+			>
+				<g class="glyph__metrics active-glyph__metrics">
+					<line class="glyph__baseline active-glyph__baseline"
+						x1="-10000" y1="0"
+						x2="10000" y2="0"
+					/>
+					<line class="glyph__left active-glyph__left"
+						x1="0" y1="-10000"
+						x2="0" y2="10000"
+					/>
+					<line class="glyph__right active-glyph__right"
+						[attr.x1]="activeGlyph?.width" y1="-10000"
+						[attr.x2]="activeGlyph?.width" y2="10000"
+					/>
+					<line class="glyph__xheight active-glyph__xheight"
+						x1="-10000" [attr.y1]="font?.os_2?.sxHeight"
+						x2="10000" [attr.y2]="font?.os_2?.sxHeight"
+					/>
+					<line class="glyph__cap active-glyph__cap"
+						x1="-10000" [attr.y1]="font?.os_2?.sCapHeight"
+						x2="10000" [attr.y2]="font?.os_2?.sCapHeight"
+					/>
+					<line class="glyph__asc active-glyph__asc"
+						x1="-10000" [attr.y1]="font?.os_2?.sTypoAscender"
+						x2="10000" [attr.y2]="font?.os_2?.sTypoAscender"
+					/>
+					<line class="glyph__dsc active-glyph__dsc"
+						x1="-10000" [attr.y1]="font?.os_2?.sTypoDescender"
+						x2="10000" [attr.y2]="font?.os_2?.sTypoDescender"
+					/>
+				</g>
+				<path [attr.d]="activeGlyph?.program | svg : viewBox" />
+			</svg>
 			<elx-dialog-footer>
 				<button elx-btn
 					(click)="activeGlyphDialog.close()"
@@ -238,6 +303,34 @@ export class HexPipe implements PipeTransform {
 		while (result.length % 2)
 			result = "0" + result;
 
-		return `0x${result}`;
+		return result;
+	}
+}
+
+@Pipe({ name: "svg" })
+export class GlyphToSvgPipe implements PipeTransform {
+	transform(program: string | undefined, viewBox: string | undefined) {
+		if (!program || !viewBox) return;
+
+		const vm = new Interpreter(program);
+		vm.exec();
+
+		const d3Path = d3.path();
+		vm.path.replay(d3Path);
+
+		return d3Path.toString();
+	}
+}
+
+@Pipe({ name: "svgViewBox" })
+export class FontToSvgViewBoxPipe implements PipeTransform {
+	transform(font?: Font, glyph?: Glyph): string {
+		if (!font?.head || !glyph) return "0 0 1000 1000";
+
+		const { xMin, yMin, yMax } = font.head;
+		const { width } = glyph;
+		const height = yMax - yMin;
+
+		return `${xMin} ${yMin} ${width} ${height}`
 	}
 }

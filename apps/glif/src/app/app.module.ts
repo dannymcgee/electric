@@ -12,12 +12,17 @@ import {
 	ThemeModule,
 	ThemeService,
 } from "@electric/components";
-import { A11yModule } from "@electric/ng-utils";
+import { A11yModule, UtilityModule } from "@electric/ng-utils";
 import { AppPlatform, PlatformModule } from "@electric/platform";
 import { ICONS } from "@electric/style";
 
-import { AppComponent, CffProgramPipe, HexPipe } from "./app.component";
-import { Interpreter } from "./glyph/vm";
+import {
+	AppComponent,
+	CffProgramPipe,
+	FontToSvgViewBoxPipe,
+	GlyphToSvgPipe,
+	HexPipe,
+} from "./app.component";
 
 @NgModule({
 	imports: [
@@ -33,12 +38,14 @@ import { Interpreter } from "./glyph/vm";
 		MenuModule,
 		PlatformModule.forPlatform(AppPlatform.Tauri),
 		ThemeModule.withTheme(DEFAULT_THEME, "dark"),
+		UtilityModule,
 	],
 	declarations: [
 		AppComponent,
 		CffProgramPipe,
+		FontToSvgViewBoxPipe,
+		GlyphToSvgPipe,
 		HexPipe,
-		Interpreter,
 	],
 	bootstrap: [
 		AppComponent,

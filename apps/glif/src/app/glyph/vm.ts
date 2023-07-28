@@ -1,6 +1,6 @@
-import { Directive, ElementRef, HostBinding, Input } from "@angular/core";
-import * as d3 from "d3";
-import { Font } from "../font";
+import { Const } from "@electric/utils";
+
+import { Path } from "./path";
 
 enum OpCode {
 	endchar          = 0x0E,
@@ -41,38 +41,21 @@ type CommandList = {
 
 type Point = [number, number]
 
-@Directive({
-	selector: "[gInterpreter]",
-})
-export class Interpreter implements CommandList {
-	@Input() name?: string;
-	@Input() width?: number;
-	@Input() lsb?: number;
+export class Interpreter {
+	private _stack: Array<Value | OpCode> = [];
+	private _program: string;
+	private _currentPoint: Point = [0, 0];
 
-	@Input() font!: Font;
+	private _path = new Path();
+	get path(): Const<Path> { return this._path; }
 
-	@HostBinding("attr.viewBox")
-	get viewBox(): string {
-		if (!this.font.cffTable?.cffFont.fontBBox)
-			return "0 0 1000 1000";
-
-		const bboxString = this.font.cffTable?.cffFont.fontBBox;
-		const match = bboxString.match(/^([-.0-9]+) ([-.0-9]+) ([-.0-9]+) ([-.0-9]+)$/);
-		if (match) {
-			const [, x, y, w, h] = match;
-			return `${x} ${y} ${w} ${parseFloat(h) * 1.333333}`;
-		}
-
-		return "0 0 1000 1000";
+	constructor (program: string) {
+		this._program = program;
 	}
 
-	@Input("gInterpreter")
-	set routine(value: string | undefined) {
+	exec(): void {
 		this._currentPoint = [0, 0];
-
-		if (!value) return;
-
-		this.stack = value
+		this._stack = this._program
 			.split(/\s+/)
 			.map(token => {
 				if (!token) return null;
@@ -89,24 +72,15 @@ export class Interpreter implements CommandList {
 			.filter(Boolean)
 			.reverse() as Array<Value | OpCode>;
 
-		this.eval(this.stack.slice());
+		this.eval(this._stack);
 	}
-
-	stack: Array<Value | OpCode> = [];
-
-	private _currentPoint: Point = [0, 0];
-	private _path?: d3.Path;
-
-	private get _svg() { return this._svgRef.nativeElement; }
-
-	constructor (private _svgRef: ElementRef<SVGElement>) {}
 
 	/**
 	 * @see https://learn.microsoft.com/en-us/typography/opentype/spec/cff2charstr
 	 * @see https://adobe-type-tools.github.io/font-tech-notes/pdfs/T1_SPEC.pdf
 	 * @see https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf
 	 */
-	eval(stack: Array<Value | OpCode>): void {
+	private eval(stack: ReadonlyArray<Value | OpCode>): void {
 		let ip = stack.length - 1;
 		while (ip > 0) {
 			while (stack[--ip] instanceof Value);
@@ -133,7 +107,7 @@ export class Interpreter implements CommandList {
 					+ `but ${args.length} were provided!`
 				);
 
-			console.log(`${cmd.name}(${args.join(", ")})`);
+			// console.log(`${cmd.name}(${args.join(", ")})`);
 
 			cmd.call(this, ...args);
 		}
@@ -153,7 +127,7 @@ export class Interpreter implements CommandList {
 	 * only one path (possibly containing several subpaths) that can be created
 	 * to be filled or stroked by the endchar command.
 	 */
-	endchar(): void {
+	private endchar(): void {
 		this.closepath();
 	}
 
@@ -168,7 +142,7 @@ export class Interpreter implements CommandList {
 	 * must be used only once. In non-marking characters, such as the space
 	 * character, the left sidebearing point should be (0, 0).
 	 */
-	hsbw(sbx: number, wx: number): void {}
+	private hsbw(sbx: number, wx: number): void {}
 
 	/**
 	 * for standard encoding accented character, makes an accented character from
@@ -200,7 +174,7 @@ export class Interpreter implements CommandList {
 	 * not possible, use of Subrs subroutines is a more general means for
 	 * creating accented characters.
 	 */
-	seac(asb: number, adx: number, ady: number, bchar: number, achar: number): void {}
+	private seac(asb: number, adx: number, ady: number, bchar: number, achar: number): void {}
 
 	/**
 	 * sets the left sidebearing point to (sbx, sby) and sets the character width
@@ -213,7 +187,7 @@ export class Interpreter implements CommandList {
 	 * Either sbw or hsbw must be used once as the first command in a character
 	 * outline definition. It must be used only once.
 	 */
-	sbw(sbx: number, sby: number, wx: number, wy: number): void {}
+	private sbw(sbx: number, sby: number, wx: number, wy: number): void {}
 
 	/**
 	 * closepath closes a subpath. Adobe strongly recommends that all character
@@ -229,17 +203,17 @@ export class Interpreter implements CommandList {
 	 * may cause a “spike” or “hangnail” (if the subpath doubles back onto
 	 * itself) with unexpected results.
 	 */
-	closepath(): void {
+	private closepath(): void {
 		if (!this._path)
 			return;
 
 		this._path.closePath();
 
-		const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-		svgPath.setAttribute("d", this._path.toString());
-		this._svg.appendChild(svgPath);
+		// const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+		// svgPath.setAttribute("d", this._path.toString());
+		// this._svg.appendChild(svgPath);
 
-		this._path = undefined;
+		// this._path = undefined;
 	}
 
 	/**
@@ -250,7 +224,7 @@ export class Interpreter implements CommandList {
 	 * dx 0 rlineto
 	 * ```
 	 */
-	hlineto(dx: number): void;
+	private hlineto(dx: number): void;
 
 	/**
 	 * Appends a horizontal line of length `dx1` to the current point. Subsequent
@@ -258,15 +232,15 @@ export class Interpreter implements CommandList {
 	 * which additional `lineto` operators draw alternating vertical and
 	 * horizontal lines.
 	 */
-	hlineto(dx1: number, ...dya_dxb: number[]): void
+	private hlineto(dx1: number, ...dya_dxb: number[]): void
 
 	/**
 	 * Appends a horizontal line of length `dx1` to the current point. Remaining
 	 * arguments are interpreted as alternating vertical and horizontal lines.
 	 */
-	hlineto(...dxa_dyb: number[]): void;
+	private hlineto(...dxa_dyb: number[]): void;
 
-	hlineto(...args: number[]): void {
+	private hlineto(...args: number[]): void {
 		if (args.length === 1) {
 			const [dx] = args;
 			return this.rlineto(dx, 0);
@@ -289,7 +263,7 @@ export class Interpreter implements CommandList {
 	 * dx 0 rmoveto
 	 * ```
 	 */
-	hmoveto(dx: number): void {
+	private hmoveto(dx: number): void {
 		this.rmoveto(dx, 0);
 	}
 
@@ -304,7 +278,7 @@ export class Interpreter implements CommandList {
 	 * when the first Bézier tangent is horizontal and the second Bézier tangent
 	 * is vertical.
 	 */
-	hvcurveto(dx1: number, dx2: number, dy2: number, dy3: number): void;
+	private hvcurveto(dx1: number, dx2: number, dy2: number, dy3: number): void;
 
 	/**
 	 * Appends one or more Bézier curves to the current point. The tangent for
@@ -316,22 +290,22 @@ export class Interpreter implements CommandList {
 	 * end vertical, and start vertical, and end horizontal. The last curve (the
 	 * odd argument case) need not end horizontal/vertical.
 	 */
-	hvcurveto(
+	private hvcurveto(
 		dx1: number, dx2: number, dy2: number, dy3: number,
 		...dya_dxb_dyb_dxc__dxd_dxe_dye_dyf__dxf: number[]
 	): void;
 
-	hvcurveto(...args: number[]): void {
+	private hvcurveto(...args: number[]): void {
 		if (args.length % 4 === 0) {
 			for (let i = 0; i*4 < args.length; ++i) {
 				if (i % 2 === 0) {
 					const [dx1, dx2, dy2, dy3] = args.slice(i*4, i*4+4);
-					console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
+					// console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
 					this.rrcurveto(dx1, 0, dx2, dy2, 0, dy3);
 				}
 				else {
 					const [dy1, dx2, dy2, dx3] = args.slice(i*4, i*4+4);
-					console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
+					// console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
 					this.rrcurveto(0, dy1, dx2, dy2, dx3, 0);
 				}
 			}
@@ -354,7 +328,7 @@ export class Interpreter implements CommandList {
 	 * If the current point is undefined because the current path is empty, a
     * `nocurrentpoint` error occurs.
 	 */
-	rlineto(dx: number, dy: number): void;
+	private rlineto(dx: number, dy: number): void;
 
 	/**
 	 * Appends a line from the current point to a position at the relative
@@ -362,9 +336,9 @@ export class Interpreter implements CommandList {
 	 * all subsequent argument pairs. The number of lines is determined from the
 	 * number of arguments on the stack.
 	 */
-	rlineto(...dx_dy: number[]): void;
+	private rlineto(...dx_dy: number[]): void;
 
-	rlineto(...args: number[]): void {
+	private rlineto(...args: number[]): void {
 		if (args.length % 2)
 			throw new Error(`Expected args.length to be divisible by two, but received ${args.length}`);
 
@@ -387,7 +361,7 @@ export class Interpreter implements CommandList {
 	 * If the current point is undefined because the current path is empty, a
 	 * `nocurrentpoint` error occurs.
 	 */
-	lineto(x: number, y: number): void {
+	private lineto(x: number, y: number): void {
 		if (!this._path)
 			throw new Error("nocurrentpoint");
 
@@ -407,7 +381,7 @@ export class Interpreter implements CommandList {
 	 * If the current point is undefined because the current path is empty, a
 	 * `nocurrentpoint` error occurs.
 	 */
-	rmoveto(dx: number, dy: number): void {
+	private rmoveto(dx: number, dy: number): void {
 		const [x0, y0] = this._currentPoint;
 		const x1 = x0+dx, y1 = y0+dy;
 
@@ -424,9 +398,9 @@ export class Interpreter implements CommandList {
 	 * `rmoveto`, that point is deleted from the current path and the new
 	 * `moveto` point replaces it.
 	 */
-	moveto(x: number, y: number): void {
-		if (!this._path)
-			this._path = d3.path();
+	private moveto(x: number, y: number): void {
+		// if (!this._path)
+		// 	this._path = d3.path();
 
 		this._path.moveTo(x, y);
 		this._currentPoint = [x, y];
@@ -441,7 +415,7 @@ export class Interpreter implements CommandList {
 	 * dx1 dy1 (dx1+dx2) (dy1+dy2) (dx1+dx2+dx3) (dy1+dy2+dy3) rcurveto
 	 * ```
 	 */
-	rrcurveto(
+	private rrcurveto(
 		dx1: number, dy1: number,
 		dx2: number, dy2: number,
 		dx3: number, dy3: number,
@@ -451,9 +425,9 @@ export class Interpreter implements CommandList {
 	 * Appends a Bezier curve to the current point. For each subsequent set of
 	 * six arguments, an additional curve is appended to the current point.
 	 */
-	rrcurveto(...dx1_dy1_dx2_dy2_dx2_dy3: number[]): void;
+	private rrcurveto(...dx1_dy1_dx2_dy2_dx2_dy3: number[]): void;
 
-	rrcurveto(...args: number[]): void {
+	private rrcurveto(...args: number[]): void {
 		if (args.length % 6)
 			throw new Error(`Expected args.length to be divisible by six, but received ${args.length}`);
 
@@ -471,7 +445,7 @@ export class Interpreter implements CommandList {
 	 * to (x0+dx3, y0+dy3), using (x0+dx1, y0+dy1) and (x0+dx2, y0+dy2) as Bezier
 	 * control points. See the description of `curveto` for complete information.
 	 */
-	rcurveto(
+	private rcurveto(
 		dx1: number, dy1: number,
 		dx2: number, dy2: number,
 		dx3: number, dy3: number,
@@ -492,7 +466,7 @@ export class Interpreter implements CommandList {
 	 * point. If the current point is undefined because the current path is
 	 * empty, a `nocurrentpoint` error occurs.
 	 */
-	curveto(
+	private curveto(
 		x1: number, y1: number,
 		x2: number, y2: number,
 		x3: number, y3: number,
@@ -515,7 +489,7 @@ export class Interpreter implements CommandList {
 	 * when the first Bézier tangent is vertical and the second Bézier tangent is
 	 * horizontal.
 	 */
-	vhcurveto(dy1: number, dx2: number, dy2: number, dx3: number): void;
+	private vhcurveto(dy1: number, dx2: number, dy2: number, dx3: number): void;
 
 	/**
 	 * Appends one or more Bézier curves to the current point, where the first
@@ -523,22 +497,22 @@ export class Interpreter implements CommandList {
 	 * the complement of hvcurveto; see the description of hvcurveto for more
 	 * information.
 	 */
-	vhcurveto(
+	private vhcurveto(
 		dy1: number, dx2: number, dy2: number, dx3: number,
 		...rest: number[]
 	): void;
 
-	vhcurveto(...args: number[]): void {
+	private vhcurveto(...args: number[]): void {
 		if (args.length % 4 === 0) {
 			for (let i = 0; i*4 < args.length; ++i) {
 				if (i % 2 === 0) {
 					const [dy1, dx2, dy2, dx3] = args.slice(i*4, i*4+4);
-					console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
+					// console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
 					this.rrcurveto(0, dy1, dx2, dy2, dx3, 0);
 				}
 				else {
 					const [dx1, dx2, dy2, dy3] = args.slice(i*4, i*4+4);
-					console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
+					// console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
 					this.rrcurveto(dx1, 0, dx2, dy2, 0, dy3);
 
 				}
@@ -555,7 +529,7 @@ export class Interpreter implements CommandList {
 	 * 0 dy rlineto
 	 * ```
 	 */
-	vlineto(dy: number): void;
+	private vlineto(dy: number): void;
 
 	/**
 	 * Appends a vertical line of length `dy1` to the current point. Subsequent
@@ -563,14 +537,14 @@ export class Interpreter implements CommandList {
 	 * which additional `lineto` operators draw alternating horizontal and
 	 * vertical lines.
 	 */
-	vlineto(dy1: number, ...dxa_dyb: number[]): void;
+	private vlineto(dy1: number, ...dxa_dyb: number[]): void;
 
 	/**
 	 * Arguments are interpreted as alternating vertical and horizontal lines.
 	 */
-	vlineto(...dya_dxb: number[]): void;
+	private vlineto(...dya_dxb: number[]): void;
 
-	vlineto(...args: number[]): void {
+	private vlineto(...args: number[]): void {
 		if (args.length === 1) {
 			const [dy] = args;
 			return this.rlineto(0, dy);
@@ -593,7 +567,7 @@ export class Interpreter implements CommandList {
 	 * 0 dy rmoveto
 	 * ```
 	 */
-	vmoveto(dy: number): void {
+	private vmoveto(dy: number): void {
 		this.rmoveto(0, dy);
 	}
 
@@ -604,7 +578,7 @@ export class Interpreter implements CommandList {
 	 * the main outline. For more details, see section 8.2, “Dot Sections,” in
 	 * Chapter 8, “Using Subroutines.”
 	 */
-	dotsection(): void {}
+	private dotsection(): void {}
 
 	/**
 	 * declares the vertical range of a horizontal stem zone (see the following
@@ -616,7 +590,7 @@ export class Interpreter implements CommandList {
 	 * replacement, see section 8.1, “Changing Hints Within a Character,” in
 	 * Chapter 8, “Using Subroutines.”
 	 */
-	hstem(y: number, dy: number): void {}
+	private hstem(y: number, dy: number): void {}
 
 	/**
 	 * declares the vertical ranges of three horizontal stem zones between the y
@@ -644,7 +618,7 @@ export class Interpreter implements CommandList {
 	 * vertical widths and with equal white space between these features, such as
 	 * the mathematical equivalence symbol or the division symbol.
 	 */
-	hstem3(
+	private hstem3(
 		y0: number, dy0: number,
 		y1: number, dy1: number,
 		y2: number, dy2: number,
@@ -660,7 +634,7 @@ export class Interpreter implements CommandList {
 	 * replacement, see section 8.1, “Changing Hints Within a Character,” in
 	 * Chapter 8, “Using Subroutines.”
 	 */
-	vstem(x: number, dx: number): void {}
+	private vstem(x: number, dx: number): void {}
 
 	/**
 	 * declares the horizontal ranges of three vertical stem zones between the x
@@ -686,7 +660,7 @@ export class Interpreter implements CommandList {
 	 * The vstem3 command is especially suited for controlling the stems and
 	 * counters of characters such as a lower case “m.”
 	 */
-	vstem3(
+	private vstem3(
 		x0: number, dx0: number,
 		x1: number, dx1: number,
 		x2: number, dx2: number,
@@ -695,7 +669,7 @@ export class Interpreter implements CommandList {
 	/**
 	 * behaves like `div` in the PostScript language.
 	 */
-	div(num1: number, num2: number): void {}
+	private div(num1: number, num2: number): void {}
 
 	/**
 	 * is a mechanism used by Type 1 BuildChar to make calls on the PostScript
@@ -714,7 +688,7 @@ export class Interpreter implements CommandList {
 	 * back to the Type 1 BuildChar operand stack. See Chapter 8, “Using
 	 * Subroutines,” for details on using callothersubr.
 	 */
-	callothersubr(othersubr: number, n: number, ...args: number[]): void {}
+	private callothersubr(othersubr: number, n: number, ...args: number[]): void {}
 
 	/**
 	 * calls a charstring subroutine with index subr# from the Subrs array in the
@@ -728,7 +702,7 @@ export class Interpreter implements CommandList {
 	 * be nested 10 deep. See Chapter 8, “Using Subroutines,” for other uses for
 	 * subroutines, such as changing hints.
 	 */
-	callsubr(subr: number): void {}
+	private callsubr(subr: number): void {}
 
 	/**
 	 * removes a number from the top of the PostScript interpreter operand stack
@@ -736,14 +710,14 @@ export class Interpreter implements CommandList {
 	 * command is used only to retrieve a result from an OtherSubrs procedure.
 	 * For more details, see Chapter 8, “Using Subroutines.”
 	 */
-	pop(): void {}
+	private pop(): void {}
 
 	/**
 	 * returns from a Subrs array charstring subroutine (that had been called
 	 * with a callsubr command) and continues execution in the calling
 	 * charstring.
 	 */
-	return(): void {}
+	private return(): void {}
 
 	/**
 	 * sets the current point in the Type 1 font format BuildChar to (x, y) in
@@ -752,7 +726,7 @@ export class Interpreter implements CommandList {
 	 * relative path building command. The setcurrentpoint command is used only
 	 * in conjunction with results from OtherSubrs procedures.
 	 */
-	setcurrentpoint(x: number, y: number): void {}
+	private setcurrentpoint(x: number, y: number): void {}
 
 	// TODO:
 	// hhcurveto

@@ -4,6 +4,7 @@
 @use "elx/style/color";
 @use "elx/style/scrollbar" as *;
 @use "elx/style/type";
+@use "sass:math";
 
 :host {
 	display: block;
@@ -29,47 +30,66 @@
 }
 
 .glyphs {
+	--cols: 13;
+
 	@include scrollbar(300);
 	display: flex;
 	flex-wrap: wrap;
 	width: 100%;
 	height: 100%;
 	padding: 48px;
-	gap: 16px;
 	overflow-x: hidden;
 	overflow-y: auto;
 }
 
 .glyph {
+	--width: calc(100% / var(--cols));
+
 	@include layout.flex($dir:column);
-	$width: calc(25% - #{16px * 0.75});
+	flex: 0 0 var(--width);
+	max-width: var(--width);
+	height: 128px;
+	margin: 8px 0;
 
-	flex: 0 0 $width;
-	max-width: $width;
-	height: 256px;
-
-	&__program {
+	&__svg {
 		@include scrollbar(200);
 		margin: 0;
-		padding: 8px 12px;
-		background: color.background(200);
+		padding: 0;
+		color: color.foreground();
 		flex: 1 0 0;
-		overflow: auto;
+		transform: scale(1, -1);
 
-		::ng-deep {
-			.numeric { color: color.accent(700) }
-			.instr   { color: color.primary(800) }
-		}
+		// ::ng-deep {
+		// 	.numeric { color: color.accent(700) }
+		// 	.instr   { color: color.primary(800) }
+		// }
+	}
+
+	&__metrics {
+		stroke: color.background(700);
+		stroke-width: 10px;
+		stroke-opacity: 0.4;
+	}
+
+	&__baseline,
+	&__left,
+	&__right {
+		stroke-opacity: 1;
+	}
+
+	&__asc,
+	&__dsc {
+		stroke-dasharray: 40px;
 	}
 
 	&__label {
 		@include layout.flex($a:baseline, $j:center);
 		gap: 1ch;
 		padding: 0 8px;
-		height: rem(32);
+		height: rem(24);
 		background: color.background(500);
 		font-size: rem(16);
-		line-height: 2;
+		line-height: rem(24);
 		cursor: pointer;
 		@include anim.transition((background, color, box-shadow));
 		outline: none !important;
@@ -118,7 +138,7 @@
 			}
 
 			.elx-dialog-body {
-				@include layout.flex(column, $a:center);
+				@include layout.flex(column);
 				position: relative;
 				flex: 1 0 0;
 			}
@@ -126,11 +146,18 @@
 	}
 
 	&__svg {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		height: 100%;
+		flex: 1 0 0;
 		transform: scale(1, -1);
 		fill: color.foreground();
+	}
+
+	&__metrics {
+		stroke: color.background(800);
+		stroke-width: 2px;
+	}
+
+	&__asc,
+	&__dsc {
+		stroke-dasharay: 10px;
 	}
 }

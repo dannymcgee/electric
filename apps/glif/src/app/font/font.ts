@@ -9,6 +9,7 @@ import {
 	GlyphOrderTable,
 	HorizontalHeaderTable,
 	HorizontalMetricsTable,
+	OS2Table,
 } from "./types";
 import { Xml, XmlElement } from "./types/xml";
 
@@ -30,6 +31,7 @@ export class Font extends XmlElement {
 	readonly glyphOrder?: GlyphOrderTable;
 	readonly head?: FontHeaderTable;
 	readonly hhea?: HorizontalHeaderTable;
+	readonly os_2?: OS2Table;
 	readonly cmap?: CharToGlyphIdMappingsTable;
 	readonly cffTable?: CFFTable;
 	readonly hmtx?: HorizontalMetricsTable;
@@ -41,6 +43,7 @@ export class Font extends XmlElement {
 		super(dom);
 		this.glyphOrder = this._children.find(instanceOf(GlyphOrderTable));
 		this.head = this._children.find(instanceOf(FontHeaderTable));
+		this.os_2 = this._children.find(instanceOf(OS2Table));
 		this.hhea = this._children.find(instanceOf(HorizontalHeaderTable));
 		this.cmap = this._children.find(instanceOf(CharToGlyphIdMappingsTable));
 		this.cffTable = this._children.find(instanceOf(CFFTable));

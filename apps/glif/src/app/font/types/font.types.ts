@@ -756,28 +756,30 @@ export class CharToGlyphIdMapEntry extends XmlElement {
 
 type OS2Version = 0 | 1 | 2 | 3 | 4 | 5;
 
-export class OS2Table<V extends OS2Version = OS2Version> {
-	static fromXml(xml: Element): OS2Table {
-		const result = new OS2Table();
-		for (let i = 0; i < xml.childElementCount; ++i) {
-			const child = xml.children[i];
+@Xml("OS_2")
+export class OS2Table<V extends OS2Version = OS2Version> extends XmlElement {
+	constructor (dom: Element) {
+		super(dom);
+
+		for (let i = 0; i < dom.childElementCount; ++i) {
+			const child = dom.children[i];
 			match(child.nodeName, {
-				version: () => result.version = parseDecimal(child) as OS2Version,
-				xAvgCharWidth: () => result.xAvgCharWidth = parseDecimal(child),
-				usWeightClass: () => result.usWeightClass = parseDecimal(child),
-				usWidthClass: () => result.usWidthClass = parseDecimal(child),
-				fsType: () => result.fsType = parseFlags<FsTypeFlags>(child),
-				ySubscriptXSize: () => result.ySubscriptXSize = parseDecimal(child),
-				ySubscriptYSize: () => result.ySubscriptYSize = parseDecimal(child),
-				ySubscriptXOffset: () => result.ySubscriptXOffset = parseDecimal(child),
-				ySubscriptYOffset: () => result.ySubscriptYOffset = parseDecimal(child),
-				ySuperscriptXSize: () => result.ySuperscriptXSize = parseDecimal(child),
-				ySuperscriptYSize: () => result.ySuperscriptYSize = parseDecimal(child),
-				ySuperscriptXOffset: () => result.ySuperscriptXOffset = parseDecimal(child),
-				ySuperscriptYOffset: () => result.ySuperscriptYOffset = parseDecimal(child),
-				yStrikeoutSize: () => result.yStrikeoutSize = parseDecimal(child),
-				yStrikeoutPosition: () => result.yStrikeoutPosition = parseDecimal(child),
-				sFamilyClass: () => result.sFamilyClass = parseDecimal(child),
+				version: () => this.version = parseDecimal(child) as any,
+				xAvgCharWidth: () => this.xAvgCharWidth = parseDecimal(child),
+				usWeightClass: () => this.usWeightClass = parseDecimal(child),
+				usWidthClass: () => this.usWidthClass = parseDecimal(child),
+				fsType: () => this.fsType = parseFlags<FsTypeFlags>(child),
+				ySubscriptXSize: () => this.ySubscriptXSize = parseDecimal(child),
+				ySubscriptYSize: () => this.ySubscriptYSize = parseDecimal(child),
+				ySubscriptXOffset: () => this.ySubscriptXOffset = parseDecimal(child),
+				ySubscriptYOffset: () => this.ySubscriptYOffset = parseDecimal(child),
+				ySuperscriptXSize: () => this.ySuperscriptXSize = parseDecimal(child),
+				ySuperscriptYSize: () => this.ySuperscriptYSize = parseDecimal(child),
+				ySuperscriptXOffset: () => this.ySuperscriptXOffset = parseDecimal(child),
+				ySuperscriptYOffset: () => this.ySuperscriptYOffset = parseDecimal(child),
+				yStrikeoutSize: () => this.yStrikeoutSize = parseDecimal(child),
+				yStrikeoutPosition: () => this.yStrikeoutPosition = parseDecimal(child),
+				sFamilyClass: () => this.sFamilyClass = parseDecimal(child),
 				panose: () => {
 					const panose = {} as PanoseClass;
 					for (let j = 0; j < child.childElementCount; ++j) {
@@ -795,37 +797,35 @@ export class OS2Table<V extends OS2Version = OS2Version> {
 							9: () => panose.bXHeight = parseDecimal(entry),
 						});
 					}
-					result.panose = panose;
+					this.panose = panose;
 				},
-				ulUnicodeRange1: () => result.ulUnicodeRange1 = parseFlags(child),
-				ulUnicodeRange2: () => result.ulUnicodeRange2 = parseFlags(child),
-				ulUnicodeRange3: () => result.ulUnicodeRange3 = parseFlags(child),
-				ulUnicodeRange4: () => result.ulUnicodeRange4 = parseFlags(child),
-				achVendID: () => result.achVendID = readString(child),
-				fsSelection: () => result.fsSelection = parseFlags(child),
-				usFirstCharIndex: () => result.usFirstCharIndex = parseDecimal(child),
-				usLastCharIndex: () => result.usLastCharIndex = parseDecimal(child),
-				sTypoAscender: () => result.sTypoAscender = parseDecimal(child),
-				sTypoDescender: () => result.sTypoDescender = parseDecimal(child),
-				sTypoLineGap: () => result.sTypoLineGap = parseDecimal(child),
-				usWinAscent: () => result.usWinAscent = parseDecimal(child),
-				usWinDescent: () => result.usWinDescent = parseDecimal(child),
-				ulCodePageRange1: () => result.ulCodePageRange1 = parseFlags(child),
-				ulCodePageRange2: () => result.ulCodePageRange2 = parseFlags(child),
-				sxHeight: () => result.sxHeight = parseDecimal(child),
-				sCapHeight: () => result.sCapHeight = parseDecimal(child),
-				usDefaultChar: () => result.usDefaultChar = parseDecimal(child),
-				usBreakChar: () => result.usBreakChar = parseDecimal(child),
-				usMaxContext: () => result.usMaxContext = parseDecimal(child),
+				ulUnicodeRange1: () => this.ulUnicodeRange1 = parseFlags(child),
+				ulUnicodeRange2: () => this.ulUnicodeRange2 = parseFlags(child),
+				ulUnicodeRange3: () => this.ulUnicodeRange3 = parseFlags(child),
+				ulUnicodeRange4: () => this.ulUnicodeRange4 = parseFlags(child),
+				achVendID: () => this.achVendID = readString(child),
+				fsSelection: () => this.fsSelection = parseFlags(child),
+				usFirstCharIndex: () => this.usFirstCharIndex = parseDecimal(child),
+				usLastCharIndex: () => this.usLastCharIndex = parseDecimal(child),
+				sTypoAscender: () => this.sTypoAscender = parseDecimal(child),
+				sTypoDescender: () => this.sTypoDescender = parseDecimal(child),
+				sTypoLineGap: () => this.sTypoLineGap = parseDecimal(child),
+				usWinAscent: () => this.usWinAscent = parseDecimal(child),
+				usWinDescent: () => this.usWinDescent = parseDecimal(child),
+				ulCodePageRange1: () => this.ulCodePageRange1 = parseFlags(child),
+				ulCodePageRange2: () => this.ulCodePageRange2 = parseFlags(child),
+				sxHeight: () => this.sxHeight = parseDecimal(child),
+				sCapHeight: () => this.sCapHeight = parseDecimal(child),
+				usDefaultChar: () => this.usDefaultChar = parseDecimal(child),
+				usBreakChar: () => this.usBreakChar = parseDecimal(child),
+				usMaxContext: () => this.usMaxContext = parseDecimal(child),
 				_: () => {
 					console.warn(`Unhandled OS_2 table field: "${child.nodeName}"`);
 				}
 			});
 		}
-		return result;
+		// return result;
 	}
-
-	private constructor () {}
 
 	isVersion<VCheck extends OS2Version>(v: VCheck): this is OS2<V> {
 		return (this.version as V | VCheck) === v;
