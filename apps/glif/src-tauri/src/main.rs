@@ -16,7 +16,10 @@ fn main() {
 fn parse_font_to_xml(font_path: String) -> Result<String, String> {
 	match Command::new("ttx").args(["-o", "-", &font_path]).output() {
 		Ok(Output { stdout, stderr, .. }) => match (stdout.len(), stderr.len()) {
-			(1.., _) => String::from_utf8(stdout).map_err(|err| format!("{}", err)),
+			(1.., _) => match String::from_utf8(stdout.clone()) {
+				Err(_) => Ok(String::from_utf8_lossy(&stdout).into()),
+				Ok(result) => Ok(result),
+			},
 			(0, 1..) => match String::from_utf8(stderr) {
 				Ok(err_msg) => Err(err_msg),
 				Err(utf8_err) => Err(format!("{}", utf8_err)),
