@@ -259,6 +259,36 @@ export enum FsSelectionFlags {
 	RESERVED          = 0b1111_1100_0000_0000,
 }
 
+export enum PlatformID {
+	Unicode = 0,
+	Macintosh = 1,
+	ISO = 2,
+	Windows = 3,
+	Custom = 4,
+}
+
+export enum NameID {
+	CopyrightNotice = 0,
+	FontFamily = 1,
+	FontSubFamily = 2,
+	UniqueSubFamilyID = 3,
+	FullName = 4,
+	PostScriptName = 6,
+	TrademarkNotice = 7,
+	ManufacturerName = 8,
+	DesignerName = 9,
+	Description = 10,
+	VendorURL = 11,
+	DesignerURL = 12,
+	LicenseDescription = 13,
+	LicenseURL = 14,
+	PreferredFamily = 16,
+	PreferredSubFamily = 17,
+	CompatibleFull = 18,
+	SampleText = 19,
+	VariationsPSNamePrefix = 25,
+}
+
 @Xml("GlyphOrder")
 export class GlyphOrderTable extends XmlElement {
 	readonly glyphIds: GlyphId[];
@@ -448,6 +478,23 @@ export class HorizontalHeaderTable extends XmlElement {
 	 */
 	@child(int)
 	numberOfHMetrics!: u16;
+}
+
+@Xml("name")
+export class NamesTable extends XmlElement {
+	records: NameRecord[];
+
+	constructor (dom: Element) {
+		super(dom);
+		this.records = this._children.filter(instanceOf(NameRecord));
+	}
+}
+
+@Xml("namerecord")
+export class NameRecord extends XmlElement {
+	@attr(int) nameID!: NameID;
+	@attr(int) platformID!: PlatformID;
+	@textContent(str) value!: string;
 }
 
 /**
@@ -705,14 +752,6 @@ export class CharToGlyphIdMappingsTable extends XmlElement {
 		super(dom);
 		this.maps = this._children.filter(instanceOf(CharToGlyphIdMap));
 	}
-}
-
-enum PlatformID {
-	Unicode = 0,
-	Macintosh = 1,
-	ISO = 2,
-	Windows = 3,
-	Custom = 4,
 }
 
 enum UnicodePlatform {

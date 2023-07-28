@@ -4,7 +4,7 @@ import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 import * as dialog from "@tauri-apps/api/dialog";
 import * as d3 from "d3";
 
-import { Font } from "./font";
+import { Font, NameID } from "./font";
 import { Glyph, Interpreter } from "./glyph";
 import { ProjectService } from "./project.service";
 
@@ -43,6 +43,10 @@ import { ProjectService } from "./project.service";
 			<ng-container *ngIf="(_project.name$ | async) as projectName">
 				<em class="title__sep">/</em>
 				<span class="title__project">{{ projectName }}</span>
+			</ng-container>
+			<ng-container *ngIf="fontName">
+				<em class="title__sep">/</em>
+				<span class="title__project">{{ fontName }}</span>
 			</ng-container>
 		</div>
 	</elx-titlebar>
@@ -205,6 +209,7 @@ export class AppComponent {
 	activeGlyph?: Glyph;
 
 	font?: Font;
+	fontName?: string;
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
@@ -242,8 +247,10 @@ export class AppComponent {
 				this.glyphs = fonts.flatMap(font => font.glyphs);
 				console.log("glyphs:", this.glyphs);
 
-				if (fonts.length === 1)
+				if (fonts.length === 1) {
 					this.font = fonts[0];
+					this.fontName = this.font.names.get(NameID.FullName);
+				}
 				else if (fonts.length)
 					console.warn("WARNING: Multiple fonts loaded!");
 
@@ -257,6 +264,7 @@ export class AppComponent {
 				console.log("glyphs:", this.glyphs);
 
 				this.font = font;
+				this.fontName = this.font.names.get(NameID.FullName);
 
 				this._cdRef.detectChanges();
 			}

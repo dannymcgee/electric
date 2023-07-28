@@ -9,9 +9,43 @@ import {
 	GlyphOrderTable,
 	HorizontalHeaderTable,
 	HorizontalMetricsTable,
+	NameID,
+	NamesTable,
 	OS2Table,
+	PlatformID,
 } from "./types";
 import { Xml, XmlElement } from "./types/xml";
+
+export { NameID, PlatformID };
+
+// TODO: Move this somewhere else
+export class Names {
+	private _map = new Map<NameID, Name>();
+
+	add(name: NameID, platform: PlatformID, value: string): void {
+		if (!this._map.has(name))
+			this._map.set(name, new Name())
+
+		this._map.get(name)!.add(platform, value);
+	}
+
+	get(name: NameID, platform?: PlatformID): string | undefined {
+		return this._map.get(name)?.get(platform);
+	}
+}
+
+export class Name {
+	private _map = new Map<PlatformID, string>();
+
+	add(id: PlatformID, value: string): void {
+		this._map.set(id, value);
+	}
+
+	get(id?: PlatformID): string | undefined {
+		if (id) return this._map.get(id);
+		return [...this._map.values()][0];
+	}
+}
 
 @Xml("ttFont")
 export class Font extends XmlElement {
@@ -28,9 +62,12 @@ export class Font extends XmlElement {
 		return new Font(element);
 	}
 
+	readonly names = new Names();
+
 	readonly glyphOrder?: GlyphOrderTable;
 	readonly head?: FontHeaderTable;
 	readonly hhea?: HorizontalHeaderTable;
+	readonly namesTable?: NamesTable;
 	readonly os_2?: OS2Table;
 	readonly cmap?: CharToGlyphIdMappingsTable;
 	readonly cffTable?: CFFTable;
@@ -43,8 +80,9 @@ export class Font extends XmlElement {
 		super(dom);
 		this.glyphOrder = this._children.find(instanceOf(GlyphOrderTable));
 		this.head = this._children.find(instanceOf(FontHeaderTable));
-		this.os_2 = this._children.find(instanceOf(OS2Table));
 		this.hhea = this._children.find(instanceOf(HorizontalHeaderTable));
+		this.namesTable = this._children.find(instanceOf(NamesTable));
+		this.os_2 = this._children.find(instanceOf(OS2Table));
 		this.cmap = this._children.find(instanceOf(CharToGlyphIdMappingsTable));
 		this.cffTable = this._children.find(instanceOf(CFFTable));
 		this.hmtx = this._children.find(instanceOf(HorizontalMetricsTable));
@@ -86,6 +124,7 @@ export class Font extends XmlElement {
 				this._glyphs[i] = glyph;
 			}
 
+			// Sort glyphs by character code
 			this._glyphs.sort((a, b) => {
 				if (a.charCode == null && b.charCode == null)
 					return a.name!.localeCompare(b.name!);
@@ -99,5 +138,10 @@ export class Font extends XmlElement {
 				return a.charCode - b.charCode;
 			})
 		}
+
+		// Construct user-friendly names lookup
+		if (this.namesTable)
+			for (let { nameID, platformID, value } of this.namesTable.records)
+				this.names.add(nameID, platformID, value.trim());
 	}
 }
