@@ -24,8 +24,8 @@
 		@include layout.flex(row, center, center);
 		@include anim.transition((background-color, border-color));
 		position: relative;
-		width: 16px;
-		height: 16px;
+		width: a11y.rem(16);
+		height: a11y.rem(16);
 		border: 2px solid color.foreground(400);
 
 		#{$root}.focus & {
