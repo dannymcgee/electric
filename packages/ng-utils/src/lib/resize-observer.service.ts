@@ -33,6 +33,20 @@ export class ElxResizeObserver implements OnDestroy {
 		return subject;
 	}
 
+	unobserve<T extends Element>(element: T): void;
+	unobserve<T extends Element>(elementRef: ElementRef<T>): void;
+
+	unobserve<T extends Element>(elementOrRef: T | ElementRef<T>): void {
+		let element = coerceElement(elementOrRef);
+
+		this._observer.unobserve(element);
+
+		if (this._streams.has(element)) {
+			this._streams.get(element)!.complete();
+			this._streams.delete(element);
+		}
+	}
+
 	ngOnDestroy(): void {
 		this._observer.disconnect();
 		for (let subject of this._streams.values()) {
