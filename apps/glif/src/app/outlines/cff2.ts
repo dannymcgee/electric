@@ -1,6 +1,6 @@
 import { Const } from "@electric/utils";
 
-import { Path } from "./path";
+import { Path } from "../glyph";
 
 enum OpCode {
 	endchar          = 0x0E,
@@ -41,7 +41,7 @@ type CommandList = {
 
 type Point = [number, number]
 
-export class Interpreter {
+export class InterpreterCFF2 {
 	private _stack: Array<Value | OpCode> = [];
 	private _program: string;
 	private _currentPoint: Point = [0, 0];

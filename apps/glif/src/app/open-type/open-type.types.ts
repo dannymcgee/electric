@@ -1,14 +1,7 @@
-import { instanceOf, match, Transparent } from "@electric/utils";
+import { f32, FWORD, i16, i32, instanceOf, match, Transparent, u16, u32, UFWORD } from "@electric/utils";
 
 import { PanoseClass } from "./panose.types";
 import {
-	parseDecimal,
-	parseFlags,
-	readString,
-} from "./parse";
-import {
-	Xml,
-	XmlElement,
 	attr,
 	child,
 	date,
@@ -16,27 +9,17 @@ import {
 	float,
 	hex,
 	int,
+	parseDecimal,
+	parseFlags,
+	readString,
 	str,
-	u32version,
 	textContent,
-} from "./xml";
+	u32version,
+	Xml,
+	XmlElement,
+} from "../xml";
 
 export const MAGIC_NUMBER = 0x5F0F3CF5;
-
-export type u8 = number;
-export type i8 = number;
-export type u16 = number;
-export type i16 = number;
-export type u32 = number;
-export type i32 = number;
-export type u64 = number;
-export type i64 = number;
-export type int = number;
-export type uint = number;
-export type f32 = number;
-export type f64 = number;
-export type FWORD = number;
-export type UFWORD = number;
 
 export enum Flags {
 	/**
@@ -773,10 +756,10 @@ export class CharToGlyphIdMap extends XmlElement {
 	@attr(int) unicodePlatform!: UnicodePlatform;
 
 	/** Only valid if `platformID === Macintosh` */
-	@attr(int) language!: int;
+	@attr(int) language!: i32;
 
 	/** Map of unicode code-points to glyph IDs. */
-	readonly value = new Map<int, string>();
+	readonly value = new Map<i32, string>();
 
 	constructor (dom: Element) {
 		super(dom);
@@ -789,7 +772,7 @@ export class CharToGlyphIdMap extends XmlElement {
 
 @Xml("map")
 export class CharToGlyphIdMapEntry extends XmlElement {
-	@attr(hex) code!: int;
+	@attr(hex) code!: u32;
 	@attr(str) name!: string;
 }
 

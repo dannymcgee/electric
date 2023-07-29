@@ -55,7 +55,7 @@ export class AppComponent implements FontProvider {
 			if (!result) return;
 
 			if (Array.isArray(result)) {
-				const fonts = await Promise.all(result.map(Font.fromFile));
+				const fonts = await Promise.all(result.map(Font.importFromOpenType));
 				for (let font of fonts)
 					console.log(font);
 
@@ -72,7 +72,7 @@ export class AppComponent implements FontProvider {
 				this._cdRef.detectChanges();
 			}
 			else {
-				const font = await Font.fromFile(result);
+				const font = await Font.importFromOpenType(result);
 				console.log(font);
 
 				this.glyphs = font.glyphs;

@@ -1,18 +1,19 @@
-import { f32, int } from "./font.types";
+import { f32, i32, u32 } from "@electric/utils";
+
 
 export function parsef32(element: Element): f32 {
 	return parseFloat(element.getAttribute("value")!);
 }
 
-export function parseDecimal(element: Element): int {
+export function parseDecimal(element: Element): i32 {
 	return parseInt(element.getAttribute("value")!, 10);
 }
 
-export function parseHex(element: Element): int {
+export function parseHex(element: Element): u32 {
 	return parseInt(element.getAttribute("value")!, 16);
 }
 
-export function parseFlags<T extends int>(element: Element): T {
+export function parseFlags<T extends u32>(element: Element): T {
 	return parseInt(element.getAttribute("value")!.replace(/ /g, ""), 2) as T;
 }
 

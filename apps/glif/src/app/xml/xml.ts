@@ -137,6 +137,7 @@ interface ChildDecoratorParams<V, T extends XmlElement> {
 	key: string & keyof T;
 }
 
+// TODO: Refactor to allow grabbing child tables
 function child_impl<V, T extends XmlElement, C extends XmlElement>({
 	childNodeName, childKey = "value", serde, target, key,
 }: ChildDecoratorParams<V, T>) {

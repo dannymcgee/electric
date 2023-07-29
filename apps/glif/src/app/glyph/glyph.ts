@@ -3,7 +3,7 @@ import { Const } from "@electric/utils";
 import * as d3 from "d3";
 
 import { Path } from "./path";
-import { Interpreter } from "./vm";
+import { InterpreterCFF2 } from "../outlines";
 
 export class Glyph {
 	path?: Const<Path>;
@@ -32,7 +32,8 @@ export class Glyph {
 	private interpret(): Const<Path> | undefined {
 		if (!this.program) return;
 
-		const vm = new Interpreter(this.program);
+		// TODO
+		const vm = new InterpreterCFF2(this.program);
 		vm.exec();
 
 		return vm.path;

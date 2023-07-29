@@ -13,8 +13,8 @@ export class ViewBox {
 }
 
 export function getViewBox(font: Font, glyph: Glyph): ViewBox {
-	const { xMin, yMin, yMax } = font.head!;
-	const width = glyph.width!;
+	const { xMin, yMin, yMax } = font.metrics;
+	const width = glyph.width ?? 0;
 	const height = yMax - yMin;
 
 	return new ViewBox(xMin, yMin, width, height);
@@ -23,7 +23,7 @@ export function getViewBox(font: Font, glyph: Glyph): ViewBox {
 @Pipe({ name: "svgViewBox" })
 export class FontToSvgViewBoxPipe implements PipeTransform {
 	transform(font?: Font, glyph?: Glyph): string {
-		if (!font?.head || !glyph) return "0 0 1000 1000";
+		if (!font || !glyph) return "0 0 1000 1000";
 
 		const { x, y, width, height } = getViewBox(font, glyph);
 
