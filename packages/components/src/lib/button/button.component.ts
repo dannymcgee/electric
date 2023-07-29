@@ -64,6 +64,12 @@ export class ButtonComponent implements Focusable, OnInit, OnDestroy {
 	}
 	private _disabled?: boolean;
 
+	@HostBinding()
+	get tabIndex() {
+		if (this._disabled) return -1;
+		return 0;
+	}
+
 	private get _element() { return this._elementRef.nativeElement; }
 
 	constructor (
