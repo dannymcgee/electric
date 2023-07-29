@@ -1,0 +1,28 @@
+<svg:line class="g-glyph-metrics__baseline"
+	x1="-10000" y1="0"
+	x2="10000" y2="0"
+/>
+<svg:line class="g-glyph-metrics__left"
+	x1="0" y1="-10000"
+	x2="0" y2="10000"
+/>
+<svg:line class="g-glyph-metrics__right"
+	[attr.x1]="glyph?.width" y1="-10000"
+	[attr.x2]="glyph?.width" y2="10000"
+/>
+<svg:line class="g-glyph-metrics__xheight"
+	x1="-10000" [attr.y1]="_font.os_2?.sxHeight"
+	x2="10000" [attr.y2]="_font.os_2?.sxHeight"
+/>
+<svg:line class="g-glyph-metrics__cap"
+	x1="-10000" [attr.y1]="_font.os_2?.sCapHeight"
+	x2="10000" [attr.y2]="_font.os_2?.sCapHeight"
+/>
+<svg:line class="g-glyph-metrics__asc"
+	x1="-10000" [attr.y1]="_font.os_2?.sTypoAscender"
+	x2="10000" [attr.y2]="_font.os_2?.sTypoAscender"
+/>
+<svg:line class="g-glyph-metrics__dsc"
+	x1="-10000" [attr.y1]="_font.os_2?.sTypoDescender"
+	x2="10000" [attr.y2]="_font.os_2?.sTypoDescender"
+/>

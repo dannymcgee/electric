@@ -12,17 +12,18 @@ import {
 	ThemeModule,
 	ThemeService,
 } from "@electric/components";
-import { A11yModule, UtilityModule } from "@electric/ng-utils";
+import { A11yModule, ElxResizeObserver, UtilityModule } from "@electric/ng-utils";
 import { AppPlatform, PlatformModule } from "@electric/platform";
 import { ICONS } from "@electric/style";
 
 import {
 	AppComponent,
 	CffProgramPipe,
-	FontToSvgViewBoxPipe,
 	GlyphToSvgPipe,
 	HexPipe,
 } from "./app.component";
+import { FontToSvgViewBoxPipe, GlyphComponent, GlyphMetricsComponent } from "./glyph";
+import { GlyphEditorComponent } from "./glyph/glyph-editor.component";
 
 @NgModule({
 	imports: [
@@ -44,11 +45,17 @@ import {
 		AppComponent,
 		CffProgramPipe,
 		FontToSvgViewBoxPipe,
+		GlyphComponent,
+		GlyphEditorComponent,
+		GlyphMetricsComponent,
 		GlyphToSvgPipe,
 		HexPipe,
 	],
 	bootstrap: [
 		AppComponent,
+	],
+	providers: [
+		ElxResizeObserver,
 	],
 })
 export class AppModule {

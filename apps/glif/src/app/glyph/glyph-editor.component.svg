@@ -1,0 +1,67 @@
+<svg:g g-glyph-metrics
+	[glyph]="glyph"
+	[lineThickness]="metricsThickness"
+/>
+<svg:path class="g-glyph-editor__path"
+	[attr.d]="glyph | svg"
+/>
+<svg:g class="g-glyph-editor__points">
+	<ng-container *ngFor="let c of glyph.path?.contours">
+		<ng-container
+			*ngFor="let p of c.points
+				let isFirst = first
+				let isLast = last"
+		>
+			<line class="g-glyph-editor__path"
+				*ngIf="isLast && c.closed && (
+					p.x !== c.points[0].x || p.y !== c.points[0].y
+				)"
+				[attr.x1]="p.x"
+				[attr.y1]="p.y"
+				[attr.x2]="c.points[0].x"
+				[attr.y2]="c.points[0].y"
+			/>
+
+			<ng-container *ngIf="p.handle_in as handle">
+				<line class="g-glyph-editor__handle g-glyph-editor__handle--line"
+					[attr.x1]="p.x" [attr.y1]="p.y"
+					[attr.x2]="handle.x" [attr.y2]="handle.y"
+				/>
+				<circle class="g-glyph-editor__handle"
+					[attr.cx]="handle.x"
+					[attr.cy]="handle.y"
+					[attr.r]="4 * _scaleFactor"
+				/>
+			</ng-container>
+
+			<ng-container *ngIf="p.handle_out as handle">
+				<line class="g-glyph-editor__handle g-glyph-editor__handle--line"
+					[attr.x1]="p.x" [attr.y1]="p.y"
+					[attr.x2]="handle.x" [attr.y2]="handle.y"
+				/>
+				<circle class="g-glyph-editor__handle"
+					[attr.cx]="handle.x"
+					[attr.cy]="handle.y"
+					[attr.r]="4 * _scaleFactor"
+				/>
+			</ng-container>
+
+			<rect class="g-glyph-editor__point"
+				*ngIf="!isFirst"
+				[attr.x]="p.x - (4 * _scaleFactor)"
+				[attr.y]="p.y - (4 * _scaleFactor)"
+				[attr.width]="8 * _scaleFactor"
+				[attr.height]="8 * _scaleFactor"
+			/>
+
+			<rect class="g-glyph-editor__point g-glyph-editor__point--first"
+				*ngIf="isLast"
+				[attr.x]="c.points[0].x - (4 * _scaleFactor)"
+				[attr.y]="c.points[0].y - (4 * _scaleFactor)"
+				[attr.width]="8 * _scaleFactor"
+				[attr.height]="8 * _scaleFactor"
+				[style.transform-origin]="c.points[0].x + 'px ' + c.points[0].y + 'px'"
+			/>
+		</ng-container>
+	</ng-container>
+</g>

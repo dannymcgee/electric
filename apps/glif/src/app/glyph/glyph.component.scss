@@ -1,0 +1,6 @@
+@use "elx/style/color";
+
+.g-glyph {
+	color: color.foreground();
+	transform: scale(1, -1);
+}

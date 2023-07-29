@@ -3,7 +3,7 @@ import { SafeHtml } from "@angular/platform-browser";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 import * as dialog from "@tauri-apps/api/dialog";
 
-import { Font, NameID } from "./font";
+import { Font, FontProvider, fontProviderFactory, NameID } from "./font";
 import { Glyph } from "./glyph";
 import { ProjectService } from "./project.service";
 
@@ -78,43 +78,9 @@ import { ProjectService } from "./project.service";
 			<div *ngFor="let glyph of glyphs"
 				class="glyph"
 			>
-				<svg class="glyph__svg"
-					*elxUnwrap="(font | svgViewBox : glyph) as viewBox"
-					[attr.viewBox]="viewBox"
-					fill="currentColor"
-				>
-					<g class="glyph__metrics">
-						<line class="glyph__baseline"
-							x1="-10000" y1="0"
-							x2="10000" y2="0"
-						/>
-						<line class="glyph__left"
-							x1="0" y1="-10000"
-							x2="0" y2="10000"
-						/>
-						<line class="glyph__right"
-							[attr.x1]="glyph.width" y1="-10000"
-							[attr.x2]="glyph.width" y2="10000"
-						/>
-						<line class="glyph__xheight"
-							x1="-10000" [attr.y1]="font?.os_2?.sxHeight"
-							x2="10000" [attr.y2]="font?.os_2?.sxHeight"
-						/>
-						<line class="glyph__cap"
-							x1="-10000" [attr.y1]="font?.os_2?.sCapHeight"
-							x2="10000" [attr.y2]="font?.os_2?.sCapHeight"
-						/>
-						<line class="glyph__asc"
-							x1="-10000" [attr.y1]="font?.os_2?.sTypoAscender"
-							x2="10000" [attr.y2]="font?.os_2?.sTypoAscender"
-						/>
-						<line class="glyph__dsc"
-							x1="-10000" [attr.y1]="font?.os_2?.sTypoDescender"
-							x2="10000" [attr.y2]="font?.os_2?.sTypoDescender"
-						/>
-					</g>
-					<path [attr.d]="glyph | svg" />
-				</svg>
+				<svg g-glyph class="glyph__svg"
+					[glyph]="glyph"
+				/>
 				<div role="button" class="glyph__label"
 					(click)="setActiveGlyph(glyph)"
 				>
@@ -135,92 +101,11 @@ import { ProjectService } from "./project.service";
 			<elx-dialog-heading>
 				{{ activeGlyph?.name ?? "" }}
 			</elx-dialog-heading>
-			<svg class="active-glyph__svg"
-				*elxUnwrap="(font | svgViewBox : activeGlyph) as viewBox"
-				[attr.viewBox]="viewBox"
-			>
-				<g class="glyph__metrics active-glyph__metrics">
-					<line class="glyph__baseline active-glyph__baseline"
-						x1="-10000" y1="0"
-						x2="10000" y2="0"
-					/>
-					<line class="glyph__left active-glyph__left"
-						x1="0" y1="-10000"
-						x2="0" y2="10000"
-					/>
-					<line class="glyph__right active-glyph__right"
-						[attr.x1]="activeGlyph?.width" y1="-10000"
-						[attr.x2]="activeGlyph?.width" y2="10000"
-					/>
-					<line class="glyph__xheight active-glyph__xheight"
-						x1="-10000" [attr.y1]="font?.os_2?.sxHeight"
-						x2="10000" [attr.y2]="font?.os_2?.sxHeight"
-					/>
-					<line class="glyph__cap active-glyph__cap"
-						x1="-10000" [attr.y1]="font?.os_2?.sCapHeight"
-						x2="10000" [attr.y2]="font?.os_2?.sCapHeight"
-					/>
-					<line class="glyph__asc active-glyph__asc"
-						x1="-10000" [attr.y1]="font?.os_2?.sTypoAscender"
-						x2="10000" [attr.y2]="font?.os_2?.sTypoAscender"
-					/>
-					<line class="glyph__dsc active-glyph__dsc"
-						x1="-10000" [attr.y1]="font?.os_2?.sTypoDescender"
-						x2="10000" [attr.y2]="font?.os_2?.sTypoDescender"
-					/>
-				</g>
-				<path class="active-glyph__path"
-					[attr.d]="activeGlyph | svg"
-				/>
-				<g class="active-glyph__points">
-					<ng-container *ngFor="let c of activeGlyph?.path?.contours">
-						<ng-container
-							*ngFor="let p of c.points
-								let isLast = last"
-						>
-							<line class="active-glyph__path"
-								*ngIf="isLast && c.closed && (
-									p.x !== c.points[0].x || p.y !== c.points[0].y
-								)"
-								[attr.x1]="p.x"
-								[attr.y1]="p.y"
-								[attr.x2]="c.points[0].x"
-								[attr.y2]="c.points[0].y"
-							/>
 
-							<ng-container *ngIf="p.handle_in as handle">
-								<line class="active-glyph__handle active-glyph__handle--line"
-									[attr.x1]="p.x" [attr.y1]="p.y"
-									[attr.x2]="handle.x" [attr.y2]="handle.y"
-								/>
-								<circle class="active-glyph__handle"
-									[attr.cx]="handle.x"
-									[attr.cy]="handle.y"
-									r="5"
-								/>
-							</ng-container>
-							<ng-container *ngIf="p.handle_out as handle">
-								<line class="active-glyph__handle active-glyph__handle--line"
-									[attr.x1]="p.x" [attr.y1]="p.y"
-									[attr.x2]="handle.x" [attr.y2]="handle.y"
-								/>
-								<circle class="active-glyph__handle"
-									[attr.cx]="handle.x"
-									[attr.cy]="handle.y"
-									r="5"
-								/>
-							</ng-container>
+			<svg g-glyph-editor class="active-glyph__svg"
+				[glyph]="activeGlyph!"
+			/>
 
-							<rect class="active-glyph__point"
-								[attr.x]="p.x - 5"
-								[attr.y]="p.y - 5"
-								width="10"
-								height="10"
-							/>
-						</ng-container>
-					</ng-container>
-				</g>
-			</svg>
 			<elx-dialog-footer>
 				<button elx-btn
 					(click)="activeGlyphDialog.close()"
@@ -248,8 +133,13 @@ import { ProjectService } from "./project.service";
 
 	`,
 	styleUrls: ["./app.component.scss"],
+	providers: [{
+		provide: Font,
+		useFactory: fontProviderFactory,
+		deps: [AppComponent],
+	}]
 })
-export class AppComponent {
+export class AppComponent implements FontProvider {
 	get maximized() { return this._win.maximized }
 	set maximized(_) { this._win.toggleMaximized() }
 
@@ -369,18 +259,5 @@ export class GlyphToSvgPipe implements PipeTransform {
 	transform(glyph: Glyph | undefined) {
 		if (!glyph) return "";
 		return glyph.toString();
-	}
-}
-
-@Pipe({ name: "svgViewBox" })
-export class FontToSvgViewBoxPipe implements PipeTransform {
-	transform(font?: Font, glyph?: Glyph): string {
-		if (!font?.head || !glyph) return "0 0 1000 1000";
-
-		const { xMin, yMin, yMax } = font.head;
-		const { width } = glyph;
-		const height = yMax - yMin;
-
-		return `${xMin} ${yMin} ${width} ${height}`
 	}
 }

@@ -52,29 +52,10 @@
 	margin: 8px 0;
 
 	&__svg {
-		@include scrollbar(200);
+		@include layout.flex($dir:column);
 		margin: 0;
 		padding: 0;
-		color: color.foreground();
 		flex: 1 0 0;
-		transform: scale(1, -1);
-	}
-
-	&__metrics {
-		stroke: color.background(700);
-		stroke-width: 10px;
-		stroke-opacity: 0.4;
-	}
-
-	&__baseline,
-	&__left,
-	&__right {
-		stroke-opacity: 1;
-	}
-
-	&__asc,
-	&__dsc {
-		stroke-dasharray: 40px;
 	}
 
 	&__label {
@@ -143,34 +124,5 @@
 	&__svg {
 		flex: 1 0 0;
 		transform: scale(1, -1);
-	}
-
-	&__path {
-		stroke: color.foreground();
-		stroke-width: 2px;
-		fill: none;
-	}
-
-	&__point {
-		fill: #FF80FF;
-	}
-
-	&__handle {
-		fill: color.accent(700);
-
-		&--line {
-			stroke: color.accent(700, 0.5);
-			stroke-width: 2px;
-		}
-	}
-
-	&__metrics {
-		stroke: color.background(800);
-		stroke-width: 2px;
-	}
-
-	&__asc,
-	&__dsc {
-		stroke-dasharay: 10px;
 	}
 }

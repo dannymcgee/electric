@@ -1,0 +1,29 @@
+@use "elx/style/color";
+
+.g-glyph-editor {
+	transform: scale(1, -1);
+
+	&__path {
+		stroke: color.foreground();
+		stroke-width: calc(var(--path-thickness) * var(--scale-factor));
+		fill: none;
+	}
+
+	&__point {
+		fill: #FF80FF;
+
+		&--first {
+			fill: color.warning(800);
+			transform: scale(1.25);
+		}
+	}
+
+	&__handle {
+		fill: color.accent(700);
+
+		&--line {
+			stroke: color.accent(700, 0.5);
+			stroke-width: calc(var(--handle-thickness) * var(--scale-factor));
+		}
+	}
+}

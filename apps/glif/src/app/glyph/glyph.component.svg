@@ -1,0 +1,2 @@
+<svg:g g-glyph-metrics [glyph]="glyph"></svg:g>
+<svg:path [attr.d]="glyph | svg" />

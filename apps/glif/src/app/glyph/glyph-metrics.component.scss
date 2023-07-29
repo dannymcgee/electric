@@ -1,0 +1,17 @@
+@use "elx/style/color";
+
+.g-glyph-metrics {
+	stroke: color.foreground(50, 0.2);
+	stroke-opacity: 0.4;
+
+	&__baseline,
+	&__left,
+	&__right {
+		stroke-opacity: 1;
+	}
+
+	&__asc,
+	&__dsc {
+		stroke-dasharray: calc(4 * var(--stroke-width));
+	}
+}
