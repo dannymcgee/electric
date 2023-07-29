@@ -3,5 +3,9 @@
 	"typescript.tsdk": "node_modules\\typescript\\lib",
 	"files.associations": {
 		"*.svg": "html",
-	}
+	},
+	"explorer.fileNesting.patterns": {
+		"*.component.ts": "${capture}.component.scss, ${capture}.component.css, ${capture}.component.html, ${capture}.component.svg, ${capture}.component.spec.ts",
+		"*.dialog.ts": "${capture}.dialog.scss, ${capture}.dialog.css, ${capture}.dialog.html, ${capture}.dialog.svg, ${capture}.dialog.spec.ts",
+	},
 }

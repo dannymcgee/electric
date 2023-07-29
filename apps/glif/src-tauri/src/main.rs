@@ -3,11 +3,15 @@
 	windows_subsystem = "windows"
 )]
 
-use std::process::{Command, Output};
+use std::{
+	path::Path,
+	process::{Command, Output},
+};
 
 fn main() {
 	tauri::Builder::default()
 		.invoke_handler(tauri::generate_handler![parse_font_to_xml])
+		.invoke_handler(tauri::generate_handler![path_exists])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");
 }
@@ -29,4 +33,9 @@ fn parse_font_to_xml(font_path: String) -> Result<String, String> {
 		},
 		Err(err) => Err(format!("{}", err)),
 	}
+}
+
+#[tauri::command]
+fn path_exists(pathname: String) -> bool {
+	Path::new(&pathname).exists()
 }

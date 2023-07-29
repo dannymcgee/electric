@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
@@ -7,6 +8,7 @@ import {
 	ButtonModule,
 	DEFAULT_THEME,
 	DialogModule,
+	FormControlsModule,
 	IconModule,
 	MenuModule,
 	ThemeModule,
@@ -19,6 +21,7 @@ import { ICONS } from "@electric/style";
 import {
 	AppComponent,
 } from "./app.component";
+import { NewFamilyDialog, ParentFolderExistsValidator, TargetFolderIsNewValidator } from "./family";
 import {
 	GlyphComponent,
 	GlyphEditorComponent,
@@ -32,11 +35,13 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 		// Angular modules
 		BrowserModule,
 		BrowserAnimationsModule,
+		FormsModule,
 		// Electric modules
 		A11yModule,
 		AppShellModule,
 		ButtonModule,
 		DialogModule,
+		FormControlsModule,
 		IconModule.withIcons(ICONS),
 		MenuModule,
 		PlatformModule.forPlatform(AppPlatform.Tauri),
@@ -52,6 +57,9 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 		GlyphMetricsComponent,
 		GlyphToSvgPipe,
 		HexPipe,
+		NewFamilyDialog,
+		ParentFolderExistsValidator,
+		TargetFolderIsNewValidator,
 	],
 	bootstrap: [
 		AppComponent,

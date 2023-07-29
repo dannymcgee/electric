@@ -8,7 +8,7 @@ export type Path = string;
 @Injectable({
 	providedIn: "root",
 })
-export class ProjectService implements OnDestroy {
+export class FamilyService implements OnDestroy {
 	private _home$ = new BehaviorSubject<Path | null>(null);
 
 	get home$() { return this._home$.asObservable(); }

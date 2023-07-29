@@ -9,7 +9,7 @@
 	>
 		<img *elxTitlebarIcon
 			src="assets/favicon.ico"
-			alt="Glif Favicon"
+			alt="Glyphy Favicon"
 		/>
 
 		<elx-menubar>
@@ -25,8 +25,8 @@
 		</elx-menubar>
 
 		<div class="title" elxTitlebarTitle>
-			<span class="title__app">Glif</span>
-			<ng-container *ngIf="(_project.name$ | async) as projectName">
+			<span class="title__app">Glyphy</span>
+			<ng-container *ngIf="(_familyService.name$ | async) as projectName">
 				<em class="title__sep">/</em>
 				<span class="title__project">{{ projectName }}</span>
 			</ng-container>
@@ -39,12 +39,12 @@
 
 	<elx-menu #fileMenu>
 		<elx-menuitem icon="NewFolder" keybind="Ctrl + N"
-			(click)="_project.create()"
+			(click)="newFamilyDialog = true"
 		>
 			New Project...
 		</elx-menuitem>
 		<elx-menuitem icon="FolderOpen" keybind="Ctrl + O"
-			(click)="_project.open()"
+			(click)="_familyService.open()"
 		>
 			Open Project...
 		</elx-menuitem>
@@ -107,6 +107,12 @@
 				</button>
 			</elx-dialog-footer>
 		</elx-dialog>
+
+		<g-new-family-dialog
+			*elxDialogTrigger="newFamilyDialog"
+			(confirm)="createFamily($event)"
+			(cancel)="newFamilyDialog = false"
+		></g-new-family-dialog>
 
 		<ng-template #getStarted>
 			<button elx-btn="primary"

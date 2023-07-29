@@ -1,0 +1,29 @@
+@use "elx/a11y";
+@use "elx/layout";
+@use "elx/style/color";
+@use "elx/style/scrollbar" as *;
+
+.form {
+	@include layout.flex(column);
+	gap: 16px;
+	margin-top: 12px;
+}
+
+.input-group {
+	@include layout.flex(row);
+	gap: 2px;
+
+	&__field {
+		flex: 1 0 0;
+	}
+}
+
+.fonts-container {
+	$max-items: 8;
+
+	@include layout.flex(column);
+	gap: 16px;
+	max-height: calc(#{$max-items * a11y.rem(16)} + #{($max-items - 1) * 16px});
+	overflow-y: auto;
+	@include scrollbar(400);
+}

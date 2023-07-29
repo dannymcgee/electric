@@ -1,0 +1,82 @@
+<elx-dialog blocking>
+	<elx-dialog-heading>
+		New Font Family
+	</elx-dialog-heading>
+
+	<form class="form" id="new-family-form"
+		autocomplete="off"
+		#form="ngForm"
+		(ngSubmit)="onSubmit(form.value)"
+	>
+		<input type="hidden"
+			name="parentDirectory"
+			required
+			[ngModel]="parentDirectory"
+		/>
+
+		<elx-form-field>
+			<elx-label>Family Name</elx-label>
+			<input elx-input
+				elxAutofocus
+				name="family"
+				autocomplete="off"
+				required
+				[(ngModel)]="name"
+			/>
+		</elx-form-field>
+
+		<elx-form-field>
+			<elx-label>Directory</elx-label>
+			<div class="input-group">
+				<input elx-input #directoryInput="ngModel"
+					class="input-group__field"
+					name="directory"
+					required
+					gParentFolderExists
+					gTargetFolderIsNew
+					[(ngModel)]="directory"
+				/>
+				<button elx-btn
+					type="button"
+					icon="FolderOpen"
+					(click)="selectParentFolder(directoryInput.control)"
+				>
+					Browse...
+				</button>
+			</div>
+		</elx-form-field>
+
+		<elx-fieldset name="fonts">
+			<elx-label>Fonts</elx-label>
+
+			<div class="fonts-container">
+				<elx-checkbox
+					*ngFor="let font of fonts
+						trackBy: trackByIndex
+						let i = index"
+					[name]="font.weightName + font.style"
+					[(ngModel)]="fonts[i].checked"
+				>
+					{{ font.weightName }} ({{ font.weight }}) {{ font.style }}
+				</elx-checkbox>
+			</div>
+		</elx-fieldset>
+	</form>
+
+	<elx-dialog-footer>
+		<button elx-btn
+			icon="Cancel"
+			(click)="cancel.emit()"
+		>
+			Cancel
+		</button>
+		<button elx-btn="primary"
+			type="submit"
+			form="new-family-form"
+			icon="Confirm"
+			[disabled]="!!(form.pending || form.invalid)"
+		>
+			Confirm
+		</button>
+	</elx-dialog-footer>
+</elx-dialog>

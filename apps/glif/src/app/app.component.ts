@@ -4,7 +4,7 @@ import * as dialog from "@tauri-apps/api/dialog";
 
 import { Font, FontProvider, fontProviderFactory, NameID } from "./font";
 import { Glyph } from "./glyph";
-import { ProjectService } from "./project.service";
+import { FamilyService, NewFamily } from "./family";
 
 @Component({
 	selector: "g-root",
@@ -26,10 +26,12 @@ export class AppComponent implements FontProvider {
 	font?: Font;
 	fontName?: string;
 
+	newFamilyDialog = false;
+
 	constructor (
 		private _cdRef: ChangeDetectorRef,
 		@Inject(WINDOW_PROVIDER) private _win: WindowProvider,
-		public _project: ProjectService,
+		public _familyService: FamilyService,
 	) {}
 
 	async minimize() {
@@ -93,5 +95,10 @@ export class AppComponent implements FontProvider {
 		this.activeGlyph = glyph;
 		console.log("active glyph:", glyph);
 		this._cdRef.markForCheck();
+	}
+
+	async createFamily(family: NewFamily) {
+		console.log(family); // TODO
+		this.newFamilyDialog = false;
 	}
 }
