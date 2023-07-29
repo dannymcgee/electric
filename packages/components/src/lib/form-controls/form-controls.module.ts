@@ -21,6 +21,7 @@ import {
 } from './select/select.component';
 import { OptionComponent } from './select/option/option.component';
 import { OptionListComponent } from './select/option-list/option-list.component';
+import { FieldsetComponent } from "./fieldset/fieldset.component";
 
 @NgModule({
 	imports: [
@@ -31,6 +32,7 @@ import { OptionListComponent } from './select/option-list/option-list.component'
 	],
 	declarations: [
 		CheckboxComponent,
+		FieldsetComponent,
 		FormFieldComponent,
 		InputComponent,
 		LabelComponent,
@@ -45,6 +47,7 @@ import { OptionListComponent } from './select/option-list/option-list.component'
 	],
 	exports: [
 		CheckboxComponent,
+		FieldsetComponent,
 		FormFieldComponent,
 		InputComponent,
 		LabelComponent,

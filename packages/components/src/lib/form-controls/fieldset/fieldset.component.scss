@@ -1,0 +1,48 @@
+@use "elx/layout";
+@use "elx/style/color";
+
+.elx-fieldset {
+	@include layout.flex(column);
+	gap: 16px;
+	padding: {
+		left: 16px;
+		bottom: 16px;
+	}
+	position: relative;
+	border-bottom: 2px solid color.background(600);
+
+	&::before,
+	&::after {
+		content: "";
+		display: block;
+		width: 2px;
+		position: absolute;
+		background: color.background(600);
+	}
+
+	&::before {
+		top: 20px;
+		bottom: 0;
+		left: 0;
+	}
+
+	&::after {
+		top: 10px;
+		right: 0;
+		bottom: 0;
+	}
+
+	.elx-label {
+		@include layout.flex(row, baseline);
+		margin-left: -16px;
+
+		&::after {
+			content: "";
+			display: block;
+			flex: 1 0 0;
+			height: 2px;
+			margin-left: 6px;
+			background: color.background(600);
+		}
+	}
+}
