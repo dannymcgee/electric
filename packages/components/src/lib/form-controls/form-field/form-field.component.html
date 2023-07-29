@@ -1,0 +1,22 @@
+<ng-content select="elx-label"></ng-content>
+<ng-content></ng-content>
+
+<ng-container *ngIf="(_status$ | async) === 'INVALID'">
+	<ul class="elx-validation-errors"
+		*ngIf="_touched"
+	>
+		<li class="elx-validation-error"
+			*ngFor="let entry of (_validationErrors$ | async | keyvalue)"
+		>
+			<ng-container
+				*ngIf="entry.key === 'required'
+				else customErrorMessage"
+			>
+				This field is required.
+			</ng-container>
+			<ng-template #customErrorMessage>
+				{{ entry.value }}
+			</ng-template>
+		</li>
+	</ul>
+</ng-container>

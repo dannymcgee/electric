@@ -22,6 +22,10 @@
 		box-shadow: 0 2px 0 0 color.foreground(50, 0.1);
 	}
 
+	&.ng-invalid:where(.ng-touched) {
+		box-shadow: 0 0 0 1px color.warning(700, 0.6);
+	}
+
 	&:focus {
 		box-shadow: 0 0 0 2px color.accent(600);
 		background: color.background(100);
