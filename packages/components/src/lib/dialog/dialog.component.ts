@@ -94,6 +94,9 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	@ContentChild(forwardRef(() => DialogFooterDirective))
 	_footer?: DialogFooterDirective;
 
+	@ContentChild(INITIAL_FOCUS_TARGET)
+	_customFocusTarget?: Focusable;
+
 	private _dragRef?: DragRef;
 	private _focusTrap?: ConfigurableFocusTrap;
 
@@ -132,11 +135,14 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 		// there's no focus trap?
 		if (!this._focusTrap) return;
 
-		let focusTarget = this._footer?.initialFocusTarget;
+		let focusTarget = this._customFocusTarget ?? this._footer?.initialFocusTarget;
 		if (focusTarget) {
 			this._focusTrap.attachAnchors();
 			setTimeout(() => {
-				focusTarget!.focus("keyboard");
+				if (focusTarget && !(focusTarget as any)["disabled"])
+					focusTarget.focus("keyboard");
+				else
+					this._focusTrap?.focusFirstTabbableElementWhenReady();
 			});
 		} else {
 			this._focusTrap.attachAnchors();
