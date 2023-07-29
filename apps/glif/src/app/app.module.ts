@@ -18,12 +18,14 @@ import { ICONS } from "@electric/style";
 
 import {
 	AppComponent,
-	CffProgramPipe,
-	GlyphToSvgPipe,
-	HexPipe,
 } from "./app.component";
-import { FontToSvgViewBoxPipe, GlyphComponent, GlyphMetricsComponent } from "./glyph";
-import { GlyphEditorComponent } from "./glyph/glyph-editor.component";
+import {
+	GlyphComponent,
+	GlyphEditorComponent,
+	GlyphMetricsComponent,
+	GlyphToSvgPipe,
+} from "./glyph";
+import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 
 @NgModule({
 	imports: [

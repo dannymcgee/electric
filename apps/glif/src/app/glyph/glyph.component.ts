@@ -10,7 +10,7 @@ import {
 
 import { Font } from "../font";
 import { Glyph } from "./glyph";
-import { getViewBox, ViewBox } from "./viewbox.pipe";
+import { getViewBox, ViewBox } from "../util";
 
 @Component({
 	selector: "svg[g-glyph]",

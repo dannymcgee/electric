@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
 import { Font } from "../font";
-import { Glyph } from "./glyph";
+import { Glyph } from "../glyph/glyph";
 
 export class ViewBox {
 	constructor (

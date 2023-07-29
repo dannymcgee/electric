@@ -15,7 +15,7 @@ import { Subject, takeUntil } from "rxjs";
 import { Font } from "../font";
 import { Glyph } from "./glyph";
 import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
-import { getViewBox, ViewBox } from "./viewbox.pipe";
+import { getViewBox, ViewBox } from "../util/viewbox";
 
 @Component({
 	selector: "svg[g-glyph-editor]",

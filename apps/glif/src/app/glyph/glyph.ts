@@ -1,3 +1,4 @@
+import { Pipe, PipeTransform } from "@angular/core";
 import { Const } from "@electric/utils";
 import * as d3 from "d3";
 
@@ -35,5 +36,13 @@ export class Glyph {
 		vm.exec();
 
 		return vm.path;
+	}
+}
+
+@Pipe({ name: "svg" })
+export class GlyphToSvgPipe implements PipeTransform {
+	transform(glyph: Glyph | undefined) {
+		if (!glyph) return "";
+		return glyph.toString();
 	}
 }
