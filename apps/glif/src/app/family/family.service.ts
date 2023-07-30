@@ -166,44 +166,17 @@ export class FamilyService implements OnDestroy {
 
 			if (!result) return;
 
-			if (Array.isArray(result)) {
-				const fonts = await Promise.all(result.map(this.importFromOpenType.bind(this)));
+			const fonts = Array.isArray(result)
+				? await Promise.all(result.map(it => this.importFromOpenType(it)))
+				: [await this.importFromOpenType(result)];
 
-				if (!this._fonts$.value.length) {
-					this._fonts$.next(fonts);
-					this._font$.next(fonts[0] ?? null);
-				}
-				else {
-					const unique: Font[] = [];
-					for (let font of fonts) {
-						if (this._fonts$.value.some(f => f.styleName === font.styleName)) {
-							// TODO
-							console.error(`Existing font conflicts with import: ${font.postScriptName}`);
-						}
-						else {
-							unique.push(font);
-						}
-					}
-
-					if (unique.length) {
-						this._fonts$.next(this.insertFonts(this._fonts$.value, unique));
-					}
-				}
+			if (!this._fonts$.value.length) {
+				this._fonts$.next(fonts);
+				this._font$.next(fonts[0] ?? null);
 			}
 			else {
-				const font = await this.importFromOpenType(result);
-
-				if (!this._fonts$.value.length) {
-					this._fonts$.next([font]);
-					this._font$.next(font);
-				}
-				else if (this._fonts$.value.some(f => f.styleName === font.styleName)) {
-					// TODO
-					console.error(`Existing font conflicts with import: ${font.postScriptName}`);
-				}
-				else {
-					this._fonts$.next(this.insertFonts(this._fonts$.value, font));
-				}
+				const updated = this.mergeFonts(this._fonts$.value, fonts);
+				this._fonts$.next(updated);
 			}
 		}
 		catch (err) {
@@ -215,18 +188,35 @@ export class FamilyService implements OnDestroy {
 		this._font$.next(font);
 	}
 
-	private insertFonts(dest: readonly Font[], src: Font | readonly Font[]): Font[] {
-		return dest
-			.concat(src)
-			.sort((a, b) => {
-				if (a.weight !== b.weight)
-					return a.weight - b.weight;
+	private mergeFonts(dest: readonly Font[], src: readonly Font[]): Font[] {
+		const result: Font[] = [];
+		const ids = new Set<string>();
 
-				if (a.style === FontStyle.Upright)
-					return -1;
+		const addFont = (font: Font) => {
+			if (!ids.has(font.postScriptName)) {
+				ids.add(font.postScriptName);
+				result.push(font);
+			}
+			else {
+				// TODO
+				console.warn(`Existing font ${font.postScriptName} conflicts with import -- skipping`);
+			}
+		}
 
-				return 1;
-			});
+		dest.forEach(addFont);
+		src.forEach(addFont);
+
+		result.sort((a, b) => {
+			if (a.weight !== b.weight)
+				return a.weight - b.weight;
+
+			if (a.style === FontStyle.Upright)
+				return -1;
+
+			return 1;
+		});
+
+		return result;
 	}
 
 	private async importFromOpenType(otfPath: string): Promise<Font> {
