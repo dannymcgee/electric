@@ -2,7 +2,7 @@ import { coerceElement } from "@angular/cdk/coercion";
 import { ElementRef, Injectable, OnDestroy } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 
-interface ResizeEntry<T extends Element> extends ResizeObserverEntry {
+export interface ResizeEntry<T extends Element> extends ResizeObserverEntry {
 	target: T;
 }
 
