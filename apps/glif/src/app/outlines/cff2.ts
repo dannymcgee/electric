@@ -339,8 +339,10 @@ export class InterpreterCFF2 {
 	private rlineto(...dx_dy: number[]): void;
 
 	private rlineto(...args: number[]): void {
-		if (args.length % 2)
-			throw new Error(`Expected args.length to be divisible by two, but received ${args.length}`);
+		if (args.length % 2) {
+			console.error(`Expected args.length to be divisible by two, but received ${args.length}`);
+			return;
+		}
 
 		for (let i = 0; i < args.length; i += 2) {
 			const [x0, y0] = this._currentPoint;
@@ -362,8 +364,10 @@ export class InterpreterCFF2 {
 	 * `nocurrentpoint` error occurs.
 	 */
 	private lineto(x: number, y: number): void {
-		if (!this._path)
-			throw new Error("nocurrentpoint");
+		if (!this._path) {
+			console.error("nocurrentpoint");
+			return;
+		}
 
 		this._path.lineTo(x, y);
 		this._currentPoint = [x, y];
@@ -428,8 +432,10 @@ export class InterpreterCFF2 {
 	private rrcurveto(...dx1_dy1_dx2_dy2_dx2_dy3: number[]): void;
 
 	private rrcurveto(...args: number[]): void {
-		if (args.length % 6)
-			throw new Error(`Expected args.length to be divisible by six, but received ${args.length}`);
+		if (args.length % 6) {
+			console.error(`Expected args.length to be divisible by six, but received ${args.length}`);
+			return;
+		}
 
 		for (let i = 0; i < args.length; i += 6) {
 			const [dx1, dy1, dx2, dy2, dx3, dy3] = args.slice(i, i+6);
@@ -471,8 +477,10 @@ export class InterpreterCFF2 {
 		x2: number, y2: number,
 		x3: number, y3: number,
 	): void {
-		if (!this._path)
-			throw new Error("nocurrentpoint");
+		if (!this._path) {
+			console.error("nocurrentpoint");
+			return;
+		}
 
 		this._path.bezierCurveTo(x1, y1, x2, y2, x3, y3);
 		this._currentPoint = [x3, y3];

@@ -193,8 +193,10 @@ export class Path implements IPath {
 			cpx1, cpy1, cpx2, cpy2, x, y
 		) as IPathCommand);
 
-		if (!this.lastPoint)
-			throw new Error("nocurrentpoint")
+		if (!this.lastPoint) {
+			console.error("nocurrentpoint");
+			return;
+		}
 
 		this.lastPoint.handle_out = new Vec2(cpx1, cpy1);
 
