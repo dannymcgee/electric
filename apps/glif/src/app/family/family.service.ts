@@ -332,10 +332,10 @@ export class FamilyService implements OnDestroy {
 					return a.name!.localeCompare(b.name!);
 
 				if (a.charCode == null)
-					return -1;
+					return 1;
 
 				if (b.charCode == null)
-					return 1;
+					return -1;
 
 				return a.charCode - b.charCode;
 			});
