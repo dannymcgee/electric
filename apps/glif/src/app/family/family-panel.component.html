@@ -1,0 +1,39 @@
+<h1 class="family">
+	<elx-icon class="family__icon"
+		icon="Component"
+	></elx-icon>
+	<span class="family__name">
+		{{ (family$ | async)?.name }}
+	</span>
+</h1>
+
+<nav class="fonts" role="navigation">
+	<div role="link"
+		*ngFor="let font of (fonts$ | async)"
+		class="font"
+		[class.active]="font === (font$ | async)"
+		tabindex="0"
+		(click)="setActive(font)"
+		(keydown.enter)="setActive(font)"
+	>
+		<!-- TODO: Use font glyph -->
+		<span class="font__icon"
+			aria-hidden="true"
+			[style.font-weight]="font.weight"
+			[style.font-style]="(font.style || 'normal').toLowerCase()"
+		>a</span>
+		<span class="font__name">
+			{{ font.styleName }}
+		</span>
+	</div>
+</nav>
+
+<div role="button"
+	class="nav-toggle"
+	[attr.aria-label]="collapsed ? 'Expand' : 'Collapse'"
+	(click)="collapsed = !collapsed"
+>
+	<elx-icon class="nav-toggle__icon"
+		icon="ChevronLeftSmall"
+	></elx-icon>
+</div>

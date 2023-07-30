@@ -21,7 +21,12 @@ import { ICONS } from "@electric/style";
 import {
 	AppComponent,
 } from "./app.component";
-import { NewFamilyDialog, ParentFolderExistsValidator, TargetFolderIsNewValidator } from "./family";
+import {
+	FamilyPanelComponent,
+	NewFamilyDialog,
+	ParentFolderExistsValidator,
+	TargetFolderIsNewValidator,
+} from "./family";
 import {
 	GlyphComponent,
 	GlyphEditorComponent,
@@ -51,6 +56,7 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 	declarations: [
 		AppComponent,
 		CffProgramPipe,
+		FamilyPanelComponent,
 		FontToSvgViewBoxPipe,
 		GlyphComponent,
 		GlyphEditorComponent,

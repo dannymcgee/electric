@@ -7,10 +7,7 @@
 		[(maximized)]="maximized"
 		(close)="close()"
 	>
-		<img *elxTitlebarIcon
-			src="assets/favicon.ico"
-			alt="Glyphy Favicon"
-		/>
+		<elx-icon *elxTitlebarIcon icon="Entity"></elx-icon>
 
 		<elx-menubar>
 			<elx-menuitem [elxMenuTriggerFor]="fileMenu">
@@ -59,25 +56,38 @@
 	</elx-menu>
 
 	<elx-main-viewport class="main">
-		<div *ngIf="glyphs.length else getStarted"
-			class="glyphs"
-		>
-			<div *ngFor="let glyph of glyphs"
-				class="glyph"
+		<g-family-panel class="sidebar"
+			*ngIf="(_familyService.family$ | async)"
+		></g-family-panel>
+		<div class="content">
+			<div *ngIf="glyphs.length else getStarted"
+				class="glyphs"
 			>
-				<svg g-glyph class="glyph__svg"
-					[glyph]="glyph"
-				></svg>
-
-				<div role="button" class="glyph__label"
-					(click)="setActiveGlyph(glyph)"
+				<div *ngFor="let glyph of glyphs"
+					class="glyph"
 				>
-					<strong class="glyph__name">{{ glyph.name }}</strong>
-					<span *ngIf="glyph.charCode"
-						class="glyph__char-code"
-					>{{ glyph.charCode | hex }}</span>
+					<svg g-glyph class="glyph__svg"
+						[glyph]="glyph"
+					></svg>
+
+					<div role="button" class="glyph__label"
+						(click)="setActiveGlyph(glyph)"
+					>
+						<strong class="glyph__name">{{ glyph.name }}</strong>
+						<span *ngIf="glyph.charCode"
+							class="glyph__char-code"
+						>{{ glyph.charCode | hex }}</span>
+					</div>
 				</div>
 			</div>
+
+			<ng-template #getStarted>
+				<button elx-btn="primary"
+					(click)="importFont()"
+				>
+					Get Started
+				</button>
+			</ng-template>
 		</div>
 
 		<elx-dialog class="active-glyph__dialog"
@@ -113,14 +123,6 @@
 			(confirm)="createFamily($event[0], $event[1])"
 			(cancel)="newFamilyDialog = false"
 		></g-new-family-dialog>
-
-		<ng-template #getStarted>
-			<button elx-btn="primary"
-				(click)="importFont()"
-			>
-				Get Started
-			</button>
-		</ng-template>
 
 	</elx-main-viewport>
 </elx-app-shell>

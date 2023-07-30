@@ -1,0 +1,162 @@
+@use "elx/a11y";
+@use "elx/anim";
+@use "elx/layout";
+@use "elx/style/color";
+
+:host {
+	@include layout.flex(column);
+	width: a11y.rem(256);
+	padding: a11y.rem(8) 0 0;
+	gap: a11y.rem(8);
+	overflow: hidden;
+	@include anim.transition(width, 200ms, anim.$ease-in-out-sine);
+
+	&.collapsed {
+		width: a11y.rem(48);
+	}
+}
+
+.family, .font {
+	@include layout.flex($a:center);
+	height: a11y.rem(48);
+	margin: 0;
+	padding: 0 a11y.rem(14);
+	gap: a11y.rem(14);
+
+	&__icon {
+		flex: 0 0 a11y.rem(20);
+	}
+
+	&__name {
+		flex: 1 0 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		opacity: 1;
+		@include anim.transition(opacity, 200ms, anim.$ease-in-out-sine);
+	}
+}
+
+.family {
+	cursor: default;
+	user-select: none;
+
+	&__icon {
+		color: color.accent(700);
+		font-size: a11y.rem(20);
+	}
+
+	&__name {
+		color: color.foreground();
+		font: {
+			size: a11y.rem(15);
+			weight: 700;
+		}
+
+		&:where(.collapsed #{&}) {
+			opacity: 0;
+		}
+	}
+}
+
+.font {
+	cursor: default;
+	user-select: none;
+	border-right: 2px solid transparent;
+	outline: none !important;
+	@include anim.transition((background, color, border-color));
+
+	&:hover {
+		background: color.background(500);
+	}
+
+	&.active {
+		background: color.background(200);
+		border-color: color.primary(600);
+
+		&:focus-visible {
+			border-color: color.accent(800);
+
+			&:where(.collapsed #{&}) {
+				background: color.accent(200);
+				border-color: transparent;
+			}
+		}
+	}
+
+	&:focus-visible {
+		background: color.accent(50);
+		color: color.accent(800);
+	}
+
+	&:where(.collapsed #{&}) {
+		border-color: transparent;
+	}
+
+	&__icon {
+		@include layout.flex($a:center, $j:center);
+		width: a11y.rem(20);
+		height: a11y.rem(20);
+		color: color.foreground(400);
+		font-size: a11y.rem(28);
+		transform: translateY(a11y.rem(-3));
+
+		&:where(.font.active #{&}, :focus-visible #{&}) {
+			color: color.accent(700);
+		}
+
+		&:where(.collapsed .font.active:focus-visible #{&}) {
+			color: color.foreground();
+		}
+	}
+
+	&__name {
+		color: color.foreground(200);
+		font: {
+			size: a11y.rem(14);
+			weight: 600;
+		}
+
+		&:where(:focus-visible #{&}) {
+			color: color.accent(800);
+		}
+
+		&:where(.font.active #{&}) {
+			color: color.white();
+		}
+
+		&:where(.collapsed #{&}) {
+			opacity: 0;
+		}
+	}
+}
+
+.nav-toggle {
+	@include layout.flex($a:center, $j:center);
+	margin-top: auto;
+	margin-left: auto;
+	width: a11y.rem(48);
+	height: a11y.rem(48);
+	color: color.foreground(300);
+	font-size: a11y.rem(20);
+	@include anim.transition((background, color, border-color));
+	outline: none !important;
+
+	&:hover {
+		background: color.background(500);
+	}
+
+	&:focus-visible {
+		background: color.accent(50);
+		color: color.accent(800);
+	}
+
+	&__icon {
+		transform: scale(1);
+		@include anim.transition(transform, 200ms, anim.$ease-in-out-sine);
+
+		&:where(.collapsed #{&}) {
+			transform: scale(-1, 1);
+		}
+	}
+}

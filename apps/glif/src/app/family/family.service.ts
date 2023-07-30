@@ -149,4 +149,8 @@ export class FamilyService implements OnDestroy {
 		this._fonts$.next(fonts);
 		this._font$.next(fonts[0] ?? null);
 	}
+
+	setActive(font: Font) {
+		this._font$.next(font);
+	}
 }
