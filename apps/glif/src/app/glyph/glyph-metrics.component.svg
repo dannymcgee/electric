@@ -2,15 +2,32 @@
 	x1="-10000" y1="0"
 	x2="10000" y2="0"
 />
-<svg:line class="g-glyph-metrics__left"
-	x1="0" y1="-10000"
-	x2="0" y2="10000"
-/>
-<svg:line class="g-glyph-metrics__right"
-	*ngIf="glyph != null"
-	[attr.x1]="glyph.width" y1="-10000"
-	[attr.x2]="glyph.width" y2="10000"
-/>
+
+<ng-container *elxUnwrap="(_family.font$ | async) as font">
+	<svg:line class="g-glyph-metrics__left"
+		*ngIf="glyph != null && viewBox != null"
+		x1="0" y1="-10000"
+		x2="0" y2="10000"
+		[style.transform-origin]="font?.italicAngle
+			? ('0 ' + (viewBox.y / -2) + 'px')
+			: null"
+		[style.transform]="font?.italicAngle
+			? ('rotate(' + font.italicAngle + 'deg)')
+			: null"
+	/>
+	<svg:line class="g-glyph-metrics__right"
+		*ngIf="glyph != null && viewBox != null"
+		[attr.x1]="glyph.width" y1="-10000"
+		[attr.x2]="glyph.width" y2="10000"
+		[style.transform-origin]="font?.italicAngle
+			? (glyph.width + 'px ' + (viewBox.y / -2) + 'px')
+			: null"
+		[style.transform]="font?.italicAngle
+			? 'rotate(' + font.italicAngle + 'deg)'
+			: null"
+	/>
+</ng-container>
+
 <ng-container *ngIf="(_family.family$ | async) as family">
 	<svg:line class="g-glyph-metrics__xheight"
 		*ngIf="family.xHeight != null"

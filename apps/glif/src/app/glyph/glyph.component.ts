@@ -36,7 +36,7 @@ export class GlyphComponent implements OnChanges {
 		return `${x} ${y} ${width} ${height}`
 	}
 
-	private _viewBox?: ViewBox;
+	_viewBox?: ViewBox;
 
 	constructor (
 		public _family: FamilyService,

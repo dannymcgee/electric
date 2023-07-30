@@ -154,16 +154,21 @@ function child_impl<V, T extends XmlElement, C extends XmlElement>({
 		XML_LUT.set(lutKey, Child);
 	}
 
-	let child: C | undefined;
+	/**
+	 * Naming things is hard. This is the key of the parent element that holds
+	 * the child element, while `childKey` is the key of the child element that
+	 * holds the value.
+	 */
+	const $childElementKey = Symbol(key);
 	const isType = (it: XmlElement): it is C => it.nodeName === childNodeName;
 
 	Object.defineProperty(target, key, {
 		get(this: T): C[keyof C] | undefined {
-			child ??= this["_children"].find(isType);
+			const child = ((this as any)[$childElementKey] ??= this["_children"].find(isType));
 			return child?.[childKey as keyof C];
 		},
 		set(this: T, value: C[keyof C]) {
-			child ??= this["_children"].find(isType);
+			const child = ((this as any)[$childElementKey] ??= this["_children"].find(isType));
 			if (child) {
 				child[childKey as keyof C] = value;
 			}

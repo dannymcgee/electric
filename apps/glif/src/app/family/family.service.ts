@@ -267,6 +267,9 @@ export class FamilyService implements OnDestroy {
 
 		// TODO: Yikes
 		const weight = ttx.os_2?.usWeightClass
+			?? (ttx.cffTable?.cffFont?.weight
+					? FontWeight[ttx.cffTable.cffFont.weight as keyof typeof FontWeight]
+					: undefined)
 			?? (ttx.head?.macStyle != null
 					? ((ttx.head.macStyle & MacStyleFlags.Bold)
 						? FontWeight.Bold
@@ -288,10 +291,9 @@ export class FamilyService implements OnDestroy {
 				: FontStyle.Upright)
 			: FontStyle.Upright;
 
-		// TODO: Italic Angle is available from the `post` table, which we're not
-		// currently parsing
+		const italicAngle = ttx.cffTable?.cffFont?.italicAngle ?? ttx.post?.italicAngle;
 
-		const result = new Font(family, weight, style);
+		const result = new Font(family, weight, style, italicAngle);
 
 		if (ttx.glyphOrder) {
 			result._glyphs.length = ttx.glyphOrder.glyphIds.length;

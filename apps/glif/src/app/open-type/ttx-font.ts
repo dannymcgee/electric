@@ -11,6 +11,7 @@ import {
 	HorizontalMetricsTable,
 	NamesTable,
 	OS2Table,
+	PostScriptTable,
 } from "./open-type.types";
 
 @Xml("ttFont")
@@ -34,6 +35,7 @@ export class TtxFont extends XmlElement {
 	readonly namesTable?: NamesTable;
 	readonly os_2?: OS2Table;
 	readonly cmap?: CharToGlyphIdMappingsTable;
+	readonly post?: PostScriptTable;
 	readonly cffTable?: CFFTable;
 	readonly hmtx?: HorizontalMetricsTable;
 
@@ -45,6 +47,7 @@ export class TtxFont extends XmlElement {
 		this.namesTable = this._children.find(instanceOf(NamesTable));
 		this.os_2 = this._children.find(instanceOf(OS2Table));
 		this.cmap = this._children.find(instanceOf(CharToGlyphIdMappingsTable));
+		this.post = this._children.find(instanceOf(PostScriptTable));
 		this.cffTable = this._children.find(instanceOf(CFFTable));
 		this.hmtx = this._children.find(instanceOf(HorizontalMetricsTable));
 	}

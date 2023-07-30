@@ -776,6 +776,14 @@ export class CharToGlyphIdMapEntry extends XmlElement {
 	@attr(str) name!: string;
 }
 
+@Xml("post")
+export class PostScriptTable extends XmlElement {
+	@child(float) italicAngle!: number;
+	@child(float) underlinePosition!: FWORD;
+	@child(float) underlineThickness!: FWORD;
+	@child(int) isFixedPitch!: u32;
+}
+
 type OS2Version = 0 | 1 | 2 | 3 | 4 | 5;
 
 @Xml("OS_2")

@@ -11,6 +11,7 @@ import {
 import { Subject, takeUntil } from "rxjs";
 
 import { FamilyService } from "../family";
+import { ViewBox } from "../util";
 import { Glyph } from "./glyph";
 import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 
@@ -25,6 +26,7 @@ import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 export class GlyphMetricsComponent implements OnInit, OnDestroy {
 	@Input() glyph?: Glyph;
 	@Input() lineThickness = 1;
+	@Input() viewBox?: ViewBox;
 
 	@HostBinding("class")
 	readonly hostClass = "g-glyph-metrics";
