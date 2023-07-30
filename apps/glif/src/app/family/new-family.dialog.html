@@ -33,7 +33,7 @@
 					name="directory"
 					required
 					gParentFolderExists
-					gTargetFolderIsNew
+					[gTargetFolderIsNew]="{ allowEmpty: true }"
 					[(ngModel)]="directory"
 				/>
 				<button elx-btn

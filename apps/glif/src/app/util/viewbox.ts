@@ -13,11 +13,12 @@ export class ViewBox {
 }
 
 export function getViewBox(font: Font, glyph: Glyph): ViewBox {
-	const { xMin, yMin, yMax } = font.metrics;
+	const { ascender, descender } = font;
 	const width = glyph.width ?? 0;
-	const height = yMax - yMin;
+	const height = (ascender - descender) * 1.333333;
+	const y = ((ascender - descender) * 0.333333) / 2 - descender;
 
-	return new ViewBox(xMin, yMin, width, height);
+	return new ViewBox(0, -y, width, height);
 }
 
 @Pipe({ name: "svgViewBox" })

@@ -12,22 +12,20 @@
 	[attr.x2]="glyph.width" y2="10000"
 />
 <svg:line class="g-glyph-metrics__xheight"
-	*ngIf="_font.metrics.xHeight != null"
-	x1="-10000" [attr.y1]="_font.metrics.xHeight"
-	x2="10000" [attr.y2]="_font.metrics.xHeight"
+	*ngIf="_font.xHeight != null"
+	x1="-10000" [attr.y1]="_font.xHeight"
+	x2="10000" [attr.y2]="_font.xHeight"
 />
 <svg:line class="g-glyph-metrics__cap"
-	*ngIf="_font.metrics.capHeight != null"
-	x1="-10000" [attr.y1]="_font.metrics.capHeight"
-	x2="10000" [attr.y2]="_font.metrics.capHeight"
+	*ngIf="_font.capHeight != null"
+	x1="-10000" [attr.y1]="_font.capHeight"
+	x2="10000" [attr.y2]="_font.capHeight"
 />
 <svg:line class="g-glyph-metrics__asc"
-	*ngIf="_font.metrics.ascender != null"
-	x1="-10000" [attr.y1]="_font.metrics.ascender"
-	x2="10000" [attr.y2]="_font.metrics.ascender"
+	x1="-10000" [attr.y1]="_font.ascender"
+	x2="10000" [attr.y2]="_font.ascender"
 />
 <svg:line class="g-glyph-metrics__dsc"
-	*ngIf="_font.metrics.descender != null"
-	x1="-10000" [attr.y1]="_font.metrics.descender"
-	x2="10000" [attr.y2]="_font.metrics.descender"
+	x1="-10000" [attr.y1]="_font.descender"
+	x2="10000" [attr.y2]="_font.descender"
 />

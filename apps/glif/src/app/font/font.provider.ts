@@ -2,6 +2,7 @@ import { InjectionToken } from "@angular/core";
 
 import { Font } from "./font";
 
+// TODO: Remove
 export interface FontProvider {
 	font?: Font;
 }

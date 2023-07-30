@@ -10,8 +10,7 @@ use std::{
 
 fn main() {
 	tauri::Builder::default()
-		.invoke_handler(tauri::generate_handler![parse_font_to_xml])
-		.invoke_handler(tauri::generate_handler![path_exists])
+		.invoke_handler(tauri::generate_handler![parse_font_to_xml, path_exists])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");
 }

@@ -2,9 +2,9 @@ import { ChangeDetectorRef, Component, Inject } from "@angular/core";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 import * as dialog from "@tauri-apps/api/dialog";
 
-import { Font, FontProvider, fontProviderFactory, NameID } from "./font";
+import { Font, FontProvider, fontProviderFactory, NewFont } from "./font";
 import { Glyph } from "./glyph";
-import { FamilyService, NewFamily } from "./family";
+import { FamilyService, NewFontFamily } from "./family";
 
 @Component({
 	selector: "g-root",
@@ -23,8 +23,8 @@ export class AppComponent implements FontProvider {
 	glyphs: readonly Glyph[] = [];
 	activeGlyph?: Glyph;
 
+	// TODO: Remove
 	font?: Font;
-	fontName?: string;
 
 	newFamilyDialog = false;
 
@@ -34,6 +34,16 @@ export class AppComponent implements FontProvider {
 		public _familyService: FamilyService,
 	) {}
 
+	// TODO
+	ngOnInit() {
+		this._familyService.family$.subscribe(family => {
+			console.log(family);
+		})
+		this._familyService.fonts$.subscribe(fonts => {
+			console.log(fonts);
+		})
+	}
+
 	async minimize() {
 		await this._win.minimize();
 	}
@@ -42,6 +52,7 @@ export class AppComponent implements FontProvider {
 		await this._win.close();
 	}
 
+	// TODO: Move to FamilyService
 	async importFont() {
 		try {
 			const result = await dialog.open({
@@ -64,10 +75,8 @@ export class AppComponent implements FontProvider {
 				this.glyphs = fonts.flatMap(font => font.glyphs);
 				console.log("glyphs:", this.glyphs);
 
-				if (fonts.length === 1) {
+				if (fonts.length === 1)
 					this.font = fonts[0];
-					this.fontName = this.font.names.get(NameID.FullName);
-				}
 				else if (fonts.length)
 					console.warn("WARNING: Multiple fonts loaded!");
 
@@ -81,8 +90,6 @@ export class AppComponent implements FontProvider {
 				console.log("glyphs:", this.glyphs);
 
 				this.font = font;
-				this.fontName = this.font.names.get(NameID.FullName);
-
 				this._cdRef.detectChanges();
 			}
 		}
@@ -97,8 +104,8 @@ export class AppComponent implements FontProvider {
 		this._cdRef.markForCheck();
 	}
 
-	async createFamily(family: NewFamily) {
-		console.log(family); // TODO
+	async createFamily(family: NewFontFamily, fonts: NewFont[]) {
+		await this._familyService.createFamily(family, fonts);
 		this.newFamilyDialog = false;
 	}
 }

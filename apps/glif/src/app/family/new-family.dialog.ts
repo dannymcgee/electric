@@ -1,10 +1,11 @@
-import { Component, Directive, EventEmitter, Output, TrackByFunction } from "@angular/core";
+import { Component, Directive, EventEmitter, Input, Output, TrackByFunction } from "@angular/core";
 import { AbstractControl, AsyncValidator, NG_ASYNC_VALIDATORS } from "@angular/forms";
 import * as dialog from "@tauri-apps/api/dialog";
+import * as fs from "@tauri-apps/api/fs";
 
 import tauri from "../tauri.bridge";
-import { NewFont } from "../font";
-import { NewFamily } from "./family.types";
+import { NewFont } from "../font/new-font";
+import { NewFontFamily } from "./family.types";
 
 class NewFontFromForm extends NewFont {
 	constructor (
@@ -25,7 +26,7 @@ class NewFontFromForm extends NewFont {
 })
 export class NewFamilyDialog {
 	@Output() cancel = new EventEmitter<void>();
-	@Output() confirm = new EventEmitter<NewFamily>();
+	@Output() confirm = new EventEmitter<[NewFontFamily, NewFont[]]>();
 
 	private _parentDirectory = "";
 	get parentDirectory() { return this._parentDirectory; }
@@ -87,11 +88,10 @@ export class NewFamilyDialog {
 	}
 
 	onSubmit(_value: any): void {
-		this.confirm.emit(new NewFamily(
-			this.name,
-			this.directory,
+		this.confirm.emit([
+			new NewFontFamily(this.name, this.directory),
 			this.fonts.filter(font => font.checked),
-		));
+		]);
 	}
 
 	private updateDirectory(): void {
@@ -144,14 +144,25 @@ export class ParentFolderExistsValidator implements AsyncValidator {
 	}],
 })
 export class TargetFolderIsNewValidator implements AsyncValidator {
+	@Input("gTargetFolderIsNew")
+	options?: {
+		allowEmpty?: boolean;
+	};
+
 	async validate(control: AbstractControl) {
 		if (!control.value) return null;
 
 		const pathname = control.value as string;
-		if (await tauri.pathExists(pathname))
+		if (await tauri.pathExists(pathname)) {
+			if (this.options?.allowEmpty) {
+				const children = await fs.readDir(pathname);
+				if (!children.length)
+					return null;
+			}
 			return {
 				targetFolderIsNew: `Target directory "${pathname}" already exists.`,
 			};
+		}
 
 		return null;
 	}

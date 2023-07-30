@@ -50,8 +50,8 @@ export class GlyphScaleFactorProvider implements OnDestroy {
 	}
 
 	update(retry = false): void {
-		const { yMin, yMax } = this._font.metrics;
-		const height = yMax - yMin;
+		const { ascender, descender } = this._font;
+		const height = (ascender - descender) * 1.333333;
 		const bounds = this._svg.getBoundingClientRect();
 
 		const scale = height / bounds.height;
