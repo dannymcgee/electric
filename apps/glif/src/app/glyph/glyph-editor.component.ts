@@ -61,7 +61,7 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if ("glyph" in changes && this.glyph)
-			this._viewBox = getViewBox(this._font, this.glyph);
+			this._viewBox = getViewBox(this._font, this.glyph, 1.333333);
 	}
 
 	ngOnInit(): void {

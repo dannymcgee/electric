@@ -62,28 +62,7 @@
 		<div class="content"
 			*elxUnwrap="(_familyService.font$ | async) as font"
 		>
-			<div class="glyphs"
-				*ngIf="font?.glyphs.length
-				else getStarted"
-			>
-				<div *ngFor="let glyph of font.glyphs"
-					class="glyph"
-				>
-					<svg g-glyph class="glyph__svg"
-						[glyph]="glyph"
-					></svg>
-
-					<div role="button" class="glyph__label"
-						(click)="setActiveGlyph(glyph)"
-					>
-						<strong class="glyph__name">{{ glyph.name }}</strong>
-						<span *ngIf="glyph.charCode"
-							class="glyph__char-code"
-						>{{ glyph.charCode | hex }}</span>
-					</div>
-				</div>
-			</div>
-
+			<g-font-explorer *ngIf="font else getStarted"></g-font-explorer>
 			<ng-template #getStarted>
 				<button elx-btn="primary"
 					(click)="importFont()"

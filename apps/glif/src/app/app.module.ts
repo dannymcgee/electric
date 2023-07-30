@@ -27,6 +27,7 @@ import {
 	ParentFolderExistsValidator,
 	TargetFolderIsNewValidator,
 } from "./family";
+import { FontExplorerComponent } from "./font";
 import {
 	GlyphComponent,
 	GlyphEditorComponent,
@@ -57,6 +58,7 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 		AppComponent,
 		CffProgramPipe,
 		FamilyPanelComponent,
+		FontExplorerComponent,
 		FontToSvgViewBoxPipe,
 		GlyphComponent,
 		GlyphEditorComponent,

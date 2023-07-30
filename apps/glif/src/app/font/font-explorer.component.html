@@ -1,0 +1,19 @@
+<ng-container *ngIf="(font$ | async) as font">
+	<div class="glyph"
+		*ngFor="let glyph of font.glyphs"
+	>
+		<svg g-glyph class="glyph__svg"
+			[glyph]="glyph"
+		></svg>
+		<div class="glyph__label">
+			<strong class="glyph__name">
+				{{ glyph.name }}
+			</strong>
+			<span class="glyph__char-code"
+				*ngIf="glyph.charCode != null"
+			>
+				{{ glyph.charCode | hex }}
+			</span>
+		</div>
+	</div>
+</ng-container>

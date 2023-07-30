@@ -56,66 +56,6 @@
 	overflow-y: auto;
 }
 
-.glyph {
-	--width: calc(100% / var(--cols));
-
-	@include layout.flex($dir:column);
-	flex: 0 0 var(--width);
-	max-width: var(--width);
-	height: 128px;
-	margin: 8px 0;
-
-	&__svg {
-		@include layout.flex($dir:column);
-		margin: 0;
-		padding: 0;
-		flex: 1 0 0;
-	}
-
-	&__label {
-		@include layout.flex($a:baseline, $j:center);
-		gap: 1ch;
-		padding: 0 8px;
-		height: rem(24);
-		background: color.background(500);
-		font-size: rem(16);
-		line-height: rem(24);
-		cursor: pointer;
-		@include anim.transition((background, color, box-shadow));
-		outline: none !important;
-
-		&:hover {
-			background: color.background(700);
-		}
-
-		&:active {
-			background: color.background(600);
-		}
-
-		&:focus-visible {
-			box-shadow: 0 0 0 4px color.accent(600);
-			color: color.white();
-		}
-	}
-
-	&__name,
-	&__char-code {
-		transform: translateY(-0.1rem);
-	}
-
-	&__name {
-		font-weight: 700;
-	}
-
-	&__char-code {
-		color: color.foreground(300);
-		font: {
-			family: monospace;
-			weight: 400;
-		}
-	}
-}
-
 .active-glyph {
 	&__dialog {
 		width: calc(100vw - 64px);

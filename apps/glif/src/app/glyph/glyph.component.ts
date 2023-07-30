@@ -7,6 +7,7 @@ import {
 	SimpleChanges,
 	ViewEncapsulation,
 } from "@angular/core";
+import { Coerce } from "@electric/ng-utils";
 
 import { FamilyService } from "../family";
 import { getViewBox, ViewBox } from "../util";
@@ -21,6 +22,9 @@ import { Glyph } from "./glyph";
 })
 export class GlyphComponent implements OnChanges {
 	@Input() glyph?: Glyph;
+
+	@Coerce(Number)
+	@Input() zoomFactor = 1.25;
 
 	@HostBinding("class")
 	readonly hostClass = "g-glyph";
@@ -42,13 +46,13 @@ export class GlyphComponent implements OnChanges {
 		public _family: FamilyService,
 	) {}
 
-	async ngOnChanges(changes: SimpleChanges) {
-		if ("glyph" in changes && this.glyph) {
+	ngOnChanges(changes: SimpleChanges): void {
+		if (this.glyph && ("glyph" in changes || "zoomFactor" in changes)) {
 			// TODO: This should be more reactive
 			const font = this._family.font;
 			if (!font) return;
 
-			this._viewBox = getViewBox(font, this.glyph);
+			this._viewBox = getViewBox(font, this.glyph, this.zoomFactor);
 		}
 	}
 }
