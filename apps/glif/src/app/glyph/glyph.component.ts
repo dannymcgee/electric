@@ -8,9 +8,9 @@ import {
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { Font } from "../font";
-import { Glyph } from "./glyph";
+import { FamilyService } from "../family";
 import { getViewBox, ViewBox } from "../util";
+import { Glyph } from "./glyph";
 
 @Component({
 	selector: "svg[g-glyph]",
@@ -39,11 +39,16 @@ export class GlyphComponent implements OnChanges {
 	private _viewBox?: ViewBox;
 
 	constructor (
-		public _font: Font,
+		public _family: FamilyService,
 	) {}
 
-	ngOnChanges(changes: SimpleChanges): void {
-		if ("glyph" in changes && this.glyph)
-			this._viewBox = getViewBox(this._font, this.glyph);
+	async ngOnChanges(changes: SimpleChanges) {
+		if ("glyph" in changes && this.glyph) {
+			// TODO: This should be more reactive
+			const font = this._family.font;
+			if (!font) return;
+
+			this._viewBox = getViewBox(font, this.glyph);
+		}
 	}
 }

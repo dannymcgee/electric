@@ -11,21 +11,23 @@
 	[attr.x1]="glyph.width" y1="-10000"
 	[attr.x2]="glyph.width" y2="10000"
 />
-<svg:line class="g-glyph-metrics__xheight"
-	*ngIf="_font.xHeight != null"
-	x1="-10000" [attr.y1]="_font.xHeight"
-	x2="10000" [attr.y2]="_font.xHeight"
-/>
-<svg:line class="g-glyph-metrics__cap"
-	*ngIf="_font.capHeight != null"
-	x1="-10000" [attr.y1]="_font.capHeight"
-	x2="10000" [attr.y2]="_font.capHeight"
-/>
-<svg:line class="g-glyph-metrics__asc"
-	x1="-10000" [attr.y1]="_font.ascender"
-	x2="10000" [attr.y2]="_font.ascender"
-/>
-<svg:line class="g-glyph-metrics__dsc"
-	x1="-10000" [attr.y1]="_font.descender"
-	x2="10000" [attr.y2]="_font.descender"
-/>
+<ng-container *ngIf="(_family.family$ | async) as family">
+	<svg:line class="g-glyph-metrics__xheight"
+		*ngIf="family.xHeight != null"
+		x1="-10000" [attr.y1]="family.xHeight"
+		x2="10000" [attr.y2]="family.xHeight"
+	/>
+	<svg:line class="g-glyph-metrics__cap"
+		*ngIf="family.capHeight != null"
+		x1="-10000" [attr.y1]="family.capHeight"
+		x2="10000" [attr.y2]="family.capHeight"
+	/>
+	<svg:line class="g-glyph-metrics__asc"
+		x1="-10000" [attr.y1]="family.ascender"
+		x2="10000" [attr.y2]="family.ascender"
+	/>
+	<svg:line class="g-glyph-metrics__dsc"
+		x1="-10000" [attr.y1]="family.descender"
+		x2="10000" [attr.y2]="family.descender"
+	/>
+</ng-container>

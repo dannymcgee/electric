@@ -9,7 +9,9 @@ import tauri from "../tauri.bridge";
 import { FontInfo, MetaInfo, StyleMapStyleName } from "../ufo/ufo.types";
 import { newPList, readPList } from "../xml/plist";
 import { defaultMetrics, FontFamily, FontMetrics, NewFontFamily } from "./family.types";
-import { Font, FontStyle, FontWeight, NewFont } from "../font";
+import { Font, FontStyle, FontWeight, Names, NewFont } from "../font";
+import { FsSelectionFlags, MacStyleFlags, NameID, TtxFont } from "../open-type";
+import { Glyph } from "../glyph";
 
 export type Path = string;
 
@@ -150,7 +152,200 @@ export class FamilyService implements OnDestroy {
 		this._font$.next(fonts[0] ?? null);
 	}
 
+	async importFont() {
+		try {
+			const result = await dialog.open({
+				title: "Import Font(s)",
+				directory: false,
+				multiple: true,
+				filters: [{
+					name: "Font Files",
+					extensions: ["otf", "ttf"],
+				}],
+			});
+
+			if (!result) return;
+
+			if (Array.isArray(result)) {
+				const fonts = await Promise.all(result.map(this.importFromOpenType.bind(this)));
+
+				if (!this._fonts$.value.length) {
+					this._fonts$.next(fonts);
+					this._font$.next(fonts[0] ?? null);
+				}
+				else {
+					const unique: Font[] = [];
+					for (let font of fonts) {
+						if (this._fonts$.value.some(f => f.styleName === font.styleName)) {
+							// TODO
+							console.error(`Existing font conflicts with import: ${font.postScriptName}`);
+						}
+						else {
+							unique.push(font);
+						}
+					}
+
+					if (unique.length) {
+						this._fonts$.next(this.insertFonts(this._fonts$.value, unique));
+					}
+				}
+			}
+			else {
+				const font = await this.importFromOpenType(result);
+
+				if (!this._fonts$.value.length) {
+					this._fonts$.next([font]);
+					this._font$.next(font);
+				}
+				else if (this._fonts$.value.some(f => f.styleName === font.styleName)) {
+					// TODO
+					console.error(`Existing font conflicts with import: ${font.postScriptName}`);
+				}
+				else {
+					this._fonts$.next(this.insertFonts(this._fonts$.value, font));
+				}
+			}
+		}
+		catch (err) {
+			console.error(err);
+		}
+	}
+
 	setActive(font: Font) {
 		this._font$.next(font);
+	}
+
+	private insertFonts(dest: readonly Font[], src: Font | readonly Font[]): Font[] {
+		return dest
+			.concat(src)
+			.sort((a, b) => {
+				if (a.weight !== b.weight)
+					return a.weight - b.weight;
+
+				if (a.style === FontStyle.Upright)
+					return -1;
+
+				return 1;
+			});
+	}
+
+	private async importFromOpenType(otfPath: string): Promise<Font> {
+		const ttx = await TtxFont.fromFile(otfPath);
+		if (!ttx.namesTable)
+			throw new Error("Can't import a font without names!");
+
+		const names = new Names();
+		for (let { nameID, platformID, value } of ttx.namesTable.records)
+			names.add(nameID, platformID, value.trim());
+
+		const family = new FontFamily(names.get(NameID.FontFamily)!);
+
+		if (!ttx.head) throw new Error("TTX missing Header table!");
+		family.unitsPerEm = ttx.head.unitsPerEm;
+
+		if (ttx.os_2) {
+			family.ascender = ttx.os_2.sTypoAscender;
+			family.descender = ttx.os_2.sTypoDescender;
+			family.xHeight = ttx.os_2.sxHeight;
+			family.capHeight = ttx.os_2.sCapHeight;
+		}
+		else if (ttx.hhea) {
+			family.ascender = ttx.hhea.ascender;
+			family.descender = ttx.hhea.descender;
+			family.xHeight = undefined;
+			family.capHeight = undefined;
+		}
+		else {
+			throw new Error("TTX missing OS/2 and hhea tables -- can't determine metrics!");
+		}
+
+		if (!this._family$.value)
+			this._family$.next(family);
+		else {
+			// TODO: Check if we can merge into active family
+		}
+
+		// TODO: Yikes
+		const weight = ttx.os_2?.usWeightClass
+			?? (ttx.head?.macStyle != null
+					? ((ttx.head.macStyle & MacStyleFlags.Bold)
+						? FontWeight.Bold
+						: FontWeight.Regular)
+					: FontWeight.Regular
+				);
+
+		// TODO: Yikes
+		const style
+			= (ttx.os_2?.fsSelection != null)
+			? ((ttx.os_2.fsSelection & FsSelectionFlags.Italic)
+				? FontStyle.Italic
+				: (ttx.os_2.fsSelection & FsSelectionFlags.Oblique)
+					? FontStyle.Oblique
+					: FontStyle.Upright)
+			: (ttx.head?.macStyle != null)
+			? ((ttx.head.macStyle & MacStyleFlags.Italic)
+				? FontStyle.Italic
+				: FontStyle.Upright)
+			: FontStyle.Upright;
+
+		// TODO: Italic Angle is available from the `post` table, which we're not
+		// currently parsing
+
+		const result = new Font(family, weight, style);
+
+		if (ttx.glyphOrder) {
+			result._glyphs.length = ttx.glyphOrder.glyphIds.length;
+
+			for (let i = 0; i < ttx.glyphOrder.glyphIds.length; ++i) {
+				const glyphId = ttx.glyphOrder.glyphIds[i];
+				const glyph = new Glyph(glyphId.name, glyphId.id);
+
+				// Find charCode
+				if (ttx.cmap && ttx.cmap.maps.length) {
+					const map = ttx.cmap.maps[0].value
+					for (let [key, value] of map.entries()) {
+						if (value === glyph.name) {
+							glyph.charCode = key;
+							break;
+						}
+					}
+				}
+
+				// Find horizontal metrics
+				if (ttx.hmtx) {
+					const metric = ttx.hmtx.hMetrics.get(glyph.name!);
+					if (metric) {
+						glyph.width = metric.width;
+						glyph.lsb = metric.lsb;
+					}
+				}
+
+				// Find program
+				if (ttx.cffTable) {
+					const charString = ttx.cffTable.cffFont.charStrings.get(glyph.name!);
+					// TODO: Remove `program` from Glyph, interpret here
+					if (charString)
+						glyph.program = charString.program;
+				}
+
+				result._glyphs[i] = glyph;
+			}
+
+			// Sort glyphs by character code
+			result._glyphs.sort((a, b) => {
+				if (a.charCode == null && b.charCode == null)
+					return a.name!.localeCompare(b.name!);
+
+				if (a.charCode == null)
+					return -1;
+
+				if (b.charCode == null)
+					return 1;
+
+				return a.charCode - b.charCode;
+			});
+		}
+
+		return result;
 	}
 }

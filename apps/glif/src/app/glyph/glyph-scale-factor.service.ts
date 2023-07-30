@@ -2,7 +2,7 @@ import { ElementRef, Injectable, OnDestroy } from "@angular/core";
 import { ElxResizeObserver } from "@electric/ng-utils";
 import { BehaviorSubject, Subject, takeUntil } from "rxjs";
 
-import { Font } from "../font";
+import { FamilyService } from "../family";
 
 @Injectable()
 export class GlyphScaleFactorProvider implements OnDestroy {
@@ -17,7 +17,7 @@ export class GlyphScaleFactorProvider implements OnDestroy {
 	constructor (
 		elementRef: ElementRef<SVGElement>,
 		resizeObserver: ElxResizeObserver,
-		private _font: Font,
+		private _family: FamilyService,
 	) {
 		let { nativeElement: element } = elementRef;
 		if (element instanceof SVGSVGElement) {
@@ -50,7 +50,16 @@ export class GlyphScaleFactorProvider implements OnDestroy {
 	}
 
 	update(retry = false): void {
-		const { ascender, descender } = this._font;
+		if (!this._family.family) {
+			if (retry) {
+				requestAnimationFrame(() => {
+					this.update();
+				});
+			}
+			return;
+		}
+
+		const { ascender, descender } = this._family.family;
 		const height = (ascender - descender) * 1.333333;
 		const bounds = this._svg.getBoundingClientRect();
 

@@ -10,7 +10,7 @@ import {
 } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
-import { Font } from "../font";
+import { FamilyService } from "../family";
 import { Glyph } from "./glyph";
 import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 
@@ -37,7 +37,7 @@ export class GlyphMetricsComponent implements OnInit, OnDestroy {
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
-		public _font: Font,
+		public _family: FamilyService,
 		private _scaleProvider: GlyphScaleFactorProvider,
 	) {}
 

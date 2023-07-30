@@ -59,11 +59,14 @@
 		<g-family-panel class="sidebar"
 			*ngIf="(_familyService.family$ | async)"
 		></g-family-panel>
-		<div class="content">
-			<div *ngIf="glyphs.length else getStarted"
-				class="glyphs"
+		<div class="content"
+			*elxUnwrap="(_familyService.font$ | async) as font"
+		>
+			<div class="glyphs"
+				*ngIf="font?.glyphs.length
+				else getStarted"
 			>
-				<div *ngFor="let glyph of glyphs"
+				<div *ngFor="let glyph of font.glyphs"
 					class="glyph"
 				>
 					<svg g-glyph class="glyph__svg"
@@ -90,6 +93,7 @@
 			</ng-template>
 		</div>
 
+		<!-- TODO
 		<elx-dialog class="active-glyph__dialog"
 			#activeGlyphDialog
 			*elxDialogTrigger="activeGlyph"
@@ -117,6 +121,7 @@
 				</button>
 			</elx-dialog-footer>
 		</elx-dialog>
+		-->
 
 		<g-new-family-dialog
 			*elxDialogTrigger="newFamilyDialog"
