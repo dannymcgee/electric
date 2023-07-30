@@ -12,6 +12,7 @@ import { defaultMetrics, FontFamily, FontMetrics, NewFontFamily } from "./family
 import { Font, FontStyle, FontWeight, Names, NewFont } from "../font";
 import { FsSelectionFlags, MacStyleFlags, NameID, TtxFont } from "../open-type";
 import { Glyph } from "../glyph";
+import { InterpreterCFF2 } from "../outlines";
 
 export type Path = string;
 
@@ -315,9 +316,11 @@ export class FamilyService implements OnDestroy {
 				// Find program
 				if (ttx.cffTable) {
 					const charString = ttx.cffTable.cffFont.charStrings.get(glyph.name!);
-					// TODO: Remove `program` from Glyph, interpret here
-					if (charString)
-						glyph.program = charString.program;
+					if (charString) {
+						const vm = new InterpreterCFF2(charString.program);
+						vm.exec();
+						glyph.path = vm.path;
+					}
 				}
 
 				result._glyphs[i] = glyph;

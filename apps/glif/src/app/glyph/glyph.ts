@@ -3,7 +3,6 @@ import { Const } from "@electric/utils";
 import * as d3 from "d3";
 
 import { Path } from "./path";
-import { InterpreterCFF2 } from "../outlines";
 
 export class Glyph {
 	path?: Const<Path>;
@@ -14,29 +13,15 @@ export class Glyph {
 		public charCode?: number,
 		public width?: number,
 		public lsb?: number,
-		public program?: string,
-	) {
-		this.path = this.interpret();
-	}
+	) {}
 
 	toString(): string {
-		this.path ??= this.interpret();
 		if (!this.path) return "";
 
 		const d3Path = d3.path();
 		this.path.replay(d3Path);
 
 		return d3Path.toString();
-	}
-
-	private interpret(): Const<Path> | undefined {
-		if (!this.program) return;
-
-		// TODO
-		const vm = new InterpreterCFF2(this.program);
-		vm.exec();
-
-		return vm.path;
 	}
 }
 
