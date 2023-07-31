@@ -9,9 +9,16 @@ import {
 } from "@angular/core";
 import { ElxResizeObserver, ResizeEntry } from "@electric/ng-utils";
 import { anim } from "@electric/style";
-import { debounceTime, Subject, takeUntil } from "rxjs";
+import { debounceTime, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { FamilyService } from "../family";
+import { Glyph } from "../glyph";
+import { UNICODE_RANGES } from "./unicode-ranges";
+
+class UnicodeGroup {
+	glyphs: Glyph[] = [];
+	constructor (public name: string) {}
+}
 
 @Component({
 	selector: "g-font-explorer",
@@ -23,7 +30,11 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 	@HostBinding("style.--cols")
 	cols = 12;
 
+	// TODO: User configuration
+	groupByCharacterSet = true;
+
 	get font$() { return this._familyService.font$; }
+	unicodeGroups$!: Observable<UnicodeGroup[]>;
 
 	private _onDestroy$ = new Subject<void>();
 
@@ -35,6 +46,53 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 	) {}
 
 	ngOnInit(): void {
+		this.unicodeGroups$ = this._familyService.font$.pipe(
+			map(font => {
+				if (!font) return [];
+
+				const groups = new Map<string, UnicodeGroup>();
+				groups.set("Other", new UnicodeGroup("Other"));
+
+				// TODO: Figure out a better algorithm
+				for (let glyph of font.glyphs) {
+					if (glyph.charCode == null) {
+						groups.get("Other")!.glyphs.push(glyph);
+						continue;
+					}
+
+					const entry = UNICODE_RANGES.find(entry => {
+						const [key] = entry;
+						if (key && Array.isArray(key[0])) {
+							const ranges = key as [number, number][]
+							return ranges.some(([start, end]) => (
+								glyph.charCode! >= start && glyph.charCode! <= end
+							));
+						}
+						const [start, end] = key as [number, number];
+						return (glyph.charCode! >= start && glyph.charCode! <= end);
+					});
+
+					if (entry) {
+						const [,name] = entry;
+						if (!groups.has(name))
+							groups.set(name, new UnicodeGroup(name));
+
+						groups.get(name)!.glyphs.push(glyph);
+					}
+					else {
+						groups.get("Other")!.glyphs.push(glyph);
+					}
+				}
+
+				const result = UNICODE_RANGES
+					.map(([,name]) => groups.get(name) ?? new UnicodeGroup(name))
+					.concat(groups.get("Other")!);
+
+				return result;
+			}),
+			takeUntil(this._onDestroy$),
+		);
+
 		this._resizeObserver
 			.observe(this._elementRef)
 			.pipe(

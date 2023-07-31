@@ -1,19 +1,55 @@
-<ng-container *ngIf="(font$ | async) as font">
-	<div class="glyph"
-		*ngFor="let glyph of font.glyphs"
-	>
-		<svg g-glyph class="glyph__svg"
-			[glyph]="glyph"
-		></svg>
-		<div class="glyph__label">
-			<strong class="glyph__name">
-				{{ glyph.name }}
-			</strong>
-			<span class="glyph__char-code"
-				*ngIf="glyph.charCode != null"
-			>
-				{{ glyph.charCode | hex }}
-			</span>
-		</div>
-	</div>
+<ng-container
+	*ngIf="groupByCharacterSet && (unicodeGroups$ | async) as unicodeGroups
+	else flat"
+>
+	<ng-container *ngFor="let group of unicodeGroups">
+		<section class="unicode-group"
+			*ngIf="group.glyphs.length"
+		>
+			<h2 class="unicode-group__heading">
+				{{ group.name }}
+			</h2>
+			<div class="glyphs">
+				<div class="glyph"
+					*ngFor="let glyph of group.glyphs"
+				>
+					<svg g-glyph class="glyph__svg"
+						[glyph]="glyph"
+					></svg>
+					<div class="glyph__label">
+						<strong class="glyph__name">
+							{{ glyph.name }}
+						</strong>
+						<span class="glyph__char-code"
+							*ngIf="glyph.charCode != null"
+						>
+							{{ glyph.charCode | hex }}
+						</span>
+					</div>
+				</div>
+			</div>
+		</section>
+	</ng-container>
 </ng-container>
+
+<ng-template #flat>
+	<ng-container *ngIf="(font$ | async) as font">
+		<div class="glyph"
+			*ngFor="let glyph of font.glyphs"
+		>
+			<svg g-glyph class="glyph__svg"
+				[glyph]="glyph"
+			></svg>
+			<div class="glyph__label">
+				<strong class="glyph__name">
+					{{ glyph.name }}
+				</strong>
+				<span class="glyph__char-code"
+					*ngIf="glyph.charCode != null"
+				>
+					{{ glyph.charCode | hex }}
+				</span>
+			</div>
+		</div>
+	</ng-container>
+</ng-template>

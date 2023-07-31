@@ -1,7 +1,7 @@
 @use "elx/style/color";
 
 .g-glyph-metrics {
-	stroke: color.foreground(50, 0.2);
+	stroke: color.background(600);
 	stroke-opacity: 0.4;
 
 	&__baseline,
