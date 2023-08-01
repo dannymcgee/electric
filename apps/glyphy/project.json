@@ -1,22 +1,22 @@
 {
 	"projectType": "application",
-	"root": "apps/glif",
-	"sourceRoot": "apps/glif/src",
+	"root": "apps/glyphy",
+	"sourceRoot": "apps/glyphy/src",
 	"prefix": "g",
 	"targets": {
 		"build": {
 			"executor": "@angular-devkit/build-angular:browser",
 			"outputs": ["{options.outputPath}"],
 			"options": {
-				"outputPath": "dist/apps/glif",
-				"index": "apps/glif/src/index.html",
-				"main": "apps/glif/src/main.ts",
-				"polyfills": "apps/glif/src/polyfills.ts",
-				"tsConfig": "apps/glif/tsconfig.app.json",
+				"outputPath": "dist/apps/glyphy",
+				"index": "apps/glyphy/src/index.html",
+				"main": "apps/glyphy/src/main.ts",
+				"polyfills": "apps/glyphy/src/polyfills.ts",
+				"tsConfig": "apps/glyphy/tsconfig.app.json",
 				"inlineStyleLanguage": "scss",
 				"assets": [
-					"apps/glif/src/favicon.ico",
-					"apps/glif/src/assets",
+					"apps/glyphy/src/favicon.ico",
+					"apps/glyphy/src/assets",
 					{
 						"input": "packages/style/src/assets",
 						"glob": "**/*",
@@ -26,7 +26,7 @@
 				"styles": [
 					"packages/style/src/assets/fonts.css",
 					"packages/style/src/globals.scss",
-					"apps/glif/src/styles.scss"
+					"apps/glyphy/src/styles.scss"
 				],
 				"stylePreprocessorOptions": {
 					"includePaths": ["node_modules", "packages/style/src"]
@@ -49,8 +49,8 @@
 					],
 					"fileReplacements": [
 						{
-							"replace": "apps/glif/src/environments/environment.ts",
-							"with": "apps/glif/src/environments/environment.prod.ts"
+							"replace": "apps/glyphy/src/environments/environment.ts",
+							"with": "apps/glyphy/src/environments/environment.prod.ts"
 						}
 					],
 					"outputHashing": "all"
@@ -70,10 +70,10 @@
 			"executor": "@angular-devkit/build-angular:dev-server",
 			"configurations": {
 				"production": {
-					"browserTarget": "glif:build:production"
+					"browserTarget": "glyphy:build:production"
 				},
 				"development": {
-					"browserTarget": "glif:build:development"
+					"browserTarget": "glyphy:build:development"
 				}
 			},
 			"defaultConfiguration": "development"
@@ -82,31 +82,34 @@
 			"executor": "@nrwl/workspace:run-commands",
 			"options": {
 				"command": "tauri dev",
-				"cwd": "apps/glif",
+				"cwd": "apps/glyphy",
 				"color": true
 			}
 		},
 		"extract-i18n": {
 			"executor": "@angular-devkit/build-angular:extract-i18n",
 			"options": {
-				"browserTarget": "glif:build"
+				"browserTarget": "glyphy:build"
 			}
 		},
 		"lint": {
 			"executor": "@nrwl/linter:eslint",
 			"options": {
 				"lintFilePatterns": [
-					"apps/glif/src/**/*.ts",
-					"apps/glif/src/**/*.html"
+					"apps/glyphy/src/**/*.ts",
+					"apps/glyphy/src/**/*.html"
 				]
 			}
 		},
 		"test": {
 			"executor": "@nrwl/jest:jest",
-			"outputs": ["coverage/apps/glif"],
+			"outputs": ["coverage/apps/glyphy"],
 			"options": {
-				"jestConfig": "apps/glif/jest.config.js",
-				"passWithNoTests": true
+				"jestConfig": "apps/glyphy/jest.config.js",
+				"passWithNoTests": true,
+				"stylePreprocessorOptions": {
+					"includePaths": ["node_modules", "packages/style/src"]
+				}
 			}
 		}
 	},

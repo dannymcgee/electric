@@ -3,7 +3,7 @@ import { Ctor, exists, match } from "@electric/utils";
 const XML_LUT = new Map<string, Ctor<XmlElement, [Element]>>();
 
 /**
- * Glif uses [`fonttools/ttx`](https://fonttools.readthedocs.io/en/latest/ttx.html)
+ * Glyphy uses [`fonttools/ttx`](https://fonttools.readthedocs.io/en/latest/ttx.html)
  * to parse/compile Open-Type fonts to/from XML. XML is... not the serialization
  * method I would have chosen, but `ttx` seems to be the most robust and fully-
  * featured OpenType parser available at the time of writing.

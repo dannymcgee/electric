@@ -1,14 +1,14 @@
 {
   "$schema": "../../../node_modules/@tauri-apps/cli/schema.json",
   "package": {
-    "productName": "glif",
+    "productName": "glyphy",
     "version": "0.1.0"
   },
   "build": {
-    "distDir": "../../../dist/apps/glif",
+    "distDir": "../../../dist/apps/glyphy",
     "devPath": "http://localhost:4200",
-    "beforeDevCommand": "nx serve glif",
-    "beforeBuildCommand": "nx build glif"
+    "beforeDevCommand": "nx serve glyphy",
+    "beforeBuildCommand": "nx build glyphy"
   },
   "tauri": {
     "bundle": {
@@ -52,7 +52,7 @@
     },
     "windows": [
       {
-        "title": "Glif",
+        "title": "Glyphy",
         "width": 1080,
         "height": 600,
         "minWidth": 640,

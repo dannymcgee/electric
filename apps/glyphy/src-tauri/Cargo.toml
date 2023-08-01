@@ -1,11 +1,11 @@
 [package]
-name = "glif"
+name = "glyphy"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
 license = ""
 repository = ""
-default-run = "glif"
+default-run = "glyphy"
 edition = "2018"
 build = "build.rs"
 

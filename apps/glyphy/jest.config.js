@@ -1,5 +1,5 @@
 module.exports = {
-	displayName: "glif",
+	displayName: "glyphy",
 	preset: "../../jest.preset.js",
 	setupFilesAfterEnv: ["<rootDir>/src/test-setup.ts"],
 	globals: {
@@ -8,7 +8,7 @@ module.exports = {
 			stringifyContentPathRegex: "\\.(html|svg)$",
 		},
 	},
-	coverageDirectory: "../../coverage/apps/glif",
+	coverageDirectory: "../../coverage/apps/glyphy",
 	transform: {
 		"^.+\\.(ts|mjs|js|html)$": "jest-preset-angular",
 	},
