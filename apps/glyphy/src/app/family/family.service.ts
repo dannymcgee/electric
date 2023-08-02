@@ -6,15 +6,13 @@ import * as path from "@tauri-apps/api/path";
 import { BehaviorSubject, Observable } from "rxjs";
 
 import tauri from "../tauri.bridge";
-import { FontInfo, MetaInfo, StyleMapStyleName } from "../ufo/ufo.types";
+import { FontInfo, GLIF, MetaInfo, StyleMapStyleName } from "../ufo";
 import { newPList, readPList } from "../xml/plist";
-import { defaultMetrics, FontFamily, FontMetrics, NewFontFamily } from "./family.types";
 import { Font, FontStyle, FontWeight, Names, NewFont } from "../font";
 import { FsSelectionFlags, MacStyleFlags, NameID, TtxFont } from "../open-type";
-import { Glyph } from "../glyph";
+import { Glyph, Path } from "../glyph";
 import { InterpreterCFF2 } from "../outlines";
-
-export type Path = string;
+import { defaultMetrics, FontFamily, FontMetrics, NewFontFamily } from "./family.types";
 
 interface FamilyManifest {
 	familyName: string;
@@ -142,11 +140,110 @@ export class FamilyService implements OnDestroy {
 			const fontInfo = await readPList(FontInfo, fontInfoPath);
 			const weight = (fontInfo.openTypeOS2WeightClass ?? FontWeight.Regular) as FontWeight;
 			const style = (fontInfo.styleName?.split(" ")[1] ?? FontStyle.Upright) as FontStyle;
+			const italicAngle = fontInfo.italicAngle;
 
-			fonts.push(new Font(family, weight, style));
+			// TODO: Refactor
+			const glyphs: Glyph[] = [];
+			loadGlyphs: {
+				const glyphsPath = await path.join(fontPath, "glyphs");
+				if (!(await tauri.pathExists(glyphsPath)))
+					break loadGlyphs;
+
+				const contentsPath = await path.join(glyphsPath, "contents.plist");
+				if (!(await tauri.pathExists(contentsPath)))
+					break loadGlyphs;
+
+				const contents = await readPList(GLIF.Contents, contentsPath);
+				glyphs.length = contents.length;
+
+				let g = 0;
+				for await (let glif of contents.glifs(glyphsPath)) {
+					const advance = glif.advance?.width ?? glif.advance?.height;
+					const glyph = new Glyph(glif.name, g, glif.unicode?.hex, advance);
+
+					if (glif.format !== 2) {
+						// TODO: Support version 1
+						console.error(`GLIF version ${glif.format} not yet implemented!`);
+
+						glyph.outline = new Path();
+						glyphs[g++] = glyph;
+
+						continue;
+					}
+
+					if (glif.outline) {
+						const path = new Path();
+						for (let contour of glif.outline.contours) {
+							for (let p = 0; p < contour.points.length; ++p) {
+								let point = contour.points[p];
+								match ((point.type ?? GLIF.PointType.OffCurve), {
+									[GLIF.PointType.Move]: () => {
+										path.moveTo(point.x, point.y, point.smooth);
+									},
+									[GLIF.PointType.Line]: () => {
+										path.lineTo(point.x, point.y, point.smooth);
+									},
+									[GLIF.PointType.OffCurve]: () => {
+										const cp1 = point;
+										const next = contour.points[++p];
+
+										match ((next.type ?? GLIF.PointType.OffCurve), {
+											[GLIF.PointType.QCurve]: () => {
+												path.quadraticCurveTo(
+													cp1.x, cp1.y,
+													next.x, next.y,
+													next.smooth,
+												);
+											},
+											[GLIF.PointType.OffCurve]: () => {
+												const cp2 = next;
+												point = contour.points[++p];
+												// TODO: Maybe validate that `point` is type="curve"?
+
+												if (point) {
+													path.bezierCurveTo(
+														cp1.x, cp1.y,
+														cp2.x, cp2.y,
+														point.x, point.y,
+														point.smooth
+													);
+												}
+												else {
+													console.warn(
+														`Unexpected end of contour at index [${p-1}]`,
+														cp2,
+														glif,
+													);
+												}
+											},
+											_: () => {
+												console.error(
+													`Unexpected point type "${next.type}" at index [${p}]`,
+													next,
+													glif,
+												);
+											}
+										});
+									},
+									_: () => {
+										console.error(
+											`Unexpected point type "${point.type}" at index [${p}]`,
+											point,
+											glif,
+										);
+									}
+								});
+							}
+						}
+						glyph.outline = path;
+					}
+
+					glyphs[g++] = glyph;
+				}
+			}
+
+			fonts.push(new Font(family, weight, style, italicAngle, glyphs));
 		}
-
-		// TODO: Load glyphs
 
 		this._family$.next(family);
 		this._fonts$.next(fonts);
@@ -284,21 +381,20 @@ export class FamilyService implements OnDestroy {
 
 		const italicAngle = ttx.cffTable?.cffFont?.italicAngle ?? ttx.post?.italicAngle;
 
-		const result = new Font(family, weight, style, italicAngle);
-
+		const glyphs: Glyph[] = [];
 		if (ttx.glyphOrder) {
-			result._glyphs.length = ttx.glyphOrder.glyphIds.length;
+			glyphs.length = ttx.glyphOrder.glyphIds.length;
 
 			for (let i = 0; i < ttx.glyphOrder.glyphIds.length; ++i) {
 				const glyphId = ttx.glyphOrder.glyphIds[i];
 				const glyph = new Glyph(glyphId.name, glyphId.id);
 
-				// Find charCode
+				// Find unicode
 				if (ttx.cmap && ttx.cmap.maps.length) {
 					const map = ttx.cmap.maps[0].value
 					for (let [key, value] of map.entries()) {
 						if (value === glyph.name) {
-							glyph.charCode = key;
+							glyph.unicode = key;
 							break;
 						}
 					}
@@ -308,7 +404,7 @@ export class FamilyService implements OnDestroy {
 				if (ttx.hmtx) {
 					const metric = ttx.hmtx.hMetrics.get(glyph.name!);
 					if (metric) {
-						glyph.width = metric.width;
+						glyph.advance = metric.width;
 						glyph.lsb = metric.lsb;
 					}
 				}
@@ -319,28 +415,28 @@ export class FamilyService implements OnDestroy {
 					if (charString) {
 						const vm = new InterpreterCFF2(charString.program);
 						vm.exec();
-						glyph.path = vm.path;
+						glyph.outline = vm.path;
 					}
 				}
 
-				result._glyphs[i] = glyph;
+				glyphs[i] = glyph;
 			}
 
-			// Sort glyphs by character code
-			result._glyphs.sort((a, b) => {
-				if (a.charCode == null && b.charCode == null)
+			// Sort glyphs by unicode
+			glyphs.sort((a, b) => {
+				if (a.unicode == null && b.unicode == null)
 					return a.name!.localeCompare(b.name!);
 
-				if (a.charCode == null)
+				if (a.unicode == null)
 					return 1;
 
-				if (b.charCode == null)
+				if (b.unicode == null)
 					return -1;
 
-				return a.charCode - b.charCode;
+				return a.unicode - b.unicode;
 			});
 		}
 
-		return result;
+		return new Font(family, weight, style, italicAngle, glyphs);
 	}
 }

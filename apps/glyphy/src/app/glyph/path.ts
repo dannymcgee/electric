@@ -27,17 +27,17 @@ export interface IPath {
 	 */
 	lineTo(x: number, y: number): void;
 
-	// TODO
-	// /**
-	//  * Draws a quadratic Bézier segment from the current point to the specified point ⟨x, y⟩, with the specified control point ⟨cpx, cpy⟩.
-	//  * Equivalent to context.quadraticCurveTo and SVG’s quadratic Bézier curve commands.
-	//  *
-	//  * @param cpx x-Coordinate of the control point for the quadratic Bézier curve
-	//  * @param cpy y-Coordinate of the control point for the quadratic Bézier curve
-	//  * @param x x-Coordinate of point to draw the curve to
-	//  * @param y y-Coordinate of point to draw the curve to
-	//  */
-	// quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+	/**
+	 * Draws a quadratic Bézier segment from the current point to the specified
+	 * point ⟨x, y⟩, with the specified control point ⟨cpx, cpy⟩. Equivalent to
+	 * context.quadraticCurveTo and SVG’s quadratic Bézier curve commands.
+	 *
+	 * @param cpx x-Coordinate of the control point for the quadratic Bézier curve
+	 * @param cpy y-Coordinate of the control point for the quadratic Bézier curve
+	 * @param x x-Coordinate of point to draw the curve to
+	 * @param y y-Coordinate of point to draw the curve to
+	 */
+	quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
 
 	/**
 	 * Draws a cubic Bézier segment from the current point to the specified point
@@ -51,7 +51,11 @@ export interface IPath {
 	 * @param x x-Coordinate of point to draw the curve to
 	 * @param y y-Coordinate of point to draw the curve to
 	 */
-	bezierCurveTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): void;
+	bezierCurveTo(
+		cpx1: number, cpy1: number,
+		cpx2: number, cpy2: number,
+		x: number, y: number,
+	): void;
 
 	// TODO
 	// /**
@@ -108,6 +112,9 @@ type IPathCommand = {
 	op: PathOp.LineTo;
 	args: readonly [number, number];
 } | {
+	op: PathOp.QuadraticCurveTo;
+	args: readonly [number, number, number, number];
+} | {
 	op: PathOp.BezierCurveTo;
 	args: readonly [number, number, number, number, number, number];
 }
@@ -144,6 +151,17 @@ export class Path implements IPath {
 
 					return new PathCommand(cmd.op, p.x, p.y) as IPathCommand;
 				}
+				case PathOp.QuadraticCurveTo: {
+					const [x1, y1, x2, y2] = cmd.args;
+
+					const p1 = new Vec2(x1, y1);
+					const p2 = new Vec2(x2, y2);
+
+					p1.transform_inPlace(m);
+					p2.transform_inPlace(m);
+
+					return new PathCommand(cmd.op, p1.x, p1.y, p2.x, p2.y) as IPathCommand;
+				}
 				case PathOp.BezierCurveTo: {
 					const [x1, y1, x2, y2, x3, y3] = cmd.args;
 
@@ -171,22 +189,57 @@ export class Path implements IPath {
 		return result;
 	}
 
-	moveTo(x: number, y: number) {
+	moveTo(x: number, y: number, smooth?: boolean) {
 		this._commands.push(new PathCommand(PathOp.MoveTo, x, y) as IPathCommand);
 
 		this.contours[this.contours.length-1]?.close();
-		this.contours.push(new Contour([new Point(x, y)]));
+		this.contours.push(new Contour([new Point(x, y, smooth)]));
 	}
 
-	lineTo(x: number, y: number) {
+	lineTo(x: number, y: number, smooth?: boolean) {
 		this._commands.push(new PathCommand(PathOp.LineTo, x, y) as IPathCommand);
-		this.contours[this.contours.length-1]?.points.push(new Point(x, y));
+		this.contours[this.contours.length-1]?.points.push(new Point(x, y, smooth));
+	}
+
+	quadraticCurveTo(
+		cpx: number, cpy: number,
+		x: number, y: number,
+		smooth?: boolean,
+	) {
+		this._commands.push(new PathCommand(
+			PathOp.QuadraticCurveTo,
+			cpx, cpy, x, y,
+		) as IPathCommand);
+
+		if (!this.lastPoint) {
+			console.error("nocurrentpoint");
+			return;
+		}
+
+		// https://fontforge.org/docs/techref/bezier.html#converting-truetype-to-postscript
+		const p = this.lastPoint;
+		const twoThirds = 2 / 3;
+
+		const cpx1 = p.x + twoThirds * (cpx - p.x);
+		const cpy1 = p.y + twoThirds * (cpy - p.y);
+
+		const cpx2 = x + twoThirds * (cpx - x);
+		const cpy2 = y + twoThirds * (cpy - y);
+
+		p.handle_out = new Vec2(cpx1, cpy1);
+		p.smooth = smooth ?? false;
+
+		const endPoint = new Point(x, y, smooth);
+		endPoint.handle_in = new Vec2(cpx2, cpy2);
+
+		this.contours[this.contours.length-1].points.push(endPoint);
 	}
 
 	bezierCurveTo(
 		cpx1: number, cpy1: number,
 		cpx2: number, cpy2: number,
 		x: number, y: number,
+		smooth?: boolean,
 	) {
 		this._commands.push(new PathCommand(
 			PathOp.BezierCurveTo,
@@ -200,8 +253,9 @@ export class Path implements IPath {
 
 		this.lastPoint.handle_out = new Vec2(cpx1, cpy1);
 
-		const endPoint = new Point(x, y);
+		const endPoint = new Point(x, y, smooth);
 		endPoint.handle_in = new Vec2(cpx2, cpy2);
+
 		this.contours[this.contours.length-1].points.push(endPoint);
 	}
 
@@ -270,12 +324,14 @@ export class Point {
 	coords: Vec2;
 	handle_in?: Vec2;
 	handle_out?: Vec2;
+	smooth = false;
 
 	get x() { return this.coords.x; }
 	get y() { return this.coords.y; }
 
-	constructor (x: number, y: number) {
+	constructor (x: number, y: number, smooth?: boolean) {
 		this.coords = new Vec2(x, y);
+		this.smooth = smooth ?? false;
 	}
 
 	clone(): Point {

@@ -19,7 +19,7 @@ export class ViewBox {
  */
 export function getViewBox(font: Font, glyph: Glyph, zoomFactor: number): ViewBox {
 	const { ascender, descender } = font;
-	const width = glyph.width ?? 0;
+	const width = glyph.advance ?? 0;
 	const rem = zoomFactor - 1;
 	const height = (ascender - descender) * zoomFactor;
 	const y = ((ascender - descender) * rem) / 2 - descender;

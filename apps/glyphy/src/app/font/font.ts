@@ -54,7 +54,7 @@ export class Font {
 	get capHeight() { return this._family.capHeight; }
 
 	get glyphs(): readonly Glyph[] { return this._glyphs; }
-	_glyphs: Glyph[] = []; // TODO: Something like `friend class FamilyService` would be nice here
+	private _glyphs: Glyph[];
 
 	get family() { return this._family; }
 	private _family: FontFamily;
@@ -63,7 +63,8 @@ export class Font {
 		family: FontFamily,
 		weight: FontWeight = FontWeight.Regular,
 		style: FontStyle = FontStyle.Upright,
-		italicAngle?: number
+		italicAngle?: number,
+		glyphs?: Glyph[],
 	) {
 		this._family = family;
 		this.weight = weight;
@@ -73,5 +74,6 @@ export class Font {
 			[FontStyle.Italic]: () => -10,
 			[FontStyle.Oblique]: () => -10,
 		});
+		this._glyphs = glyphs ?? [];
 	}
 }

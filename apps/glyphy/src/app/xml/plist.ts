@@ -11,7 +11,7 @@ export class PList {
 
 	protected doc: XMLDocument;
 	protected fsPath: string;
-	declare protected _lut: Map<string, Element>;
+	declare protected lut: Map<string, Element>;
 
 	constructor (doc: XMLDocument, fsPath: string) {
 		this.doc = doc;
@@ -36,7 +36,7 @@ type PListCtor<T extends PList> = Ctor<T, [Document, string]>
 
 export function plist<T extends PList>(Type: PListCtor<T>) {
 	return (class PListDocument extends (Type as any) {
-		protected _lut = new Map<string, Element>();
+		protected lut = new Map<string, Element>();
 
 		constructor (doc: XMLDocument, fsPath: string) {
 			super(doc, fsPath);
@@ -50,7 +50,7 @@ export function plist<T extends PList>(Type: PListCtor<T>) {
 				if (child.nodeName === "key")
 					key = child.textContent!;
 				else {
-					this._lut.set(key, child);
+					this.lut.set(key, child);
 				}
 			}
 		}
@@ -61,14 +61,14 @@ export function prop<V>(serde: Serde<V>) {
 	return (target: PList, key: string) => {
 		Object.defineProperty(target, key, {
 			get(this: PList): V | undefined {
-				const element = this._lut.get(key);
+				const element = this.lut.get(key);
 				if (element?.textContent == null)
 					return undefined;
 
 				return serde.read(element.textContent);
 			},
 			set(this: PList, value: V): void {
-				let element = this._lut.get(key);
+				let element = this.lut.get(key);
 				if (!element) {
 					const dict = this.doc.querySelector("dict");
 					if (!dict) throw new Error("Failed to find <dict> in PList document!");
@@ -94,7 +94,7 @@ export function prop<V>(serde: Serde<V>) {
 					dict.appendChild(keyElement);
 					dict.appendChild(element);
 
-					this._lut.set(key, element);
+					this.lut.set(key, element);
 				}
 
 				element.textContent = serde.write(value);

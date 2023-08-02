@@ -55,7 +55,7 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 
 				// TODO: Figure out a better algorithm
 				for (let glyph of font.glyphs) {
-					if (glyph.charCode == null) {
+					if (glyph.unicode == null) {
 						groups.get("Other")!.glyphs.push(glyph);
 						continue;
 					}
@@ -65,11 +65,11 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 						if (key && Array.isArray(key[0])) {
 							const ranges = key as [number, number][]
 							return ranges.some(([start, end]) => (
-								glyph.charCode! >= start && glyph.charCode! <= end
+								glyph.unicode! >= start && glyph.unicode! <= end
 							));
 						}
 						const [start, end] = key as [number, number];
-						return (glyph.charCode! >= start && glyph.charCode! <= end);
+						return (glyph.unicode! >= start && glyph.unicode! <= end);
 					});
 
 					if (entry) {

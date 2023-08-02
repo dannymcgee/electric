@@ -6,7 +6,7 @@
 	[attr.d]="glyph | svg"
 />
 <svg:g class="g-glyph-editor__points">
-	<ng-container *ngFor="let c of glyph.path?.contours">
+	<ng-container *ngFor="let c of glyph.outline?.contours">
 		<ng-container
 			*ngFor="let p of c.points
 				let isFirst = first

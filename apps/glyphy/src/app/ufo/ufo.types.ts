@@ -1,6 +1,7 @@
-import { uint } from "@electric/utils";
+import { instanceOf, match, uint } from "@electric/utils";
+import { fs, path } from "@tauri-apps/api";
 
-import { float, int, str } from "../xml";
+import { attr, float, hex, int, Serde, str, Xml, XmlElement } from "../xml";
 import { PList, plist, prop } from "../xml/plist";
 
 export enum StyleMapStyleName {
@@ -137,4 +138,194 @@ export class FontInfo extends PList {
 	 * field.
 	 */
 	@prop(int) openTypeOS2WeightClass?: uint;
+}
+
+export namespace GLIF {
+	@plist
+	export class Contents extends PList implements Iterable<[string, string]> {
+		get length() { return this.lut.size; }
+
+		*[Symbol.iterator]() {
+			for (let [key, valueNode] of this.lut)
+				yield [key, valueNode.textContent!] as [string, string];
+		}
+
+		async *glifs(basePath: string): AsyncIterable<Glyph> {
+			for (let [, glyphPath] of this) {
+				const fullPath = await path.join(basePath, glyphPath);
+				yield Glyph.fromFile(fullPath);
+			}
+		}
+
+		get(key: string) {
+			this.lut.get(key)?.textContent;
+		}
+
+		set(key: string, value: string) {
+			if (!this.lut.has(key)) {
+				const dict = this.doc.querySelector("dict");
+				if (!dict) throw new Error("Failed to find <dict> in PList document!");
+
+				const keyNode = this.doc.createElement("key");
+				keyNode.innerText = key;
+
+				const valueNode = this.doc.createElement("string");
+				valueNode.innerText = value;
+
+				dict.appendChild(keyNode);
+				dict.appendChild(valueNode);
+
+				this.lut.set(key, valueNode);
+			}
+			else {
+				this.lut.get(key)!.textContent = value;
+			}
+		}
+	}
+
+	@Xml("glyph")
+	export class Glyph extends XmlElement {
+		static parser = new DOMParser();
+
+		static async fromFile(path: string): Promise<Glyph> {
+			const xml = await fs.readTextFile(path);
+			const doc = this.parser.parseFromString(xml, "text/xml");
+			console.log(doc);
+
+			const dom = doc.querySelector("glyph");
+			if (!dom) throw new Error("Expected GLIF file to have a top-level <glyph> element");
+
+			return new Glyph(dom);
+		}
+
+		@attr(str) name!: string;
+		@attr(int) format?: uint;
+		@attr(int) formatMinor?: uint;
+
+		// TODO: Should be able to create these if they don't already exist
+		readonly advance?: Advance;
+		readonly unicode?: Unicode;
+		readonly guidelines: Guideline[];
+		readonly anchors: Anchor[];
+		readonly outline?: Outline;
+
+		constructor (dom: Element) {
+			super(dom);
+
+			this.advance = this._children.find(instanceOf(Advance));
+			this.unicode = this._children.find(instanceOf(Unicode));
+			this.guidelines = this._children.filter(instanceOf(Guideline));
+			this.anchors = this._children.filter(instanceOf(Anchor));
+			this.outline = this._children.find(instanceOf(Outline));
+		}
+	}
+
+	@Xml("advance")
+	export class Advance extends XmlElement {
+		@attr(float) width?: number;
+		@attr(float) height?: number;
+	}
+
+	@Xml("unicode")
+	export class Unicode extends XmlElement {
+		@attr(hex) hex!: uint;
+	}
+
+	@Xml("guideline")
+	export class Guideline extends XmlElement {
+		@attr(float) x?: number;
+		@attr(float) y?: number;
+		@attr(float) angle?: number;
+		@attr(str) name?: string;
+		@attr(str) color?: string;
+		@attr(str) identifier?: string;
+	}
+
+	@Xml("anchor")
+	export class Anchor extends XmlElement {
+		@attr(float) x?: number;
+		@attr(float) y?: number;
+		/**
+		 * @see https://unifiedfontobject.org/versions/ufo3/glyphs/glif/#anchor-naming-conventions
+		 */
+		@attr(str) name?: string;
+		@attr(str) color?: string;
+		@attr(str) identifier?: string;
+	}
+
+	@Xml("outline")
+	export class Outline extends XmlElement {
+		components: Component[];
+		contours: Contour[];
+
+		constructor (dom: Element) {
+			super(dom);
+
+			this.components = this._children.filter(instanceOf(Component));
+			this.contours = this._children.filter(instanceOf(Contour));
+		}
+	}
+
+	@Xml("component")
+	export class Component extends XmlElement {
+		@attr(str) base?: string;
+		/** @default 1 */
+		@attr(float) xScale?: number;
+		/** @default 0 */
+		@attr(float) xyScale?: number;
+		/** @default 0 */
+		@attr(float) yxScale?: number;
+		/** @default 1 */
+		@attr(float) yScale?: number;
+		/** @default 0 */
+		@attr(float) xOffset?: number;
+		/** @default 0 */
+		@attr(float) yOffset?: number;
+		@attr(str) identifier?: string;
+	}
+
+	@Xml("contour")
+	export class Contour extends XmlElement {
+		@attr(str) identifier?: string;
+		points: Point[];
+
+		constructor (dom: Element) {
+			super(dom);
+			this.points = this._children.filter(instanceOf(Point));
+		}
+	}
+
+	export enum PointType {
+		Move = "move",
+		Line = "line",
+		OffCurve = "offcurve",
+		Curve = "curve",
+		QCurve = "qcurve",
+	}
+
+	const bool: Serde<boolean> = class {
+		static read(value: string): boolean {
+			return match(value, {
+				"yes": () => true,
+				"no": () => false,
+				_: () => false,
+			});
+		}
+		static write(value: boolean): string {
+			if (value) return "yes";
+			return "no";
+		}
+	}
+
+	@Xml("point")
+	export class Point extends XmlElement {
+		@attr(float) x!: number;
+		@attr(float) y!: number;
+		/** @default PointnType.OffCurve */
+		@attr(str) type?: PointType;
+		/** @default false */
+		@attr(bool) smooth?: boolean;
+		@attr(str) name?: string;
+		@attr(str) identifier?: string;
+	}
 }

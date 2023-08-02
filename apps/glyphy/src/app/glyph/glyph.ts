@@ -5,21 +5,21 @@ import * as d3 from "d3";
 import { Path } from "./path";
 
 export class Glyph {
-	path?: Const<Path>;
+	outline?: Const<Path>;
 
 	constructor (
 		public name?: string,
 		public index?: number,
-		public charCode?: number,
-		public width?: number,
+		public unicode?: number,
+		public advance?: number,
 		public lsb?: number,
 	) {}
 
 	toString(): string {
-		if (!this.path) return "";
+		if (!this.outline) return "";
 
 		const d3Path = d3.path();
-		this.path.replay(d3Path);
+		this.outline.replay(d3Path);
 
 		return d3Path.toString();
 	}

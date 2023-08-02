@@ -21,9 +21,9 @@
 							{{ glyph.name }}
 						</strong>
 						<span class="glyph__char-code"
-							*ngIf="glyph.charCode != null"
+							*ngIf="glyph.unicode != null"
 						>
-							{{ glyph.charCode | hex }}
+							{{ glyph.unicode | hex }}
 						</span>
 					</div>
 				</div>
@@ -45,9 +45,9 @@
 					{{ glyph.name }}
 				</strong>
 				<span class="glyph__char-code"
-					*ngIf="glyph.charCode != null"
+					*ngIf="glyph.unicode != null"
 				>
-					{{ glyph.charCode | hex }}
+					{{ glyph.unicode | hex }}
 				</span>
 			</div>
 		</div>

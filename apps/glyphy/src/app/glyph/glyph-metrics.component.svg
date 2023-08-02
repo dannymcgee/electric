@@ -17,10 +17,10 @@
 	/>
 	<svg:line class="g-glyph-metrics__right"
 		*ngIf="glyph != null && viewBox != null"
-		[attr.x1]="glyph.width" y1="-10000"
-		[attr.x2]="glyph.width" y2="10000"
+		[attr.x1]="glyph.advance" y1="-10000"
+		[attr.x2]="glyph.advance" y2="10000"
 		[style.transform-origin]="font?.italicAngle
-			? (glyph.width + 'px ' + (viewBox.y / -2) + 'px')
+			? (glyph.advance + 'px ' + (viewBox.y / -2) + 'px')
 			: null"
 		[style.transform]="font?.italicAngle
 			? 'rotate(' + font.italicAngle + 'deg)'
