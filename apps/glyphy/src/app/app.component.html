@@ -104,6 +104,7 @@
 
 		<g-new-family-dialog
 			*elxDialogTrigger="newFamilyDialog"
+			blocking
 			(confirm)="createFamily($event[0], $event[1])"
 			(cancel)="newFamilyDialog = false"
 		></g-new-family-dialog>
