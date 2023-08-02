@@ -63,7 +63,6 @@ export class Matrix {
 		while (matrices.length) {
 			const a = result.clone();
 			const b = matrices.pop()!;
-			console.log(`${a} * ${b}`);
 
 			result.m11 = (a.m11*b.m11 + a.m12*b.m21 + a.m13*b.m31);
 			result.m12 = (a.m11*b.m12 + a.m12*b.m22 + a.m13*b.m32);
@@ -76,8 +75,6 @@ export class Matrix {
 			result.m31 = (a.m31*b.m11 + a.m32*b.m21 + a.m33*b.m31);
 			result.m32 = (a.m31*b.m12 + a.m32*b.m22 + a.m33*b.m32);
 			result.m33 = (a.m31*b.m13 + a.m32*b.m23 + a.m33*b.m33);
-
-			console.log(`result: ${result}`);
 		}
 
 		return result;
