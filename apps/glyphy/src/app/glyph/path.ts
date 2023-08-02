@@ -9,7 +9,7 @@ export interface IPath {
 	 * @param x x-Coordinate of point to move to
 	 * @param y y-Coordinate of point to move to
 	 */
-	moveTo(x: number, y: number): void;
+	moveTo(x: number, y: number, smooth?: boolean): void;
 
 	/**
 	 * Ends the current subpath and causes an automatic straight line to be drawn
@@ -25,7 +25,7 @@ export interface IPath {
 	 * @param x x-Coordinate of point to draw the line to
 	 * @param y y-Coordinate of point to draw the line to
 	 */
-	lineTo(x: number, y: number): void;
+	lineTo(x: number, y: number, smooth?: boolean): void;
 
 	/**
 	 * Draws a quadratic Bézier segment from the current point to the specified
@@ -37,7 +37,11 @@ export interface IPath {
 	 * @param x x-Coordinate of point to draw the curve to
 	 * @param y y-Coordinate of point to draw the curve to
 	 */
-	quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+	quadraticCurveTo(
+		cpx: number, cpy: number,
+		x: number, y: number,
+		smooth?: boolean,
+	): void;
 
 	/**
 	 * Draws a cubic Bézier segment from the current point to the specified point
@@ -55,6 +59,7 @@ export interface IPath {
 		cpx1: number, cpy1: number,
 		cpx2: number, cpy2: number,
 		x: number, y: number,
+		smooth?: boolean,
 	): void;
 
 	// TODO
@@ -94,9 +99,9 @@ enum PathOp {
 
 class PathCommand {
 	readonly op: PathOp;
-	readonly args: readonly number[]
+	readonly args: readonly any[]
 
-	constructor (op: PathOp, ...args: readonly number[]) {
+	constructor (op: PathOp, ...args: readonly any[]) {
 		this.op = op;
 		this.args = args;
 	}
@@ -104,19 +109,19 @@ class PathCommand {
 
 type IPathCommand = {
 	op: PathOp.MoveTo;
-	args: readonly [number, number];
+	args: readonly [number, number, boolean?];
 } | {
 	op: PathOp.ClosePath;
 	args: readonly [];
 } | {
 	op: PathOp.LineTo;
-	args: readonly [number, number];
+	args: readonly [number, number, boolean?];
 } | {
 	op: PathOp.QuadraticCurveTo;
-	args: readonly [number, number, number, number];
+	args: readonly [number, number, number, number, boolean?];
 } | {
 	op: PathOp.BezierCurveTo;
-	args: readonly [number, number, number, number, number, number];
+	args: readonly [number, number, number, number, number, number, boolean?];
 }
 
 export class Path implements IPath {
@@ -190,14 +195,14 @@ export class Path implements IPath {
 	}
 
 	moveTo(x: number, y: number, smooth?: boolean) {
-		this._commands.push(new PathCommand(PathOp.MoveTo, x, y) as IPathCommand);
+		this._commands.push(new PathCommand(PathOp.MoveTo, x, y, smooth) as IPathCommand);
 
 		this.contours[this.contours.length-1]?.close();
 		this.contours.push(new Contour([new Point(x, y, smooth)]));
 	}
 
 	lineTo(x: number, y: number, smooth?: boolean) {
-		this._commands.push(new PathCommand(PathOp.LineTo, x, y) as IPathCommand);
+		this._commands.push(new PathCommand(PathOp.LineTo, x, y, smooth) as IPathCommand);
 		this.contours[this.contours.length-1]?.points.push(new Point(x, y, smooth));
 	}
 
@@ -208,7 +213,7 @@ export class Path implements IPath {
 	) {
 		this._commands.push(new PathCommand(
 			PathOp.QuadraticCurveTo,
-			cpx, cpy, x, y,
+			cpx, cpy, x, y, smooth,
 		) as IPathCommand);
 
 		if (!this.lastPoint) {
@@ -243,7 +248,7 @@ export class Path implements IPath {
 	) {
 		this._commands.push(new PathCommand(
 			PathOp.BezierCurveTo,
-			cpx1, cpy1, cpx2, cpy2, x, y
+			cpx1, cpy1, cpx2, cpy2, x, y, smooth,
 		) as IPathCommand);
 
 		if (!this.lastPoint) {
@@ -277,6 +282,10 @@ export class Path implements IPath {
 				}
 				case PathOp.LineTo: {
 					ctx.lineTo(...cmd.args);
+					break;
+				}
+				case PathOp.QuadraticCurveTo: {
+					ctx.quadraticCurveTo(...cmd.args);
 					break;
 				}
 				case PathOp.BezierCurveTo: {

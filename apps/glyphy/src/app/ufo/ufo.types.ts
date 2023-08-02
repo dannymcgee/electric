@@ -201,7 +201,7 @@ export namespace GLIF {
 		}
 
 		@attr(str) name!: string;
-		@attr(int) format?: uint;
+		@attr(int) format!: uint;
 		@attr(int) formatMinor?: uint;
 
 		// TODO: Should be able to create these if they don't already exist

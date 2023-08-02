@@ -5,13 +5,13 @@ import * as fs from "@tauri-apps/api/fs";
 import * as path from "@tauri-apps/api/path";
 import { BehaviorSubject, Observable } from "rxjs";
 
+import { Font, FontStyle, FontWeight, Names, NewFont } from "../font";
+import { Glyph, Matrix, Path } from "../glyph";
+import { FsSelectionFlags, MacStyleFlags, NameID, TtxFont } from "../open-type";
+import { InterpreterCFF2 } from "../outlines";
 import tauri from "../tauri.bridge";
 import { FontInfo, GLIF, MetaInfo, StyleMapStyleName } from "../ufo";
 import { newPList, readPList } from "../xml/plist";
-import { Font, FontStyle, FontWeight, Names, NewFont } from "../font";
-import { FsSelectionFlags, MacStyleFlags, NameID, TtxFont } from "../open-type";
-import { Glyph, Path } from "../glyph";
-import { InterpreterCFF2 } from "../outlines";
 import { defaultMetrics, FontFamily, FontMetrics, NewFontFamily } from "./family.types";
 
 interface FamilyManifest {
@@ -142,7 +142,6 @@ export class FamilyService implements OnDestroy {
 			const style = (fontInfo.styleName?.split(" ")[1] ?? FontStyle.Upright) as FontStyle;
 			const italicAngle = fontInfo.italicAngle;
 
-			// TODO: Refactor
 			const glyphs: Glyph[] = [];
 			loadGlyphs: {
 				const glyphsPath = await path.join(fontPath, "glyphs");
@@ -156,89 +155,53 @@ export class FamilyService implements OnDestroy {
 				const contents = await readPList(GLIF.Contents, contentsPath);
 				glyphs.length = contents.length;
 
+				const glyphsMap = new Map<string, Glyph>();
+				const componentsMap: GLIF.Component[][] = Array(glyphs.length);
+
+				// Process contours
 				let g = 0;
 				for await (let [name, glif] of contents.glifs(glyphsPath)) {
 					const advance = glif.advance?.width ?? glif.advance?.height;
 					const glyph = new Glyph(name, g, glif.unicode?.hex, advance);
 
-					if (glif.format !== 2) {
-						// TODO: Support version 1
-						console.error(`GLIF version ${glif.format} not yet implemented!`);
-
+					if (!glif.outline) {
 						glyph.outline = new Path();
-						glyphs[g++] = glyph;
-
-						continue;
 					}
+					else {
+						glyph.outline = this.parseGlifContours(glif);
 
-					if (glif.outline) {
-						const path = new Path();
-						for (let contour of glif.outline.contours) {
-							for (let p = 0; p < contour.points.length; ++p) {
-								let point = contour.points[p];
-								match ((point.type ?? GLIF.PointType.OffCurve), {
-									[GLIF.PointType.Move]: () => {
-										path.moveTo(point.x, point.y, point.smooth);
-									},
-									[GLIF.PointType.Line]: () => {
-										path.lineTo(point.x, point.y, point.smooth);
-									},
-									[GLIF.PointType.OffCurve]: () => {
-										const cp1 = point;
-										const next = contour.points[++p];
-
-										match ((next.type ?? GLIF.PointType.OffCurve), {
-											[GLIF.PointType.QCurve]: () => {
-												path.quadraticCurveTo(
-													cp1.x, cp1.y,
-													next.x, next.y,
-													next.smooth,
-												);
-											},
-											[GLIF.PointType.OffCurve]: () => {
-												const cp2 = next;
-												point = contour.points[++p];
-												// TODO: Maybe validate that `point` is type="curve"?
-
-												if (point) {
-													path.bezierCurveTo(
-														cp1.x, cp1.y,
-														cp2.x, cp2.y,
-														point.x, point.y,
-														point.smooth
-													);
-												}
-												else {
-													console.warn(
-														`Unexpected end of contour at index [${p-1}]`,
-														cp2,
-														glif,
-													);
-												}
-											},
-											_: () => {
-												console.error(
-													`Unexpected point type "${next.type}" at index [${p}]`,
-													next,
-													glif,
-												);
-											}
-										});
-									},
-									_: () => {
-										console.error(
-											`Unexpected point type "${point.type}" at index [${p}]`,
-											point,
-											glif,
-										);
-									}
-								});
-							}
-						}
-						glyph.outline = path;
+						// Defer processing components until all contours are processed.
+						// FIXME: Components can have components.
+						//        We need to build a dependency graph. >_<
+						if (glif.outline.components.length)
+							componentsMap[g] = glif.outline.components;
 					}
 
 					glyphs[g++] = glyph;
+					glyphsMap.set(name, glyph);
+				}
+
+				// Go back through and copy contours from collected component
+				// references into the glyphs where they were referenced
+				for (g = 0; g < glyphs.length; ++g) {
+					if (!componentsMap[g])
+						continue;
+
+					const host = glyphs[g];
+					host.outline ??= new Path();
+
+					for (let ref of componentsMap[g]) {
+						const componentOutline = glyphsMap.get(ref.base ?? "")?.outline;
+						if (!componentOutline) continue;
+
+						const matrix = new Matrix(
+							ref.xScale ?? 1, ref.xyScale ?? 0, 0,
+							ref.yxScale ?? 0, ref.yScale ?? 1, 0,
+							ref.xOffset ?? 0, ref.yOffset ?? 0, 1,
+						);
+
+						componentOutline.transform_new(matrix).replay(host.outline);
+					}
 				}
 			}
 
@@ -284,6 +247,74 @@ export class FamilyService implements OnDestroy {
 
 	setActive(font: Font) {
 		this._font$.next(font);
+	}
+
+	private parseGlifContours(glif: GLIF.Glyph): Path {
+		const path = new Path();
+
+		for (let contour of glif.outline!.contours) {
+			let isClosed = true;
+
+			const points = contour.points;
+			const getPoint = (idx: number) => idx < 0
+				? points[(points.length + idx) % points.length]
+				: points[idx % points.length];
+
+			for (let p = 0; p < points.length; ++p) {
+				let point = points[p];
+
+				if (p === 0) {
+					if (point.type === GLIF.PointType.Move) {
+						isClosed = false;
+					}
+					else {
+						const last = match ((point.type ?? GLIF.PointType.OffCurve), {
+							[GLIF.PointType.Line]: () => getPoint(p-1),
+							[GLIF.PointType.OffCurve]: () => getPoint(p-1),
+							[GLIF.PointType.QCurve]: () => getPoint(p-2),
+							[GLIF.PointType.Curve]: () => getPoint(p-3),
+						});
+						path.moveTo(last.x, last.y);
+					}
+				}
+
+				match ((point.type ?? GLIF.PointType.OffCurve), {
+					[GLIF.PointType.Move]: () => {
+						path.moveTo(point.x, point.y, point.smooth);
+					},
+					[GLIF.PointType.Line]: () => {
+						path.lineTo(point.x, point.y, point.smooth);
+					},
+					[GLIF.PointType.OffCurve]: () => {},
+					[GLIF.PointType.QCurve]: () => {
+						const cp = getPoint(p-1);
+						path.quadraticCurveTo(cp.x, cp.y, point.x, point.y, point.smooth);
+					},
+					[GLIF.PointType.Curve]: () => {
+						const cp1 = getPoint(p-2);
+						const cp2 = getPoint(p-1);
+						path.bezierCurveTo(
+							cp1.x, cp1.y,
+							cp2.x, cp2.y,
+							point.x, point.y,
+							point.smooth,
+						);
+					},
+					_: () => {
+						console.error(
+							`Unexpected point type "${point.type}" at index [${p}]`,
+							point,
+							glif,
+						);
+					}
+				});
+
+				if (p === points.length - 1 && isClosed)
+					path.closePath();
+			}
+		}
+
+		return path;
 	}
 
 	private mergeFonts(dest: readonly Font[], src: readonly Font[]): Font[] {
