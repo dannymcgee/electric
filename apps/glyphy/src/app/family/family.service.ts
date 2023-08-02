@@ -157,9 +157,9 @@ export class FamilyService implements OnDestroy {
 				glyphs.length = contents.length;
 
 				let g = 0;
-				for await (let glif of contents.glifs(glyphsPath)) {
+				for await (let [name, glif] of contents.glifs(glyphsPath)) {
 					const advance = glif.advance?.width ?? glif.advance?.height;
-					const glyph = new Glyph(glif.name, g, glif.unicode?.hex, advance);
+					const glyph = new Glyph(name, g, glif.unicode?.hex, advance);
 
 					if (glif.format !== 2) {
 						// TODO: Support version 1

@@ -150,10 +150,12 @@ export namespace GLIF {
 				yield [key, valueNode.textContent!] as [string, string];
 		}
 
-		async *glifs(basePath: string): AsyncIterable<Glyph> {
-			for (let [, glyphPath] of this) {
+		async *glifs(basePath: string): AsyncIterable<[string, Glyph]> {
+			for (let [name, glyphPath] of this) {
 				const fullPath = await path.join(basePath, glyphPath);
-				yield Glyph.fromFile(fullPath);
+				const glyph = await Glyph.fromFile(fullPath);
+
+				yield [name, glyph];
 			}
 		}
 
