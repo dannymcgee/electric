@@ -1,5 +1,6 @@
 import { Const } from "@electric/utils";
-import { Matrix } from "./matrix";
+
+import { Matrix, vec2, Vec2 } from "../math";
 
 export interface IPath {
 	/**
@@ -146,45 +147,49 @@ export class Path implements IPath {
 		for (let c of this.contours)
 			c.transform_inPlace(m);
 
-		this._commands = this._commands.map(cmd => {
+		for (let i = 0; i < this._commands.length; ++i) {
+			const cmd = this._commands[i];
 			switch (cmd.op) {
 				case PathOp.MoveTo:
 				case PathOp.LineTo: {
-					const [x, y] = cmd.args;
-					const p = new Vec2(x, y);
-					p.transform_inPlace(m);
+					const [x, y, smooth] = cmd.args;
+					const p = m.transformPoint(vec2(x, y));
 
-					return new PathCommand(cmd.op, p.x, p.y) as IPathCommand;
+					this._commands[i] = new PathCommand(cmd.op, p.x, p.y, smooth) as IPathCommand;
+					break;
 				}
 				case PathOp.QuadraticCurveTo: {
-					const [x1, y1, x2, y2] = cmd.args;
+					const [x1, y1, x2, y2, smooth] = cmd.args;
+					const p1 = m.transformPoint(vec2(x1, y1));
+					const p2 = m.transformPoint(vec2(x2, y2));
 
-					const p1 = new Vec2(x1, y1);
-					const p2 = new Vec2(x2, y2);
+					this._commands[i] = new PathCommand(
+						cmd.op,
+						p1.x, p1.y,
+						p2.x, p2.y,
+						smooth,
+					) as IPathCommand;
 
-					p1.transform_inPlace(m);
-					p2.transform_inPlace(m);
-
-					return new PathCommand(cmd.op, p1.x, p1.y, p2.x, p2.y) as IPathCommand;
+					break;
 				}
 				case PathOp.BezierCurveTo: {
-					const [x1, y1, x2, y2, x3, y3] = cmd.args;
+					const [x1, y1, x2, y2, x3, y3, smooth] = cmd.args;
+					const p1 = m.transformPoint(vec2(x1, y1));
+					const p2 = m.transformPoint(vec2(x2, y2));
+					const p3 = m.transformPoint(vec2(x3, y3));
 
-					const p1 = new Vec2(x1, y1);
-					const p2 = new Vec2(x2, y2);
-					const p3 = new Vec2(x3, y3);
+					this._commands[i] = new PathCommand(
+						cmd.op,
+						p1.x, p1.y,
+						p2.x, p2.y,
+						p3.x, p3.y,
+						smooth,
+					) as IPathCommand;
 
-					p1.transform_inPlace(m);
-					p2.transform_inPlace(m);
-					p3.transform_inPlace(m);
-
-					return new PathCommand(cmd.op, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y) as IPathCommand;
-				}
-				default: {
-					return cmd as IPathCommand;
+					break;
 				}
 			}
-		});
+		}
 	}
 
 	transform_new(m: Const<Matrix>): Path {
@@ -352,39 +357,14 @@ export class Point {
 	}
 
 	transform_inPlace(m: Const<Matrix>): void {
-		this.coords.transform_inPlace(m);
-		this.handle_in?.transform_inPlace(m);
-		this.handle_out?.transform_inPlace(m);
+		m.transformPoint_inPlace(this.coords);
+		if (this.handle_in)
+			m.transformPoint_inPlace(this.handle_in);
+		if (this.handle_out)
+			m.transformPoint_inPlace(this.handle_out);
 	}
 
 	transform_new(m: Const<Matrix>): Point {
-		const result = this.clone();
-		result.transform_inPlace(m);
-
-		return result;
-	}
-}
-
-export class Vec2 {
-	static Zero: Const<Vec2> = new Vec2(0, 0);
-	static Unit: Const<Vec2> = new Vec2(1, 1);
-
-	constructor (
-		public x: number,
-		public y: number,
-	) {}
-
-	clone(): Vec2 {
-		return new Vec2(this.x, this.y);
-	}
-
-	transform_inPlace(m: Const<Matrix>): void {
-		const [x, y] = [this.x, this.y];
-		this.x = (x*m.m11 + y*m.m21 + m.m31);
-		this.y = (x*m.m12 + y*m.m22 + m.m32);
-	}
-
-	transform_new(m: Const<Matrix>): Vec2 {
 		const result = this.clone();
 		result.transform_inPlace(m);
 

@@ -6,7 +6,8 @@ import * as path from "@tauri-apps/api/path";
 import { BehaviorSubject, Observable } from "rxjs";
 
 import { Font, FontStyle, FontWeight, Names, NewFont } from "../font";
-import { Glyph, Matrix, Path } from "../glyph";
+import { Glyph, Path } from "../glyph";
+import { Matrix } from "../math";
 import { FsSelectionFlags, MacStyleFlags, NameID, TtxFont } from "../open-type";
 import { InterpreterCFF2 } from "../outlines";
 import tauri from "../tauri.bridge";

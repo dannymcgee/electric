@@ -1,4 +1,7 @@
-import { Const } from "@electric/utils";
+import { Const, match } from "@electric/utils";
+
+import { vec2, Vec2 } from "./vec2";
+import { vec3, Vec3 } from "./vec3";
 
 const DEG2RAD = Math.PI / 180;
 
@@ -64,20 +67,56 @@ export class Matrix {
 			const a = result.clone();
 			const b = matrices.pop()!;
 
-			result.m11 = (a.m11*b.m11 + a.m12*b.m21 + a.m13*b.m31);
-			result.m12 = (a.m11*b.m12 + a.m12*b.m22 + a.m13*b.m32);
-			result.m13 = (a.m11*b.m13 + a.m12*b.m23 + a.m13*b.m33);
+			const a_row_1 = a.row(1);
+			const a_row_2 = a.row(2);
+			const a_row_3 = a.row(3);
 
-			result.m21 = (a.m21*b.m11 + a.m22*b.m21 + a.m23*b.m31);
-			result.m22 = (a.m21*b.m12 + a.m22*b.m22 + a.m23*b.m32);
-			result.m23 = (a.m21*b.m13 + a.m22*b.m23 + a.m23*b.m33);
+			const b_col_1 = b.col(1);
+			const b_col_2 = b.col(2);
+			const b_col_3 = b.col(3);
 
-			result.m31 = (a.m31*b.m11 + a.m32*b.m21 + a.m33*b.m31);
-			result.m32 = (a.m31*b.m12 + a.m32*b.m22 + a.m33*b.m32);
-			result.m33 = (a.m31*b.m13 + a.m32*b.m23 + a.m33*b.m33);
+			result.m11 = vec3.dot(a_row_1, b_col_1);
+			result.m12 = vec3.dot(a_row_1, b_col_2);
+			result.m13 = vec3.dot(a_row_1, b_col_3);
+
+			result.m21 = vec3.dot(a_row_2, b_col_1);
+			result.m22 = vec3.dot(a_row_2, b_col_2);
+			result.m23 = vec3.dot(a_row_2, b_col_3);
+
+			result.m31 = vec3.dot(a_row_3, b_col_1);
+			result.m32 = vec3.dot(a_row_3, b_col_2);
+			result.m33 = vec3.dot(a_row_3, b_col_3);
 		}
 
 		return result;
+	}
+
+	transformPoint(p: Const<Vec2>): Vec2 {
+		const row = vec3(p.x, p.y, 1);
+		return vec2(
+			vec3.dot(row, this.col(1)),
+			vec3.dot(row, this.col(2)),
+		);
+	}
+
+	transformPoint_inPlace(p: Vec2): void {
+		const row = vec3(p.x, p.y, 1);
+		p.x = vec3.dot(row, this.col(1));
+		p.y = vec3.dot(row, this.col(2));
+	}
+
+	transformVector(v: Const<Vec2>): Vec2 {
+		const row = vec3(v.x, v.y, 0);
+		return vec2(
+			vec3.dot(row, this.col(1)),
+			vec3.dot(row, this.col(2)),
+		);
+	}
+
+	transformVector_inPlace(v: Vec2): void {
+		const row = vec3(v.x, v.y, 0);
+		v.x = vec3.dot(row, this.col(1));
+		v.y = vec3.dot(row, this.col(2));
 	}
 
 	clone(): Matrix {
@@ -106,5 +145,21 @@ export class Matrix {
 		} = this;
 
 		return `Matrix(${m11} ${m12} ${m13}, ${m21} ${m22} ${m23}, ${m31} ${m32} ${m33})`;
+	}
+
+	row(n: 1 | 2 | 3): Vec3 {
+		return match (n, {
+			1: () => vec3(this.m11, this.m12, this.m13),
+			2: () => vec3(this.m21, this.m22, this.m23),
+			3: () => vec3(this.m31, this.m32, this.m33),
+		});
+	}
+
+	col(n: 1 | 2 | 3): Vec3 {
+		return match (n, {
+			1: () => vec3(this.m11, this.m21, this.m31),
+			2: () => vec3(this.m12, this.m22, this.m32),
+			3: () => vec3(this.m13, this.m23, this.m33),
+		});
 	}
 }
