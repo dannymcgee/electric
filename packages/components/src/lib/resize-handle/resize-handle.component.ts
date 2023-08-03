@@ -11,10 +11,11 @@ import {
 	HostListener,
 	Inject,
 } from "@angular/core";
+import { Option } from "@electric/utils";
 import {
 	fromEvent,
-	map,
 	merge,
+	scan,
 	Subject,
 	takeUntil,
 } from "rxjs";
@@ -76,15 +77,40 @@ export class ResizeHandleComponent implements ResizeHandle, OnDestroy {
 					: "ns-resize"
 			);
 
+		// NOTE: It's tempting to just use `movementX`/`movementY` here, but MDN
+		// warns that browser implementations are not consistent about which units
+		// they use (device/hardware pixels or "client"/CSS/DIP pixels). We just
+		// compute the deltas manually with `clientX`/`clientY` for the sake of
+		// bulletproof consistency.
+		// https://github.com/w3c/pointerlock/issues/42
 		fromEvent<PointerEvent>(this._document, "pointermove").pipe(
-			map(Vec2.fromPointerEvent),
+			scan((accum, event) => {
+				return {
+					prev: accum.current,
+					current: event,
+				};
+			}, {
+				prev: null,
+				current: null,
+			} as {
+				prev: Option<PointerEvent>;
+				current: Option<PointerEvent>;
+			}),
 			takeUntil(merge(
 				fromEvent(this._document, "pointerup"),
 				this._onDestroy$,
 			)),
 		).subscribe({
-			next: event => {
-				this.move.emit(event);
+			next: ({ prev, current }) => {
+				if (!current || !prev) {
+					this.move.emit(new Vec2(0, 0));
+				}
+				else {
+					this.move.emit(new Vec2(
+						current.clientX - prev.clientX,
+						current.clientY - prev.clientY,
+					));
+				}
 			},
 			complete: () => {
 				this._active = false;

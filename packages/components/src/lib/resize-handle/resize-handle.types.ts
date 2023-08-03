@@ -13,13 +13,6 @@ export interface ResizeHandle {
 }
 
 export class Vec2 {
-	static fromPointerEvent({ movementX, movementY }: PointerEvent) {
-		return new Vec2(
-			movementX / window.devicePixelRatio,
-			movementY / window.devicePixelRatio,
-		);
-	}
-
 	constructor (
 		public x: number,
 		public y: number,
