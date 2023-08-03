@@ -5,14 +5,11 @@
 @use "elx/style/type";
 
 :host {
-	@include scrollbar(200);
 	@include layout.flex(column);
 	width: 100%;
 	height: 100%;
 	padding: 48px;
 	gap: 32px;
-	overflow-x: hidden;
-	overflow-y: auto;
 	background: color.background(200);
 }
 
@@ -49,6 +46,7 @@
 	height: a11y.rem(96);
 	margin: 8px 0;
 	cursor: default;
+	user-select: none;
 
 	&__svg {
 		@include layout.flex($dir:column);

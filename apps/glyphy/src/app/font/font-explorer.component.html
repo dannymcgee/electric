@@ -12,6 +12,7 @@
 			<div class="glyphs">
 				<div class="glyph"
 					*ngFor="let glyph of group.glyphs"
+					(dblclick)="openGlyph.emit(glyph)"
 				>
 					<svg g-glyph class="glyph__svg"
 						[glyph]="glyph"
@@ -36,6 +37,7 @@
 	<ng-container *ngIf="(font$ | async) as font">
 		<div class="glyph"
 			*ngFor="let glyph of font.glyphs"
+			(dblclick)="openGlyph.emit(glyph)"
 		>
 			<svg g-glyph class="glyph__svg"
 				[glyph]="glyph"

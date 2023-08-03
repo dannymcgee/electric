@@ -15,8 +15,11 @@ export class AppComponent {
 	set maximized(_) { this._win.toggleMaximized() }
 
 	newFamilyDialog = false;
+	openGlyphs: Glyph[] = [];
+	activeGlyphIndex = -1;
 
 	constructor (
+		private _cdRef: ChangeDetectorRef,
 		@Inject(WINDOW_PROVIDER) private _win: WindowProvider,
 		public _familyService: FamilyService,
 	) {}
@@ -43,11 +46,14 @@ export class AppComponent {
 		await this._familyService.importFont();
 	}
 
-	setActiveGlyph(glyph?: Glyph): void {
-		// FIXME
-		// this.activeGlyph = glyph;
-		// console.log("active glyph:", glyph);
-		// this._cdRef.markForCheck();
+	openGlyph(glyph: Glyph): void {
+		this.openGlyphs.push(glyph);
+		this._cdRef.detectChanges();
+
+		setTimeout(() => {
+			this.activeGlyphIndex = this.openGlyphs.length - 1;
+			this._cdRef.detectChanges();
+		});
 	}
 
 	async createFamily(family: NewFontFamily, fonts: NewFont[]) {

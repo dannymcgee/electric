@@ -1,4 +1,4 @@
-@use "elx/a11y" as *;
+@use "elx/a11y";
 @use "elx/anim";
 @use "elx/layout";
 @use "elx/style/color";
@@ -15,7 +15,7 @@
 	@include layout.inline-flex($a:center, $j:center);
 	@include type.h3;
 	flex: 1 0 0;
-	gap: rem(4);
+	gap: a11y.rem(4);
 	pointer-events: none;
 
 	&__app     { color: color.foreground(50) }
@@ -24,7 +24,7 @@
 }
 
 ::ng-deep .elx-titlebar__icon {
-	flex: 0 0 rem(48);
+	flex: 0 0 a11y.rem(48);
 	color: color.primary(600);
 }
 
@@ -38,9 +38,58 @@
 }
 
 .content {
-	@include layout.flex(column, center, center);
+	@include layout.flex(column, $j:center);
 	flex: 1 0 0;
 	background: color.background(300);
+}
+
+[role="tab"] {
+	@include layout.inline-flex(row, $a:center);
+	height: a11y.rem(48);
+
+	&::after {
+		content: unset;
+	}
+}
+
+.tab-label {
+	@include layout.inline-flex(row, $a:baseline);
+	gap: 1ch;
+
+	&__name {
+		font: {
+			size: a11y.rem(18);
+			weight: 700;
+		}
+	}
+
+	&__unicode {
+		color: color.foreground(400);
+		font: {
+			family: monospace;
+			size: a11y.rem(16);
+			weight: 500;
+		}
+	}
+}
+
+.tab-group {
+	flex: 1 0 0;
+	overflow-y: auto;
+	@include scrollbar(200);
+
+	::ng-deep [role="tabpanel"] {
+		@include layout.flex(column);
+		height: 100%;
+	}
+
+	.g-glyph-editor {
+		flex: 1 0 0;
+	}
+}
+
+.get-started {
+	align-self: center;
 }
 
 .glyphs {

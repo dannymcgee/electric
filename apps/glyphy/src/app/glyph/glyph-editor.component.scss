@@ -2,28 +2,39 @@
 
 .g-glyph-editor {
 	transform: scale(1, -1);
+	background: color.background(200);
+
+	&__metrics {
+		--metrics-color: #{color.foreground(500)};
+	}
 
 	&__path {
 		stroke: color.foreground();
 		stroke-width: calc(var(--path-thickness) * var(--scale-factor));
-		fill: none;
+		fill: color.foreground();
+		fill-opacity: 0.1;
 	}
 
 	&__point {
-		fill: #FF80FF;
+		fill: color.accent(700, 0.5);
+		stroke: color.accent(800) {
+			width: calc(var(--handle-thickness) * var(--scale-factor));
+		}
 
 		&--first {
-			fill: color.warning(800);
-			transform: scale(1.25);
+			fill: color.warning(800, 0.5);
+			stroke: color.warning(800);
 		}
 	}
 
 	&__handle {
-		fill: color.accent(700);
+		fill: color.primary(700, 0.2);
+		stroke: color.primary(800) {
+			width: calc(var(--handle-thickness) * var(--scale-factor));
+		}
 
 		&--line {
-			stroke: color.accent(700, 0.5);
-			stroke-width: calc(var(--handle-thickness) * var(--scale-factor));
+			stroke: color.primary(700, 0.5);
 		}
 	}
 }

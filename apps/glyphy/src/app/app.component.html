@@ -62,45 +62,51 @@
 		<div class="content"
 			*elxUnwrap="(_familyService.font$ | async) as font"
 		>
-			<g-font-explorer *ngIf="font else getStarted"></g-font-explorer>
+			<ng-container *ngIf="font else getStarted">
+				<elx-tab-list #tabs [activeIndex]="activeGlyphIndex + 1">
+					<elx-tab #homeTab active>
+						<elx-icon icon="Home"></elx-icon>
+					</elx-tab>
+					<elx-tab
+						*ngFor="let glyph of openGlyphs
+							let i = index"
+					>
+						<span class="tab-label">
+							<strong class="tab-label__name">
+								{{ glyph.name }}
+							</strong>
+							<span class="tab-label__unicode">
+								{{ glyph.unicode | hex : 4 }}
+							</span>
+						</span>
+					</elx-tab>
+				</elx-tab-list>
+
+				<elx-tab-group class="tab-group" [for]="tabs">
+					<g-font-explorer
+						*elxTabPanelFor="homeTab"
+						(openGlyph)="openGlyph($event)"
+					></g-font-explorer>
+
+					<ng-template
+						*ngFor="let glyph of openGlyphs
+							let i = index"
+						[elxTabPanelFor]="tabs.get(i + 1)"
+					>
+						<svg g-glyph-editor [glyph]="glyph"></svg>
+					</ng-template>
+				</elx-tab-group>
+			</ng-container>
+
 			<ng-template #getStarted>
 				<button elx-btn="primary"
+					class="get-started"
 					(click)="importFont()"
 				>
 					Get Started
 				</button>
 			</ng-template>
 		</div>
-
-		<!-- TODO
-		<elx-dialog class="active-glyph__dialog"
-			#activeGlyphDialog
-			*elxDialogTrigger="activeGlyph"
-			blocking
-			(close)="setActiveGlyph(undefined)"
-		>
-			<elx-dialog-heading>
-				{{ activeGlyph?.name ?? "" }}
-			</elx-dialog-heading>
-
-			<svg g-glyph-editor class="active-glyph__svg"
-				[glyph]="activeGlyph!"
-			></svg>
-
-			<elx-dialog-footer>
-				<button elx-btn
-					(click)="activeGlyphDialog.close()"
-				>
-					Cancel
-				</button>
-				<button elx-btn="primary"
-					(click)="activeGlyphDialog.close()"
-				>
-					Save
-				</button>
-			</elx-dialog-footer>
-		</elx-dialog>
-		-->
 
 		<g-new-family-dialog
 			*elxDialogTrigger="newFamilyDialog"

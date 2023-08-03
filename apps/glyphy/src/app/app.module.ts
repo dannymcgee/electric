@@ -11,6 +11,7 @@ import {
 	FormControlsModule,
 	IconModule,
 	MenuModule,
+	TabsModule,
 	ThemeModule,
 	ThemeService,
 } from "@electric/components";
@@ -51,6 +52,7 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 		IconModule.withIcons(ICONS),
 		MenuModule,
 		PlatformModule.forPlatform(AppPlatform.Tauri),
+		TabsModule,
 		ThemeModule.withTheme(DEFAULT_THEME, "dark"),
 		UtilityModule,
 	],

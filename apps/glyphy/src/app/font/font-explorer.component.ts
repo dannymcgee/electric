@@ -3,9 +3,11 @@ import {
 	ChangeDetectorRef,
 	Component,
 	ElementRef,
+	EventEmitter,
 	HostBinding,
 	OnDestroy,
 	OnInit,
+	Output,
 } from "@angular/core";
 import { ElxResizeObserver, ResizeEntry } from "@electric/ng-utils";
 import { anim } from "@electric/style";
@@ -29,6 +31,8 @@ class UnicodeGroup {
 export class FontExplorerComponent implements OnInit, OnDestroy {
 	@HostBinding("style.--cols")
 	cols = 12;
+
+	@Output() openGlyph = new EventEmitter<Glyph>();
 
 	// TODO: User configuration
 	groupByCharacterSet = true;

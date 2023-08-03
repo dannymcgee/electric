@@ -3,18 +3,21 @@ import {
 	ChangeDetectorRef,
 	Component,
 	HostBinding,
+	HostListener,
 	Input,
 	OnChanges,
 	OnDestroy,
 	OnInit,
+	Optional,
 	SimpleChanges,
 	ViewEncapsulation,
 } from "@angular/core";
+import { TabGroupComponent } from "@electric/components";
 import { Subject, takeUntil } from "rxjs";
 
-import { Font } from "../font";
 import { Glyph } from "./glyph";
 import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
+import { FamilyService } from "../family";
 import { getViewBox, ViewBox } from "../util/viewbox";
 
 @Component({
@@ -28,10 +31,10 @@ import { getViewBox, ViewBox } from "../util/viewbox";
 export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@Input() glyph!: Glyph;
 
-	@Input() metricsThickness = 1.5;
+	@Input() metricsThickness = 1;
 
 	@HostBinding("style.--path-thickness")
-	@Input() pathThickness = 2;
+	@Input() pathThickness = 1;
 
 	@HostBinding("style.--handle-thickness")
 	@Input() handleThickness = 1;
@@ -50,18 +53,24 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@HostBinding("style.--scale-factor")
 	_scaleFactor = 1;
 
-	private _viewBox?: ViewBox;
+	_viewBox?: ViewBox;
 	private _onDestroy$ = new Subject<void>();
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
-		public _font: Font,
+		public _familyService: FamilyService,
 		private _scaleProvider: GlyphScaleFactorProvider,
+		// FIXME
+		@Optional() private _tabGroup: TabGroupComponent,
 	) {}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if ("glyph" in changes && this.glyph)
-			this._viewBox = getViewBox(this._font, this.glyph, 1.333333);
+		if ("glyph" in changes && this.glyph) {
+			this.updateViewbox();
+
+			if (changes["glyph"].firstChange)
+				this._scaleProvider.update(true);
+		}
 	}
 
 	ngOnInit(): void {
@@ -73,11 +82,32 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 			.subscribe(scaleFactor => {
 				this._scaleFactor = scaleFactor;
 				this._cdRef.markForCheck();
-			})
+			});
+
+		// FIXME
+		if (this._tabGroup) {
+			this._tabGroup._activeTab$
+				.pipe(takeUntil(this._onDestroy$))
+				.subscribe(() => {
+					this.updateViewbox();
+					this._scaleProvider.update(true);
+				});
+		}
 	}
 
 	ngOnDestroy(): void {
 		this._onDestroy$.next();
 		this._onDestroy$.complete();
+	}
+
+	private updateViewbox(): void {
+		this._viewBox = getViewBox(this._familyService.font!, this.glyph, 1.333333);
+		this._cdRef.detectChanges();
+	}
+
+	@HostListener("window:resize")
+	onResize(): void {
+		this.updateViewbox();
+		this._scaleProvider.update();
 	}
 }
