@@ -1,90 +1,58 @@
 # Electric
 
-This project was generated using [Nx](https://nx.dev).
+Electric is an experimental project for quickly bootstrapping hybrid desktop applications built with Angular and Tauri (or, maybe someday, Electron).
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+It's primarily intended for my own use and isn't really designed for public consumption in its current form. Large portions of the codebase are entirely undocumented, and a few of its features are ad-hoc, half-finished solutions that haven't been rigorously tested.
 
-🔎 **Smart, Extensible Build Framework**
+## Contents
+- `packages` is for shared libraries and is where the bulk of the codebase lives.
+    - [`components`](./packages/components) is the main Angular UI library and design system.
+    - [`ng-utils`](./packages/ng-utils) is an Angular utility library, for reusable Angular features that are unopinionated with regards to styling. Similar in concept to `@angular/cdk`.
+    - [`platform`](./packages/platform) is for abstraction of APIs that are specific to the host environment, like window management.
+    - [`style`](./packages/style) is a Sass utility library with some TypeScript modules that duplicate the APIs of their corresponding Sass modules (in case you need to move some styling logic to runtime).
+    - [`testing`](./packages/testing) is a utility library for working with Jest and Spectator.
+    - [`utils`](./packages/utils) is sort of an extended standard library. A lot of it is re-implemented `lodash` algorithms without the ES6+ polyfilling.
+- `demos` is for library demonstrations.
+    - [`showcase`](./demos/showcase) is a hand-built Angular web application in the vein of Storybook, showing off the main UI library and design system.
+    - `tauri-app` is a Tauri wrapper around `showcase`.
+    - `electron-app` is not a thing yet, but if/when it ever happens, it would be the Electron counterpart to `tauri-app`.
+- `apps` is where actual applications live, but mostly I build apps under their own feature branches to keep their Git histories distinct from the main codebase.
+    - [`tidy`](./apps/tidy) is an imagined solution to my data hoarding problem that I rage-built one night after scrounging for free disk space for the umpteenth time that month. Currently it's just a sad, barely functional file explorer.
+- `tools` is for build tooling. The repo is managed by [Nx](https://nx.dev), which does all of the heavy lifting, so mostly this is a place for custom Nx executors and generators.
 
-## Adding capabilities to your workspace
+Project-specific documentation, where available, can be found in a separate readme at the project's root.
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+## Development
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+> **NOTE:** This project is my personal baby, and as such I'm not currently accepting pull requests.
 
-Below are our core plugins:
+Node.js 16+ is required for installing dependencies and building things. There's a `postinstall` hook that should setup any additional JavaScript prerequisites after running `npm install`.
 
--   [React](https://reactjs.org)
-    -   `npm install --save-dev @nrwl/react`
--   Web (no framework frontends)
-    -   `npm install --save-dev @nrwl/web`
--   [Angular](https://angular.io)
-    -   `npm install --save-dev @nrwl/angular`
--   [Nest](https://nestjs.com)
-    -   `npm install --save-dev @nrwl/nest`
--   [Express](https://expressjs.com)
-    -   `npm install --save-dev @nrwl/express`
--   [Node](https://nodejs.org)
-    -   `npm install --save-dev @nrwl/node`
+[Rust](https://www.rust-lang.org/learn/get-started) is required for working with the Tauri apps, but there's no need to globally install the Tauri CLI &mdash; the project executors will use the correct version automatically, as specified via the `npm` dependencies.
 
-There are also many [community plugins](https://nx.dev/community) you could add.
+### Building / Running / Testing
 
-## Generate an application
+Each library/application has a `project.json` manifest at its root that enumerates the Nx executors available to that project under the `target` field. These executors can be run by using the following template:
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+```sh
+npx nx <target-name> <project-name> [options]
+```
 
-> You can use any of the plugins above to generate applications as well.
+The options available vary per executor and can be discovered by passing `--help`, e.g.:
+```sh
+npx nx build components --help
+```
 
-When using Nx, you can create multiple applications and libraries in the same workspace.
+Generally, most projects will have `build` and `test` commands, while applications additionally have a `serve` command to start the web frontend on its own, and `launch` to start both the web frontend and the Tauri native app.
 
-## Generate a library
+For example, to start the showcase demo in a web browser, run:
+```sh
+npx nx serve showcase
+```
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
+Or to launch it as a Tauri app:
+```sh
+npx nx launch showcase
+```
 
-> You can also use any of the plugins above to generate libraries as well.
-
-Libraries are shareable across libraries and applications. They can be imported from `@electric/mylib`.
-
-## Development server
-
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
-
-## Build
-
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
-
-Run `nx affected:test` to execute the unit tests affected by a change.
-
-## Running end-to-end tests
-
-Run `ng e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
-
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
-
-## Understand your workspace
-
-Run `nx dep-graph` to see a diagram of the dependencies of your projects.
-
-## Further help
-
-Visit the [Nx Documentation](https://nx.dev) to learn more.
-
-## ☁ Nx Cloud
-
-### Distributed Computation Caching & Distributed Task Execution
-
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
-
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
-
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
-
-Visit [Nx Cloud](https://nx.app/) to learn more.
+Note that the applications under `apps` and in feature branches have generally not been designed for web-only compatibility, so they may immediately throw errors if you try to `serve` and open them directly in a web browser.

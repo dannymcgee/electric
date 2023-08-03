@@ -102,6 +102,13 @@
 			},
 			"defaultConfiguration": "development"
 		},
+		"launch": {
+			"executor": "@nrwl/workspace:run-commands",
+			"options": {
+				"command": "tauri dev",
+				"cwd": "demos/tauri-app"
+			}
+		},
 		"extract-i18n": {
 			"executor": "@angular-devkit/build-angular:extract-i18n",
 			"options": {

@@ -3,7 +3,7 @@
 	"root": "demos/tauri-app",
 	"sourceRoot": "demos/tauri-app/src-tauri",
 	"targets": {
-		"serve": {
+		"launch": {
 			"executor": "@nrwl/workspace:run-commands",
 			"options": {
 				"command": "tauri dev",
