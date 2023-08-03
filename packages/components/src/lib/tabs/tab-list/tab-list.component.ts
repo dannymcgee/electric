@@ -79,6 +79,15 @@ implements OnInit, AfterContentInit, OnDestroy {
 	@DetectChanges()
 	_keyboardFocus = false;
 
+	@Input()
+	get activeIndex() { return this.getActiveIndex(); }
+	set activeIndex(value) {
+		if (value === -1 || value === this.getActiveIndex())
+			return;
+
+		this._keyManager?.setActiveItem(value);
+	}
+
 	_activeIndex$?: Observable<number>;
 	_activeTab$?: Observable<Tab>;
 
@@ -252,6 +261,10 @@ implements OnInit, AfterContentInit, OnDestroy {
 		this._focusMonitor.stopMonitoring(this._elementRef);
 		this._onDestroy$.next();
 		this._onDestroy$.complete();
+	}
+
+	get(index: number): Tab | undefined {
+		return this._tabs?.get(index);
 	}
 
 	private setActive(index: number): void {
