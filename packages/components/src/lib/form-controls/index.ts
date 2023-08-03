@@ -1,4 +1,5 @@
 export * from "./checkbox/checkbox.component";
+export * from "./fieldset/fieldset.component";
 export * from "./form-field/form-field.component";
 export * from "./input/input.component";
 export * from "./label/label.component";
