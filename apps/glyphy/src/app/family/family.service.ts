@@ -205,6 +205,8 @@ export class FamilyService implements OnDestroy {
 				}
 			}
 
+			this.sortGlyphs(glyphs);
+
 			fonts.push(new Font(family, weight, style, italicAngle, glyphs));
 		}
 
@@ -452,22 +454,25 @@ export class FamilyService implements OnDestroy {
 
 				glyphs[i] = glyph;
 			}
-
-			// Sort glyphs by unicode
-			glyphs.sort((a, b) => {
-				if (a.unicode == null && b.unicode == null)
-					return a.name!.localeCompare(b.name!);
-
-				if (a.unicode == null)
-					return 1;
-
-				if (b.unicode == null)
-					return -1;
-
-				return a.unicode - b.unicode;
-			});
 		}
 
+		this.sortGlyphs(glyphs);
+
 		return new Font(family, weight, style, italicAngle, glyphs);
+	}
+
+	private sortGlyphs(glyphs: Glyph[]): void {
+		glyphs.sort((a, b) => {
+			if (a.unicode == null && b.unicode == null)
+				return a.name!.localeCompare(b.name!);
+
+			if (a.unicode == null)
+				return 1;
+
+			if (b.unicode == null)
+				return -1;
+
+			return a.unicode - b.unicode;
+		});
 	}
 }
