@@ -20,11 +20,11 @@ export const ROUTES = [{
 		path: "dialog",
 		name: "Dialog",
 		component: DialogExample,
-	}, {
+	}, /* { // TODO: this feature is really not demo-ready in its current state
 		path: "graph",
 		name: "Graph",
 		component: GraphExample,
-	}, {
+	}, */ {
 		path: "",
 		redirectTo: "accordion",
 		pathMatch: "full",
