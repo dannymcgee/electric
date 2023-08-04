@@ -35,4 +35,10 @@
 	&::selection {
 		background: color.accent(300);
 	}
+
+	&[disabled] {
+		box-shadow: none;
+		background: color.background(500);
+		color: color.foreground(400);
+	}
 }
