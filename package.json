@@ -1,7 +1,6 @@
 {
 	"name": "electric",
 	"version": "0.0.0",
-	"license": "MIT",
 	"scripts": {
 		"postinstall": "run-p postinstall:*",
 		"postinstall:tools": "npm run build-executors",
