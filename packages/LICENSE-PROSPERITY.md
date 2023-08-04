@@ -2,7 +2,7 @@
 
 Contributor: Danny McGee
 
-Source Code: https://github.com/electric-io/electric/tree/main/packages
+Source Code: https://github.com/dannymcgee/electric/tree/main/packages
 
 ## Purpose
 

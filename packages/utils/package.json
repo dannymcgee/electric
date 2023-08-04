@@ -1,6 +1,17 @@
 {
 	"name": "@electric/utils",
 	"version": "0.0.1",
+	"author": {
+		"name": "Danny McGee",
+		"email": "dannymcgee@gmail.com",
+		"url": "https://dannymcgee.dev"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/dannymcgee/electric.git",
+		"directory": "packages/utils"
+	},
+	"license": "(Parity-7.0.0 OR LicenseRef-scancode-prosperity-3.0)",
 	"peerDependencies": {
 		"rxjs": "~7.4.0"
 	}
