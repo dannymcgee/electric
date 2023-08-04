@@ -5,19 +5,19 @@ export const BLOCK_FIRST_ENTER_ANIM = trigger("blockFirstEnterAnim", [
 ]);
 
 export const ACCORDION_TRIGGER = trigger("accordion", [
-	state("void", style({
+	state("collapsed", style({
 		height: 0,
 		paddingTop: 0,
 		paddingBottom: 0,
 		opacity: 0,
 	})),
-	state("*", style({
+	state("expanded", style({
 		height: "*",
 		paddingTop: "*",
 		paddingBottom: "*",
 		opacity: "*",
 	})),
-	transition("* <=> *", [
+	transition("collapsed <=> expanded", [
 		animate("100ms ease-in-out"),
 	]),
 ]);

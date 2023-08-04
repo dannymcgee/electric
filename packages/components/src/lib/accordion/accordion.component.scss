@@ -1,4 +1,5 @@
 @use "elx/a11y" as *;
+@use "elx/anim";
 @use "elx/layout";
 @use "elx/style/color";
 @use "elx/style/type";
@@ -15,9 +16,16 @@
 	cursor: pointer;
 	background: color.background(500);
 	color: color.foreground(200);
+	outline: none !important;
+	@include anim.transition((background, color));
 
 	&:hover {
 		background: color.background(600);
+	}
+
+	&:focus-visible {
+		background: color.accent(200);
+		color: color.foreground(50);
 	}
 
 	&__title {
@@ -37,6 +45,8 @@
 		flex: 0 0 calc(#{rem(16)} + 20px);
 		height: calc(#{rem(16)} + 16px);
 		color: color.foreground(400);
+		box-shadow: inset 0 0 0 0 transparent;
+		@include anim.transition((color, box-shadow));
 
 		.elx-icon {
 			transition: transform 100ms linear;
@@ -46,6 +56,11 @@
 			.elx-icon {
 				transform: rotateZ(90deg);
 			}
+		}
+
+		&:where(.elx-accordion-header:focus-visible #{&}) {
+			color: color.accent(600);
+			box-shadow: inset 0 0 0 2px color.accent(600);
 		}
 	}
 }
