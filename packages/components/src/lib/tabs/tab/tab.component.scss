@@ -1,9 +1,19 @@
+@use "elx/a11y";
 @use "elx/anim";
+@use "elx/layout";
 @use "elx/style/color";
 @use "elx/style/type";
+@use "sass:string";
 
 .elx-tab {
-	@include anim.transition((background-color, color));
+	$root: &;
+	$list: string.unquote(".elx-tab-list");
+
+	&:where(#{$list}:not(.animated) #{&}) {
+		@include layout.inline-flex($a:baseline);
+	}
+
+	@include anim.transition((background-color, border-color, color));
 	@include type.ui;
 	padding: 12px;
 	color: color.foreground(200);
@@ -12,23 +22,43 @@
 	outline: none !important;
 	user-select: none;
 
-	&:hover {
-		background: color.background(900, 0.333);
-		color: color.foreground(100);
+	&:where(.removable) {
+		padding-left: 20px;
+	}
+
+	&:where(#{$list}:not(.animated).indicator-top #{&}) {
+		border-top: 2px solid transparent;
+	}
+	&:where(#{$list}:not(.animated).indicator-bottom #{&}) {
+		border-bottom: 2px solid transparent;
 	}
 
 	&.active {
 		color: color.foreground(100);
 		font-weight: 500;
+
+		&:where(#{$list}:not(.animated) #{&}) {
+			background: color.background(400);
+			border-color: color.primary(600);
+		}
 	}
 
-	&.active:hover {
+	&:hover:where(:not(:has(#{$root}__close:hover))) {
+		background: color.background(900, 0.333);
+		color: color.foreground(100);
+	}
+
+	&.active:hover:where(:not(:has(#{$root}__close:hover))) {
 		color: color.foreground(50);
 	}
 
 	&:focus-visible {
 		background: color.accent(100);
 		color: color.foreground(50);
+
+		&:where(#{$list}:not(.animated) #{&}) {
+			border-color: color.accent(700);
+		}
 	}
 
 	&.disabled {
@@ -43,5 +73,32 @@
 		font-weight: 500;
 		height: 1px;
 		visibility: hidden;
+	}
+
+	&__close {
+		width: a11y.rem(28);
+		height: a11y.rem(28);
+		padding: a11y.rem(4);
+		align-self: center;
+		margin: {
+			left: 4px;
+			right: -4px;
+		}
+		opacity: 0;
+		@include anim.transition((background, opacity), anim.frame-time(4));
+
+		&:where(#{$root}:hover #{&}) {
+			opacity: 0.333;
+		}
+
+		&:hover {
+			background: color.background(900, 0.666);
+			opacity: 0.666;
+		}
+
+		#{$root}:focus-visible & {
+			background: transparent;
+			opacity: 1;
+		}
 	}
 }

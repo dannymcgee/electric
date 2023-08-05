@@ -7,9 +7,17 @@
 
 	display: block;
 	outline: none !important;
-	border-bottom: 2px solid transparent;
 
-	&--underlined {
+	&:where(.animated) {
+		&:where(.indicator-top) {
+			border-top: 2px solid transparent;
+		}
+		&:where(.indicator-bottom) {
+			border-bottom: 2px solid transparent;
+		}
+	}
+
+	&:where(.underlined) {
 		border-color: color.background(900, 0.333)
 	}
 
@@ -19,7 +27,15 @@
 	}
 
 	&__active-indicator {
-		@include layout.absolute($bottom: -2px);
+		position: absolute;
+
+		&:where(#{$root}.indicator-top #{&}) {
+			top: -2px;
+		}
+		&:where(#{$root}.indicator-bottom #{&}) {
+			bottom: -2px;
+		}
+
 		@include anim.transition(
 			(left, width, height, padding),
 			anim.frame-time(3),

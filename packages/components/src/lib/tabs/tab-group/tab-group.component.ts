@@ -1,14 +1,15 @@
 import {
-	Component,
-	ViewEncapsulation,
-	ChangeDetectionStrategy,
-	HostBinding,
-	ContentChildren,
 	AfterContentInit,
-	OnDestroy,
-	Input,
-	ElementRef,
+	ChangeDetectionStrategy,
 	ChangeDetectorRef,
+	Component,
+	ContentChildren,
+	ElementRef,
+	HostBinding,
+	Input,
+	OnDestroy,
+	TrackByFunction,
+	ViewEncapsulation,
 } from "@angular/core";
 import {
 	combineLatest,
@@ -35,38 +36,7 @@ import { Tab } from "../tabs.types";
 
 @Component({
 	selector: "elx-tab-group",
-	template: `
-
-<ng-content></ng-content>
-
-<div *ngIf="animated else staticPanel"
-	class="elx-tab-group__panels"
-	[style.width.%]="(_tabPanels?.length ?? 0) * 100"
-	[style.left.%]="((_activeIndex$ | async) ?? 0) * -100"
->
-	<div *ngFor="let panel of _tabPanels"
-		class="elx-tab-group__panel"
-		[class.active]="panel.tab === (_activeTab$ | async)"
-		[style.padding]="_computedStyle.padding"
-		role="tabpanel"
-		[attr.id]="panel.id"
-		[attr.aria-labelledby]="panel.tab?.id"
-	>
-		<ng-template
-			[ngTemplateOutlet]="panel._template"
-		></ng-template>
-	</div>
-</div>
-
-<ng-template #staticPanel>
-	<div class="elx-tab-group__panel">
-		<ng-template
-			[ngTemplateOutlet]="(_activePanel$ | async)?._template ?? null"
-		></ng-template>
-	</div>
-</ng-template>
-
-	`,
+	templateUrl: "./tab-group.component.html",
 	styleUrls: ["./tab-group.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,14 +50,19 @@ export class TabGroupComponent implements AfterContentInit, OnDestroy {
 	@Coerce(Boolean)
 	@Input() animated = false;
 
+	@Coerce(Boolean)
+	@Input() persistent = false;
+
 	_activePanel$?: Observable<TabPanelDirective>;
 
 	@ContentChildren(TabPanelDirective)
 	_tabPanels?: QueryList<TabPanelDirective>;
 
 	_computedStyle: CSSStyleDeclaration;
-	_activeIndex$ = new ReplaySubject<number>();
+	_activeIndex$?: Observable<number>;
 	_activeTab$ = new ReplaySubject<Tab>();
+
+	trackById: TrackByFunction<Tab> = (_, tab) => tab.id;
 
 	private _onDestroy$ = new Subject<void>();
 
@@ -100,14 +75,12 @@ export class TabGroupComponent implements AfterContentInit, OnDestroy {
 
 	ngAfterContentInit(): void {
 		assert(this.tabList?._activeTab$ != null);
-		assert(this.tabList?._activeIndex$ != null);
+		assert(this.tabList?.activeIndex$ != null);
 
-		this.tabList._activeIndex$.pipe(
+		this._activeIndex$ = this.tabList.activeIndex$.pipe(
 			shareReplay({ refCount: true }),
 			takeUntil(this._onDestroy$),
-		).subscribe(idx => {
-			this._activeIndex$.next(idx);
-		});
+		);
 
 		const tabPanels$ = this._tabPanels!.changes.pipe(
 			startWith(this._tabPanels!),
@@ -123,6 +96,8 @@ export class TabGroupComponent implements AfterContentInit, OnDestroy {
 			shareReplay({ refCount: true }),
 		);
 
+		// TODO: I cannot remember why I did this D:
+		//       Comments are good, y'all
 		let initialTab$ = activeTab$.pipe(take(1));
 		let delayedTabs$ = activeTab$.pipe(
 			skip(1),
@@ -138,7 +113,6 @@ export class TabGroupComponent implements AfterContentInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this._activeIndex$.complete();
 		this._activeTab$.complete();
 		this._onDestroy$.next();
 		this._onDestroy$.complete();

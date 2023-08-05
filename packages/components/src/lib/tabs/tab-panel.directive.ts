@@ -1,24 +1,14 @@
-import { Directive, Input, OnChanges, TemplateRef } from "@angular/core";
-import { elementId } from "@electric/utils";
-
-import { Tab } from "./tabs.types";
+import { Directive, Input, TemplateRef } from "@angular/core";
+import { Coerce } from "@electric/ng-utils";
 
 @Directive({
-	selector: "[elxTabPanelFor]",
+	selector: "[elxTabPanel]",
 })
-export class TabPanelDirective implements OnChanges {
-	@Input("elxTabPanelFor")
-	tab?: Tab;
-
-	@Input() id = elementId("tab-panel");
+export class TabPanelDirective {
+	@Coerce(Boolean)
+	@Input() persistent = false;
 
 	constructor (
 		public _template: TemplateRef<void>,
 	) {}
-
-	ngOnChanges(): void {
-		if (!this.tab) return;
-
-		this.tab.controls = this.id;
-	}
 }

@@ -1,0 +1,8 @@
+<div class="elx-tab-list__container">
+	<ng-content></ng-content>
+	<div *ngIf="animated"
+		class="elx-tab-list__active-indicator"
+		[style.left.px]="_activeTabOffset$ | async"
+		[style.width.px]="_activeTabWidth$ | async"
+	></div>
+</div>

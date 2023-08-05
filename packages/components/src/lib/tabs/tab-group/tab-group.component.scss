@@ -8,11 +8,14 @@
 	&__panels {
 		@include layout.flex(row, flex-start);
 		@include layout.absolute(0, null, 0, null);
-		@include anim.transition(
-			left,
-			anim.frame-time(10),
-			anim.$ease-in-out-expo,
-		);
+
+		&:where(.animated) {
+			@include anim.transition(
+				left,
+				anim.frame-time(10),
+				anim.$ease-in-out-expo,
+			);
+		}
 	}
 
 	&__panel {

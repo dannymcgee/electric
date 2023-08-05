@@ -2,6 +2,7 @@ import {
 	Component,
 	HostBinding,
 	Input,
+	OnInit,
 	ViewChild,
 } from "@angular/core";
 
@@ -21,44 +22,41 @@ import { Defaults } from "../examples.types";
 	align="top"
 ></elx-resize-handle>
 
-<elx-tab-list #tabs class="tabs">
-	<elx-tab #controllerTab
-		[disabled]="!controller"
-		[active]="!!controller"
-	>
+<elx-tab-list #tabs class="tabs"
+	animated
+	[(activeIndex)]="activeTabIndex"
+>
+	<elx-tab [disabled]="!controller">
 		Controller
 	</elx-tab>
-	<elx-tab #templateTab
-		[active]="!controller && !!template"
-	>
+	<elx-tab>
 		Template
 	</elx-tab>
-	<elx-tab #stylesheetTab
-		[disabled]="!stylesheet"
-	>
+	<elx-tab [disabled]="!stylesheet">
 		Stylesheet
 	</elx-tab>
 </elx-tab-list>
 
 <elx-tab-group class="scroll-container"
 	animated
+	persistent
 	[for]="tabs"
 >
 	<showcase-example-code-view
-		*elxTabPanelFor="controllerTab"
+		*elxTabPanel
 		language="typescript"
 		[src]="controller"
 	></showcase-example-code-view>
 
 	<showcase-example-code-view
-		*elxTabPanelFor="templateTab"
+		*elxTabPanel
 		language="html"
 		[src]="template"
 		[defaults]="templateDefaults"
 	></showcase-example-code-view>
 
 	<showcase-example-code-view
-		*elxTabPanelFor="stylesheetTab"
+		*elxTabPanel
 		language="scss"
 		[src]="stylesheet"
 	></showcase-example-code-view>
@@ -67,7 +65,7 @@ import { Defaults } from "../examples.types";
 	`,
 	styleUrls: ["./example-code.component.scss"],
 })
-export class ExampleCodeComponent {
+export class ExampleCodeComponent implements OnInit {
 	@HostBinding("style.grid-area")
 	readonly gridArea = "example-code";
 
@@ -79,6 +77,19 @@ export class ExampleCodeComponent {
 	@Input() templateDefaults?: Defaults;
 	@Input() stylesheet?: string; // TODO
 
+	activeTabIndex = -1;
+
 	@ViewChild(RESIZE_HANDLE, { static: true })
 	resizeHandle!: ResizeHandle;
+
+	ngOnInit(): void {
+		if (this.controller)
+			this.activeTabIndex = 0;
+
+		else if (this.template)
+			this.activeTabIndex = 1;
+
+		else if (this.stylesheet)
+			this.activeTabIndex = 2;
+	}
 }

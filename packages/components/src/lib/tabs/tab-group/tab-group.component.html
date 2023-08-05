@@ -1,0 +1,31 @@
+<ng-content></ng-content>
+
+<ng-container *ngIf="(tabList?._tabs$ | async) as tabs">
+	<div class="elx-tab-group__panels"
+		[class.animated]="animated"
+		[style.width.%]="(_tabPanels?.length ?? 0) * 100"
+		[style.left.%]="((_activeIndex$ | async) ?? 0) * -100"
+	>
+		<div role="tabpanel"
+			*ngFor="let tab of tabs
+				let i = index
+				trackBy: trackById"
+			class="elx-tab-group__panel"
+			[class.active]="tab === (_activeTab$ | async)"
+			[id]="tab.panelId"
+			[attr.aria-labelledby]="tab.id"
+			[style.padding]="_computedStyle.padding"
+		>
+			<ng-container *ngIf="_tabPanels?.get(i) as tabPanel">
+				<ng-template
+					*ngIf="tabPanel && (
+						persistent
+						|| tabPanel.persistent
+						|| i === (_activeIndex$ | async)
+					)"
+					[ngTemplateOutlet]="tabPanel._template"
+				></ng-template>
+			</ng-container>
+		</div>
+	</div>
+</ng-container>
