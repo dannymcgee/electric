@@ -71,7 +71,7 @@
 						<elx-icon icon="Home"></elx-icon>
 					</elx-tab>
 					<elx-tab class="tab"
-						*ngFor="let glyph of openGlyphs
+						*ngFor="let glyph of (openGlyphs$ | async)
 							let i = index
 							trackBy: trackByUnicode"
 						removable
@@ -93,7 +93,7 @@
 					></g-font-explorer>
 
 					<ng-template elxTabPanel
-						*ngFor="let glyph of openGlyphs
+						*ngFor="let glyph of (openGlyphs$ | async)
 							let i = index
 							trackBy: trackByUnicode"
 					>
