@@ -1,9 +1,4 @@
-import {
-	ChangeDetectorRef,
-	Component,
-	Inject,
-	TrackByFunction,
-} from "@angular/core";
+import { Component, Inject, TrackByFunction } from "@angular/core";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 
 import { NewFont } from "./font";
@@ -26,7 +21,6 @@ export class AppComponent {
 	trackByUnicode: TrackByFunction<Glyph> = (_, glyph) => glyph.unicode;
 
 	constructor (
-		private _cdRef: ChangeDetectorRef,
 		@Inject(WINDOW_PROVIDER) private _win: WindowProvider,
 		public _familyService: FamilyService,
 	) {}
