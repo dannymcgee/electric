@@ -22,11 +22,24 @@ export class ElxResizeObserver implements OnDestroy {
 		options?: ResizeObserverOptions,
 	) {
 		let element = coerceElement(elementOrRef);
-		let subject = new Subject<ResizeEntry<T>>();
-
 		if (this._streams.has(element)) {
-			this._streams.get(element)!.complete();
+			let stream = this._streams.get(element)!;
+			if (!stream.closed) {
+				if (options) {
+					console.warn(
+						`Custom options were passed to ElxResizeObserver.observe, but `
+						+ `the given element is already being observed, so the new `
+						+ `options will be ignored! \n\n`
+						+ `If this is undesirable, consider providing a unique `
+						+ `ElxResizeObserver instance for the second observer instead `
+						+ `of injecting the root instance.`
+					);
+				}
+				return stream;
+			}
 		}
+
+		let subject = new Subject<ResizeEntry<T>>();
 		this._streams.set(element, subject);
 		this._observer.observe(element, options);
 
@@ -39,11 +52,18 @@ export class ElxResizeObserver implements OnDestroy {
 	unobserve<T extends Element>(elementOrRef: T | ElementRef<T>): void {
 		let element = coerceElement(elementOrRef);
 
-		this._observer.unobserve(element);
-
 		if (this._streams.has(element)) {
-			this._streams.get(element)!.complete();
-			this._streams.delete(element);
+			let stream = this._streams.get(element)!;
+			// It's possible there's more than one observer of this stream
+			if (!stream.observed) {
+				if (!stream.closed) stream.complete();
+
+				this._observer.unobserve(element);
+				this._streams.delete(element);
+			}
+		}
+		else {
+			this._observer.unobserve(element);
 		}
 	}
 
@@ -59,6 +79,13 @@ export class ElxResizeObserver implements OnDestroy {
 		element: T,
 		entry: ResizeEntry<T>,
 	): void {
-		this._streams.get(element)?.next(entry);
+		let stream = this._streams.get(element);
+		if (!stream || stream.closed) {
+			this._observer.unobserve(element);
+			if (stream) this._streams.delete(element);
+		}
+		else {
+			stream.next(entry);
+		}
 	}
 }
