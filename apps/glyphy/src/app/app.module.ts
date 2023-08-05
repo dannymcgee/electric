@@ -15,7 +15,12 @@ import {
 	ThemeModule,
 	ThemeService,
 } from "@electric/components";
-import { A11yModule, ElxResizeObserver, UtilityModule } from "@electric/ng-utils";
+import {
+	A11yModule,
+	ElxResizeObserver,
+	GlobalFocusManager,
+	UtilityModule,
+} from "@electric/ng-utils";
 import { AppPlatform, PlatformModule } from "@electric/platform";
 import { ICONS } from "@electric/style";
 
@@ -79,5 +84,8 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 	],
 })
 export class AppModule {
-	constructor (private _: ThemeService) {}
+	constructor (
+		private _: GlobalFocusManager,
+		private __: ThemeService,
+	) {}
 }

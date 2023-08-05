@@ -1,4 +1,9 @@
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+import {
+	ChangeDetectorRef,
+	Component,
+	Inject,
+	TrackByFunction,
+} from "@angular/core";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
 
 import { NewFont } from "./font";
@@ -16,7 +21,9 @@ export class AppComponent {
 
 	newFamilyDialog = false;
 	openGlyphs: Glyph[] = [];
-	activeGlyphIndex = -1;
+	activeTabIndex = 0;
+
+	trackByUnicode: TrackByFunction<Glyph> = (_, glyph) => glyph.unicode;
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
@@ -48,12 +55,14 @@ export class AppComponent {
 
 	openGlyph(glyph: Glyph): void {
 		this.openGlyphs.push(glyph);
-		this._cdRef.detectChanges();
+		this.activeTabIndex = this.openGlyphs.length;
+	}
 
-		setTimeout(() => {
-			this.activeGlyphIndex = this.openGlyphs.length - 1;
-			this._cdRef.detectChanges();
-		});
+	closeGlyph(glyphIndex: number): void {
+		this.openGlyphs.splice(glyphIndex, 1);
+
+		if (this.activeTabIndex > glyphIndex)
+			this.activeTabIndex -= 1;
 	}
 
 	async createFamily(family: NewFontFamily, fonts: NewFont[]) {

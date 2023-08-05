@@ -43,24 +43,22 @@
 	background: color.background(300);
 }
 
-[role="tab"] {
-	@include layout.inline-flex(row, $a:center);
+.tab {
 	height: a11y.rem(48);
+	cursor: default;
 
 	&::after {
 		content: unset;
 	}
-}
-
-.tab-label {
-	@include layout.inline-flex(row, $a:baseline);
-	gap: 1ch;
 
 	&__name {
+		margin-right: 1ch;
 		font: {
 			size: a11y.rem(18);
 			weight: 700;
 		}
+		// FIXME: I really just need to find a better font
+		transform: translateY(-0.05em);
 	}
 
 	&__unicode {
@@ -70,17 +68,24 @@
 			size: a11y.rem(16);
 			weight: 500;
 		}
+
+		.tab:focus-visible & {
+			color: color.accent(500);
+		}
 	}
 }
 
-.tab-group {
+.elx-tab-group {
 	flex: 1 0 0;
-	overflow-y: auto;
-	@include scrollbar(200);
+
+	& ::ng-deep &__panels {
+		transition: none;
+	}
 
 	::ng-deep [role="tabpanel"] {
 		@include layout.flex(column);
 		height: 100%;
+		overflow: clip;
 	}
 
 	.g-glyph-editor {

@@ -63,35 +63,39 @@
 			*elxUnwrap="(_familyService.font$ | async) as font"
 		>
 			<ng-container *ngIf="font else getStarted">
-				<elx-tab-list #tabs [activeIndex]="activeGlyphIndex + 1">
-					<elx-tab #homeTab active>
+				<elx-tab-list #tabs
+					indicator="top"
+					[(activeIndex)]="activeTabIndex"
+				>
+					<elx-tab class="tab" aria-label="Home">
 						<elx-icon icon="Home"></elx-icon>
 					</elx-tab>
-					<elx-tab
+					<elx-tab class="tab"
 						*ngFor="let glyph of openGlyphs
-							let i = index"
+							let i = index
+							trackBy: trackByUnicode"
+						removable
+						(remove)="closeGlyph(i)"
 					>
-						<span class="tab-label">
-							<strong class="tab-label__name">
-								{{ glyph.name }}
-							</strong>
-							<span class="tab-label__unicode">
-								{{ glyph.unicode | hex : 4 }}
-							</span>
+						<strong class="tab__name">
+							{{ glyph.name }}
+						</strong>
+						<span class="tab__unicode">
+							{{ glyph.unicode | hex : 4 }}
 						</span>
 					</elx-tab>
 				</elx-tab-list>
 
-				<elx-tab-group class="tab-group" [for]="tabs">
+				<elx-tab-group [for]="tabs" persistent>
 					<g-font-explorer
-						*elxTabPanelFor="homeTab"
+						*elxTabPanel
 						(openGlyph)="openGlyph($event)"
 					></g-font-explorer>
 
-					<ng-template
+					<ng-template elxTabPanel
 						*ngFor="let glyph of openGlyphs
-							let i = index"
-						[elxTabPanelFor]="tabs.get(i + 1)"
+							let i = index
+							trackBy: trackByUnicode"
 					>
 						<svg g-glyph-editor [glyph]="glyph"></svg>
 					</ng-template>
