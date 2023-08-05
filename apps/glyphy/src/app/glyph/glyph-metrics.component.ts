@@ -19,7 +19,6 @@ import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 	selector: "g[g-glyph-metrics]",
 	templateUrl: "./glyph-metrics.component.svg",
 	styleUrls: ["./glyph-metrics.component.scss"],
-	providers: [GlyphScaleFactorProvider],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 })

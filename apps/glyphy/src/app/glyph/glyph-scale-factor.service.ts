@@ -1,8 +1,9 @@
 import { ElementRef, Injectable, OnDestroy } from "@angular/core";
 import { ElxResizeObserver } from "@electric/ng-utils";
-import { BehaviorSubject, Subject, takeUntil } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, Subject, takeUntil } from "rxjs";
 
 import { FamilyService } from "../family";
+import { nearlyEq } from "../math";
 
 @Injectable()
 export class GlyphScaleFactorProvider implements OnDestroy {
@@ -32,7 +33,13 @@ export class GlyphScaleFactorProvider implements OnDestroy {
 
 		resizeObserver
 			.observe(this._svg)
-			.pipe(takeUntil(this._onDestroy$))
+			.pipe(
+				distinctUntilChanged((prev, current) => nearlyEq(
+					prev.contentRect.height,
+					current.contentRect.height,
+				)),
+				takeUntil(this._onDestroy$),
+			)
 			.subscribe({
 				next: () => {
 					this.update();

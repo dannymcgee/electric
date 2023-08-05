@@ -12,11 +12,13 @@ import { Coerce } from "@electric/ng-utils";
 import { FamilyService } from "../family";
 import { getViewBox, ViewBox } from "../util";
 import { Glyph } from "./glyph";
+import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 
 @Component({
 	selector: "svg[g-glyph]",
 	templateUrl: "./glyph.component.svg",
 	styleUrls: ["./glyph.component.scss"],
+	providers: [GlyphScaleFactorProvider],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 })

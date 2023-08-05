@@ -7,12 +7,9 @@ import {
 	Input,
 	OnChanges,
 	OnDestroy,
-	OnInit,
-	Optional,
 	SimpleChanges,
 	ViewEncapsulation,
 } from "@angular/core";
-import { TabGroupComponent } from "@electric/components";
 import { Subject, takeUntil } from "rxjs";
 
 import { Glyph } from "./glyph";
@@ -28,7 +25,7 @@ import { getViewBox, ViewBox } from "../util/viewbox";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 })
-export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
+export class GlyphEditorComponent implements OnChanges, OnDestroy {
 	@Input() glyph!: Glyph;
 
 	@Input() metricsThickness = 1;
@@ -60,38 +57,23 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		private _cdRef: ChangeDetectorRef,
 		public _familyService: FamilyService,
 		private _scaleProvider: GlyphScaleFactorProvider,
-		// FIXME
-		@Optional() private _tabGroup: TabGroupComponent,
 	) {}
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if ("glyph" in changes && this.glyph) {
 			this.updateViewbox();
 
-			if (changes["glyph"].firstChange)
+			if (changes["glyph"].firstChange) {
+				this._scaleProvider
+					.scaleFactor$
+					.pipe(takeUntil(this._onDestroy$))
+					.subscribe(scaleFactor => {
+						this._scaleFactor = scaleFactor;
+						this._cdRef.detectChanges();
+					});
+
 				this._scaleProvider.update(true);
-		}
-	}
-
-	ngOnInit(): void {
-		this._scaleProvider.update(true);
-
-		this._scaleProvider
-			.scaleFactor$
-			.pipe(takeUntil(this._onDestroy$))
-			.subscribe(scaleFactor => {
-				this._scaleFactor = scaleFactor;
-				this._cdRef.markForCheck();
-			});
-
-		// FIXME
-		if (this._tabGroup) {
-			this._tabGroup._activeTab$
-				.pipe(takeUntil(this._onDestroy$))
-				.subscribe(() => {
-					this.updateViewbox();
-					this._scaleProvider.update(true);
-				});
+			}
 		}
 	}
 
