@@ -9,7 +9,7 @@ import { Loop } from "../loop";
 	providedIn: "root",
 })
 export class GlobalFocusManager {
-	private _focusHistory = new Stack<HTMLElement>(20);
+	private _focusHistory = new Stack<HTMLElement>(100);
 
 	constructor (
 		@Inject(DOCUMENT) private _document: Document,
