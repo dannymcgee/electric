@@ -11,17 +11,21 @@ import {
 	ChangeDetectorRef,
 } from "@angular/core";
 import {
+	combineLatest,
 	delay,
+	map,
 	merge,
+	Observable,
 	ReplaySubject,
 	shareReplay,
 	skip,
+	startWith,
 	Subject,
 	take,
 	takeUntil,
 } from "rxjs";
 
-import { QueryList } from "@electric/ng-utils";
+import { Coerce, QueryList } from "@electric/ng-utils";
 import { anim } from "@electric/style";
 import { assert } from "@electric/utils";
 
@@ -35,23 +39,32 @@ import { Tab } from "../tabs.types";
 
 <ng-content></ng-content>
 
-<div class="elx-tab-group__panels"
+<div *ngIf="animated else staticPanel"
+	class="elx-tab-group__panels"
 	[style.width.%]="(_tabPanels?.length ?? 0) * 100"
 	[style.left.%]="((_activeIndex$ | async) ?? 0) * -100"
 >
 	<div *ngFor="let panel of _tabPanels"
 		class="elx-tab-group__panel"
-		[class.active]="panel._tab === (_activeTab$ | async)"
+		[class.active]="panel.tab === (_activeTab$ | async)"
 		[style.padding]="_computedStyle.padding"
 		role="tabpanel"
 		[attr.id]="panel.id"
-		[attr.aria-labelledby]="panel._tab?.id"
+		[attr.aria-labelledby]="panel.tab?.id"
 	>
 		<ng-template
 			[ngTemplateOutlet]="panel._template"
 		></ng-template>
 	</div>
 </div>
+
+<ng-template #staticPanel>
+	<div class="elx-tab-group__panel">
+		<ng-template
+			[ngTemplateOutlet]="(_activePanel$ | async)?._template ?? null"
+		></ng-template>
+	</div>
+</ng-template>
 
 	`,
 	styleUrls: ["./tab-group.component.scss"],
@@ -63,6 +76,11 @@ export class TabGroupComponent implements AfterContentInit, OnDestroy {
 	readonly hostClass = "elx-tab-group";
 
 	@Input("for") tabList?: TabListComponent;
+
+	@Coerce(Boolean)
+	@Input() animated = false;
+
+	_activePanel$?: Observable<TabPanelDirective>;
 
 	@ContentChildren(TabPanelDirective)
 	_tabPanels?: QueryList<TabPanelDirective>;
@@ -90,6 +108,16 @@ export class TabGroupComponent implements AfterContentInit, OnDestroy {
 		).subscribe(idx => {
 			this._activeIndex$.next(idx);
 		});
+
+		const tabPanels$ = this._tabPanels!.changes.pipe(
+			startWith(this._tabPanels!),
+			takeUntil(this._onDestroy$),
+		);
+
+		this._activePanel$ = combineLatest([tabPanels$, this._activeIndex$]).pipe(
+			map(([panels, idx]) => panels.get(idx)!),
+			takeUntil(this._onDestroy$),
+		);
 
 		let activeTab$ = this.tabList._activeTab$.pipe(
 			shareReplay({ refCount: true }),

@@ -41,6 +41,7 @@ import { Defaults } from "../examples.types";
 </elx-tab-list>
 
 <elx-tab-group class="scroll-container"
+	animated
 	[for]="tabs"
 >
 	<showcase-example-code-view

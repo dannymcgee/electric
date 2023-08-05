@@ -8,7 +8,7 @@ import { Tab } from "./tabs.types";
 })
 export class TabPanelDirective implements OnChanges {
 	@Input("elxTabPanelFor")
-	_tab?: Tab;
+	tab?: Tab;
 
 	@Input() id = elementId("tab-panel");
 
@@ -17,8 +17,8 @@ export class TabPanelDirective implements OnChanges {
 	) {}
 
 	ngOnChanges(): void {
-		if (!this._tab) return;
+		if (!this.tab) return;
 
-		this._tab.controls = this.id;
+		this.tab.controls = this.id;
 	}
 }
