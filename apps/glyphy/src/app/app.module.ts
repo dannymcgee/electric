@@ -40,6 +40,7 @@ import {
 	GlyphMetricsComponent,
 	GlyphToSvgPipe,
 } from "./glyph";
+import { TransformDirective } from "./math";
 import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 
 @NgModule({
@@ -75,6 +76,7 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 		NewFamilyDialog,
 		ParentFolderExistsValidator,
 		TargetFolderIsNewValidator,
+		TransformDirective,
 	],
 	bootstrap: [
 		AppComponent,

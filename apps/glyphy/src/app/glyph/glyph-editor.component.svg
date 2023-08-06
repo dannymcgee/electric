@@ -1,13 +1,52 @@
-<svg:g g-glyph-metrics
+<svg:g #metrics g-glyph-metrics
+	*ngIf="(_viewBox$ | async) as viewBox"
 	class="g-glyph-editor__metrics"
 	[glyph]="glyph"
-	[viewBox]="_viewBox"
+	[viewBox]="viewBox"
 	[lineThickness]="metricsThickness"
+	[gTransform]="renderTransform"
 />
-<svg:path class="g-glyph-editor__path"
+
+<svg:g class="pointer">
+	<ng-container *ngIf="_pointer">
+		<line
+			[attr.x1]="_pointer.x"
+			[attr.x2]="_pointer.x"
+			y1="-10000"
+			y2="10000"
+		/>
+		<text
+			x="16"
+			y="32"
+			[gTransform]="_clientToView"
+		>
+			X: {{ _pointerCoords?.x | number : '1.0-0' }}
+		</text>
+
+		<line
+			x1="-10000"
+			x2="10000"
+			[attr.y1]="_pointer.y"
+			[attr.y2]="_pointer.y"
+		/>
+		<text
+			x="16"
+			y="48"
+			[gTransform]="_clientToView"
+		>
+			Y: {{ _pointerCoords?.y | number : '1.0-0' }}
+		</text>
+	</ng-container>
+</svg:g>
+
+<svg:path #path class="g-glyph-editor__path"
 	[attr.d]="glyph | svg"
+	[gTransform]="renderTransform"
 />
-<svg:g class="g-glyph-editor__points">
+
+<svg:g #points class="g-glyph-editor__points"
+	[gTransform]="renderTransform"
+>
 	<ng-container *ngFor="let c of glyph.outline?.contours">
 		<ng-container
 			*ngFor="let p of c.points

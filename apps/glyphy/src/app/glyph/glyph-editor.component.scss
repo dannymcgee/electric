@@ -1,7 +1,6 @@
 @use "elx/style/color";
 
 .g-glyph-editor {
-	transform: scale(1, -1);
 	background: color.background(200);
 
 	&__metrics {
@@ -36,5 +35,15 @@
 		&--line {
 			stroke: color.primary(700, 0.5);
 		}
+	}
+}
+
+.pointer {
+	stroke: color.foreground(50, 0.1);
+	stroke-width: var(--scale-factor);
+
+	text {
+		stroke: none;
+		fill: color.foreground(500);
 	}
 }

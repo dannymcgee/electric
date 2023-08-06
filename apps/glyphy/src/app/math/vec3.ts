@@ -100,6 +100,14 @@ export namespace vec3 {
 		return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 	}
 
+	export function cross(lhs: Const<Vec3>, rhs: Const<Vec3>): Vec3 {
+		return vec3(
+			lhs.y*rhs.z - lhs.z*rhs.y,
+			lhs.z*rhs.x - lhs.x*rhs.z,
+			lhs.x*rhs.y - lhs.y*rhs.x,
+		);
+	}
+
 	export function dist(lhs: Const<Vec3>, rhs: Const<Vec3>): number {
 		const dx = lhs.x - rhs.x;
 		const dy = lhs.y - rhs.y;

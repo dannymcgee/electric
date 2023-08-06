@@ -1,4 +1,5 @@
 import { Const, match } from "@electric/utils";
+import { nearlyEq } from "./util";
 
 import { vec2, Vec2 } from "./vec2";
 import { vec3, Vec3 } from "./vec3";
@@ -13,6 +14,22 @@ export class Matrix {
 		public m21 = 0, public m22 = 1, public m23 = 0,
 		public m31 = 0, public m32 = 0, public m33 = 1,
 	) {}
+
+	static from(dom: DOMMatrix): Matrix {
+		return new Matrix(
+			dom.a, dom.b, 0,
+			dom.c, dom.d, 0,
+			dom.e, dom.f, 1,
+		);
+	}
+
+	toDomMatrix(): DOMMatrix {
+		return new DOMMatrix([
+			this.m11, this.m12,
+			this.m21, this.m22,
+			this.m31, this.m32,
+		]);
+	}
 
 	static scale(factor: number): Matrix;
 	static scale(x: number, y: number): Matrix;
@@ -147,7 +164,7 @@ export class Matrix {
 		return `Matrix(${m11} ${m12} ${m13}, ${m21} ${m22} ${m23}, ${m31} ${m32} ${m33})`;
 	}
 
-	row(n: 1 | 2 | 3): Vec3 {
+	row(n: 1|2|3): Vec3 {
 		return match (n, {
 			1: () => vec3(this.m11, this.m12, this.m13),
 			2: () => vec3(this.m21, this.m22, this.m23),
@@ -155,11 +172,82 @@ export class Matrix {
 		});
 	}
 
-	col(n: 1 | 2 | 3): Vec3 {
+	col(n: 1|2|3): Vec3 {
 		return match (n, {
 			1: () => vec3(this.m11, this.m21, this.m31),
 			2: () => vec3(this.m12, this.m22, this.m32),
 			3: () => vec3(this.m13, this.m23, this.m33),
 		});
+	}
+
+	mul(s: number): Matrix {
+		return new Matrix(
+			this.m11*s, this.m12*s, this.m13*s,
+			this.m21*s, this.m22*s, this.m23*s,
+			this.m31*s, this.m32*s, this.m33*s,
+		);
+	}
+
+	inverse(): Matrix {
+		const det = this.determinant();
+		if (nearlyEq(det, 0)) {
+			console.warn(`Matrix is not invertible: ${this}`);
+			return this;
+		}
+		return this.adjoint().mul(1 / det);
+	}
+
+	private determinant(): number {
+		return vec3.dot(
+			vec3.cross(this.row(1), this.row(2)),
+			this.row(3),
+		);
+	}
+
+	private adjoint(): Matrix {
+		const m = new Matrix();
+
+		// every m[r][c] = cofactor(c,r)
+		m.m11 = this.cofactor(1,1);
+		m.m12 = this.cofactor(2,1);
+		m.m13 = this.cofactor(3,1);
+
+		m.m21 = this.cofactor(1,2);
+		m.m22 = this.cofactor(2,2);
+		m.m23 = this.cofactor(3,2);
+
+		m.m31 = this.cofactor(1,3);
+		m.m32 = this.cofactor(2,3);
+		m.m33 = this.cofactor(3,3);
+
+		return m;
+	}
+
+	private cofactor(r: 1|2|3, c: 1|2|3): number {
+		const factor = ((r + c) % 2) ? -1 : 1;
+		return this.minor(r, c) * factor;
+	}
+
+	private minor(r: 1|2|3, c: 1|2|3): number {
+		const [ m11, m12,  m21, m22 ] =
+			match (r, {
+				1: () => match (c, {
+					1: () => [ this.m22, this.m23,  this.m32, this.m33 ] as const,
+					2: () => [ this.m21, this.m23,  this.m31, this.m33 ] as const,
+					3: () => [ this.m21, this.m22,  this.m31, this.m32 ] as const,
+				}),
+				2: () => match (c, {
+					1: () => [ this.m12, this.m13,  this.m32, this.m33 ] as const,
+					2: () => [ this.m11, this.m13,  this.m31, this.m33 ] as const,
+					3: () => [ this.m11, this.m12,  this.m31, this.m32 ] as const,
+				}),
+				3: () => match (c, {
+					1: () => [ this.m12, this.m13,  this.m22, this.m23 ] as const,
+					2: () => [ this.m11, this.m13,  this.m21, this.m23 ] as const,
+					3: () => [ this.m11, this.m12,  this.m21, this.m22 ] as const,
+				}),
+			});
+
+		return m11*m22 - m12*m21;
 	}
 }
