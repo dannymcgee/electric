@@ -59,6 +59,7 @@
 		<g-family-panel class="sidebar"
 			*ngIf="(_familyService.family$ | async)"
 		></g-family-panel>
+
 		<div class="content"
 			*elxUnwrap="(_familyService.font$ | async) as font"
 		>
@@ -67,9 +68,10 @@
 					indicator="top"
 					[(activeIndex)]="activeTabIndex"
 				>
-					<elx-tab class="tab" aria-label="Home">
-						<elx-icon icon="Home"></elx-icon>
+					<elx-tab class="tab tab--home" aria-label="Home">
+						<elx-icon icon="Home" size="lg"></elx-icon>
 					</elx-tab>
+
 					<elx-tab class="tab"
 						*ngFor="let glyph of (openGlyphs$ | async)
 							let i = index

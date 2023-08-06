@@ -47,6 +47,35 @@
 	height: a11y.rem(48);
 	cursor: default;
 
+	&--home {
+		width: a11y.rem(52);
+		align-items: center;
+		justify-content: center;
+		margin-right: 4px;
+		border-top-width: 3px;
+
+		&:where(:not(:focus-visible)) {
+			background: color.primary(300);
+			color: color.foreground(100);
+
+			&:hover {
+				background: color.primary(400);
+				color: color.foreground(50);
+			}
+
+			&.active,
+			&.active:hover {
+				border-color: color.accent(700);
+				background: color.primary(300);
+				color: color.accent(800);
+			}
+		}
+
+		.elx-icon {
+			transform: translateY(-2px);
+		}
+	}
+
 	&::after {
 		content: unset;
 	}
