@@ -19,7 +19,7 @@ export class AppComponent implements OnInit {
 	openGlyphs$ = new Subject<Glyph[]>();
 	activeTabIndex = 0;
 
-	trackByUnicode: TrackByFunction<Glyph> = (_, glyph) => glyph.unicode;
+	glyphTabHasher: TrackByFunction<Glyph> = (_, glyph) => glyph.fontStyle + glyph.name;
 
 	private _openGlyphsMap = new Map<Font, Glyph[]>();
 

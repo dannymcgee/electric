@@ -73,7 +73,7 @@
 					<elx-tab class="tab"
 						*ngFor="let glyph of (openGlyphs$ | async)
 							let i = index
-							trackBy: trackByUnicode"
+							trackBy: glyphTabHasher"
 						removable
 						(remove)="closeGlyph(i)"
 					>
@@ -95,7 +95,7 @@
 					<ng-template elxTabPanel
 						*ngFor="let glyph of (openGlyphs$ | async)
 							let i = index
-							trackBy: trackByUnicode"
+							trackBy: glyphTabHasher"
 					>
 						<svg g-glyph-editor [glyph]="glyph"></svg>
 					</ng-template>

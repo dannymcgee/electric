@@ -163,7 +163,7 @@ export class FamilyService implements OnDestroy {
 				let g = 0;
 				for await (let [name, glif] of contents.glifs(glyphsPath)) {
 					const advance = glif.advance?.width ?? glif.advance?.height;
-					const glyph = new Glyph(name, g, glif.unicode?.hex, advance);
+					const glyph = new Glyph(fontInfo.styleName, name, g, glif.unicode?.hex, advance);
 
 					if (!glif.outline) {
 						glyph.outline = new Path();
@@ -421,7 +421,11 @@ export class FamilyService implements OnDestroy {
 
 			for (let i = 0; i < ttx.glyphOrder.glyphIds.length; ++i) {
 				const glyphId = ttx.glyphOrder.glyphIds[i];
-				const glyph = new Glyph(glyphId.name, glyphId.id);
+				const glyph = new Glyph(
+					`${FontWeight[weight]} ${style}`.trim(),
+					glyphId.name,
+					glyphId.id,
+				);
 
 				// Find unicode
 				if (ttx.cmap && ttx.cmap.maps.length) {

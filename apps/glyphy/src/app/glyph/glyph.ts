@@ -8,8 +8,9 @@ export class Glyph {
 	outline?: Const<Path>;
 
 	constructor (
-		public name?: string,
-		public index?: number,
+		public fontStyle: string,
+		public name: string,
+		public index: number,
 		public unicode?: number,
 		public advance?: number,
 		public lsb?: number,
