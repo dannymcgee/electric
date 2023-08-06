@@ -12,7 +12,7 @@ import {
 	SimpleChanges,
 	ViewEncapsulation,
 } from "@angular/core";
-import { assert, exists, Option } from "@electric/utils";
+import { assert, exists, isModifier, ModifierKey, Option } from "@electric/utils";
 import {
 	BehaviorSubject,
 	combineLatest,
@@ -66,9 +66,15 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@HostBinding("style.--scale-factor")
 	_scaleFactor = 1;
 
+	@HostBinding()
+	readonly tabIndex = -1;
+
 	_pointer?: Vec2;
 	_pointerCoords?: Vec2;
 	private _pointerClient?: Vec2;
+
+	ModifierKey = ModifierKey; // For template access
+	_modifiers: ModifierKey[] = [];
 
 	_clientToView?: Matrix;
 	private _viewToClient?: Matrix;
@@ -159,6 +165,18 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	onResize(): void {
 		this._scaleProvider.update();
 		this.updateViewbox();
+	}
+
+	@HostListener("keydown", ["$event"])
+	onKeyDown(event: KeyboardEvent): void {
+		if (isModifier(event.key, { excludeLocks: true }))
+			this._modifiers = this._modifiers.concat(event.key);
+	}
+
+	@HostListener("keyup", ["$event"])
+	onKeyUp(event: KeyboardEvent): void {
+		if (isModifier(event.key, { excludeLocks: true }))
+			this._modifiers = this._modifiers.filter(mod => mod !== event.key);
 	}
 
 	@HostListener("pointerenter", ["$event"])

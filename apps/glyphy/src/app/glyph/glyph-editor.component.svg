@@ -13,6 +13,7 @@
 <svg:g class="pointer">
 	<ng-container *ngIf="_pointer">
 		<line
+			*ngIf="_modifiers.includes(ModifierKey.Control)"
 			[attr.x1]="_pointer.x"
 			[attr.x2]="_pointer.x"
 			y1="-10000"
@@ -27,6 +28,7 @@
 		</text>
 
 		<line
+			*ngIf="_modifiers.includes(ModifierKey.Control)"
 			x1="-10000"
 			x2="10000"
 			[attr.y1]="_pointer.y"
