@@ -10,7 +10,7 @@
 	[style.--stroke-width]="_scaleFactor * metricsThickness"
 />
 
-<svg:g class="pointer">
+<svg:g class="g-glyph-editor__pointer">
 	<ng-container *ngIf="_pointer">
 		<line
 			*ngIf="_modifiers.includes(ModifierKey.Control)"

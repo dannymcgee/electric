@@ -55,6 +55,12 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@HostBinding("class")
 	readonly hostClass = "g-glyph-editor";
 
+	@HostBinding("class.pan-mode")
+	isPanMode = false;
+
+	@HostBinding("class.panning")
+	isPanning = false;
+
 	@HostBinding("attr.viewBox")
 	get viewBoxAttr() {
 		if (!this._viewBox$.value) return "0 0 1000 1000";
@@ -170,16 +176,21 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		this.updateViewbox();
 	}
 
-	@HostListener("keydown", ["$event"])
+	@HostListener("window:keydown", ["$event"])
 	onKeyDown(event: KeyboardEvent): void {
+		// TODO: Make hotkeys configurable
 		if (isModifier(event.key, { excludeLocks: true }))
 			this._modifiers = this._modifiers.concat(event.key);
+		else if (event.key === " ")
+			this.isPanMode = true;
 	}
 
-	@HostListener("keyup", ["$event"])
+	@HostListener("window:keyup", ["$event"])
 	onKeyUp(event: KeyboardEvent): void {
 		if (isModifier(event.key, { excludeLocks: true }))
 			this._modifiers = this._modifiers.filter(mod => mod !== event.key);
+		else if (event.key === " ")
+			this.isPanMode = false;
 	}
 
 	@HostListener("pointerenter", ["$event"])
@@ -215,8 +226,12 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 
 	@HostListener("pointerdown", ["$event"])
 	onPointerDown(event: PointerEvent): void {
-		if (event.button === 1) {
-			// middle-mouse pan
+		// TODO: Make pan button configurable
+		if (event.button === 1
+			|| (event.button === 0 && this.isPanMode))
+		{
+			this.isPanning = true;
+
 			fromEvent<PointerEvent>(this._svgRef.nativeElement, "pointermove")
 				.pipe(
 					scan((accum, event) => ({
@@ -242,9 +257,14 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 						this._onDestroy$,
 					)),
 				)
-				.subscribe(delta => {
-					this._panOffset.m31 += delta.x;
-					this._panOffset.m32 += delta.y;
+				.subscribe({
+					next: delta => {
+						this._panOffset.m31 += delta.x;
+						this._panOffset.m32 += delta.y;
+					},
+					complete: () => {
+						this.isPanning = false;
+					},
 				});
 		}
 	}
