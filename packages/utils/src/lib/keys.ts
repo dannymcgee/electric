@@ -28,3 +28,17 @@ export const MODIFIER_KEYS_NOLOCKS = MODIFIER_KEYS.filter(key => (
 	&& key !== ModifierKey.FnLock
 	&& key !== ModifierKey.SymbolLock
 ));
+
+export interface IsModifierOptions {
+	excludeLocks: boolean;
+}
+
+export function isModifier(
+	key: string | ModifierKey,
+	options?: IsModifierOptions,
+): key is ModifierKey {
+	if (options?.excludeLocks)
+		return MODIFIER_KEYS_NOLOCKS.includes(key as ModifierKey);
+
+	return MODIFIER_KEYS.includes(key as ModifierKey);
+}

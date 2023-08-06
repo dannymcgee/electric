@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { assert, Fn, fromKeydown, ModifierKey, MODIFIER_KEYS, partition } from "@electric/utils";
+import { assert, Fn, fromKeydown, isModifier, partition } from "@electric/utils";
 import { Subscription } from "rxjs";
 
 @Injectable({ providedIn: "root" })
@@ -30,8 +30,4 @@ export class KeybindRegistry {
 			this._registry.delete(keybind);
 		}
 	}
-}
-
-function isModifier(key: string | ModifierKey): key is ModifierKey {
-	return MODIFIER_KEYS.includes(key as ModifierKey);
 }
