@@ -40,7 +40,7 @@
 
 .pointer {
 	stroke: color.foreground(50, 0.1);
-	stroke-width: var(--scale-factor);
+	stroke-width: var(--metrics-thickness);
 
 	text {
 		stroke: none;

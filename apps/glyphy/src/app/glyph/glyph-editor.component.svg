@@ -1,10 +1,13 @@
+<!-- TODO: Those attribute bindings though -->
 <svg:g #metrics g-glyph-metrics
 	*ngIf="(_viewBox$ | async) as viewBox"
 	class="g-glyph-editor__metrics"
 	[glyph]="glyph"
 	[viewBox]="viewBox"
-	[lineThickness]="metricsThickness"
 	[gTransform]="renderTransform"
+	[lineThickness]="metricsThickness"
+	[attr.stroke-width]="_scaleFactor * metricsThickness"
+	[style.--stroke-width]="_scaleFactor * metricsThickness"
 />
 
 <svg:g class="pointer">

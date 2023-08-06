@@ -42,6 +42,8 @@ import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 })
 export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@Input() glyph!: Glyph;
+
+	@HostBinding("style.--metrics-thickness")
 	@Input() metricsThickness = 1;
 
 	@HostBinding("style.--path-thickness")
@@ -229,7 +231,6 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@HostListener("wheel", ["$event"])
 	onWheel(event: WheelEvent): void {
 		// Scroll to zoom
-		// TODO: Adjust scale factor to keep the controls the same size in screen-space
 		const delta = event.deltaY / (175 * 7.5); // TODO: Adjustable sensitivity
 		const pointer = vec2(event.offsetX, event.offsetY);
 
@@ -241,5 +242,7 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 			this._panOffset,
 			this._zoom,
 		);
+
+		this._scaleFactor /= (1 - delta);
 	}
 }
