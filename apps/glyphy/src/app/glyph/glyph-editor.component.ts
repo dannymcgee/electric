@@ -134,6 +134,9 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		assert(this._viewChange$ != null);
 
 		this._viewChange$.subscribe(([scale, viewBox]) => {
+			// FIXME: ScaleFactorProvider doesn't take into account our custom
+			// render transform, which causes this to "break" if the screen or
+			// element is resized after changing zoom level
 			this._scaleFactor = scale;
 
 			const ctm = this._svgRef.nativeElement.getCTM()!;
