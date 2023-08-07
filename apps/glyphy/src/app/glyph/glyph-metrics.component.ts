@@ -6,6 +6,7 @@ import {
 	Input,
 	OnDestroy,
 	OnInit,
+	Optional,
 	ViewEncapsulation,
 } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
@@ -27,6 +28,17 @@ export class GlyphMetricsComponent implements OnInit, OnDestroy {
 	@Input() lineThickness = 1;
 	@Input() viewBox?: ViewBox;
 
+	@Input()
+	get scaleFactor() { return this._scaleFactor; }
+	set scaleFactor(value) {
+		this._scaleFactor = value;
+		if (value != null) {
+			this._strokeWidth = value * this.lineThickness;
+			this._cdRef.markForCheck();
+		}
+	}
+	private _scaleFactor?: number;
+
 	@HostBinding("class")
 	readonly hostClass = "g-glyph-metrics";
 
@@ -39,12 +51,12 @@ export class GlyphMetricsComponent implements OnInit, OnDestroy {
 	constructor (
 		private _cdRef: ChangeDetectorRef,
 		public _family: FamilyService,
-		private _scaleProvider: GlyphScaleFactorProvider,
+		@Optional() private _scaleProvider: GlyphScaleFactorProvider,
 	) {}
 
 	ngOnInit(): void {
 		this._scaleProvider
-			.scaleFactor$
+			?.scaleFactor$
 			.pipe(takeUntil(this._onDestroy$))
 			.subscribe(scaleFactor => {
 				this._strokeWidth = scaleFactor * this.lineThickness;

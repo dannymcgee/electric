@@ -10,9 +10,16 @@ import {
 	OnDestroy,
 	OnInit,
 	SimpleChanges,
-	ViewEncapsulation,
+	ViewChild,
 } from "@angular/core";
-import { assert, exists, isModifier, ModifierKey, Option } from "@electric/utils";
+import { ElxResizeObserver } from "@electric/ng-utils";
+import {
+	assert,
+	exists,
+	isModifier,
+	ModifierKey,
+	Option,
+} from "@electric/utils";
 import {
 	BehaviorSubject,
 	combineLatest,
@@ -30,15 +37,12 @@ import { FamilyService } from "../family";
 import { Matrix, Vec2, vec2 } from "../math";
 import { getViewBox, ViewBox } from "../util/viewbox";
 import { Glyph } from "./glyph";
-import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 
 @Component({
-	selector: "svg[g-glyph-editor]",
-	templateUrl: "./glyph-editor.component.svg",
+	selector: "g-glyph-editor",
+	templateUrl: "./glyph-editor.component.html",
 	styleUrls: ["./glyph-editor.component.scss"],
-	providers: [GlyphScaleFactorProvider],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	encapsulation: ViewEncapsulation.None,
 })
 export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@Input() glyph!: Glyph;
@@ -52,28 +56,20 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	@HostBinding("style.--handle-thickness")
 	@Input() handleThickness = 1;
 
-	@HostBinding("class")
-	readonly hostClass = "g-glyph-editor";
-
 	@HostBinding("class.pan-mode")
 	isPanMode = false;
 
 	@HostBinding("class.panning")
 	isPanning = false;
 
-	@HostBinding("attr.viewBox")
-	get viewBoxAttr() {
-		if (!this._viewBox$.value) return "0 0 1000 1000";
-
-		const { x, y, width, height } = this._viewBox$.value;
-		return `${x} ${y} ${width} ${height}`
-	}
-
 	@HostBinding("style.--scale-factor")
 	_scaleFactor = 1;
 
 	@HostBinding()
 	readonly tabIndex = -1;
+
+	@ViewChild("svgRef", { static: true, read: ElementRef })
+	private _svgRef!: ElementRef<SVGSVGElement>;
 
 	_pointer?: Vec2;
 	_pointerCoords?: Vec2;
@@ -108,29 +104,45 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	}
 
 	_viewBox$ = new BehaviorSubject<ViewBox|null>(null);
+
+	private _zoomFactor$ = new BehaviorSubject<number>(1.333333);
 	private _scaleFactor$?: Observable<number>;
 	private _viewChange$?: Observable<[number, ViewBox]>;
 	private _onDestroy$ = new Subject<void>();
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
+		private _elRef: ElementRef<HTMLElement>,
 		public _familyService: FamilyService,
-		private _scaleProvider: GlyphScaleFactorProvider,
-		private _svgRef: ElementRef<SVGSVGElement>,
+		private _resizeObserver: ElxResizeObserver,
 	) {}
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if ("glyph" in changes && this.glyph) {
 			if (changes["glyph"].firstChange) {
-				this._scaleFactor$ = this._scaleProvider.scaleFactor$;
+				this._scaleFactor$ = combineLatest([
+					this._familyService.family$,
+					this._zoomFactor$,
+					this._resizeObserver.observe(this._elRef),
+				]).pipe(
+					filter(([family]) => exists(family)),
+					map(([family, zoom, resize]) => {
+						const { ascender, descender } = family!;
+						const height = (ascender - descender) * zoom;
+						const bounds = resize.contentRect;
+
+						return height / bounds.height;
+					}),
+					filter(scale => Number.isFinite(scale) && !Number.isNaN(scale)),
+					takeUntil(this._onDestroy$),
+				);
+
 				this._viewChange$ = combineLatest([
 					this._scaleFactor$,
 					this._viewBox$.pipe(filter(exists)),
 				]).pipe(
 					takeUntil(this._onDestroy$),
 				);
-
-				this._scaleProvider.update(true);
 			}
 			this.updateViewbox();
 		}
@@ -140,9 +152,6 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		assert(this._viewChange$ != null);
 
 		this._viewChange$.subscribe(([scale, viewBox]) => {
-			// FIXME: ScaleFactorProvider doesn't take into account our custom
-			// render transform, which causes this to "break" if the screen or
-			// element is resized after changing zoom level
 			this._scaleFactor = scale;
 
 			const ctm = this._svgRef.nativeElement.getCTM()!;
@@ -164,6 +173,7 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		this._viewBox$.complete();
 		this._onDestroy$.next();
 		this._onDestroy$.complete();
+		this._resizeObserver.unobserve(this._elRef);
 	}
 
 	private updateViewbox(): void {
@@ -172,56 +182,43 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 
 	@HostListener("window:resize")
 	onResize(): void {
-		this._scaleProvider.update();
 		this.updateViewbox();
 	}
 
 	@HostListener("window:keydown", ["$event"])
 	onKeyDown(event: KeyboardEvent): void {
 		// TODO: Make hotkeys configurable
-		if (isModifier(event.key, { excludeLocks: true }))
+		if (isModifier(event.key, { excludeLocks: true })) {
 			this._modifiers = this._modifiers.concat(event.key);
-		else if (event.key === " ")
+		}
+		else if (event.key === " ") {
 			this.isPanMode = true;
+		}
 	}
 
 	@HostListener("window:keyup", ["$event"])
 	onKeyUp(event: KeyboardEvent): void {
-		if (isModifier(event.key, { excludeLocks: true }))
+		if (isModifier(event.key, { excludeLocks: true })) {
 			this._modifiers = this._modifiers.filter(mod => mod !== event.key);
-		else if (event.key === " ")
+		}
+		else if (event.key === " ") {
 			this.isPanMode = false;
+		}
 	}
 
 	@HostListener("pointerenter", ["$event"])
-	onPointerEnter({ offsetX, offsetY }: PointerEvent): void {
-		if (!this._clientToView) return;
-
-		this._pointerClient = vec2(offsetX, offsetY);
-		this._pointer = this._clientToView.transformPoint(this._pointerClient);
-		this._pointerCoords = this.renderTransform.inverse().transformPoint(this._pointer);
+	onPointerEnter(event: PointerEvent): void {
+		this.initPointer(event);
 	}
 
 	@HostListener("pointerleave")
 	onPointerLeave(): void {
-		this._pointer = undefined;
-		this._pointerClient = undefined;
+		this.removePointer();
 	}
 
 	@HostListener("pointermove", ["$event"])
-	onPointerMove({ offsetX, offsetY }: PointerEvent): void {
-		assert(this._pointer != null);
-		assert(this._pointerClient != null);
-		assert(this._pointerCoords != null);
-		assert(this._clientToView != null);
-
-		this._pointerClient.x = this._pointer.x = offsetX;
-		this._pointerClient.y = this._pointer.y = offsetY;
-		this._clientToView.transformPoint_inPlace(this._pointer);
-
-		this._pointerCoords.x = this._pointer.x;
-		this._pointerCoords.y = this._pointer.y;
-		this.renderTransform.inverse().transformPoint_inPlace(this._pointerCoords);
+	onPointerMove(event: PointerEvent): void {
+		this.updatePointer(event);
 	}
 
 	@HostListener("pointerdown", ["$event"])
@@ -230,50 +227,57 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		if (event.button === 1
 			|| (event.button === 0 && this.isPanMode))
 		{
-			this.isPanning = true;
-
-			fromEvent<PointerEvent>(this._svgRef.nativeElement, "pointermove")
-				.pipe(
-					scan((accum, event) => ({
-						prev: accum.current,
-						current: event,
-					}), {
-						prev: null,
-						current: null,
-					} as {
-						prev: Option<PointerEvent>,
-						current: Option<PointerEvent>,
-					}),
-					map(({ prev, current }) => {
-						if (!current || !prev) return vec2(0, 0);
-						return vec2(
-							current.clientX - prev.clientX,
-							current.clientY - prev.clientY,
-						);
-					}),
-					takeUntil(merge(
-						fromEvent(this._svgRef.nativeElement, "pointerleave"),
-						fromEvent(document, "pointerup"),
-						this._onDestroy$,
-					)),
-				)
-				.subscribe({
-					next: delta => {
-						this._panOffset.m31 += delta.x;
-						this._panOffset.m32 += delta.y;
-					},
-					complete: () => {
-						this.isPanning = false;
-					},
-				});
+			return this.initPanning();
 		}
 	}
 
 	@HostListener("wheel", ["$event"])
-	onWheel(event: WheelEvent): void {
-		// Scroll to zoom
-		const delta = event.deltaY / (175 * 7.5); // TODO: Adjustable sensitivity
-		const pointer = vec2(event.offsetX, event.offsetY);
+	onWheel({ deltaY, offsetX, offsetY }: WheelEvent): void {
+		const delta = deltaY / (175 * 7.5); // TODO: Adjustable sensitivity
+		this.adjustZoom(delta, offsetX, offsetY);
+	}
+
+	private initPanning(): void {
+		this.isPanning = true;
+
+		fromEvent<PointerEvent>(this._elRef.nativeElement, "pointermove")
+			.pipe(
+				scan((accum, event) => ({
+					prev: accum.current,
+					current: event,
+				}), {
+					prev: null,
+					current: null,
+				} as {
+					prev: Option<PointerEvent>,
+					current: Option<PointerEvent>,
+				}),
+				map(({ prev, current }) => {
+					if (!current || !prev) return vec2(0, 0);
+					return vec2(
+						current.clientX - prev.clientX,
+						current.clientY - prev.clientY,
+					);
+				}),
+				takeUntil(merge(
+					fromEvent(this._svgRef.nativeElement, "pointerleave"),
+					fromEvent(document, "pointerup"),
+					this._onDestroy$,
+				)),
+			)
+			.subscribe({
+				next: delta => {
+					this._panOffset.m31 += delta.x;
+					this._panOffset.m32 += delta.y;
+				},
+				complete: () => {
+					this.isPanning = false;
+				},
+			});
+	}
+
+	private adjustZoom(delta: number, offsetX: number, offsetY: number): void {
+		const pointer = vec2(offsetX, offsetY);
 
 		this._zoom = Matrix.concat(
 			this._panOffset.inverse(),
@@ -285,5 +289,42 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		);
 
 		this._scaleFactor /= (1 - delta);
+		// TODO: Update _zoomFactor$
+	}
+
+	private initPointer(event: PointerEvent): void {
+		if (!this._clientToView) return;
+
+		const { offsetX, offsetY } = event;
+
+		this._pointerClient = vec2(offsetX, offsetY);
+		this._pointer = this._clientToView.transformPoint(this._pointerClient);
+		this._pointerCoords = this.renderTransform.inverse().transformPoint(this._pointer);
+	}
+
+	private updatePointer(event: PointerEvent): void {
+		if (!this._clientToView) return;
+
+		if (!this._pointerClient)
+			return this.initPointer(event);
+
+		assert(this._pointer != null);
+		assert(this._pointerCoords != null);
+
+		const { offsetX, offsetY } = event;
+
+		this._pointerClient.x = this._pointer.x = offsetX;
+		this._pointerClient.y = this._pointer.y = offsetY;
+		this._clientToView.transformPoint_inPlace(this._pointer);
+
+		this._pointerCoords.x = this._pointer.x;
+		this._pointerCoords.y = this._pointer.y;
+		this.renderTransform.inverse().transformPoint_inPlace(this._pointerCoords);
+	}
+
+	private removePointer(): void {
+		this._pointer = undefined;
+		this._pointerClient = undefined;
+		this._pointerCoords = undefined;
 	}
 }

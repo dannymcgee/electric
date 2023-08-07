@@ -1,7 +1,10 @@
+@use "elx/layout";
 @use "elx/style/color";
 
-.g-glyph-editor {
-	$root: &;
+:host {
+	@include layout.flex;
+	width: 100%;
+	height: 100%;
 	background: color.background(200);
 
 	&.pan-mode {
@@ -11,77 +14,87 @@
 	&.panning {
 		cursor: grabbing;
 	}
+}
 
-	&__metrics {
-		--metrics-color: #{color.foreground(500)};
+.glyph {
+	flex: 1 0 0;
+}
 
-		&:where(#{$root}.pan-mode #{&}) {
-			visibility: hidden;
-		}
+.metrics {
+	--metrics-color: #{color.foreground(500)};
+
+	:host-context(.pan-mode) & {
+		visibility: hidden;
+	}
+}
+
+.outline {
+	stroke: color.foreground() {
+		width: calc(var(--path-thickness) * var(--scale-factor));
+	}
+	fill: color.foreground() {
+		opacity: 0.1;
 	}
 
-	&__path {
-		stroke: color.foreground();
-		stroke-width: calc(var(--path-thickness) * var(--scale-factor));
-		fill: color.foreground();
-		fill-opacity: 0.1;
+	:host-context(.pan-mode) & {
+		fill-opacity: 1;
+	}
+}
 
-		&:where(#{$root}.pan-mode #{&}) {
-			fill-opacity: 1;
-		}
+.points {
+	:host-context(.pan-mode) & {
+		visibility: hidden;
+	}
+}
+
+.point {
+	// TODO: Choose or create a theme color for this
+	fill: #99C4FF80;
+	stroke: #99C4FF {
+		width: calc(var(--handle-thickness) * var(--scale-factor));
 	}
 
-	&__points:where(#{$root}.pan-mode #{&}) {
+	&:where(.smooth) {
+		fill: color.accent(700, 0.5);
+		stroke: color.accent(800);
+	}
+
+	&:where(.first) {
+		fill: color.warning(800, 0.5);
+		stroke: color.warning(800);
+	}
+
+	:host-context(.pan-mode) & {
+		visibility: hidden;
+	}
+}
+
+.handle {
+	fill: color.primary(700, 0.2);
+	stroke: color.primary(800) {
+		width: calc(var(--handle-thickness) * var(--scale-factor));
+	}
+
+	&:where(.line) {
+		stroke: color.primary(700, 0.5);
+	}
+
+	:host-context(.pan-mode) & {
+		visibility: hidden;
+	}
+}
+
+.pointer {
+	stroke: color.foreground(50, 0.1) {
+		width: var(--metrics-thickness);
+	}
+
+	:host-context(.pan-mode) & {
 		visibility: hidden;
 	}
 
-	&__point {
-		// TODO: Choose or create a theme color for this
-		fill: #99C4FF80;
-		stroke: #99C4FF;
-		stroke-width: calc(var(--handle-thickness) * var(--scale-factor));
-
-		&--smooth {
-			fill: color.accent(700, 0.5);
-			stroke: color.accent(800)
-		}
-
-		&--first {
-			fill: color.warning(800, 0.5);
-			stroke: color.warning(800);
-		}
-
-		&:where(#{$root}.pan-mode #{&}) {
-			visibility: hidden;
-		}
-	}
-
-	&__handle {
-		fill: color.primary(700, 0.2);
-		stroke: color.primary(800) {
-			width: calc(var(--handle-thickness) * var(--scale-factor));
-		}
-
-		&--line {
-			stroke: color.primary(700, 0.5);
-		}
-
-		&:where(#{$root}.pan-mode #{&}) {
-			visibility: hidden;
-		}
-	}
-
-	&__pointer {
-		stroke: color.foreground(50, 0.1);
-		stroke-width: var(--metrics-thickness);
-
-		&:where(#{$root}.pan-mode #{&}) {
-			visibility: hidden;
-		}
-
-		text {
-			stroke: none;
-			fill: color.foreground(500);
-		}
+	text {
+		stroke: none;
+		fill: color.foreground(500);
 	}
 }

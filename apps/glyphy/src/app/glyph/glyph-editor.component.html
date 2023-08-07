@@ -1,17 +1,17 @@
-<!-- TODO: Those attribute bindings though -->
-<svg:g #metrics g-glyph-metrics
-	*ngIf="(_viewBox$ | async) as viewBox"
-	class="g-glyph-editor__metrics"
-	[glyph]="glyph"
-	[viewBox]="viewBox"
-	[gTransform]="renderTransform"
-	[lineThickness]="metricsThickness"
-	[attr.stroke-width]="_scaleFactor * metricsThickness"
-	[style.--stroke-width]="_scaleFactor * metricsThickness"
-/>
+<svg #svgRef class="glyph"
+	[gViewBox]="(_viewBox$ | async)"
+>
+	<g g-glyph-metrics
+		class="metrics"
+		*ngIf="(_viewBox$ | async) as viewBox"
+		[glyph]="glyph"
+		[viewBox]="viewBox"
+		[gTransform]="renderTransform"
+		[lineThickness]="metricsThickness"
+		[scaleFactor]="_scaleFactor"
+	/>
 
-<svg:g class="g-glyph-editor__pointer">
-	<ng-container *ngIf="_pointer">
+	<g class="pointer" *ngIf="_pointer">
 		<line
 			*ngIf="_modifiers.includes(ModifierKey.Control)"
 			[attr.x1]="_pointer.x"
@@ -41,82 +41,81 @@
 		>
 			Y: {{ _pointerCoords?.y | number : '1.0-0' }}
 		</text>
-	</ng-container>
-</svg:g>
+	</g>
 
-<svg:path #path class="g-glyph-editor__path"
-	[attr.d]="glyph | svg"
-	[gTransform]="renderTransform"
-/>
+	<path class="outline"
+		[attr.d]="glyph | svg"
+		[gTransform]="renderTransform"
+	/>
 
-<svg:g #points class="g-glyph-editor__points"
-	[gTransform]="renderTransform"
->
-	<g class="g-glyph-editor__contour"
-		*ngFor="let c of glyph.outline?.contours"
+	<g class="points"
+		[gTransform]="renderTransform"
 	>
-		<g *ngFor="let p of c.points
-				let isFirst = first
-				let isLast = last"
-			class="g-glyph-editor__point-group"
-			[class.g-glyph-editor__point-group--first]="isFirst"
-			[class.g-glyph-editor__point-group--last]="isLast"
+		<g class="contour"
+			*ngFor="let c of glyph.outline?.contours"
 		>
-			<!-- Draw the connecting line if it's inferred -->
-			<line class="g-glyph-editor__path"
-				*ngIf="isLast && c.closed
-					&& (p.x !== c.points[0].x || p.y !== c.points[0].y)
-					&& !p.handle_out"
-				[attr.x1]="p.x"
-				[attr.y1]="p.y"
-				[attr.x2]="c.points[0].x"
-				[attr.y2]="c.points[0].y"
-			/>
+			<g *ngFor="let p of c.points
+					let isFirst = first
+					let isLast = last"
+				class="point-group"
+				[class.first]="isFirst"
+				[class.last]="isLast"
+			>
+				<!-- Draw the connecting line if it's inferred -->
+				<line class="outline"
+					*ngIf="isLast && c.closed
+						&& (p.x !== c.points[0].x || p.y !== c.points[0].y)
+						&& !p.handle_out"
+					[attr.x1]="p.x"
+					[attr.y1]="p.y"
+					[attr.x2]="c.points[0].x"
+					[attr.y2]="c.points[0].y"
+				/>
 
-			<!-- Handles -->
-			<ng-container *ngIf="p.handle_in as handle">
-				<line class="g-glyph-editor__handle g-glyph-editor__handle--line"
-					[attr.x1]="p.x" [attr.y1]="p.y"
-					[attr.x2]="handle.x" [attr.y2]="handle.y"
-				/>
-				<circle class="g-glyph-editor__handle"
-					[attr.cx]="handle.x"
-					[attr.cy]="handle.y"
-					[attr.r]="3 * _scaleFactor"
-				/>
-			</ng-container>
+				<!-- Handles -->
+				<ng-container *ngIf="p.handle_in as handle">
+					<line class="handle line"
+						[attr.x1]="p.x" [attr.y1]="p.y"
+						[attr.x2]="handle.x" [attr.y2]="handle.y"
+					/>
+					<circle class="handle"
+						[attr.cx]="handle.x"
+						[attr.cy]="handle.y"
+						[attr.r]="3 * _scaleFactor"
+					/>
+				</ng-container>
 
-			<ng-container *ngIf="p.handle_out as handle">
-				<line class="g-glyph-editor__handle g-glyph-editor__handle--line"
-					[attr.x1]="p.x" [attr.y1]="p.y"
-					[attr.x2]="handle.x" [attr.y2]="handle.y"
-				/>
-				<circle class="g-glyph-editor__handle"
-					[attr.cx]="handle.x"
-					[attr.cy]="handle.y"
-					[attr.r]="3 * _scaleFactor"
-				/>
-			</ng-container>
+				<ng-container *ngIf="p.handle_out as handle">
+					<line class="handle line"
+						[attr.x1]="p.x" [attr.y1]="p.y"
+						[attr.x2]="handle.x" [attr.y2]="handle.y"
+					/>
+					<circle class="handle"
+						[attr.cx]="handle.x"
+						[attr.cy]="handle.y"
+						[attr.r]="3 * _scaleFactor"
+					/>
+				</ng-container>
 
-			<!-- Point -->
-			<ng-container *ngIf="!p.hidden">
-				<rect *ngIf="!p.smooth"
-					class="g-glyph-editor__point"
-					[class.g-glyph-editor__point--first]="isFirst || (isLast && c.points[0].hidden)"
-					[attr.x]="p.x - (3.5 * _scaleFactor)"
-					[attr.y]="p.y - (3.5 * _scaleFactor)"
-					[attr.width]="7 * _scaleFactor"
-					[attr.height]="7 * _scaleFactor"
-				/>
-				<circle *ngIf="p.smooth"
-					class="g-glyph-editor__point
-					       g-glyph-editor__point--smooth"
-					[class.g-glyph-editor__point--first]="isFirst || (isLast && c.points[0].hidden)"
-					[attr.cx]="p.x"
-					[attr.cy]="p.y"
-					[attr.r]="4 * _scaleFactor"
-				/>
-			</ng-container>
+				<!-- Point -->
+				<ng-container *ngIf="!p.hidden">
+					<rect *ngIf="!p.smooth"
+						class="point"
+						[class.first]="isFirst || (isLast && c.points[0].hidden)"
+						[attr.x]="p.x - (3.5 * _scaleFactor)"
+						[attr.y]="p.y - (3.5 * _scaleFactor)"
+						[attr.width]="7 * _scaleFactor"
+						[attr.height]="7 * _scaleFactor"
+					/>
+					<circle *ngIf="p.smooth"
+						class="point smooth"
+						[class.first]="isFirst || (isLast && c.points[0].hidden)"
+						[attr.cx]="p.x"
+						[attr.cy]="p.y"
+						[attr.r]="4 * _scaleFactor"
+					/>
+				</ng-container>
+			</g>
 		</g>
 	</g>
-</g>
+</svg>

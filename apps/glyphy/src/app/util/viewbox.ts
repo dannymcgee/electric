@@ -1,4 +1,11 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import {
+	Directive,
+	HostBinding,
+	Input,
+	Pipe,
+	PipeTransform,
+} from "@angular/core";
+import { Option } from "@electric/utils";
 
 import { Font } from "../font";
 import { Glyph } from "../glyph/glyph";
@@ -35,5 +42,20 @@ export class FontToSvgViewBoxPipe implements PipeTransform {
 		const { x, y, width, height } = getViewBox(font, glyph, zoomFactor);
 
 		return `${x} ${y} ${width} ${height}`;
+	}
+}
+
+@Directive({
+	selector: "svg[gViewBox]",
+})
+export class ViewBoxDirective {
+	@Input("gViewBox") viewBox?: Option<ViewBox>;
+
+	@HostBinding("attr.viewBox")
+	get viewBoxAttr() {
+		if (!this.viewBox) return "0 0 1000 1000";
+
+		const { x, y, width, height } = this.viewBox;
+		return `${x} ${y} ${width} ${height}`
 	}
 }

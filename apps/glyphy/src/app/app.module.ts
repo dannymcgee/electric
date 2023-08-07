@@ -41,7 +41,7 @@ import {
 	GlyphToSvgPipe,
 } from "./glyph";
 import { TransformDirective } from "./math";
-import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
+import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe, ViewBoxDirective } from "./util";
 
 @NgModule({
 	imports: [
@@ -77,6 +77,7 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe } from "./util";
 		ParentFolderExistsValidator,
 		TargetFolderIsNewValidator,
 		TransformDirective,
+		ViewBoxDirective,
 	],
 	bootstrap: [
 		AppComponent,
