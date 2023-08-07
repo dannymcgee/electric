@@ -44,6 +44,10 @@ export class Vec2 extends Vector implements Vec<2> {
 		this.x *= invLen;
 		this.y *= invLen;
 	}
+
+	override toString(): string {
+		return `Vec2(${this.x}, ${this.y})`;
+	}
 }
 
 export function vec2(x: number, y: number) {
@@ -97,5 +101,52 @@ export namespace vec2 {
 		const result = v.clone();
 		result.normalize();
 		return result;
+	}
+
+	export function areCollinear(...points: Const<Vec2>[]): boolean {
+		if (points.length < 3)
+			return true;
+
+		return points
+			.reduce((accum, point) => {
+				if (!accum.result)
+					return accum;
+
+				const { prev } = accum;
+				if (!prev) {
+					accum.prev = point;
+
+					return accum;
+				}
+
+				const slope = (point.y - prev.y) / (point.x - prev.x);
+
+				if (Number.isNaN(accum.slope) || slope === accum.slope) {
+					accum.slope = slope;
+					accum.prev = point;
+
+					return accum;
+				}
+
+
+				if (nearlyEq(accum.slope, slope, 1e-5)) {
+					accum.prev = point;
+
+					return accum;
+				}
+
+				accum.result = false;
+
+				return accum;
+			}, {
+				result: true,
+				slope: Number.NaN,
+				prev: undefined,
+			} as {
+				result: boolean;
+				slope: number;
+				prev?: Const<Vec2>;
+			})
+			.result;
 	}
 }

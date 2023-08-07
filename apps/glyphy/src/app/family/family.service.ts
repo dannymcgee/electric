@@ -317,6 +317,8 @@ export class FamilyService implements OnDestroy {
 			}
 		}
 
+		path.cleanup({ autoSmooth: false });
+
 		return path;
 	}
 
@@ -453,7 +455,11 @@ export class FamilyService implements OnDestroy {
 					if (charString) {
 						const vm = new InterpreterCFF2(charString.program);
 						vm.exec();
-						glyph.outline = vm.path;
+
+						const outline = vm.path.clone();
+						outline.cleanup({ autoSmooth: true });
+
+						glyph.outline = outline;
 					}
 				}
 

@@ -36,9 +36,14 @@
 	}
 
 	&__point {
-		fill: color.accent(700, 0.5);
-		stroke: color.accent(800) {
-			width: calc(var(--handle-thickness) * var(--scale-factor));
+		// TODO: Choose or create a theme color for this
+		fill: #99C4FF80;
+		stroke: #99C4FF;
+		stroke-width: calc(var(--handle-thickness) * var(--scale-factor));
+
+		&--smooth {
+			fill: color.accent(700, 0.5);
+			stroke: color.accent(800)
 		}
 
 		&--first {

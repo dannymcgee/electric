@@ -1,6 +1,6 @@
-import { Const } from "@electric/utils";
+import { Const, exists } from "@electric/utils";
 
-import { Matrix, vec2, Vec2 } from "../math";
+import { Matrix, nearlyEq, vec2, Vec2 } from "../math";
 
 export interface IPath {
 	/**
@@ -99,10 +99,10 @@ enum PathOp {
 }
 
 class PathCommand {
-	readonly op: PathOp;
-	readonly args: readonly any[]
+	op: PathOp;
+	args: any[]
 
-	constructor (op: PathOp, ...args: readonly any[]) {
+	constructor (op: PathOp, ...args: any[]) {
 		this.op = op;
 		this.args = args;
 	}
@@ -110,19 +110,27 @@ class PathCommand {
 
 type IPathCommand = {
 	op: PathOp.MoveTo;
-	args: readonly [number, number, boolean?];
+	args: [number, number, boolean?];
 } | {
 	op: PathOp.ClosePath;
-	args: readonly [];
+	args: [];
 } | {
 	op: PathOp.LineTo;
-	args: readonly [number, number, boolean?];
+	args: [number, number, boolean?];
 } | {
 	op: PathOp.QuadraticCurveTo;
-	args: readonly [number, number, number, number, boolean?];
+	args: [number, number, number, number, boolean?];
 } | {
 	op: PathOp.BezierCurveTo;
-	args: readonly [number, number, number, number, number, number, boolean?];
+	args: [number, number, number, number, number, number, boolean?];
+}
+
+export interface AutoSmoothOptions {
+	inPlace: boolean;
+}
+
+export interface PointTransformFn {
+	(target: Const<Point>, prev: Const<Point>, next: Const<Point>): Point | Const<Point>;
 }
 
 export class Path implements IPath {
@@ -199,6 +207,100 @@ export class Path implements IPath {
 		return result;
 	}
 
+	printCommands(): string {
+		return this._commands
+			.map((cmd, i) => {
+				const op = PathOp[cmd.op];
+				return `[${i}] ${op} (${cmd.args.filter(exists).join(", ")})`;
+			})
+			.join("\n");
+	}
+
+	autoSmooth(options: { inPlace: true }): void;
+	autoSmooth(options?: { inPlace: false }): Path;
+	autoSmooth(options?: AutoSmoothOptions): void | Path {
+		const result = options?.inPlace ? this : this.clone();
+
+		for (let c = 0; c < result.contours.length; ++c) {
+			for (let p = 0; p < result.contours[c].points.length; ++p) {
+				result.editPoint(c, p, (target, prev, next) => {
+					if (!target.handle_in && !target.handle_out)
+						return target;
+
+					let p0 = target.handle_in;
+					if (!p0 && !prev.handle_out) {
+						p0 = prev.coords as Vec2;
+					}
+					else if (!p0) {
+						return target;
+					}
+
+					let p2 = target.handle_out;
+					if (!p2 && !next.handle_in) {
+						p2 = next.coords as Vec2;
+					}
+					else if (!p2) {
+						return target;
+					}
+
+					const p1 = target.coords as Vec2;
+
+					const smooth = vec2.areCollinear(p0, p1, p2);
+
+					if (smooth !== Boolean(target.smooth)) {
+						const result = target.clone();
+						result.smooth = smooth;
+
+						return result;
+					}
+
+					return target;
+				});
+			}
+		}
+
+		if (!options?.inPlace)
+			return result;
+	}
+
+	editPoint(contourIndex: number, pointIndex: number, edit: PointTransformFn): void {
+		if (!this.contours[contourIndex]?.points[pointIndex])
+			throw new Error(
+				`Invalid point identifier: no point exists at path[${
+					contourIndex
+				}][${
+					pointIndex
+				}]`);
+
+		let cmdBaseIndex = 0;
+		for (let c = 0; c < contourIndex; ++c)
+			cmdBaseIndex += this.contours[c].points.length;
+
+		const cmd = this._commands[cmdBaseIndex + pointIndex];
+
+		const contour = this.contours[contourIndex];
+		const target = contour.points[pointIndex];
+
+		const prevIndex = pointIndex === 0
+			? contour.points.length - 1
+			: pointIndex - 1;
+
+		const nextIndex = (pointIndex + 1) % contour.points.length;
+
+		const prev = contour.points[prevIndex];
+		const next = contour.points[nextIndex];
+
+		const updated = edit(target, prev, next);
+		if (updated === target)
+			return;
+
+		// TODO: Update point coords, handle positions, etc.
+		if (updated.smooth !== Boolean(target.smooth))
+			cmd.args.splice(cmd.args.length-1, 1, updated.smooth);
+
+		contour.points[pointIndex] = updated as Point;
+	}
+
 	moveTo(x: number, y: number, smooth?: boolean) {
 		this._commands.push(new PathCommand(PathOp.MoveTo, x, y, smooth) as IPathCommand);
 
@@ -261,10 +363,16 @@ export class Path implements IPath {
 			return;
 		}
 
-		this.lastPoint.handle_out = new Vec2(cpx1, cpy1);
+		if (!this.lastPoint.handle_out
+			&& (!nearlyEq(this.lastPoint.coords.x, cpx1, 1e-5)
+				|| !nearlyEq(this.lastPoint.coords.y, cpy1, 1e-5)))
+		{
+			this.lastPoint.handle_out = new Vec2(cpx1, cpy1);
+		}
 
 		const endPoint = new Point(x, y, smooth);
-		endPoint.handle_in = new Vec2(cpx2, cpy2);
+		if (!nearlyEq(x, cpx2, 1e-5) || !nearlyEq(y, cpy2, 1e-5))
+			endPoint.handle_in = new Vec2(cpx2, cpy2);
 
 		this.contours[this.contours.length-1].points.push(endPoint);
 	}
@@ -272,6 +380,53 @@ export class Path implements IPath {
 	closePath() {
 		this._commands.push(new PathCommand(PathOp.ClosePath) as IPathCommand);
 		this.contours[this.contours.length-1]?.close();
+	}
+
+	cleanup(options?: { autoSmooth: boolean }): void {
+		if (options?.autoSmooth)
+			this.autoSmooth({ inPlace: true });
+
+		for (let contour of this.contours) {
+			// Merge duplicate points
+			const first = contour.points[0];
+			const last = contour.last;
+			if (!first || !last) continue;
+
+			if (first !== last
+				&& nearlyEq(first.coords.x, last.coords.x, 1e-5)
+				&& nearlyEq(first.coords.y, last.coords.y, 1e-5))
+			{
+				// These points can be merged, but to avoid disrupting the canonical
+				// representation of the path, we'll just hide the first point when
+				// rendering.
+				first.hidden = true;
+
+				if (options?.autoSmooth) {
+					// Re-check for auto-smooth
+					if (!last.handle_in || !first.handle_out)
+						continue;
+
+					const smooth = vec2.areCollinear(
+						last.handle_in,
+						first.coords,
+						first.handle_out,
+					);
+
+					if (smooth) {
+						this.editPoint(
+							this.contours.indexOf(contour),
+							contour.points.length - 1,
+							point => {
+								const result = point.clone();
+								result.smooth = true;
+
+								return result;
+							},
+						);
+					}
+				}
+			}
+		}
 	}
 
 	replay(ctx: IPath): void {
@@ -303,22 +458,27 @@ export class Path implements IPath {
 }
 
 export class Contour {
+	points: Point[];
+	closed: boolean;
+
 	get last(): Point | undefined {
 		return this.points[this.points.length - 1];
 	}
 
-	closed = false;
-
 	constructor (
-		public points: Point[] = [],
-	) {}
+		points: Point[] = [],
+		closed = false
+	) {
+		this.points = points;
+		this.closed = closed;
+	}
 
 	close() {
 		this.closed = true;
 	}
 
 	clone(): Contour {
-		return new Contour(this.points.map(p => p.clone()));
+		return new Contour(this.points.map(p => p.clone()), this.closed);
 	}
 
 	transform_inPlace(m: Const<Matrix>): void {
@@ -339,17 +499,23 @@ export class Point {
 	handle_in?: Vec2;
 	handle_out?: Vec2;
 	smooth = false;
+	hidden = false;
 
 	get x() { return this.coords.x; }
 	get y() { return this.coords.y; }
 
-	constructor (x: number, y: number, smooth?: boolean) {
+	constructor (
+		x: number, y: number,
+		smooth?: boolean,
+		hidden?: boolean,
+	) {
 		this.coords = new Vec2(x, y);
 		this.smooth = smooth ?? false;
+		this.hidden = hidden ?? false;
 	}
 
 	clone(): Point {
-		const result = new Point(this.x, this.y);
+		const result = new Point(this.x, this.y, this.smooth, this.hidden);
 		result.handle_in = this.handle_in?.clone();
 		result.handle_out = this.handle_out?.clone();
 
@@ -367,6 +533,21 @@ export class Point {
 	transform_new(m: Const<Matrix>): Point {
 		const result = this.clone();
 		result.transform_inPlace(m);
+
+		return result;
+	}
+
+	toString(): string {
+		let result = `(${
+			this.handle_in?.join(",")
+		}) <- (${
+			this.coords.join(",")
+		}) -> (${
+			this.handle_out?.join(",")
+		})`;
+
+		if (this.smooth)
+			result += ` [smooth]`;
 
 		return result;
 	}
