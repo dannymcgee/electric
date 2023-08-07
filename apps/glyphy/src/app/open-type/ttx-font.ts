@@ -21,7 +21,6 @@ export class TtxFont extends XmlElement {
 	static async fromFile(path: string): Promise<TtxFont> {
 		const xml = await tauri.parseFontToXml(path);
 		const doc = TtxFont.parser.parseFromString(xml, "text/xml");
-		console.log(doc);
 
 		const element = doc.querySelector("ttFont");
 		if (!element) throw new Error("Expected document > ttFont element");

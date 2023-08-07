@@ -192,7 +192,6 @@ export namespace GLIF {
 		static async fromFile(path: string): Promise<Glyph> {
 			const xml = await fs.readTextFile(path);
 			const doc = this.parser.parseFromString(xml, "text/xml");
-			console.log(doc);
 
 			const dom = doc.querySelector("glyph");
 			if (!dom) throw new Error("Expected GLIF file to have a top-level <glyph> element");

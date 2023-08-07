@@ -208,12 +208,6 @@ export class InterpreterCFF2 {
 			return;
 
 		this._path.closePath();
-
-		// const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-		// svgPath.setAttribute("d", this._path.toString());
-		// this._svg.appendChild(svgPath);
-
-		// this._path = undefined;
 	}
 
 	/**

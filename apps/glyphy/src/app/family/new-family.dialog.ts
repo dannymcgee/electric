@@ -76,7 +76,6 @@ export class NewFamilyDialog {
 			}) as string | null;
 
 			if (result) {
-				console.log("directory selected:", result);
 				this.parentDirectory = result;
 			}
 
