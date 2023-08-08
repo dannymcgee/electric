@@ -170,7 +170,7 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		this._viewChange$.subscribe(([scale, viewBox]) => {
 			this._scaleFactor = scale;
 
-			const ctm = this._svgRef.nativeElement.getCTM()!;
+			const ctm = this._svgRef.nativeElement.getScreenCTM()!;
 			this._viewToClient = Matrix.from(ctm);
 			this._clientToView = Matrix.from(ctm.inverse());
 
@@ -248,9 +248,9 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	}
 
 	@HostListener("wheel", ["$event"])
-	onWheel({ deltaY, offsetX, offsetY }: WheelEvent): void {
+	onWheel({ deltaY, clientX, clientY }: WheelEvent): void {
 		const delta = deltaY / (175 * 7.5); // TODO: Adjustable sensitivity
-		this.adjustZoom(delta, offsetX, offsetY);
+		this.adjustZoom(delta, clientX, clientY);
 	}
 
 	updatePoint(c: number, p: number, point: Point): void {
@@ -266,11 +266,8 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 					prev: accum.current,
 					current: event,
 				}), {
-					prev: null,
-					current: null,
-				} as {
-					prev: Option<PointerEvent>,
-					current: Option<PointerEvent>,
+					prev: null as Option<PointerEvent>,
+					current: null as Option<PointerEvent>,
 				}),
 				map(({ prev, current }) => {
 					if (!current || !prev) return vec2(0, 0);
@@ -296,14 +293,12 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 			});
 	}
 
-	private adjustZoom(delta: number, offsetX: number, offsetY: number): void {
-		const pointer = vec2(offsetX, offsetY);
-
+	private adjustZoom(delta: number, clientX: number, clientY: number): void {
 		this._zoom = Matrix.concat(
 			this._panOffset.inverse(),
-			Matrix.translate(pointer.x, pointer.y),
+			Matrix.translate(clientX, clientY),
 			Matrix.scale(1 - delta),
-			Matrix.translate(-pointer.x, -pointer.y),
+			Matrix.translate(-clientX, -clientY),
 			this._panOffset,
 			this._zoom,
 		);
@@ -315,9 +310,9 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	private initPointer(event: PointerEvent): void {
 		if (!this._clientToView) return;
 
-		const { offsetX, offsetY } = event;
+		const { clientX, clientY } = event;
 
-		this._pointerClient = vec2(offsetX, offsetY);
+		this._pointerClient = vec2(clientX, clientY);
 		this._pointer = this._clientToView.transformPoint(this._pointerClient);
 		this._pointerCoords = this.renderTransform.inverse().transformPoint(this._pointer);
 	}
@@ -331,10 +326,10 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		assert(this._pointer != null);
 		assert(this._pointerCoords != null);
 
-		const { offsetX, offsetY } = event;
+		const { clientX, clientY } = event;
 
-		this._pointerClient.x = this._pointer.x = offsetX;
-		this._pointerClient.y = this._pointer.y = offsetY;
+		this._pointerClient.x = this._pointer.x = clientX;
+		this._pointerClient.y = this._pointer.y = clientY;
 		this._clientToView.transformPoint_inPlace(this._pointer);
 		this._pointerCoords = this.clientToGlyphCoords.transformPoint(this._pointerClient);
 	}

@@ -1,3 +1,5 @@
+import { match } from "@electric/utils";
+
 export enum PathOp {
 	MoveTo,
 	ClosePath,
@@ -20,6 +22,7 @@ interface IPathCommand {
 		| [number, number, number, number, (boolean|undefined)]
 		| [number, number, number, number, number, number, (boolean|undefined)];
 	clone(): IPathCommand;
+	toString(): string;
 }
 
 export interface MoveToCommand extends IPathCommand {
@@ -69,6 +72,8 @@ class _PathCommand implements IPathCommand {
 	op: PathOp;
 	args: PathCommandArgs<PathOp>;
 
+	private _str?: string;
+
 	constructor (op: PathOp, ...args: PathCommandArgs<typeof op>) {
 		this.op = op;
 		this.args = args;
@@ -76,5 +81,15 @@ class _PathCommand implements IPathCommand {
 
 	clone(): _PathCommand {
 		return new _PathCommand(this.op, ...this.args);
+	}
+
+	toString(): string {
+		return this._str ??= match (this.op, {
+			[PathOp.MoveTo]: () => `M${this.args.slice(0, -1).join(" ")}`,
+			[PathOp.LineTo]: () => `L${this.args.slice(0, -1).join(" ")}`,
+			[PathOp.BezierCurveTo]: () => `C${this.args.slice(0, -1).join(" ")}`,
+			[PathOp.QuadraticCurveTo]: () => `Q${this.args.slice(0, -1).join(" ")}`,
+			[PathOp.ClosePath]: () => `Z`,
+		});
 	}
 }

@@ -164,6 +164,10 @@ export class Matrix {
 		return `Matrix(${m11} ${m12} ${m13}, ${m21} ${m22} ${m23}, ${m31} ${m32} ${m33})`;
 	}
 
+	toCssString(): string {
+		return `matrix(${this.m11},${this.m12},${this.m21},${this.m22},${this.m31},${this.m32})`;
+	}
+
 	row(n: 1|2|3): Vec3 {
 		return match (n, {
 			1: () => vec3(this.m11, this.m12, this.m13),

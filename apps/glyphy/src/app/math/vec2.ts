@@ -1,4 +1,4 @@
-import { Const } from "@electric/utils";
+import { Const, Option } from "@electric/utils";
 
 import { nearlyEq } from "./util";
 import { Vec, Vector } from "./vector.types";
@@ -156,11 +156,7 @@ export namespace vec2 {
 			}, {
 				result: true,
 				slope: Number.NaN,
-				prev: undefined,
-			} as {
-				result: boolean;
-				slope: number;
-				prev?: Const<Vec2>;
+				prev: null as Option<Const<Vec2>>,
 			})
 			.result;
 	}

@@ -17,9 +17,8 @@ export class TransformDirective {
 		if (Array.isArray(this.matrix))
 			return Matrix
 				.concat(...this.matrix.filter(exists))
-				.toDomMatrix()
-				.toString();
+				.toCssString();
 
-		return this.matrix.toDomMatrix().toString()
+		return this.matrix.toCssString()
 	}
 }

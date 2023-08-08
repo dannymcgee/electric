@@ -69,12 +69,13 @@ export class ControlPointComponent implements OnDestroy {
 	}
 
 	onPointerDown(key: PointKey, event: PointerEvent): void {
-		console.log("pointerdown", event);
+		if (event.button !== 0)
+			return;
 
 		fromEvent<PointerEvent>(this._svg, "pointermove")
 			.pipe(
 				throttleTime(0, animationFrameScheduler),
-				map((event) => [event, vec2(event.offsetX, event.offsetY)] as const),
+				map((event) => [event, vec2(event.clientX, event.clientY)] as const),
 				takeUntil(merge(
 					fromEvent(this._svg, "pointerleave"),
 					fromEvent(document, "pointerup"),

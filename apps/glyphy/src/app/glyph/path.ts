@@ -1,5 +1,4 @@
 import { assert, Const, exists, match } from "@electric/utils";
-import * as d3 from "d3";
 
 import { Matrix, nearlyEq, vec2, Vec2 } from "../math";
 import { pathCommand, PathCommand, PathOp } from "./path-command";
@@ -106,7 +105,7 @@ export class Path implements IPath {
 	}
 
 	private _svg?: string;
-	get svg(): string { return this._svg ??= this.toSvgString(); }
+	get svg(): string { return this._svg ??= this._commands.join(""); }
 
 	private _commands: PathCommand[] = [];
 
@@ -302,8 +301,10 @@ export class Path implements IPath {
 		// FIXME: Make this configurable
 		updated.round();
 
-		if (updated.smooth !== Boolean(target.smooth))
+		if (updated.smooth !== Boolean(target.smooth)) {
 			cmd.args.splice(cmd.args.length-1, 1, updated.smooth);
+			delete (cmd as any)["_str"];
+		}
 
 		if (!nearlyEq(updated.coords.x, target.coords.x, 1e-5)
 			|| !nearlyEq(updated.coords.y, target.coords.y, 1e-5))
@@ -319,6 +320,7 @@ export class Path implements IPath {
 					},
 					_: () => assert(false),
 				});
+				delete (coordsCmd as any)["_str"];
 			}
 		}
 
@@ -339,6 +341,7 @@ export class Path implements IPath {
 				);
 				const [x, y] = updated.handle_in;
 				handleCmd.args.splice(2, 2, x, y);
+				delete (handleCmd as any)["_str"];
 			}
 
 			if (updated.handle_out
@@ -351,6 +354,7 @@ export class Path implements IPath {
 				);
 				const [x, y] = updated.handle_out;
 				cmdNext.args.splice(0, 2, x, y);
+				delete (cmdNext as any)["_str"];
 			}
 		}
 
@@ -361,7 +365,7 @@ export class Path implements IPath {
 			contour.last.handle_in = updated.handle_in;
 		}
 
-		this._svg = undefined;
+		delete this._svg;
 	}
 
 	moveTo(x: number, y: number, smooth?: boolean) {
@@ -481,13 +485,6 @@ export class Path implements IPath {
 				}
 			}
 		}
-	}
-
-	toSvgString(): string {
-		// TODO: This is a silly reason to depend on d3
-		const d3Path = d3.path();
-		this.replay(d3Path);
-		return d3Path.toString();
 	}
 }
 

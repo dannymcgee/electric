@@ -397,9 +397,6 @@ export class InterpreterCFF2 {
 	 * `moveto` point replaces it.
 	 */
 	private moveto(x: number, y: number): void {
-		// if (!this._path)
-		// 	this._path = d3.path();
-
 		this._path.moveTo(x, y);
 		this._currentPoint = [x, y];
 	}
