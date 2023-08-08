@@ -228,7 +228,7 @@ export class Path implements IPath {
 
 					let p0 = target.handle_in;
 					if (!p0 && !prev.handle_out) {
-						p0 = prev.coords as Vec2;
+						p0 = prev.coords;
 					}
 					else if (!p0) {
 						return target;
@@ -236,13 +236,13 @@ export class Path implements IPath {
 
 					let p2 = target.handle_out;
 					if (!p2 && !next.handle_in) {
-						p2 = next.coords as Vec2;
+						p2 = next.coords;
 					}
 					else if (!p2) {
 						return target;
 					}
 
-					const p1 = target.coords as Vec2;
+					const p1 = target.coords;
 
 					const smooth = vec2.areCollinear(p0, p1, p2);
 
@@ -309,7 +309,7 @@ export class Path implements IPath {
 		if (!nearlyEq(updated.coords.x, target.coords.x, 1e-5)
 			|| !nearlyEq(updated.coords.y, target.coords.y, 1e-5))
 		{
-			const [x, y] = updated.coords;
+			const { x, y } = updated.coords;
 			for (let coordsCmd of [cmd, cmdMerged].filter(exists)) {
 				match (coordsCmd.op, {
 					[PathOp.MoveTo]: () => coordsCmd.args.splice(0, 2, x, y),
@@ -339,7 +339,7 @@ export class Path implements IPath {
 					handleCmd.op === PathOp.BezierCurveTo,
 					`Expected ${PathOp[PathOp.BezierCurveTo]}, found ${PathOp[handleCmd.op]}`
 				);
-				const [x, y] = updated.handle_in;
+				const { x, y } = updated.handle_in;
 				handleCmd.args.splice(2, 2, x, y);
 				delete (handleCmd as any)["_str"];
 			}
@@ -352,7 +352,7 @@ export class Path implements IPath {
 					cmdNext.op === PathOp.BezierCurveTo,
 					`Expected ${PathOp[PathOp.BezierCurveTo]}, found ${PathOp[cmdNext.op]}`
 				);
-				const [x, y] = updated.handle_out;
+				const { x, y } = updated.handle_out;
 				cmdNext.args.splice(0, 2, x, y);
 				delete (cmdNext as any)["_str"];
 			}

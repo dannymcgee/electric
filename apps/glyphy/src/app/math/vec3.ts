@@ -1,28 +1,24 @@
 import { Const } from "@electric/utils";
 
 import { nearlyEq } from "./util";
-import { Vec, Vector } from "./vector.types";
 
-export class Vec3 extends Vector implements Vec<3> {
+export class Vec3 {
 	static readonly zero: Const<Vec3> = new Vec3(0, 0, 0);
 	static readonly unit: Const<Vec3> = new Vec3(1, 1, 1);
 
-	get x() { return this[0] }
-	set x(value) { this[0] = value }
+	x: number;
+	y: number;
+	z: number;
 
-	get y() { return this[1] }
-	set y(value) { this[1] = value }
-
-	get z() { return this[2] }
-	set z(value) { this[2] = value }
-
-	declare readonly length: 3;
+	/** Vector magnitude */
+	get mag(): number { return vec3.len(this); }
+	/** Squared vector magnitude (i.e. mag^2) */
+	get mag2(): number { return vec3.len2(this); }
 
 	constructor (x: number, y: number, z: number) {
-		super(3);
-		this[0] = x;
-		this[1] = y;
-		this[2] = z;
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
 	clone(): Vec3 {
@@ -75,7 +71,7 @@ export namespace vec3 {
 	}
 
 	export function neg(v: Const<Vec3>): Vec3 {
-		const [x, y, z] = v;
+		const { x, y, z } = v;
 		return vec3(-x, -y, -z);
 	}
 
@@ -116,12 +112,12 @@ export namespace vec3 {
 	}
 
 	export function len2(v: Const<Vec3>): number {
-		const [x, y, z] = v;
+		const { x, y, z } = v;
 		return x*x + y*y + z*z;
 	}
 
 	export function len(v: Const<Vec3>): number {
-		const [x, y, z] = v;
+		const { x, y, z } = v;
 		return Math.sqrt(x*x + y*y + z*z);
 	}
 

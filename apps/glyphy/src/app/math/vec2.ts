@@ -1,33 +1,22 @@
 import { Const, Option } from "@electric/utils";
 
 import { nearlyEq } from "./util";
-import { Vec, Vector } from "./vector.types";
 
-export class Vec2 extends Vector implements Vec<2> {
+export class Vec2 {
 	static readonly zero: Const<Vec2> = new Vec2(0, 0);
 	static readonly unit: Const<Vec2> = new Vec2(1, 1);
 
-	get x() { return this[0]; }
-	set x(value) { this[0] = value; }
-
-	get y() { return this[1]; }
-	set y(value) { this[1] = value; }
+	x: number;
+	y: number;
 
 	/** Vector magnitude */
 	get mag(): number { return vec2.len(this); }
 	/** Squared vector magnitude (i.e. mag^2) */
 	get mag2(): number { return vec2.len2(this); }
 
-	/**
-	 * @warning This is the Array length, NOT the vector length. Use the
-	 * `mag` accessor to get the vector length.
-	 */
-	declare readonly length: 2;
-
 	constructor (x: number, y: number) {
-		super(2);
-		this[0] = x;
-		this[1] = y;
+		this.x = x;
+		this.y = y;
 	}
 
 	clone(): Vec2 {
@@ -60,7 +49,11 @@ export class Vec2 extends Vector implements Vec<2> {
 		return this;
 	}
 
-	override toString(): string {
+	join(sep: string): string {
+		return `${this.x}${sep}${this.y}`;
+	}
+
+	toString(): string {
 		return `Vec2(${this.x}, ${this.y})`;
 	}
 }
@@ -79,7 +72,7 @@ export namespace vec2 {
 	}
 
 	export function neg(v: Const<Vec2>): Vec2 {
-		const [x, y] = v;
+		const { x, y } = v;
 		return vec2(-x, -y);
 	}
 
@@ -103,12 +96,12 @@ export namespace vec2 {
 	}
 
 	export function len2(v: Const<Vec2>): number {
-		const [x, y] = v;
+		const { x, y } = v;
 		return x*x + y*y;
 	}
 
 	export function len(v: Const<Vec2>): number {
-		const [x, y] = v;
+		const { x, y } = v;
 		return Math.sqrt(x*x + y*y);
 	}
 
