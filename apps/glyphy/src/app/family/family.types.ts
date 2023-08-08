@@ -7,6 +7,7 @@ export class NewFontFamily {
 
 export interface FontMetrics {
 	unitsPerEm: number;
+	baseline: number;
 	descender: number;
 	xHeight?: number;
 	capHeight?: number;
@@ -16,6 +17,7 @@ export interface FontMetrics {
 export function defaultMetrics(): FontMetrics {
 	return {
 		unitsPerEm: 1000,
+		baseline: 0,
 		descender: -200,
 		xHeight: 550,
 		capHeight: 700,
@@ -26,6 +28,7 @@ export function defaultMetrics(): FontMetrics {
 export class FontFamily implements FontMetrics {
 	name: string;
 	declare unitsPerEm: number;
+	declare baseline: number;
 	declare descender: number;
 	declare xHeight?: number;
 	declare capHeight?: number;

@@ -16,12 +16,21 @@
 		(click)="setActive(font)"
 		(keydown.enter)="setActive(font)"
 	>
-		<!-- TODO: Use font glyph -->
-		<span class="font__icon"
-			aria-hidden="true"
-			[style.font-weight]="font.weight"
-			[style.font-style]="(font.style || 'normal').toLowerCase()"
-		>a</span>
+		<svg class="font__icon"
+			*ngIf="font.previewGlyph else fallbackIcon"
+			[g-glyph]="font.previewGlyph"
+			upperBound="xHeight"
+			lowerBound="baseline"
+			style="transform: scale(1, -1)"
+			fill="currentColor"
+		></svg>
+		<ng-template #fallbackIcon>
+			<span class="font__icon"
+				aria-hidden="true"
+				[style.font-weight]="font.weight"
+				[style.font-style]="(font.style || 'normal').toLowerCase()"
+			>a</span>
+		</ng-template>
 		<span class="font__name">
 			{{ font.styleName }}
 		</span>

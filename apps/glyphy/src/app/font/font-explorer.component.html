@@ -14,8 +14,9 @@
 					*ngFor="let glyph of group.glyphs"
 					(dblclick)="openGlyph.emit(glyph)"
 				>
-					<svg g-glyph class="glyph__svg"
-						[glyph]="glyph"
+					<svg class="glyph__svg"
+						[g-glyph]="glyph"
+						showMetrics
 					></svg>
 					<div class="glyph__label">
 						<strong class="glyph__name">
@@ -39,8 +40,9 @@
 			*ngFor="let glyph of font.glyphs"
 			(dblclick)="openGlyph.emit(glyph)"
 		>
-			<svg g-glyph class="glyph__svg"
-				[glyph]="glyph"
+			<svg class="glyph__svg"
+				[g-glyph]="glyph"
+				showMetrics
 			></svg>
 			<div class="glyph__label">
 				<strong class="glyph__name">

@@ -29,6 +29,11 @@ export class Font {
 	style: FontStyle;
 	italicAngle = 0;
 
+	private _previewGlyph?: Glyph;
+	get previewGlyph(): Glyph | undefined {
+		return this._previewGlyph ??= this.glyphs.find(g => g.name === "a");
+	}
+
 	get styleName() {
 		return `${FontWeight[this.weight]} ${this.style}`.trim();
 	}
@@ -48,6 +53,7 @@ export class Font {
 	}
 
 	get unitsPerEm() { return this._family.unitsPerEm; }
+	get baseline() { return this._family.baseline ?? 0; }
 	get ascender() { return this._family.ascender; }
 	get descender() { return this._family.descender; }
 	get xHeight() { return this._family.xHeight; }

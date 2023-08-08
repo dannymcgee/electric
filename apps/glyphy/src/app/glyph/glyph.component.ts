@@ -8,7 +8,7 @@ import {
 } from "@angular/core";
 import { Coerce } from "@electric/ng-utils";
 
-import { FamilyService } from "../family";
+import { FamilyService, FontMetrics } from "../family";
 import { getViewBox, ViewBox } from "../util";
 import { Glyph } from "./glyph";
 import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
@@ -21,10 +21,16 @@ import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 	encapsulation: ViewEncapsulation.None,
 })
 export class GlyphComponent implements OnChanges {
-	@Input() glyph?: Glyph;
+	@Input("g-glyph") glyph?: Glyph;
 
 	@Coerce(Number)
 	@Input() zoomFactor = 1.25;
+
+	@Coerce(Boolean)
+	@Input() showMetrics = false;
+
+	@Input() upperBound: (number | keyof FontMetrics) = "ascender";
+	@Input() lowerBound: (number | keyof FontMetrics) = "descender";
 
 	@HostBinding("class")
 	readonly hostClass = "g-glyph";
@@ -52,7 +58,13 @@ export class GlyphComponent implements OnChanges {
 			const font = this._family.font;
 			if (!font) return;
 
-			this._viewBox = getViewBox(font, this.glyph, this.zoomFactor);
+			this._viewBox = getViewBox(
+				font,
+				this.glyph,
+				this.zoomFactor,
+				this.upperBound,
+				this.lowerBound,
+			);
 		}
 	}
 }

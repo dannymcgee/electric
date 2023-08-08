@@ -43,7 +43,6 @@ import {
 import { TransformDirective } from "./math";
 import {
 	CffProgramPipe,
-	FontToSvgViewBoxPipe,
 	HexPipe,
 	ViewBoxDirective,
 } from "./util";
@@ -72,7 +71,6 @@ import {
 		CffProgramPipe,
 		FamilyPanelComponent,
 		FontExplorerComponent,
-		FontToSvgViewBoxPipe,
 		GlyphComponent,
 		GlyphContourComponent,
 		GlyphEditorComponent,
