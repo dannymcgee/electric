@@ -1,5 +1,5 @@
 import { Directive, HostBinding, Input } from "@angular/core";
-import { exists } from "@electric/utils";
+import { Const, exists } from "@electric/utils";
 
 import { Matrix } from "./matrix";
 
@@ -8,7 +8,7 @@ import { Matrix } from "./matrix";
 })
 export class TransformDirective {
 	@Input("gTransform")
-	matrix?: Matrix | (Matrix | undefined)[];
+	matrix?: Const<Matrix> | (Const<Matrix> | undefined)[];
 
 	@HostBinding("style.transform")
 	get transform() {

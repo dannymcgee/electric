@@ -1,6 +1,8 @@
-import { Const, exists } from "@electric/utils";
+import { assert, Const, exists, match } from "@electric/utils";
+import * as d3 from "d3";
 
 import { Matrix, nearlyEq, vec2, Vec2 } from "../math";
+import { pathCommand, PathCommand, PathOp } from "./path-command";
 
 export interface IPath {
 	/**
@@ -90,41 +92,6 @@ export interface IPath {
 	// rect(x: number, y: number, w: number, h: number): void;
 }
 
-enum PathOp {
-	MoveTo,
-	ClosePath,
-	LineTo,
-	QuadraticCurveTo,
-	BezierCurveTo,
-}
-
-class PathCommand {
-	op: PathOp;
-	args: any[]
-
-	constructor (op: PathOp, ...args: any[]) {
-		this.op = op;
-		this.args = args;
-	}
-}
-
-type IPathCommand = {
-	op: PathOp.MoveTo;
-	args: [number, number, boolean?];
-} | {
-	op: PathOp.ClosePath;
-	args: [];
-} | {
-	op: PathOp.LineTo;
-	args: [number, number, boolean?];
-} | {
-	op: PathOp.QuadraticCurveTo;
-	args: [number, number, number, number, boolean?];
-} | {
-	op: PathOp.BezierCurveTo;
-	args: [number, number, number, number, number, number, boolean?];
-}
-
 export interface AutoSmoothOptions {
 	inPlace: boolean;
 }
@@ -138,7 +105,10 @@ export class Path implements IPath {
 		return this.contours[this.contours.length - 1]?.last;
 	}
 
-	private _commands: IPathCommand[] = [];
+	private _svg?: string;
+	get svg(): string { return this._svg ??= this.toSvgString(); }
+
+	private _commands: PathCommand[] = [];
 
 	constructor (
 		public contours: Contour[] = [],
@@ -146,7 +116,7 @@ export class Path implements IPath {
 
 	clone(): Path {
 		const result = new Path(this.contours.map(c => c.clone()));
-		result._commands = this._commands.slice();
+		result._commands = this._commands.map(cmd => cmd.clone() as PathCommand);
 
 		return result;
 	}
@@ -163,7 +133,7 @@ export class Path implements IPath {
 					const [x, y, smooth] = cmd.args;
 					const p = m.transformPoint(vec2(x, y));
 
-					this._commands[i] = new PathCommand(cmd.op, p.x, p.y, smooth) as IPathCommand;
+					this._commands[i] = pathCommand(cmd.op, p.x, p.y, smooth);
 					break;
 				}
 				case PathOp.QuadraticCurveTo: {
@@ -171,13 +141,7 @@ export class Path implements IPath {
 					const p1 = m.transformPoint(vec2(x1, y1));
 					const p2 = m.transformPoint(vec2(x2, y2));
 
-					this._commands[i] = new PathCommand(
-						cmd.op,
-						p1.x, p1.y,
-						p2.x, p2.y,
-						smooth,
-					) as IPathCommand;
-
+					this._commands[i] = pathCommand(cmd.op, p1.x, p1.y, p2.x, p2.y, smooth);
 					break;
 				}
 				case PathOp.BezierCurveTo: {
@@ -186,14 +150,7 @@ export class Path implements IPath {
 					const p2 = m.transformPoint(vec2(x2, y2));
 					const p3 = m.transformPoint(vec2(x3, y3));
 
-					this._commands[i] = new PathCommand(
-						cmd.op,
-						p1.x, p1.y,
-						p2.x, p2.y,
-						p3.x, p3.y,
-						smooth,
-					) as IPathCommand;
-
+					this._commands[i] = pathCommand(cmd.op, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, smooth);
 					break;
 				}
 			}
@@ -214,6 +171,49 @@ export class Path implements IPath {
 				return `[${i}] ${op} (${cmd.args.filter(exists).join(", ")})`;
 			})
 			.join("\n");
+	}
+
+	print(): string {
+		let result: string[] = [];
+		let cmdIdx = 0;
+		result.push("Path {");
+
+		this.contours.forEach((contour, c) => {
+			result.push(`  [${c}] Contour {`);
+
+			contour.points.forEach((point, p) => {
+				result.push(`    [${p}] Point {`);
+
+				const cmd = this._commands[cmdIdx];
+				if (cmd) {
+					result.push(
+						`      [${cmdIdx}] ${PathOp[cmd.op]} (${cmd.args.filter(exists).join(", ")})`,
+						"      " + point.toString(),
+					);
+				}
+				else {
+					result.push(
+						"      <NO COMMAND>",
+						"      " + point.toString(),
+					);
+				}
+
+				result.push("    }");
+				cmdIdx++;
+			});
+
+			result.push("  }");
+		});
+
+		while (cmdIdx < this._commands.length) {
+			const cmd = this._commands[cmdIdx];
+			result.push(`  [${cmdIdx}] ${PathOp[cmd.op]} (${cmd.args.filter(exists).join(", ")})`);
+			cmdIdx++;
+		}
+
+		result.push("}");
+
+		return result.join("\n");
 	}
 
 	autoSmooth(options: { inPlace: true }): void;
@@ -263,6 +263,7 @@ export class Path implements IPath {
 			return result;
 	}
 
+	// FIXME: This function is a mess!
 	editPoint(contourIndex: number, pointIndex: number, edit: PointTransformFn): void {
 		if (!this.contours[contourIndex]?.points[pointIndex])
 			throw new Error(
@@ -276,10 +277,7 @@ export class Path implements IPath {
 		for (let c = 0; c < contourIndex; ++c)
 			cmdBaseIndex += this.contours[c].points.length;
 
-		const cmd = this._commands[cmdBaseIndex + pointIndex];
-
 		const contour = this.contours[contourIndex];
-		const target = contour.points[pointIndex];
 
 		const prevIndex = pointIndex === 0
 			? contour.points.length - 1
@@ -287,29 +285,93 @@ export class Path implements IPath {
 
 		const nextIndex = (pointIndex + 1) % contour.points.length;
 
+		const target = contour.points[pointIndex];
 		const prev = contour.points[prevIndex];
 		const next = contour.points[nextIndex];
 
-		const updated = edit(target, prev, next);
+		const cmd = this._commands[cmdBaseIndex + pointIndex];
+		const cmdNext = this._commands[cmdBaseIndex + nextIndex];
+		const cmdMerged = pointIndex === 0 && contour.last?.hidden
+			? this._commands[cmdBaseIndex + contour.points.length - 1]
+			: undefined;
+
+		const updated = edit(target, prev, next) as Point;
 		if (updated === target)
 			return;
 
-		// TODO: Update point coords, handle positions, etc.
+		// FIXME: Make this configurable
+		updated.round();
+
 		if (updated.smooth !== Boolean(target.smooth))
 			cmd.args.splice(cmd.args.length-1, 1, updated.smooth);
 
-		contour.points[pointIndex] = updated as Point;
+		if (!nearlyEq(updated.coords.x, target.coords.x, 1e-5)
+			|| !nearlyEq(updated.coords.y, target.coords.y, 1e-5))
+		{
+			const [x, y] = updated.coords;
+			for (let coordsCmd of [cmd, cmdMerged].filter(exists)) {
+				match (coordsCmd.op, {
+					[PathOp.MoveTo]: () => coordsCmd.args.splice(0, 2, x, y),
+					[PathOp.LineTo]: () => coordsCmd.args.splice(0, 2, x, y),
+					[PathOp.BezierCurveTo]: () => coordsCmd.args.splice(4, 2, x, y),
+					[PathOp.QuadraticCurveTo]: () => {
+						throw new Error("Editing quadratic curves is not yet supported");
+					},
+					_: () => assert(false),
+				});
+			}
+		}
+
+		if (!!updated.handle_in !== !!target.handle_in
+			|| !!updated.handle_out !== !!target.handle_out)
+		{
+			console.warn("Adding/removing control points is not yet supported!");
+		}
+		else {
+			if (updated.handle_in
+				&& (!nearlyEq(updated.handle_in.x, target.handle_in!.x, 1e-5)
+					|| !nearlyEq(updated.handle_in.y, target.handle_in!.y, 1e-5)))
+			{
+				const handleCmd = cmdMerged ?? cmd;
+				assert(
+					handleCmd.op === PathOp.BezierCurveTo,
+					`Expected ${PathOp[PathOp.BezierCurveTo]}, found ${PathOp[handleCmd.op]}`
+				);
+				const [x, y] = updated.handle_in;
+				handleCmd.args.splice(2, 2, x, y);
+			}
+
+			if (updated.handle_out
+				&& (!nearlyEq(updated.handle_out.x, target.handle_out!.x, 1e-5)
+					|| !nearlyEq(updated.handle_out.y, target.handle_out!.y, 1e-5)))
+			{
+				assert(
+					cmdNext.op === PathOp.BezierCurveTo,
+					`Expected ${PathOp[PathOp.BezierCurveTo]}, found ${PathOp[cmdNext.op]}`
+				);
+				const [x, y] = updated.handle_out;
+				cmdNext.args.splice(0, 2, x, y);
+			}
+		}
+
+		contour.points[pointIndex] = updated;
+
+		if (pointIndex === 0 && contour.last?.hidden) {
+			contour.last.coords = updated.coords;
+			contour.last.handle_in = updated.handle_in;
+		}
+
+		this._svg = undefined;
 	}
 
 	moveTo(x: number, y: number, smooth?: boolean) {
-		this._commands.push(new PathCommand(PathOp.MoveTo, x, y, smooth) as IPathCommand);
-
+		this._commands.push(pathCommand(PathOp.MoveTo, x, y, smooth));
 		this.contours[this.contours.length-1]?.close();
 		this.contours.push(new Contour([new Point(x, y, smooth)]));
 	}
 
 	lineTo(x: number, y: number, smooth?: boolean) {
-		this._commands.push(new PathCommand(PathOp.LineTo, x, y, smooth) as IPathCommand);
+		this._commands.push(pathCommand(PathOp.LineTo, x, y, smooth));
 		this.contours[this.contours.length-1]?.points.push(new Point(x, y, smooth));
 	}
 
@@ -318,11 +380,6 @@ export class Path implements IPath {
 		x: number, y: number,
 		smooth?: boolean,
 	) {
-		this._commands.push(new PathCommand(
-			PathOp.QuadraticCurveTo,
-			cpx, cpy, x, y, smooth,
-		) as IPathCommand);
-
 		if (!this.lastPoint) {
 			console.error("nocurrentpoint");
 			return;
@@ -344,6 +401,7 @@ export class Path implements IPath {
 		const endPoint = new Point(x, y, smooth);
 		endPoint.handle_in = new Vec2(cpx2, cpy2);
 
+		this._commands.push(pathCommand(PathOp.QuadraticCurveTo, cpx, cpy, x, y, smooth));
 		this.contours[this.contours.length-1].points.push(endPoint);
 	}
 
@@ -353,11 +411,6 @@ export class Path implements IPath {
 		x: number, y: number,
 		smooth?: boolean,
 	) {
-		this._commands.push(new PathCommand(
-			PathOp.BezierCurveTo,
-			cpx1, cpy1, cpx2, cpy2, x, y, smooth,
-		) as IPathCommand);
-
 		if (!this.lastPoint) {
 			console.error("nocurrentpoint");
 			return;
@@ -374,18 +427,16 @@ export class Path implements IPath {
 		if (!nearlyEq(x, cpx2, 1e-5) || !nearlyEq(y, cpy2, 1e-5))
 			endPoint.handle_in = new Vec2(cpx2, cpy2);
 
+		this._commands.push(pathCommand(PathOp.BezierCurveTo, cpx1, cpy1, cpx2, cpy2, x, y, smooth));
 		this.contours[this.contours.length-1].points.push(endPoint);
 	}
 
 	closePath() {
-		this._commands.push(new PathCommand(PathOp.ClosePath) as IPathCommand);
+		this._commands.push(pathCommand(PathOp.ClosePath));
 		this.contours[this.contours.length-1]?.close();
 	}
 
 	cleanup(options?: { autoSmooth: boolean }): void {
-		if (options?.autoSmooth)
-			this.autoSmooth({ inPlace: true });
-
 		for (let contour of this.contours) {
 			// Merge duplicate points
 			const first = contour.points[0];
@@ -396,37 +447,13 @@ export class Path implements IPath {
 				&& nearlyEq(first.coords.x, last.coords.x, 1e-5)
 				&& nearlyEq(first.coords.y, last.coords.y, 1e-5))
 			{
-				// These points can be merged, but to avoid disrupting the canonical
-				// representation of the path, we'll just hide the first point when
-				// rendering.
-				first.hidden = true;
-
-				if (options?.autoSmooth) {
-					// Re-check for auto-smooth
-					if (!last.handle_in || !first.handle_out)
-						continue;
-
-					const smooth = vec2.areCollinear(
-						last.handle_in,
-						first.coords,
-						first.handle_out,
-					);
-
-					if (smooth) {
-						this.editPoint(
-							this.contours.indexOf(contour),
-							contour.points.length - 1,
-							point => {
-								const result = point.clone();
-								result.smooth = true;
-
-								return result;
-							},
-						);
-					}
-				}
+				first.handle_in = last.handle_in;
+				last.hidden = true;
 			}
 		}
+
+		if (options?.autoSmooth)
+			this.autoSmooth({ inPlace: true });
 	}
 
 	replay(ctx: IPath): void {
@@ -455,6 +482,13 @@ export class Path implements IPath {
 			}
 		}
 	}
+
+	toSvgString(): string {
+		// TODO: This is a silly reason to depend on d3
+		const d3Path = d3.path();
+		this.replay(d3Path);
+		return d3Path.toString();
+	}
 }
 
 export class Contour {
@@ -467,7 +501,7 @@ export class Contour {
 
 	constructor (
 		points: Point[] = [],
-		closed = false
+		closed = false,
 	) {
 		this.points = points;
 		this.closed = closed;
@@ -515,7 +549,12 @@ export class Point {
 	}
 
 	clone(): Point {
-		const result = new Point(this.x, this.y, this.smooth, this.hidden);
+		const result = new Point(
+			this.x, this.y,
+			this.smooth,
+			this.hidden,
+		);
+
 		result.handle_in = this.handle_in?.clone();
 		result.handle_out = this.handle_out?.clone();
 
@@ -549,6 +588,24 @@ export class Point {
 		if (this.smooth)
 			result += ` [smooth]`;
 
+		if (this.hidden)
+			result += ` <hidden>`;
+
 		return result;
+	}
+
+	round(): void {
+		this.coords.x = Math.round(this.x);
+		this.coords.y = Math.round(this.y);
+
+		if (this.handle_in) {
+			this.handle_in.x = Math.round(this.handle_in.x);
+			this.handle_in.y = Math.round(this.handle_in.y);
+		}
+
+		if (this.handle_out) {
+			this.handle_out.x = Math.round(this.handle_out.x);
+			this.handle_out.y = Math.round(this.handle_out.y);
+		}
 	}
 }

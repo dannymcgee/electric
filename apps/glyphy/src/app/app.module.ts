@@ -35,13 +35,18 @@ import {
 } from "./family";
 import { FontExplorerComponent } from "./font";
 import {
+	ControlPointComponent,
 	GlyphComponent,
 	GlyphEditorComponent,
 	GlyphMetricsComponent,
-	GlyphToSvgPipe,
 } from "./glyph";
 import { TransformDirective } from "./math";
-import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe, ViewBoxDirective } from "./util";
+import {
+	CffProgramPipe,
+	FontToSvgViewBoxPipe,
+	HexPipe,
+	ViewBoxDirective,
+} from "./util";
 
 @NgModule({
 	imports: [
@@ -65,13 +70,13 @@ import { CffProgramPipe, FontToSvgViewBoxPipe, HexPipe, ViewBoxDirective } from 
 	declarations: [
 		AppComponent,
 		CffProgramPipe,
+		ControlPointComponent,
 		FamilyPanelComponent,
 		FontExplorerComponent,
 		FontToSvgViewBoxPipe,
 		GlyphComponent,
 		GlyphEditorComponent,
 		GlyphMetricsComponent,
-		GlyphToSvgPipe,
 		HexPipe,
 		NewFamilyDialog,
 		ParentFolderExistsValidator,

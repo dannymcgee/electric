@@ -13,6 +13,15 @@ export class Vec2 extends Vector implements Vec<2> {
 	get y() { return this[1]; }
 	set y(value) { this[1] = value; }
 
+	/** Vector magnitude */
+	get mag(): number { return vec2.len(this); }
+	/** Squared vector magnitude (i.e. mag^2) */
+	get mag2(): number { return vec2.len2(this); }
+
+	/**
+	 * @warning This is the Array length, NOT the vector length. Use the
+	 * `mag` accessor to get the vector length.
+	 */
 	declare readonly length: 2;
 
 	constructor (x: number, y: number) {
@@ -35,14 +44,20 @@ export class Vec2 extends Vector implements Vec<2> {
 		this.y -= rhs.y;
 	}
 
-	normalize(): void {
+	/**
+	 * Normalizes the vector in-place and returns the result. Use
+	 * `vec2.normal(v)` if an immutable operation is required.
+	 */
+	normalize(): Vec2 {
 		const len2 = vec2.len2(this);
 		if (nearlyEq(len2, 1) || nearlyEq(len2, 0))
-			return;
+			return this;
 
 		const invLen = 1 / Math.sqrt(len2);
 		this.x *= invLen;
 		this.y *= invLen;
+
+		return this;
 	}
 
 	override toString(): string {

@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	HostBinding,
 	Input,
@@ -19,7 +18,6 @@ import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 	templateUrl: "./glyph.component.svg",
 	styleUrls: ["./glyph.component.scss"],
 	providers: [GlyphScaleFactorProvider],
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 })
 export class GlyphComponent implements OnChanges {

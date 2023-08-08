@@ -10,11 +10,13 @@ import {
 	OnDestroy,
 	OnInit,
 	SimpleChanges,
+	TrackByFunction,
 	ViewChild,
 } from "@angular/core";
 import { ElxResizeObserver } from "@electric/ng-utils";
 import {
 	assert,
+	Const,
 	exists,
 	isModifier,
 	ModifierKey,
@@ -37,6 +39,7 @@ import { FamilyService } from "../family";
 import { Matrix, Vec2, vec2 } from "../math";
 import { getViewBox, ViewBox } from "../util/viewbox";
 import { Glyph } from "./glyph";
+import { Point } from "./path";
 
 @Component({
 	selector: "g-glyph-editor",
@@ -94,6 +97,8 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	// Either way, I'm still hitting 60 frames with plenty of overhead, so
 	// optimization will be a problem for Future Danny.
 	get renderTransform() {
+		if (!this._clientToView) return Matrix.Identity;
+
 		return Matrix.concat(...[
 			this._clientToView,
 			this._panOffset,
@@ -103,7 +108,18 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		].filter(exists));
 	}
 
+	get clientToGlyphCoords() {
+		if (!this._clientToView) return Matrix.Identity;
+
+		return Matrix.concat(
+			this.renderTransform.inverse(),
+			this._clientToView,
+		);
+	}
+
 	_viewBox$ = new BehaviorSubject<ViewBox|null>(null);
+
+	trackByIndex: TrackByFunction<Const<Point>> = (idx, _) => idx;
 
 	private _zoomFactor$ = new BehaviorSubject<number>(1.333333);
 	private _scaleFactor$?: Observable<number>;
@@ -237,6 +253,10 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		this.adjustZoom(delta, offsetX, offsetY);
 	}
 
+	updatePoint(c: number, p: number, point: Point): void {
+		this.glyph.outline!.editPoint(c, p, () => point);
+	}
+
 	private initPanning(): void {
 		this.isPanning = true;
 
@@ -316,10 +336,7 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 		this._pointerClient.x = this._pointer.x = offsetX;
 		this._pointerClient.y = this._pointer.y = offsetY;
 		this._clientToView.transformPoint_inPlace(this._pointer);
-
-		this._pointerCoords.x = this._pointer.x;
-		this._pointerCoords.y = this._pointer.y;
-		this.renderTransform.inverse().transformPoint_inPlace(this._pointerCoords);
+		this._pointerCoords = this.clientToGlyphCoords.transformPoint(this._pointerClient);
 	}
 
 	private removePointer(): void {

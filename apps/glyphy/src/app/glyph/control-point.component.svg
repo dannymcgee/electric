@@ -1,0 +1,73 @@
+<ng-container *ngIf="_p.handle_in as handle">
+	<svg:line class="handle line"
+		[attr.x1]="_p.x" [attr.y1]="_p.y"
+		[attr.x2]="handle.x" [attr.y2]="handle.y"
+	/>
+
+	<svg:circle class="handle in"
+		[attr.cx]="handle.x"
+		[attr.cy]="handle.y"
+		[attr.r]="3 * scaleFactor"
+	/>
+	<svg:circle class="handle pointer-target"
+		[attr.cx]="handle.x"
+		[attr.cy]="handle.y"
+		[attr.r]="3 * 1.618 * scaleFactor"
+		(pointerdown)="onPointerDown('handle_in', $event)"
+	/>
+</ng-container>
+
+<ng-container *ngIf="_p.handle_out as handle">
+	<svg:line class="handle line"
+		[attr.x1]="_p.x" [attr.y1]="_p.y"
+		[attr.x2]="handle.x" [attr.y2]="handle.y"
+	/>
+
+	<svg:circle class="handle out"
+		[attr.cx]="handle.x"
+		[attr.cy]="handle.y"
+		[attr.r]="3 * scaleFactor"
+	/>
+	<svg:circle class="handle pointer-target"
+		[attr.cx]="handle.x"
+		[attr.cy]="handle.y"
+		[attr.r]="3 * 1.618 * scaleFactor"
+		(pointerdown)="onPointerDown('handle_out', $event)"
+	/>
+</ng-container>
+
+<ng-container *ngIf="!hidden">
+	<svg:rect *ngIf="!smooth"
+		class="point"
+		[class.first]="first"
+		[attr.x]="_p.x - (3.5 * scaleFactor)"
+		[attr.y]="_p.y - (3.5 * scaleFactor)"
+		[attr.width]="7 * scaleFactor"
+		[attr.height]="7 * scaleFactor"
+	/>
+	<svg:rect *ngIf="!smooth"
+		class="point pointer-target"
+		[class.first]="first"
+		[attr.x]="_p.x - (3.5 * 1.618 * scaleFactor)"
+		[attr.y]="_p.y - (3.5 * 1.618 * scaleFactor)"
+		[attr.width]="7 * 1.618 * scaleFactor"
+		[attr.height]="7 * 1.618 * scaleFactor"
+		(pointerdown)="onPointerDown('coords', $event)"
+	/>
+
+	<svg:circle *ngIf="smooth"
+		class="point smooth"
+		[class.first]="first"
+		[attr.cx]="_p.x"
+		[attr.cy]="_p.y"
+		[attr.r]="4 * scaleFactor"
+	/>
+	<svg:circle *ngIf="smooth"
+		class="point smooth pointer-target"
+		[class.first]="first"
+		[attr.cx]="_p.x"
+		[attr.cy]="_p.y"
+		[attr.r]="4 * 1.618 * scaleFactor"
+		(pointerdown)="onPointerDown('coords', $event)"
+	/>
+</ng-container>

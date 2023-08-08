@@ -47,43 +47,6 @@
 	}
 }
 
-.point {
-	// TODO: Choose or create a theme color for this
-	fill: #99C4FF80;
-	stroke: #99C4FF {
-		width: calc(var(--handle-thickness) * var(--scale-factor));
-	}
-
-	&:where(.smooth) {
-		fill: color.accent(700, 0.5);
-		stroke: color.accent(800);
-	}
-
-	&:where(.first) {
-		fill: color.warning(800, 0.5);
-		stroke: color.warning(800);
-	}
-
-	:host-context(.pan-mode) & {
-		visibility: hidden;
-	}
-}
-
-.handle {
-	fill: color.primary(700, 0.2);
-	stroke: color.primary(800) {
-		width: calc(var(--handle-thickness) * var(--scale-factor));
-	}
-
-	&:where(.line) {
-		stroke: color.primary(700, 0.5);
-	}
-
-	:host-context(.pan-mode) & {
-		visibility: hidden;
-	}
-}
-
 .pointer {
 	stroke: color.foreground(50, 0.1) {
 		width: var(--metrics-thickness);
@@ -96,5 +59,6 @@
 	text {
 		stroke: none;
 		fill: color.foreground(500);
+		user-select: none;
 	}
 }

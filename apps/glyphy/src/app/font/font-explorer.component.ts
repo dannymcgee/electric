@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	ElementRef,
@@ -26,7 +25,6 @@ class UnicodeGroup {
 	selector: "g-font-explorer",
 	templateUrl: "./font-explorer.component.html",
 	styleUrls: ["./font-explorer.component.scss"],
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FontExplorerComponent implements OnInit, OnDestroy {
 	@HostBinding("style.--cols")

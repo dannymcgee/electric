@@ -2,4 +2,4 @@
 	[glyph]="glyph"
 	[viewBox]="_viewBox"
 ></svg:g>
-<svg:path [attr.d]="glyph | svg" />
+<svg:path [attr.d]="glyph?.outline?.svg" />
