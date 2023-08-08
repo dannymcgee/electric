@@ -100,13 +100,30 @@ export class ControlPointComponent implements OnDestroy {
 		const oldCoords = this._p.coords;
 		const delta = vec2.sub(coords, oldCoords);
 
-		if (this.smooth && (!this._p.handle_in || !this._p.handle_out)) {
-			// FIXME: I picked the wrong level of abstraction for this component. >_<
-			//        I need to know the direction to the next or previous point
-			//        to know how to keep the three points collinear.
-			console.error("Can't move that point. For... reasons.");
+		if (this.smooth) {
+			if (!this._p.handle_in || !this._p.handle_out) {
+				// FIXME: I picked the wrong level of abstraction for this component. >_<
+				//        I need to know the direction to the next or previous point
+				//        to know how to keep the three points collinear.
+				console.error("Can't move that point. For... reasons.");
 
-			return;
+				return;
+			}
+
+			// TODO: Configurable keybindings
+			if (event.altKey) {
+				// Slide the on-curve point between the handles
+				const direction = vec2.sub(this._p.handle_in, this._p.handle_out).normalize();
+				const toHandle = vec2.sub(coords, this._p.handle_in);
+				const projLength = vec2.dot(direction, toHandle);
+
+				updated.coords = vec2.add(
+					this._p.handle_in,
+					vec2.mul(direction, projLength),
+				);
+
+				return this.update.emit(updated);
+			}
 		}
 
 		updated.coords = coords;
@@ -159,7 +176,11 @@ export class ControlPointComponent implements OnDestroy {
 			return this.update.emit(updated);
 		}
 
-		const otherLength = vec2.dist(other, this._p.coords);
+		// TODO: Configurable keybindings
+		const otherLength = event.altKey
+			? vec2.dist(coords, this._p.coords)
+			: vec2.dist(other, this._p.coords);
+
 		const direction = vec2.sub(this._p.coords, coords).normalize();
 		const otherCoords = vec2.add(this._p.coords, vec2.mul(direction, otherLength));
 
