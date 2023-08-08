@@ -39,7 +39,7 @@ import { FamilyService } from "../family";
 import { Matrix, Vec2, vec2 } from "../math";
 import { getViewBox, ViewBox } from "../util/viewbox";
 import { Glyph } from "./glyph";
-import { Point } from "./path";
+import { Contour, Point } from "./path";
 
 @Component({
 	selector: "g-glyph-editor",
@@ -119,7 +119,7 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 
 	_viewBox$ = new BehaviorSubject<ViewBox|null>(null);
 
-	trackByIndex: TrackByFunction<Const<Point>> = (idx, _) => idx;
+	trackByIndex: TrackByFunction<Const<Contour>> = (idx, _) => idx;
 
 	private _zoomFactor$ = new BehaviorSubject<number>(1.333333);
 	private _scaleFactor$?: Observable<number>;

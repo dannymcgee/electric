@@ -35,8 +35,8 @@ import {
 } from "./family";
 import { FontExplorerComponent } from "./font";
 import {
-	ControlPointComponent,
 	GlyphComponent,
+	GlyphContourComponent,
 	GlyphEditorComponent,
 	GlyphMetricsComponent,
 } from "./glyph";
@@ -70,11 +70,11 @@ import {
 	declarations: [
 		AppComponent,
 		CffProgramPipe,
-		ControlPointComponent,
 		FamilyPanelComponent,
 		FontExplorerComponent,
 		FontToSvgViewBoxPipe,
 		GlyphComponent,
+		GlyphContourComponent,
 		GlyphEditorComponent,
 		GlyphMetricsComponent,
 		HexPipe,

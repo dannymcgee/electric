@@ -52,46 +52,13 @@
 		[gTransform]="renderTransform"
 	>
 		<g class="contour"
-			*ngFor="let c of glyph.outline?.contours
-				let ci = index"
-		>
-			<ng-container
-				*ngFor="let p of c.points
-					let pi = index
-					let isFirst = first
-					let isLast = last
-					trackBy: trackByIndex"
-			>
-				<!-- Draw the connecting line if it's inferred -->
-				<line class="outline"
-					*ngIf="isLast && c.closed
-						&& (p.x !== c.points[0].x || p.y !== c.points[0].y)
-						&& !p.handle_out"
-					[attr.x1]="p.x"
-					[attr.y1]="p.y"
-					[attr.x2]="c.points[0].x"
-					[attr.y2]="c.points[0].y"
-				/>
-				<!-- Editable control points -->
-				<g *ngIf="!c.last?.hidden || (!isFirst && !isLast)"
-					[g-control-point]="p"
-					[smooth]="p.smooth"
-					[scaleFactor]="_scaleFactor"
-					[clientToGlyphCoords]="clientToGlyphCoords"
-					[clientToView]="_clientToView"
-					(update)="updatePoint(ci, pi, $event)"
-				></g>
-				<g *ngIf="c.last?.hidden && isLast"
-					[g-control-point]="c.points[0]"
-					first
-					[smooth]="c.points[0].smooth"
-					[scaleFactor]="_scaleFactor"
-					[clientToGlyphCoords]="clientToGlyphCoords"
-					[clientToView]="_clientToView"
-					(update)="updatePoint(ci, 0, $event)"
-				></g>
-
-			</ng-container>
-		</g>
+			*ngFor="let contour of glyph.outline?.contours
+				let idx = index
+				trackBy: trackByIndex"
+			[g-glyph-contour]="contour"
+			[scaleFactor]="_scaleFactor"
+			[clientToGlyphCoords]="clientToGlyphCoords"
+			(update)="updatePoint(idx, $event.index, $event.point)"
+		></g>
 	</g>
 </svg>
