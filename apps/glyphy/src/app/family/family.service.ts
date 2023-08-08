@@ -418,6 +418,10 @@ export class FamilyService implements OnDestroy {
 		const italicAngle = ttx.cffTable?.cffFont?.italicAngle ?? ttx.post?.italicAngle;
 
 		const glyphs: Glyph[] = [];
+		const vm = ttx.cffTable
+			? new InterpreterCFF2(ttx.cffTable)
+			: null;
+
 		if (ttx.glyphOrder) {
 			glyphs.length = ttx.glyphOrder.glyphIds.length;
 
@@ -450,17 +454,9 @@ export class FamilyService implements OnDestroy {
 				}
 
 				// Find program
-				if (ttx.cffTable) {
-					const charString = ttx.cffTable.cffFont.charStrings.get(glyph.name!);
-					if (charString) {
-						const vm = new InterpreterCFF2(charString.program);
-						vm.exec();
-
-						const outline = vm.path.clone();
-						outline.cleanup({ autoSmooth: true });
-
-						glyph.outline = outline;
-					}
+				if (vm) {
+					glyph.outline = vm.interpret(glyph.name);
+					glyph.outline.cleanup({ autoSmooth: true });
 				}
 
 				glyphs[i] = glyph;

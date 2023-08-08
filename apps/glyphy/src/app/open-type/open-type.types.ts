@@ -617,12 +617,12 @@ export class CFFTable extends XmlElement {
 	@child("minor", int) versionMinor!: number;
 
 	readonly cffFont: CFFFont;
-	readonly globalSubrs: Subrs;
+	readonly globalSubrs?: Subrs;
 
 	constructor (dom: Element) {
 		super(dom);
 		this.cffFont = this._children.find(instanceOf(CFFFont))!;
-		this.globalSubrs = this._children.find(it => it.nodeName === "GlobalSubrs") as Subrs;
+		this.globalSubrs = this._children.find(isGlobalSubrs);
 	}
 }
 
@@ -682,13 +682,13 @@ export class CFFFont extends XmlElement {
 	privateTable: CFFFontPrivateTable;
 	charStrings = new Map<string, CharString>();
 
-	private _charStrings: Subrs;
+	private _charStrings?: Subrs;
 
 	constructor (dom: Element) {
 		super(dom);
 
 		this.privateTable = this._children.find(instanceOf(CFFFontPrivateTable))!;
-		this._charStrings = this._children.find(it => it.nodeName === "CharStrings") as Subrs;
+		this._charStrings = this._children.find(isCharStrings);
 
 		this._charStrings?.value.forEach(it => {
 			if (it.name) this.charStrings.set(it.name, it);
@@ -698,11 +698,11 @@ export class CFFFont extends XmlElement {
 
 @Xml("Private")
 export class CFFFontPrivateTable extends XmlElement {
-	subrs: Subrs;
+	subrs?: Subrs;
 
 	constructor (dom: Element) {
 		super(dom);
-		this.subrs = this._children.find(instanceOf(Subrs))!;
+		this.subrs = this._children.find(isSubrs);
 	}
 }
 
@@ -716,6 +716,18 @@ export class Subrs extends XmlElement {
 		super(dom);
 		this.value = this._children.filter(instanceOf(CharString));
 	}
+}
+
+function isGlobalSubrs(element: XmlElement): element is Subrs {
+	return element.nodeName === "GlobalSubrs";
+}
+
+function isCharStrings(element: XmlElement): element is Subrs {
+	return element.nodeName === "CharStrings";
+}
+
+function isSubrs(element: XmlElement): element is Subrs {
+	return element.nodeName === "Subrs";
 }
 
 @Xml("CharString")

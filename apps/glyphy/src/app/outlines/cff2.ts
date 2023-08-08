@@ -1,6 +1,7 @@
-import { Const } from "@electric/utils";
+import { Const, exists } from "@electric/utils";
 
 import { Path } from "../glyph";
+import { CFFTable } from "../open-type";
 
 enum OpCode {
 	endchar          = 0x0E,
@@ -40,22 +41,47 @@ type CommandList = {
 }
 
 type Point = [number, number]
+type Stack = (Value | OpCode)[];
 
 export class InterpreterCFF2 {
-	private _stack: Array<Value | OpCode> = [];
-	private _program: string;
+	private _stack: Stack = [];
 	private _currentPoint: Point = [0, 0];
+	private _charStrings = new Map<string, Const<Stack>>();
+	private _subrs: Const<Stack>[] = [];
+	private _globalSubrs: Const<Stack>[] = [];
 
 	private _path = new Path();
 	get path(): Const<Path> { return this._path; }
 
-	constructor (program: string) {
-		this._program = program;
+	constructor (table: CFFTable) {
+		for (let charString of table.globalSubrs?.value ?? [])
+			this._globalSubrs.push(this.parse(charString.program));
+
+		for (let charString of table.cffFont.privateTable.subrs?.value ?? [])
+			this._subrs.push(this.parse(charString.program));
+
+		for (let [name, charString] of table.cffFont.charStrings)
+			this._charStrings.set(name, this.parse(charString.program));
 	}
 
-	exec(): void {
+	interpret(glyphName: string): Path {
 		this._currentPoint = [0, 0];
-		this._stack = this._program
+		this._path = new Path();
+
+		const stack = this._charStrings.get(glyphName);
+		if (!stack) {
+			console.error(`Failed to find glyph with name "${glyphName}"`);
+			return this._path;
+		}
+
+		this._stack = stack.slice();
+		this.eval();
+
+		return this._path;
+	}
+
+	private parse(charString: string): Const<Stack> {
+		return charString
 			.split(/\s+/)
 			.map(token => {
 				if (!token) return null;
@@ -69,10 +95,8 @@ export class InterpreterCFF2 {
 				console.warn(`Unhandled token: "${token}"`);
 				return null;
 			})
-			.filter(Boolean)
-			.reverse() as Array<Value | OpCode>;
-
-		this.eval(this._stack);
+			.filter(exists)
+			.reverse();
 	}
 
 	/**
@@ -80,34 +104,32 @@ export class InterpreterCFF2 {
 	 * @see https://adobe-type-tools.github.io/font-tech-notes/pdfs/T1_SPEC.pdf
 	 * @see https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf
 	 */
-	private eval(stack: ReadonlyArray<Value | OpCode>): void {
-		let ip = stack.length - 1;
+	private eval(): void {
+		let ip = this._stack.length - 1;
 		while (ip > 0) {
-			while (stack[--ip] instanceof Value);
+			while (this._stack[--ip] instanceof Value);
 			if (
-				stack[ip] === undefined
-				|| !((stack[ip] as OpCode) in OpCode)
+				this._stack[ip] === undefined
+				|| !((this._stack[ip] as OpCode) in OpCode)
 			) {
 				break;
 			}
 
-			const key = OpCode[stack[ip] as OpCode] as CommandKey;
+			const key = OpCode[this._stack[ip] as OpCode] as CommandKey;
 			const cmd = this[key] as (...args: number[]) => void;
 
-			const args = stack
+			const args = this._stack
 				.slice(ip + 1)
 				.reverse()
 				.map(v => (v as Value).value);
 
-			stack = stack.slice(0, ip);
+			this._stack = this._stack.slice(0, ip);
 
 			if (cmd.length && args.length > cmd.length)
 				console.warn(
 					`Operator "${cmd.name}" expects ${cmd.length} arguments, `
 					+ `but ${args.length} were provided!`
 				);
-
-			// console.log(`${cmd.name}(${args.join(", ")})`);
 
 			cmd.call(this, ...args);
 		}
