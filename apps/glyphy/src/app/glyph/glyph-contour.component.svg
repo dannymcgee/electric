@@ -115,3 +115,16 @@
 		/>
 	</ng-container>
 </ng-template>
+
+<svg:circle
+	*ngFor="let p of _debugPoints
+		let i = index"
+	[attr.cx]="p.x"
+	[attr.cy]="p.y"
+	[attr.fill]="
+		i == 0 ? 'red' :
+		i == 1 ? 'green' :
+		i == 2 ? 'blue'
+	          : 'magenta'"
+	r="6"
+/>

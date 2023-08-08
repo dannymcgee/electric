@@ -3,6 +3,7 @@ import {
 	ElementRef,
 	EventEmitter,
 	Input,
+	isDevMode,
 	OnDestroy,
 	Output,
 	TrackByFunction,
@@ -47,6 +48,8 @@ export class GlyphContourComponent implements OnDestroy {
 	@Output() update = new EventEmitter<UpdatePoint>();
 
 	trackByIndex: TrackByFunction<Point> = idx => idx;
+
+	_debugPoints?: Vec2[] = isDevMode() ? [] : undefined;
 
 	private _onDestroy$ = new Subject<void>();
 
@@ -99,12 +102,20 @@ export class GlyphContourComponent implements OnDestroy {
 
 		if (p.smooth) {
 			if (!p.handle_in || !p.handle_out) {
-				// FIXME: I picked the wrong level of abstraction for this component. >_<
-				//        I need to know the direction to the next or previous point
-				//        to know how to keep the three points collinear.
-				console.error("Can't move that point. For... reasons.");
+				const [handle, handleKey, refPoint] = !!p.handle_in
+					? [p.handle_in, "handle_in", this.c.points[(idx + 1) % this.c.points.length]] as const
+					: [p.handle_out!, "handle_out", this.c.points[idx - 1] ?? this.c.last] as const;
 
-				return;
+				const handleLen = vec2.dist(handle, oldCoords);
+				const direction = vec2.sub(coords, refPoint.coords).normalize();
+
+				updated[handleKey] = vec2.add(coords, vec2.mul(direction, handleLen));
+				updated.coords = coords;
+
+				return this.update.emit({
+					index: idx,
+					point: updated,
+				});
 			}
 
 			// TODO: Configurable keybindings

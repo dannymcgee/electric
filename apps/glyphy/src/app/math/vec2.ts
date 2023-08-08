@@ -10,9 +10,9 @@ export class Vec2 {
 	y: number;
 
 	/** Vector magnitude */
-	get mag(): number { return vec2.len(this); }
-	/** Squared vector magnitude (i.e. mag^2) */
-	get mag2(): number { return vec2.len2(this); }
+	get length(): number { return vec2.len(this); }
+	/** Squared vector magnitude (i.e. length^2) */
+	get length2(): number { return vec2.len2(this); }
 
 	constructor (x: number, y: number) {
 		this.x = x;
@@ -47,6 +47,22 @@ export class Vec2 {
 		this.y *= invLen;
 
 		return this;
+	}
+
+	/**
+	 * Computes the vector length and normalized direction in a single step and
+	 * returns the result. Does not modify the vector.
+	 */
+	lengthAndNormal(): [number, Vec2] {
+		const len = this.length;
+
+		if (nearlyEq(len, 0))
+			return [len, Vec2.zero];
+
+		const invLen = 1 / len;
+		const normal = vec2.mul(this, invLen);
+
+		return [len, normal];
 	}
 
 	join(sep: string): string {
