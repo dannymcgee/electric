@@ -3,6 +3,15 @@ import { Const, exists } from "@electric/utils";
 import { Path } from "../glyph";
 import { CFFTable } from "../open-type";
 
+enum HintOp {
+	hstem     = 0x01,
+	hstemhm,
+	vstem     = 0x03,
+	vstemhm,
+	cntrmask,
+	hintmask,
+}
+
 enum OpCode {
 	endchar          = 0x0E,
 	hsbw             = 0x0D,
@@ -19,36 +28,52 @@ enum OpCode {
 	vlineto          = 0x07,
 	vmoveto          = 0x04,
 	dotsection       = 0x0C_00,
-	hstem            = 0x01,
 	hstem3           = 0x0C_02,
-	vstem            = 0x03,
 	vstem3           = 0x0C_01,
 	div              = 0x0C_0C,
 	callothersubr    = 0x0C_10,
 	callsubr         = 0x0A,
+	callgsubr        = 0x1C,
 	pop              = 0x0C_11,
 	return           = 0x0B,
 	setcurrentpoint  = 0x0C_21,
 }
 
-class Value {
-	constructor (public value: number) {}
-}
-
-type CommandKey = Exclude<keyof typeof OpCode, "number">;
+type CommandKey = Exclude<(keyof typeof OpCode | keyof typeof HintOp), number>;
 type CommandList = {
 	[K in CommandKey]: (...args: number[]) => void;
 }
 
 type Point = [number, number]
-type Stack = (Value | OpCode)[];
+type Stack = (number | CommandKey)[];
+
+class Subroutines extends Array<Const<Stack>> {
+	private _bias?: number;
+	get bias() {
+		return this._bias ??=
+			this.length < 1240  ? 107 :
+			this.length < 33900 ? 1131
+			                    : 32768;
+	}
+
+	get(index: number): Const<Stack> | null {
+		const result = this[index + this.bias];
+		if (!result) {
+			console.error(`Couldn't find subroutine at index ${index + this.bias}!`);
+			console.error(this);
+			return null;
+		}
+
+		return result;
+	}
+}
 
 export class InterpreterCFF2 {
 	private _stack: Stack = [];
 	private _currentPoint: Point = [0, 0];
 	private _charStrings = new Map<string, Const<Stack>>();
-	private _subrs: Const<Stack>[] = [];
-	private _globalSubrs: Const<Stack>[] = [];
+	private _subrs = new Subroutines();
+	private _globalSubrs = new Subroutines();
 
 	private _path = new Path();
 	get path(): Const<Path> { return this._path; }
@@ -65,6 +90,8 @@ export class InterpreterCFF2 {
 	}
 
 	interpret(glyphName: string): Path {
+		console.log("");
+		console.log(`Interpreting glyph: "${glyphName}"`);
 		this._currentPoint = [0, 0];
 		this._path = new Path();
 
@@ -82,18 +109,25 @@ export class InterpreterCFF2 {
 
 	private parse(charString: string): Const<Stack> {
 		return charString
-			.split(/\s+/)
+			.split(/\r?\n/)
+			.flatMap(line => line
+				// FIXME: hintmask takes its single operand from the opposite end of
+				//        the stack compared to literally every operator and I just
+				//        cannot even
+				.replace(/hintmask [10]+/g, "")
+				.split(/\s+/)
+			)
 			.map(token => {
 				if (!token) return null;
 
 				if (/^[-.0-9]+$/.test(token))
-					return new Value(parseFloat(token));
+					return parseFloat(token);
 
-				if (token in OpCode)
-					return OpCode[token as keyof typeof OpCode];
+				if (token in OpCode || token in HintOp)
+					return token as CommandKey;
 
-				console.warn(`Unhandled token: "${token}"`);
-				return null;
+				console.error(`Unhandled token: "${token}"`);
+				return token as any;
 			})
 			.filter(exists)
 			.reverse();
@@ -105,33 +139,44 @@ export class InterpreterCFF2 {
 	 * @see https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf
 	 */
 	private eval(): void {
-		let ip = this._stack.length - 1;
-		while (ip > 0) {
-			while (this._stack[--ip] instanceof Value);
-			if (
-				this._stack[ip] === undefined
-				|| !((this._stack[ip] as OpCode) in OpCode)
-			) {
-				break;
+		const args: number[] = [];
+		while (this._stack.length) {
+			console.log(`stack: [${this._stack.join(" ")}]`);
+
+			args.length = 0;
+
+			let next = this._stack.pop();
+			while (typeof next === "number") {
+				args.push(next)
+				next = this._stack.pop();
 			}
 
-			const key = OpCode[this._stack[ip] as OpCode] as CommandKey;
-			const cmd = this[key] as (...args: number[]) => void;
+			if (next == null)
+				break;
 
-			const args = this._stack
-				.slice(ip + 1)
-				.reverse()
-				.map(v => (v as Value).value);
+			if (next in HintOp) {
+				console.warn(`SKIPPING: ${next}(${args.join(", ")})`);
+				continue;
+			}
 
-			this._stack = this._stack.slice(0, ip);
+			if (!(next in OpCode)) {
+				console.error(`SKIPPING: ${next}(${args.join(", ")})`);
+				continue;
+			}
 
-			if (cmd.length && args.length > cmd.length)
+			const cmd = this[next];
+			if (cmd.length && args.length > cmd.length && !/callg?subr/.test(cmd.name))
 				console.warn(
 					`Operator "${cmd.name}" expects ${cmd.length} arguments, `
 					+ `but ${args.length} were provided!`
 				);
 
-			cmd.call(this, ...args);
+			if (/callg?subr/.test(cmd.name))
+				args.reverse();
+			else
+				console.log(`${cmd.name}(${args.join(", ")})`);
+
+			(cmd as CommandList[CommandKey]).call(this, ...args);
 		}
 	}
 
@@ -226,7 +271,7 @@ export class InterpreterCFF2 {
 	 * itself) with unexpected results.
 	 */
 	private closepath(): void {
-		if (!this._path)
+		if (!this._path.contours.length)
 			return;
 
 		this._path.closePath();
@@ -602,49 +647,96 @@ export class InterpreterCFF2 {
 	private dotsection(): void {}
 
 	/**
-	 * declares the vertical range of a horizontal stem zone (see the following
-	 * section for more information about horizontal stem hints) between the y
-	 * coordinates y and y+dy, where y is relative to the y coordinate of the
-	 * left sidebearing point. Horizontal stem zones within a set of stem hints
-	 * for a single character may not overlap other horizontal stem zones. Use
-	 * hint replacement to avoid stem hint overlaps. For more details on hint
-	 * replacement, see section 8.1, “Changing Hints Within a Character,” in
-	 * Chapter 8, “Using Subroutines.”
+	 * behaves like `div` in the PostScript language.
 	 */
-	private hstem(y: number, dy: number): void {}
+	private div(num1: number, num2: number): void {}
 
 	/**
-	 * declares the vertical ranges of three horizontal stem zones between the y
-	 * coordinates y0 and y0 + dy0, y1 and y1 + dy1, and between y2 and y2 + dy2,
-	 * where y0, y1 and y2 are all relative to the y coordinate of the left
-	 * sidebearing point. The hstem3 command sorts these zones by the y values to
-	 * obtain the lowest, middle and highest zones, called ymin, ymid and ymax
-	 * respectively. The corresponding dy values are called dymin, dymid and
-	 * dymax. These stems and the counters between them will all be controlled.
-	 * These coordinates must obey certain restrictions:
-	 *
-	 * - dymin = dymax
-	 * - The distance from ymin + dymin/2 to ymid + dymid/2 must equal the
-	 *   distance from ymid + dymid/2 to ymax + dymax/2. In other words, the
-	 *   distance from the center of the bottom stem to the center of the middle
-	 *   stem must be the same as the distance from the center of the middle stem
-	 *   to the center of the top stem.
-	 *
-	 * If a charstring uses an hstem3 command in the hints for a character, the
-	 * charstring must not use hstem commands and it must use the same hstem3
-	 * command consistently if hint replacement is performed.
-	 *
-	 * The hstem3 command is especially suited for controlling the stems and
-	 * counters of symbols with three horizontally oriented features with equal
-	 * vertical widths and with equal white space between these features, such as
-	 * the mathematical equivalence symbol or the division symbol.
+	 * is a mechanism used by Type 1 BuildChar to make calls on the PostScript
+	 * interpreter. Arguments argn through arg1 are pushed onto the PostScript
+	 * interpreter operand stack, and the PostScript language procedure in the
+	 * othersubr# position in the OtherSubrs array in the Private dictionary (or
+	 * a built-in function equivalent to this procedure) is executed. Note that
+	 * the argument order will be reversed when pushed onto the PostScript
+	 * interpreter operand stack. After the arguments are pushed onto the
+	 * PostScript interpreter operand stack, the PostScript interpreter performs
+	 * a begin operation on systemdict followed by a begin operation on the font
+	 * dictionary prior to executing the OtherSubrs entry. When the OtherSubrs
+	 * entry completes its execution, the PostScript interpreter performs two end
+	 * operations prior to returning to Type 1 BuildChar charstring execution.
+	 * Use pop commands to retrieve results from the PostScript operand stack
+	 * back to the Type 1 BuildChar operand stack. See Chapter 8, “Using
+	 * Subroutines,” for details on using callothersubr.
 	 */
-	private hstem3(
-		y0: number, dy0: number,
-		y1: number, dy1: number,
-		y2: number, dy2: number,
-	): void {}
+	private callothersubr(othersubr: number, n: number, ...args: number[]): void {}
 
+	/**
+	 * calls a charstring subroutine with index subr# from the Subrs array in the
+	 * Private dictionary. Each element of the Subrs array is a charstring
+	 * encoded and encrypted like any other charstring. Arguments pushed on the
+	 * Type 1 BuildChar operand stack prior to calling the subroutine, and
+	 * results pushed on this stack by the subroutine, act according to the
+	 * manner in which the subroutine is coded. These subroutines are generally
+	 * used to encode sequences of path commands that are repeated throughout the
+	 * font program, for example, serif outline sequences. Subroutine calls may
+	 * be nested 10 deep. See Chapter 8, “Using Subroutines,” for other uses for
+	 * subroutines, such as changing hints.
+	 */
+	private callsubr(index: number, ...args: number[]): void {
+		console.log(`callsubr(${index + this._subrs.bias}, ${args.join(", ")})`);
+		const subrStack = this._subrs.get(index);
+		if (!subrStack) return;
+
+		this._stack.push(...subrStack);
+		this._stack.push(...args);
+		// while (args.length)
+		// 	this._stack.push(args.pop()!);
+	}
+
+	/**
+	 * Operates in the same manner as `callsubr` except that it calls a global
+	 * subroutine.
+	 */
+	private callgsubr(index: number, ...args: number[]): void {
+		console.log(`callgsubr(${index + this._globalSubrs.bias}, ${args.join(", ")})`);
+		const subrStack = this._globalSubrs.get(index);
+		if (!subrStack) return;
+
+		this._stack.push(...subrStack);
+		this._stack.push(...args);
+		// while (args.length)
+		// 	this._stack.push(args.pop()!);
+	}
+
+	/**
+	 * removes a number from the top of the PostScript interpreter operand stack
+	 * and pushes that number onto the Type 1 BuildChar operand stack. This
+	 * command is used only to retrieve a result from an OtherSubrs procedure.
+	 * For more details, see Chapter 8, “Using Subroutines.”
+	 */
+	private pop(): void {}
+
+	/**
+	 * returns from a Subrs array charstring subroutine (that had been called
+	 * with a callsubr command) and continues execution in the calling
+	 * charstring.
+	 */
+	private return(...args: number[]): void {
+		while (args.length)
+			this._stack.push(args.pop()!);
+		// this._stack.push(...args); // TODO: Is that the correct order?
+	}
+
+	/**
+	 * sets the current point in the Type 1 font format BuildChar to (x, y) in
+	 * absolute character space coordinates without performing a charstring
+	 * moveto command. This establishes the current point for a subsequent
+	 * relative path building command. The setcurrentpoint command is used only
+	 * in conjunction with results from OtherSubrs procedures.
+	 */
+	private setcurrentpoint(x: number, y: number): void {}
+
+	// TODO: Hinting
 	/**
 	 * declares the horizontal range of a vertical stem zone (see the following
 	 * section for more information about vertical stem hints) between the x
@@ -688,66 +780,53 @@ export class InterpreterCFF2 {
 	): void {}
 
 	/**
-	 * behaves like `div` in the PostScript language.
+	 * declares the vertical range of a horizontal stem zone (see the following
+	 * section for more information about horizontal stem hints) between the y
+	 * coordinates y and y+dy, where y is relative to the y coordinate of the
+	 * left sidebearing point. Horizontal stem zones within a set of stem hints
+	 * for a single character may not overlap other horizontal stem zones. Use
+	 * hint replacement to avoid stem hint overlaps. For more details on hint
+	 * replacement, see section 8.1, “Changing Hints Within a Character,” in
+	 * Chapter 8, “Using Subroutines.”
 	 */
-	private div(num1: number, num2: number): void {}
+	private hstem(y: number, dy: number): void {}
 
 	/**
-	 * is a mechanism used by Type 1 BuildChar to make calls on the PostScript
-	 * interpreter. Arguments argn through arg1 are pushed onto the PostScript
-	 * interpreter operand stack, and the PostScript language procedure in the
-	 * othersubr# position in the OtherSubrs array in the Private dictionary (or
-	 * a built-in function equivalent to this procedure) is executed. Note that
-	 * the argument order will be reversed when pushed onto the PostScript
-	 * interpreter operand stack. After the arguments are pushed onto the
-	 * PostScript interpreter operand stack, the PostScript interpreter performs
-	 * a begin operation on systemdict followed by a begin operation on the font
-	 * dictionary prior to executing the OtherSubrs entry. When the OtherSubrs
-	 * entry completes its execution, the PostScript interpreter performs two end
-	 * operations prior to returning to Type 1 BuildChar charstring execution.
-	 * Use pop commands to retrieve results from the PostScript operand stack
-	 * back to the Type 1 BuildChar operand stack. See Chapter 8, “Using
-	 * Subroutines,” for details on using callothersubr.
+	 * declares the vertical ranges of three horizontal stem zones between the y
+	 * coordinates y0 and y0 + dy0, y1 and y1 + dy1, and between y2 and y2 + dy2,
+	 * where y0, y1 and y2 are all relative to the y coordinate of the left
+	 * sidebearing point. The hstem3 command sorts these zones by the y values to
+	 * obtain the lowest, middle and highest zones, called ymin, ymid and ymax
+	 * respectively. The corresponding dy values are called dymin, dymid and
+	 * dymax. These stems and the counters between them will all be controlled.
+	 * These coordinates must obey certain restrictions:
+	 *
+	 * - dymin = dymax
+	 * - The distance from ymin + dymin/2 to ymid + dymid/2 must equal the
+	 *   distance from ymid + dymid/2 to ymax + dymax/2. In other words, the
+	 *   distance from the center of the bottom stem to the center of the middle
+	 *   stem must be the same as the distance from the center of the middle stem
+	 *   to the center of the top stem.
+	 *
+	 * If a charstring uses an hstem3 command in the hints for a character, the
+	 * charstring must not use hstem commands and it must use the same hstem3
+	 * command consistently if hint replacement is performed.
+	 *
+	 * The hstem3 command is especially suited for controlling the stems and
+	 * counters of symbols with three horizontally oriented features with equal
+	 * vertical widths and with equal white space between these features, such as
+	 * the mathematical equivalence symbol or the division symbol.
 	 */
-	private callothersubr(othersubr: number, n: number, ...args: number[]): void {}
+	private hstem3(
+		y0: number, dy0: number,
+		y1: number, dy1: number,
+		y2: number, dy2: number,
+	): void {}
 
-	/**
-	 * calls a charstring subroutine with index subr# from the Subrs array in the
-	 * Private dictionary. Each element of the Subrs array is a charstring
-	 * encoded and encrypted like any other charstring. Arguments pushed on the
-	 * Type 1 BuildChar operand stack prior to calling the subroutine, and
-	 * results pushed on this stack by the subroutine, act according to the
-	 * manner in which the subroutine is coded. These subroutines are generally
-	 * used to encode sequences of path commands that are repeated throughout the
-	 * font program, for example, serif outline sequences. Subroutine calls may
-	 * be nested 10 deep. See Chapter 8, “Using Subroutines,” for other uses for
-	 * subroutines, such as changing hints.
-	 */
-	private callsubr(subr: number): void {}
-
-	/**
-	 * removes a number from the top of the PostScript interpreter operand stack
-	 * and pushes that number onto the Type 1 BuildChar operand stack. This
-	 * command is used only to retrieve a result from an OtherSubrs procedure.
-	 * For more details, see Chapter 8, “Using Subroutines.”
-	 */
-	private pop(): void {}
-
-	/**
-	 * returns from a Subrs array charstring subroutine (that had been called
-	 * with a callsubr command) and continues execution in the calling
-	 * charstring.
-	 */
-	private return(): void {}
-
-	/**
-	 * sets the current point in the Type 1 font format BuildChar to (x, y) in
-	 * absolute character space coordinates without performing a charstring
-	 * moveto command. This establishes the current point for a subsequent
-	 * relative path building command. The setcurrentpoint command is used only
-	 * in conjunction with results from OtherSubrs procedures.
-	 */
-	private setcurrentpoint(x: number, y: number): void {}
+	private hstemhm(...args: number[]): void {}
+	private vstemhm(...args: number[]): void {}
+	private cntrmask(...args: number[]): void {}
+	private hintmask(...args: number[]): void {}
 
 	// TODO:
 	// hhcurveto
