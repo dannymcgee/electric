@@ -69,3 +69,9 @@
 		visibility: hidden;
 	}
 }
+
+.outline {
+	stroke: color.foreground() {
+		width: calc(var(--path-thickness) * var(--scale-factor));
+	}
+}
