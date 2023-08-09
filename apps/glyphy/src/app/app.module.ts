@@ -40,7 +40,7 @@ import {
 	GlyphEditorComponent,
 	GlyphMetricsComponent,
 } from "./glyph";
-import { TransformDirective } from "./math";
+import { HybridCoordSpaceTransformDirective, TransformDirective } from "./math";
 import {
 	CffProgramPipe,
 	HexPipe,
@@ -76,6 +76,7 @@ import {
 		GlyphEditorComponent,
 		GlyphMetricsComponent,
 		HexPipe,
+		HybridCoordSpaceTransformDirective,
 		NewFamilyDialog,
 		ParentFolderExistsValidator,
 		TargetFolderIsNewValidator,

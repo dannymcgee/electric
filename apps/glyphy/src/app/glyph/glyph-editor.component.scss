@@ -68,9 +68,29 @@
 .pointer-coords {
 	@include layout.absolute(null, null, 0, 0);
 	padding: a11y.rem(16);
+	background: color.background(200);
 	color: color.foreground(500);
 
 	span {
 		display: block;
+	}
+}
+
+.metrics-text {
+	// FIXME: This scales with the viewport height in a bad way.
+	//        Using SVG for glyph rendering is becoming really problematic.
+	font-size: a11y.rem(20);
+	fill: color.foreground(500) {
+		opacity: 0.6
+	}
+	user-select: none;
+
+	&.base,
+	&.background {
+		fill-opacity: 1;
+	}
+
+	&.background {
+		fill: color.background(200);
 	}
 }

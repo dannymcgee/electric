@@ -13,7 +13,7 @@ import {
 	TrackByFunction,
 	ViewChild,
 } from "@angular/core";
-import { ElxResizeObserver } from "@electric/ng-utils";
+import { ElxResizeObserver, ResizeEntry } from "@electric/ng-utils";
 import {
 	assert,
 	Const,
@@ -25,18 +25,20 @@ import {
 import {
 	BehaviorSubject,
 	combineLatest,
+	distinctUntilChanged,
 	filter,
 	fromEvent,
 	map,
 	merge,
 	Observable,
 	scan,
+	shareReplay,
 	Subject,
 	takeUntil,
 } from "rxjs";
 
 import { FamilyService } from "../family";
-import { Matrix, Vec2, vec2 } from "../math";
+import { Matrix, nearlyEq, Vec2, vec2 } from "../math";
 import { getViewBox, ViewBox } from "../util/viewbox";
 import { Glyph } from "./glyph";
 import { Contour, Point } from "./path";
@@ -81,8 +83,8 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	ModifierKey = ModifierKey; // For template access
 	_modifiers: ModifierKey[] = [];
 
-	_clientToView?: Matrix;
-	private _viewToClient?: Matrix;
+	_clientToView = Matrix.Identity;
+	_viewToClient = Matrix.Identity;
 	private _viewBoxTransform?: Matrix;
 
 	private _panOffset = Matrix.translate(0, 0);
@@ -97,8 +99,6 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	// Either way, I'm still hitting 60 frames with plenty of overhead, so
 	// optimization will be a problem for Future Danny.
 	get renderTransform() {
-		if (!this._clientToView) return Matrix.Identity;
-
 		return Matrix.concat(...[
 			this._clientToView,
 			this._panOffset,
@@ -109,8 +109,6 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	}
 
 	get clientToGlyphCoords() {
-		if (!this._clientToView) return Matrix.Identity;
-
 		return Matrix.concat(
 			this.renderTransform.inverse(),
 			this._clientToView,
@@ -118,12 +116,14 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	}
 
 	_viewBox$ = new BehaviorSubject<ViewBox|null>(null);
+	_contentRect$?: Observable<DOMRect>;
 
 	trackByIndex: TrackByFunction<Const<Contour>> = (idx, _) => idx;
 
 	private _zoomFactor$ = new BehaviorSubject<number>(1.333333);
+	private _resize$?: Observable<ResizeEntry<HTMLElement>>;
 	private _scaleFactor$?: Observable<number>;
-	private _viewChange$?: Observable<[number, ViewBox]>;
+	private _viewChange$?: Observable<[number, ViewBox, ResizeEntry<HTMLElement>]>;
 	private _onDestroy$ = new Subject<void>();
 
 	constructor (
@@ -136,10 +136,28 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	ngOnChanges(changes: SimpleChanges): void {
 		if ("glyph" in changes && this.glyph) {
 			if (changes["glyph"].firstChange) {
+				this._resize$ = this._resizeObserver
+					.observe(this._elRef)
+					.pipe(
+						shareReplay(),
+						takeUntil(this._onDestroy$),
+					);
+
+				this._contentRect$ = this._resize$.pipe(
+					distinctUntilChanged(({ contentRect: a }, { contentRect: b }) => (
+						nearlyEq(a.x, b.x)
+						&& nearlyEq(a.y, b.y)
+						&& nearlyEq(a.width, b.width)
+						&& nearlyEq(a.height, b.height)
+					)),
+					map(() => this._elRef.nativeElement.getBoundingClientRect()),
+					takeUntil(this._onDestroy$),
+				);
+
 				this._scaleFactor$ = combineLatest([
 					this._familyService.family$,
 					this._zoomFactor$,
-					this._resizeObserver.observe(this._elRef),
+					this._resize$,
 				]).pipe(
 					filter(([family]) => exists(family)),
 					map(([family, zoom, resize]) => {
@@ -156,6 +174,7 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 				this._viewChange$ = combineLatest([
 					this._scaleFactor$,
 					this._viewBox$.pipe(filter(exists)),
+					this._resize$,
 				]).pipe(
 					takeUntil(this._onDestroy$),
 				);

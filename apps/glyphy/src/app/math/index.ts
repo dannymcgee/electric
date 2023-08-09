@@ -1,3 +1,4 @@
+export * from "./hybrid-coord-space.directive";
 export * from "./matrix";
 export * from "./transform.directive";
 export * from "./util";

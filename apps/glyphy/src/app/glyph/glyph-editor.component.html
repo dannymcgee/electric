@@ -11,6 +11,66 @@
 		[scaleFactor]="_scaleFactor"
 	/>
 
+	<ng-container *ngIf="(_familyService.family$ | async) as family">
+	<ng-container *ngIf="(_contentRect$ | async) as rect">
+		<rect class="metrics-text background"
+			[gTransform]="_clientToView"
+			[attr.x]="rect.x"
+			[attr.y]="rect.y"
+			[attr.width]="72"
+			[attr.height]="rect.height"
+		/>
+
+		<text class="metrics-text asc"
+			gHybridCoordSpace
+			[xTransform]="_clientToView"
+			[xPosition]="rect.x + 16"
+			[yTransform]="renderTransform"
+			[yPosition]="family.ascender"
+		>
+			asc
+		</text>
+		<text class="metrics-text caps"
+			*ngIf="family.capHeight"
+			gHybridCoordSpace
+			[xTransform]="_clientToView"
+			[xPosition]="rect.x + 16"
+			[yTransform]="renderTransform"
+			[yPosition]="family.capHeight"
+		>
+			caps
+		</text>
+		<text class="metrics-text x-hgt"
+			*ngIf="family.xHeight"
+			gHybridCoordSpace
+			[xTransform]="_clientToView"
+			[xPosition]="rect.x + 16"
+			[yTransform]="renderTransform"
+			[yPosition]="family.xHeight"
+		>
+			x-hgt
+		</text>
+		<text class="metrics-text base"
+			gHybridCoordSpace
+			[xTransform]="_clientToView"
+			[xPosition]="rect.x + 16"
+			[yTransform]="renderTransform"
+			[yPosition]="0"
+		>
+			base
+		</text>
+		<text class="metrics-text desc"
+			gHybridCoordSpace
+			[xTransform]="_clientToView"
+			[xPosition]="rect.x + 16"
+			[yTransform]="renderTransform"
+			[yPosition]="family.descender"
+		>
+			desc
+		</text>
+	</ng-container>
+	</ng-container>
+
 	<g class="pointer">
 		<line
 			*ngIf="_modifiers.includes(ModifierKey.Control)"
