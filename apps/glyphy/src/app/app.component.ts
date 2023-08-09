@@ -19,7 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
 	openGlyphs$ = new Subject<Glyph[]>();
 	activeTabIndex = 0;
 
-	glyphTabHasher: TrackByFunction<Glyph> = (_, glyph) => glyph.fontStyle + glyph.name;
+	glyphTabHasher: TrackByFunction<Glyph> = (_, glyph) => `${glyph.fontStyle} ${glyph.name}`;
 
 	private _openGlyphsMap = new Map<Font, Glyph[]>();
 	private _onDestroy$ = new Subject<void>();

@@ -428,7 +428,7 @@ export class FamilyService implements OnDestroy {
 			for (let i = 0; i < ttx.glyphOrder.glyphIds.length; ++i) {
 				const glyphId = ttx.glyphOrder.glyphIds[i];
 				const glyph = new Glyph(
-					`${FontWeight[weight]} ${style}`.trim(),
+					`${weightName} ${style}`.trim(),
 					glyphId.name,
 					glyphId.id,
 				);
