@@ -10,6 +10,7 @@ export enum FontWeight {
 	Thin       = 100,
 	ExtraLight = 200,
 	Light      = 300,
+	SemiLight  = 350,
 	Regular    = 400,
 	Medium     = 500,
 	SemiBold   = 600,
@@ -25,7 +26,8 @@ export enum FontStyle {
 }
 
 export class Font {
-	weight: FontWeight;
+	weight: FontWeight | number;
+	weightName: string;
 	style: FontStyle;
 	italicAngle = 0;
 
@@ -35,7 +37,7 @@ export class Font {
 	}
 
 	get styleName() {
-		return `${FontWeight[this.weight]} ${this.style}`.trim();
+		return `${this.weightName} ${this.style}`.trim();
 	}
 
 	get fullName() {
@@ -68,12 +70,14 @@ export class Font {
 	constructor (
 		family: FontFamily,
 		weight: FontWeight = FontWeight.Regular,
+		weightName = FontWeight[weight],
 		style: FontStyle = FontStyle.Upright,
 		italicAngle?: number,
 		glyphs?: Glyph[],
 	) {
 		this._family = family;
 		this.weight = weight;
+		this.weightName = weightName,
 		this.style = style;
 		this.italicAngle = italicAngle ?? match(style, {
 			[FontStyle.Upright]: () => 0,

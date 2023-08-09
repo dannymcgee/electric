@@ -208,7 +208,12 @@ export class FamilyService implements OnDestroy {
 
 			this.sortGlyphs(glyphs);
 
-			fonts.push(new Font(family, weight, style, italicAngle, glyphs));
+			fonts.push(new Font(
+				family,
+				weight, FontWeight[weight], // FIXME
+				style, italicAngle,
+				glyphs,
+			));
 		}
 
 		this._family$.next(family);
@@ -389,17 +394,8 @@ export class FamilyService implements OnDestroy {
 			// TODO: Check if we can merge into active family
 		}
 
-		// TODO: Yikes
-		const weight = ttx.os_2?.usWeightClass
-			?? (ttx.cffTable?.cffFont?.weight
-					? FontWeight[ttx.cffTable.cffFont.weight as keyof typeof FontWeight]
-					: undefined)
-			?? (ttx.head?.macStyle != null
-					? ((ttx.head.macStyle & MacStyleFlags.Bold)
-						? FontWeight.Bold
-						: FontWeight.Regular)
-					: FontWeight.Regular
-				);
+		const weight = ttx.os_2?.usWeightClass ?? FontWeight.Regular;
+		const weightName = ttx.cffTable?.cffFont.weight ?? FontWeight[weight] ?? "Regular";
 
 		// TODO: Yikes
 		const style
@@ -465,7 +461,7 @@ export class FamilyService implements OnDestroy {
 
 		this.sortGlyphs(glyphs);
 
-		return new Font(family, weight, style, italicAngle, glyphs);
+		return new Font(family, weight, weightName, style, italicAngle, glyphs);
 	}
 
 	private sortGlyphs(glyphs: Glyph[]): void {
