@@ -1,7 +1,9 @@
+@use "elx/a11y";
 @use "elx/layout";
 @use "elx/style/color";
 
 :host {
+	position: relative;
 	@include layout.flex;
 	width: 100%;
 	height: 100%;
@@ -55,10 +57,20 @@
 	:host-context(.pan-mode) & {
 		visibility: hidden;
 	}
+}
 
-	text {
-		stroke: none;
-		fill: color.foreground(500);
-		user-select: none;
+.ui-overlay {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.pointer-coords {
+	@include layout.absolute(null, null, 0, 0);
+	padding: a11y.rem(16);
+	color: color.foreground(500);
+
+	span {
+		display: block;
 	}
 }
