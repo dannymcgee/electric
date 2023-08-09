@@ -2,6 +2,7 @@
 
 .g-glyph-metrics {
 	stroke: var(--metrics-color, #{color.background(600)});
+	stroke-width: calc(var(--scale-factor) * var(--line-thickness));
 	stroke-opacity: 0.4;
 
 	&__baseline,
@@ -12,6 +13,6 @@
 
 	&__asc,
 	&__dsc {
-		stroke-dasharray: calc(4 * var(--stroke-width));
+		stroke-dasharray: calc(4 * var(--scale-factor) * var(--line-thickness));
 	}
 }

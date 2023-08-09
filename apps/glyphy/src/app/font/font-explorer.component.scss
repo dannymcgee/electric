@@ -5,6 +5,8 @@
 @use "elx/style/type";
 
 :host {
+	--scale-factor: calc(((var(--ascender) - var(--descender)) * 1.333333) / 96);
+
 	@include scrollbar(200);
 	@include layout.flex(column);
 	width: 100%;
@@ -41,7 +43,7 @@
 }
 
 .glyph {
-	--width: calc(100% / var(--cols));
+	--width: calc(100% / var(--cols, 13));
 
 	@include layout.flex($dir:column);
 	flex: 0 0 var(--width);

@@ -4,17 +4,12 @@ import {
 	Component,
 	HostBinding,
 	Input,
-	OnDestroy,
-	OnInit,
-	Optional,
 	ViewEncapsulation,
 } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
 
 import { FamilyService } from "../family";
 import { ViewBox } from "../util";
 import { Glyph } from "./glyph";
-import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 
 @Component({
 	selector: "g[g-glyph-metrics]",
@@ -23,11 +18,14 @@ import { GlyphScaleFactorProvider } from "./glyph-scale-factor.service";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 })
-export class GlyphMetricsComponent implements OnInit, OnDestroy {
+export class GlyphMetricsComponent {
 	@Input() glyph?: Glyph;
-	@Input() lineThickness = 1;
 	@Input() viewBox?: ViewBox;
 
+	@HostBinding("style.--line-thickness")
+	@Input() lineThickness = 1;
+
+	@HostBinding("style.--scale-factor")
 	@Input()
 	get scaleFactor() { return this._scaleFactor; }
 	set scaleFactor(value) {
@@ -46,26 +44,8 @@ export class GlyphMetricsComponent implements OnInit, OnDestroy {
 	@HostBinding("style.--stroke-width")
 	_strokeWidth = 1;
 
-	private _onDestroy$ = new Subject<void>();
-
 	constructor (
 		private _cdRef: ChangeDetectorRef,
 		public _family: FamilyService,
-		@Optional() private _scaleProvider: GlyphScaleFactorProvider,
 	) {}
-
-	ngOnInit(): void {
-		this._scaleProvider
-			?.scaleFactor$
-			.pipe(takeUntil(this._onDestroy$))
-			.subscribe(scaleFactor => {
-				this._strokeWidth = scaleFactor * this.lineThickness;
-				this._cdRef.markForCheck();
-			});
-	}
-
-	ngOnDestroy(): void {
-		this._onDestroy$.next();
-		this._onDestroy$.complete();
-	}
 }

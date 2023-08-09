@@ -1,16 +1,15 @@
 import {
 	ChangeDetectorRef,
 	Component,
-	ElementRef,
 	EventEmitter,
 	HostBinding,
 	OnDestroy,
 	OnInit,
 	Output,
 } from "@angular/core";
-import { ElxResizeObserver, ResizeEntry } from "@electric/ng-utils";
-import { anim } from "@electric/style";
-import { debounceTime, map, Observable, Subject, takeUntil } from "rxjs";
+import { ResizeEntry } from "@electric/ng-utils";
+import { exists } from "@electric/utils";
+import { filter, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { FamilyService } from "../family";
 import { Glyph } from "../glyph";
@@ -28,7 +27,13 @@ class UnicodeGroup {
 })
 export class FontExplorerComponent implements OnInit, OnDestroy {
 	@HostBinding("style.--cols")
-	cols = 12;
+	cols = 13;
+
+	@HostBinding("style.--ascender")
+	ascender?: number;
+
+	@HostBinding("style.--descender")
+	descender?: number;
 
 	@Output() openGlyph = new EventEmitter<Glyph>();
 
@@ -42,12 +47,20 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
-		private _elementRef: ElementRef<HTMLElement>,
 		private _familyService: FamilyService,
-		private _resizeObserver: ElxResizeObserver,
 	) {}
 
 	ngOnInit(): void {
+		this._familyService.family$
+			.pipe(
+				filter(exists),
+				takeUntil(this._onDestroy$),
+			)
+			.subscribe(family => {
+				this.ascender = family.ascender;
+				this.descender = family.descender;
+			});
+
 		this.unicodeGroups$ = this._familyService.font$.pipe(
 			map(font => {
 				if (!font) return [];
@@ -94,21 +107,6 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 			}),
 			takeUntil(this._onDestroy$),
 		);
-
-		this._resizeObserver
-			.observe(this._elementRef)
-			.pipe(
-				debounceTime(anim.frameTime(1)),
-				takeUntil(this._onDestroy$),
-			)
-			.subscribe({
-				next: entry => {
-					this.onResize(entry);
-				},
-				complete: () => {
-					this._resizeObserver.unobserve(this._elementRef);
-				},
-			});
 	}
 
 	ngOnDestroy(): void {
@@ -116,6 +114,9 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 		this._onDestroy$.complete();
 	}
 
+	// FIXME: This is slow and janky since it needs to run post-render/layout.
+	// Should just compute the ideal columns per screen-width offline and set
+	// them up via media queries in CSS
 	private onResize(entry: ResizeEntry<HTMLElement>): void {
 		const { width } = entry.contentRect;
 		const glyphHeight = 96;

@@ -1,3 +1,4 @@
+<ng-container *ngIf="ascender != null && descender != null">
 <ng-container
 	*ngIf="groupByCharacterSet && (unicodeGroups$ | async) as unicodeGroups
 	else flat"
@@ -32,6 +33,7 @@
 			</div>
 		</section>
 	</ng-container>
+</ng-container>
 </ng-container>
 
 <ng-template #flat>

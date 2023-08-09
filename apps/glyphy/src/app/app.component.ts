@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit, TrackByFunction } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
-import { Subject } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { Font, NewFont } from "./font";
 import { Glyph } from "./glyph";
@@ -11,7 +11,7 @@ import { FamilyService, NewFontFamily } from "./family";
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.scss"],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 	get maximized() { return this._win.maximized }
 	set maximized(_) { this._win.toggleMaximized() }
 
@@ -22,6 +22,7 @@ export class AppComponent implements OnInit {
 	glyphTabHasher: TrackByFunction<Glyph> = (_, glyph) => glyph.fontStyle + glyph.name;
 
 	private _openGlyphsMap = new Map<Font, Glyph[]>();
+	private _onDestroy$ = new Subject<void>();
 
 	constructor (
 		@Inject(WINDOW_PROVIDER) private _win: WindowProvider,
@@ -29,13 +30,20 @@ export class AppComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		this._familyService.font$.subscribe(font => {
-			this.activeTabIndex = 0;
-			if (!font) return;
+		this._familyService.font$
+			.pipe(takeUntil(this._onDestroy$))
+			.subscribe(font => {
+				this.activeTabIndex = 0;
+				if (!font) return;
 
-			// TODO: Remember the last open glyph editor for a given font
-			this.openGlyphs$.next(this._openGlyphsMap.get(font) ?? []);
-		});
+				// TODO: Remember the last open glyph editor for a given font
+				this.openGlyphs$.next(this._openGlyphsMap.get(font) ?? []);
+			});
+	}
+
+	ngOnDestroy(): void {
+		this._onDestroy$.next();
+		this._onDestroy$.complete();
 	}
 
 	async minimize() {

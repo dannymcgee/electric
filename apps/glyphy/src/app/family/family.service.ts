@@ -25,13 +25,13 @@ interface FamilyManifest {
 	providedIn: "root",
 })
 export class FamilyService implements OnDestroy {
-	get family$() { return this._family$.asObservable(); }
-	get family() { return this._family$.value; }
 	private _family$ = new BehaviorSubject<FontFamily | null>(null);
+	get family() { return this._family$.value; }
+	family$ = this._family$.asObservable();
 
-	get fonts$() { return this._fonts$.asObservable() as Observable<readonly Font[]>; }
-	get fonts() { return this._fonts$.value as readonly Font[]; }
 	private _fonts$ = new BehaviorSubject<Font[]>([]);
+	get fonts() { return this._fonts$.value as readonly Font[]; }
+	fonts$ = this._fonts$.asObservable() as Observable<readonly Font[]>;
 
 	get font$() { return this._font$.asObservable(); }
 	get font() { return this._font$.value; }
@@ -235,11 +235,14 @@ export class FamilyService implements OnDestroy {
 
 			if (!result) return;
 
+			// FIXME: Try running this in a web worker for each font so we don't
+			// lock up the UI while trying to import a whole family.
 			const fonts = Array.isArray(result)
 				? await Promise.all(result.map(it => this.importFromOpenType(it)))
 				: [await this.importFromOpenType(result)];
 
 			if (!this._fonts$.value.length) {
+				this.sortFonts(fonts);
 				this._fonts$.next(fonts);
 				this._font$.next(fonts[0] ?? null);
 			}
@@ -345,17 +348,18 @@ export class FamilyService implements OnDestroy {
 		dest.forEach(addFont);
 		src.forEach(addFont);
 
-		result.sort((a, b) => {
+		this.sortFonts(result);
+
+		return result;
+	}
+
+	private sortFonts(fonts: Font[]): void {
+		fonts.sort((a, b) => {
 			if (a.weight !== b.weight)
 				return a.weight - b.weight;
 
-			if (a.style === FontStyle.Upright)
-				return -1;
-
-			return 1;
+			return b.italicAngle - a.italicAngle;
 		});
-
-		return result;
 	}
 
 	private async importFromOpenType(otfPath: string): Promise<Font> {
