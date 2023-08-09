@@ -66,7 +66,7 @@ export class XmlElement {
 				if (XML_LUT.has(child.nodeName))
 					return new (XML_LUT.get(child.nodeName)!)(child);
 
-				console.warn(`Unhandled XML element: <${child.nodeName} />`)
+				// console.warn(`Unhandled XML element: <${child.nodeName} />`)
 				return null;
 			})
 			.filter(exists);
