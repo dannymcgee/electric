@@ -19,9 +19,10 @@ curve manipulation, but saving and exporting are not yet implemented.
 
 ## Take it for a spin
 
-- [Install Rust](https://www.rust-lang.org/learn/get-started) if you don't already have it
-- Install [Node.js LTS](https://nodejs.org/en) if you don't already have that
-- Install dependencies:
+- Install [Python 3.8+](https://www.python.org/) and [FontTools](https://github.com/fonttools/fonttools)
+- Install [Rust](https://www.rust-lang.org/learn/get-started)
+- Install [Node.js LTS](https://nodejs.org/en) (v16+)
+- Install JavaScript dependencies:
 ```sh
 npm install
 ```
