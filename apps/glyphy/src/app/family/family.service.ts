@@ -456,8 +456,7 @@ export class FamilyService implements OnDestroy {
 				// Find program
 				if (vm) {
 					glyph.outline = vm.interpret(glyph.name);
-					// TODO
-					// glyph.outline.cleanup({ autoSmooth: true });
+					glyph.outline.cleanup({ autoSmooth: true });
 				}
 
 				glyphs[i] = glyph;

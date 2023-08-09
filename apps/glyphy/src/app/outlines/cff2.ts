@@ -15,28 +15,36 @@ enum HintOp {
 enum OpCode {
 	endchar          = 0x0E,
 	hsbw             = 0x0D,
-	seac             = 0x0C_06,
-	sbw              = 0x0C_07,
 	closepath        = 0x09,
 	hlineto          = 0x06,
 	hmoveto          = 0x16,
 	hvcurveto        = 0x1F,
 	rlineto          = 0x05,
 	rmoveto          = 0x15,
+	rcurveline       = 0x18,
+	rlinecurve       = 0x19,
+	vvcurveto        = 0x1A,
+	hhcurveto        = 0x1B,
 	rrcurveto        = 0x08,
 	vhcurveto        = 0x1E,
 	vlineto          = 0x07,
 	vmoveto          = 0x04,
-	dotsection       = 0x0C_00,
-	hstem3           = 0x0C_02,
-	vstem3           = 0x0C_01,
-	div              = 0x0C_0C,
-	callothersubr    = 0x0C_10,
 	callsubr         = 0x0A,
 	callgsubr        = 0x1C,
-	pop              = 0x0C_11,
 	return           = 0x0B,
+	dotsection       = 0x0C_00,
+	vstem3           = 0x0C_01,
+	hstem3           = 0x0C_02,
+	seac             = 0x0C_06,
+	sbw              = 0x0C_07,
+	div              = 0x0C_0C,
+	callothersubr    = 0x0C_10,
+	pop              = 0x0C_11,
 	setcurrentpoint  = 0x0C_21,
+	hflex            = 0x0C_22,
+	flex             = 0x0C_23,
+	hflex1           = 0x0C_24,
+	flex1            = 0x0C_25,
 }
 
 type CommandKey = Exclude<(keyof typeof OpCode | keyof typeof HintOp), number>;
@@ -90,8 +98,8 @@ export class InterpreterCFF2 {
 	}
 
 	interpret(glyphName: string): Path {
-		console.log("");
-		console.log(`Interpreting glyph: "${glyphName}"`);
+		// console.log("");
+		// console.log(`Interpreting glyph: "${glyphName}"`);
 		this._currentPoint = [0, 0];
 		this._path = new Path();
 
@@ -111,10 +119,11 @@ export class InterpreterCFF2 {
 		return charString
 			.split(/\r?\n/)
 			.flatMap(line => line
-				// FIXME: hintmask takes its single operand from the opposite end of
-				//        the stack compared to literally every operator and I just
-				//        cannot even
-				.replace(/hintmask [10]+/g, "")
+				// hintmasks are presented with the operand _before_ the operator,
+				// unlike all of the other commands. The reason why may become clear
+				// when I get around to implementing hints, but in the meantime I'll
+				// flip these for the sake of my sanity.
+				.replace(/(hintmask) ([10]+)/g, "$2 $1")
 				.split(/\s+/)
 			)
 			.map(token => {
@@ -136,13 +145,12 @@ export class InterpreterCFF2 {
 	/**
 	 * @see https://learn.microsoft.com/en-us/typography/opentype/spec/cff2charstr
 	 * @see https://adobe-type-tools.github.io/font-tech-notes/pdfs/T1_SPEC.pdf
+	 * @see https://adobe-type-tools.github.io/font-tech-notes/pdfs/5177.Type2.pdf
 	 * @see https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf
 	 */
 	private eval(): void {
 		const args: number[] = [];
 		while (this._stack.length) {
-			console.log(`stack: [${this._stack.join(" ")}]`);
-
 			args.length = 0;
 
 			let next = this._stack.pop();
@@ -154,10 +162,8 @@ export class InterpreterCFF2 {
 			if (next == null)
 				break;
 
-			if (next in HintOp) {
-				console.warn(`SKIPPING: ${next}(${args.join(", ")})`);
+			if (next in HintOp)
 				continue;
-			}
 
 			if (!(next in OpCode)) {
 				console.error(`SKIPPING: ${next}(${args.join(", ")})`);
@@ -165,17 +171,25 @@ export class InterpreterCFF2 {
 			}
 
 			const cmd = this[next];
-			if (cmd.length && args.length > cmd.length && !/callg?subr/.test(cmd.name))
+
+			if (/callg?subr/.test(cmd.name)) {
+				const arg = args.pop()!;
+				(cmd as CommandList[CommandKey]).call(this, arg);
+
+				while (args.length)
+					this._stack.push(args.pop()!);
+
+				continue;
+			}
+
+			if (cmd.length && args.length > cmd.length) {
 				console.warn(
 					`Operator "${cmd.name}" expects ${cmd.length} arguments, `
 					+ `but ${args.length} were provided!`
 				);
+			}
 
-			if (/callg?subr/.test(cmd.name))
-				args.reverse();
-			else
-				console.log(`${cmd.name}(${args.join(", ")})`);
-
+			// console.log(`${cmd.name}(${args.join(", ")})`);
 			(cmd as CommandList[CommandKey]).call(this, ...args);
 		}
 	}
@@ -356,24 +370,33 @@ export class InterpreterCFF2 {
 		...dya_dxb_dyb_dxc__dxd_dxe_dye_dyf__dxf: number[]
 	): void;
 
+	/**
+	 * @param args
+	 *      dx1 dx2 dy2 dy3 {dya dxb dyb dxc   dxd dxe dye dyf}*  dxf?
+	 * OR: {dxa dxb dyb dyc  dyd dxe dye dxf}+ dyf?
+	 */
 	private hvcurveto(...args: number[]): void {
-		if (args.length % 4 === 0) {
-			for (let i = 0; i*4 < args.length; ++i) {
-				if (i % 2 === 0) {
-					const [dx1, dx2, dy2, dy3] = args.slice(i*4, i*4+4);
-					// console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
-					this.rrcurveto(dx1, 0, dx2, dy2, 0, dy3);
-				}
-				else {
-					const [dy1, dx2, dy2, dx3] = args.slice(i*4, i*4+4);
-					// console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
-					this.rrcurveto(0, dy1, dx2, dy2, dx3, 0);
-				}
+		let i = 0;
+		while (args.length) {
+			let dx1 = 0, dy1 = 0,
+				dx2 = 0, dy2 = 0,
+				dx3 = 0, dy3 = 0;
+
+			if (i++ % 2 === 0)
+				[dx1, dx2, dy2, dy3] = args.splice(0, 4);
+			else
+				[dy1, dx2, dy2, dx3] = args.splice(0, 4);
+
+			if (args.length === 1) {
+				// _After_ an even number of iterations -- note the i++ above
+				if (i % 2 === 0)
+					dy3 = args.pop()!;
+				else
+					dx3 = args.pop()!;
 			}
-		} else {
-			console.warn(
-				`hvcurveto currently only supports args in multiples of 4, received ${args.length}`
-			);
+
+			// console.log(`  rrcurveto(${dx1},${dy1}, ${dx2},${dy2}, ${dx3},${dy3})`);
+			this.rrcurveto(dx1, dy1, dx2, dy2, dx3, dy3);
 		}
 	}
 
@@ -416,6 +439,94 @@ export class InterpreterCFF2 {
 	}
 
 	/**
+	 * @param args {dxa dya dxb dyb dxc dyc}+ dxd dyd
+	 *
+	 * Is equivalent to one `rrcurveto` for each set of six arguments
+	 * `dxa`...`dyc`, followed by exactly one `rlineto` using the `dxd`, `dyd`
+	 * arguments. The number of curves is determined from the count on the
+	 * argument stack.
+	 */
+	private rcurveline(...args: number[]): void {
+		while (args.length) {
+			if (args.length > 2) {
+				const [dxa, dya, dxb, dyb, dxc, dyc] = args.splice(0, 6);
+				// console.log(`  rrcurveto(${dxa}, ${dya}, ${dxb}, ${dyb}, ${dxc}, ${dyc})`);
+				this.rrcurveto(dxa, dya, dxb, dyb, dxc, dyc);
+			}
+			else {
+				const [dx, dy] = args.splice(0, 2);
+				// console.log(`  rlineto(${dx}, ${dy})`);
+				this.rlineto(dx, dy);
+			}
+		}
+	}
+
+	/**
+	 * @param args {dxa dya}+ dxb dyb dxc dyc dxd dyd
+	 *
+	 * Is equivalent to one `rlineto` for each pair of arguments beyond the six
+	 * arguments `dxb`...`dyd` needed for the one `rrcurveto` command. The number
+	 * of lines is determined from the count of items on the argument stack.
+	 */
+	private rlinecurve(...args: number[]): void {
+		const rlinetoArgsLength = args.length - 6;
+		const rlinetoArgs = args.splice(0, rlinetoArgsLength);
+
+		// console.log(`  rlineto(${rlinetoArgs.join(", ")})`);
+		this.rlineto(...rlinetoArgs);
+		// console.log(`  rrcurveto(${args.join(", ")})`);
+		this.rrcurveto(...args);
+	}
+
+	/**
+	 * @param args dx1? {dya dxb dyb dyc}+
+	 *
+	 * Appends one or more curves to the current point. If the argument count is
+	 * a multiple of four, the curve starts and ends vertical. If the argument
+	 * count is odd, the first curve does not begin with a vertical tangent.
+	 */
+	private vvcurveto(...args: number[]): void {
+		const dx1 = (args.length % 4)
+			? args.shift()!
+			: 0;
+
+		const [dya, dxb, dyb, dyc] = args.splice(0, 4);
+		// console.log(`  rrcurveto(${dx1}, ${dya}, ${dxb}, ${dyb}, 0, ${dyc})`);
+		this.rrcurveto(dx1, dya, dxb, dyb, 0, dyc);
+
+		while (args.length) {
+			const [dya, dxb, dyb, dyc] = args.splice(0, 4);
+			// console.log(`  rrcurveto(0, ${dya}, ${dxb}, ${dyb}, 0, ${dyc})`);
+			this.rrcurveto(0, dya, dxb, dyb, 0, dyc);
+		}
+	}
+
+	/**
+	 * @param args dy1? {dxa dxb dyb dxc}+
+	 *
+	 * Appends one or more Bézier curves, as described by the `dxa`...`dxc` set
+	 * of arguments, to the current point. For each curve, if there are 4
+	 * arguments, the curve starts and ends horizontal. The first curve need not
+	 * start horizontal (the odd argument case). Note the argument order for the
+	 * odd argument case.
+	 */
+	private hhcurveto(...args: number[]): void {
+		const dy1 = (args.length % 4)
+			? args.shift()!
+			: 0;
+
+		const [dxa, dxb, dyb, dxc] = args.splice(0, 4);
+		// console.log(`  rrcurveto(${dxa}, ${dy1}, ${dxb}, ${dyb}, ${dxc}, 0)`);
+		this.rrcurveto(dxa, dy1, dxb, dyb, dxc, 0);
+
+		while (args.length) {
+			const [dxa, dxb, dyb, dxc] = args.splice(0, 4);
+			// console.log(`  rrcurveto(${dxa}, 0, ${dxb}, ${dyb}, ${dxc}, 0)`);
+			this.rrcurveto(dxa, 0, dxb, dyb, dxc, 0);
+		}
+	}
+
+	/**
 	 * appends a straight line segment to the current path (see Section 4.4,
 	 * "Path Construction"), starting from the current point and extending to the
 	 * coordinates (x,y) in user space. The endpoint (x,y) becomes the new
@@ -450,6 +561,7 @@ export class InterpreterCFF2 {
 		const [x0, y0] = this._currentPoint;
 		const x1 = x0+dx, y1 = y0+dy;
 
+		// console.log(`  moveto(${x1}, ${y1})`);
 		this.moveto(x1, y1);
 	}
 
@@ -497,6 +609,7 @@ export class InterpreterCFF2 {
 
 		for (let i = 0; i < args.length; i += 6) {
 			const [dx1, dy1, dx2, dy2, dx3, dy3] = args.slice(i, i+6);
+			// console.log(`  rcurveto(${dx1}, ${dy1}, ${dx1+dx2}, ${dy1+dy2}, ${dx1+dx2+dx3}, ${dy1+dy2+dy3})`);
 			this.rcurveto(dx1, dy1, (dx1+dx2), (dy1+dy2), (dx1+dx2+dx3), (dy1+dy2+dy3));
 		}
 	}
@@ -519,7 +632,7 @@ export class InterpreterCFF2 {
 		const x1 = x0+dx1, y1 = y0+dy1;
 		const x2 = x0+dx2, y2 = y0+dy2;
 		const x3 = x0+dx3, y3 = y0+dy3;
-
+		// console.log(`  curveto(${x1},${y1}, ${x2},${y2}, ${x3},${y3})`);
 		this.curveto(x1, y1, x2, y2, x3, y3);
 	}
 
@@ -568,23 +681,33 @@ export class InterpreterCFF2 {
 		...rest: number[]
 	): void;
 
+	/**
+	 * @param args
+	 *      dy1 dx2 dy2 dx3 {dxa dxb dyb dyc   dyd dxe dye dxf}* dyf?
+	 * OR: {dya dxb dyb dxc  dxd dxe dye dyf}+ dxf?
+	 */
 	private vhcurveto(...args: number[]): void {
-		if (args.length % 4 === 0) {
-			for (let i = 0; i*4 < args.length; ++i) {
-				if (i % 2 === 0) {
-					const [dy1, dx2, dy2, dx3] = args.slice(i*4, i*4+4);
-					// console.log(`...vhcurveto(${dy1}, ${dx2}, ${dy2}, ${dx3})`);
-					this.rrcurveto(0, dy1, dx2, dy2, dx3, 0);
-				}
-				else {
-					const [dx1, dx2, dy2, dy3] = args.slice(i*4, i*4+4);
-					// console.log(`...hvcurveto(${dx1}, ${dx2}, ${dy2}, ${dy3})`);
-					this.rrcurveto(dx1, 0, dx2, dy2, 0, dy3);
+		let i = 0;
+		while (args.length) {
+			let dx1 = 0, dy1 = 0,
+				dx2 = 0, dy2 = 0,
+				dx3 = 0, dy3 = 0;
 
-				}
+			if (i++ % 2 === 0)
+				[dy1, dx2, dy2, dx3] = args.splice(0, 4);
+			else
+				[dx1, dx2, dy2, dy3] = args.splice(0, 4);
+
+			if (args.length === 1) {
+				// _After_ an even number of iterations -- note the i++ above
+				if (i % 2 === 0)
+					dx3 = args.pop()!;
+				else
+					dy3 = args.pop()!;
 			}
-		} else {
-			`vhcurveto currently only supports args in multiples of 4, received ${args.length}`
+
+			// console.log(`  rrcurveto(${dx1},${dy1}, ${dx2},${dy2}, ${dx3},${dy3})`);
+			this.rrcurveto(dx1, dy1, dx2, dy2, dx3, dy3);
 		}
 	}
 
@@ -682,30 +805,24 @@ export class InterpreterCFF2 {
 	 * be nested 10 deep. See Chapter 8, “Using Subroutines,” for other uses for
 	 * subroutines, such as changing hints.
 	 */
-	private callsubr(index: number, ...args: number[]): void {
-		console.log(`callsubr(${index + this._subrs.bias}, ${args.join(", ")})`);
+	private callsubr(index: number): void {
+		// console.log(`callsubr(${index} <${index + this._subrs.bias}>)`);
 		const subrStack = this._subrs.get(index);
 		if (!subrStack) return;
 
 		this._stack.push(...subrStack);
-		this._stack.push(...args);
-		// while (args.length)
-		// 	this._stack.push(args.pop()!);
 	}
 
 	/**
 	 * Operates in the same manner as `callsubr` except that it calls a global
 	 * subroutine.
 	 */
-	private callgsubr(index: number, ...args: number[]): void {
-		console.log(`callgsubr(${index + this._globalSubrs.bias}, ${args.join(", ")})`);
+	private callgsubr(index: number): void {
+		// console.log(`callgsubr(${index} <${index + this._globalSubrs.bias}>)`);
 		const subrStack = this._globalSubrs.get(index);
 		if (!subrStack) return;
 
 		this._stack.push(...subrStack);
-		this._stack.push(...args);
-		// while (args.length)
-		// 	this._stack.push(args.pop()!);
 	}
 
 	/**
@@ -724,7 +841,6 @@ export class InterpreterCFF2 {
 	private return(...args: number[]): void {
 		while (args.length)
 			this._stack.push(args.pop()!);
-		// this._stack.push(...args); // TODO: Is that the correct order?
 	}
 
 	/**
@@ -735,6 +851,135 @@ export class InterpreterCFF2 {
 	 * in conjunction with results from OtherSubrs procedures.
 	 */
 	private setcurrentpoint(x: number, y: number): void {}
+
+	/**
+	 * @param args dx1 dx2 dy2 dx3 dx4 dx5 dx6
+	 *
+	 * Causes the two curves described by the arguments `dx1`...`dx6` to be
+	 * rendered as a straight line when the flex depth is less than 0.5 (that is,
+	 * fd is 50) device pixels, and as curved lines when the flex depth is
+	 * greater than or equal to 0.5 device pixels.
+	 *
+	 * hflex is used when the following are all true:
+	 *  - The starting and ending points, first and last control points have the
+	 *    same y value.
+	 *  - The joining point and the neighbor control points have the same y
+	 *    value.
+	 *  - The flex depth is 50.
+	 */
+	private hflex(
+		dx1: number,
+		dx2: number, dy2: number,
+		dx3: number,
+		dx4: number,
+		dx5: number,
+		dx6: number,
+	): void {
+		this.flex(
+			dx1, dy2, dx2, dy2, dx3, dy2,
+			dx4, dy2, dx5, dy2, dx6, dy2,
+			50,
+		);
+	}
+
+	/**
+	 * @param args dx1 dy1 dx2 dy2 dx3 dy3 dx4 dy4 dx5 dy5 dx6 dy6 fd
+	 *
+	 * Causes two Bézier curves, as described by the arguments (as shown in
+	 * Figure 2 below), to be rendered as a straight line when the flex depth is
+	 * less than fd/100 device pixels, and as curved lines when the flex depth is
+	 * greater than or equal to fd/100 device pixels. The flex depth for a
+	 * horizontal curve, as shown in Figure 2, is the distance from the join
+	 * point to the line connecting the start and end points on the curve. If the
+	 * curve is not exactly horizontal or vertical, it must be determined whether
+	 * the curve is more horizontal or vertical by the method described in the
+	 * flex1 description, below, and as illustrated in Figure 3.
+	 *
+	 * > Note: In cases where some of the points have the same x or y coordinate
+	 * > as other points in the curves, arguments may be omitted by using one of
+	 * > the following forms of the flex operator: hflex, hflex1, or flex1.
+	 *
+	 * @see [Figure 2](https://learn.microsoft.com/en-us/typography/opentype/spec/cff2charstr#Figure2)
+	 * @see [Figure 3](https://learn.microsoft.com/en-us/typography/opentype/spec/cff2charstr#Figure3)
+	 */
+	private flex(
+		dx1: number, dy1: number, dx2: number, dy2: number, dx3: number, dy3: number,
+		dx4: number, dy4: number, dx5: number, dy5: number, dx6: number, dy6: number,
+		fd: number,
+	): void {
+		// TODO: Implement the actual "flex" functionality
+		// FIXME: Really not sure what I'm doing wrong here, but this is not
+		//        working as expected at all
+		this.rrcurveto(
+			dx1, dy1, dx2, dy2, dx3, dy3,
+			dx4, dy4, dx5, dy5, dx6, dy6,
+		);
+	}
+
+	/**
+	 * @param args dx1 dy1 dx2 dy2 dx3 dx4 dx5 dy5 dx6
+	 *
+	 * Causes the two curves described by the arguments to be rendered as a
+	 * straight line when the flex depth is less than 0.5 device pixels, and as
+	 * curved lines when the flex depth is greater than or equal to 0.5 device
+	 * pixels.
+	 *
+	 * hflex1 is used if the conditions for hflex are not met but all of the
+	 * following are true:
+	 *  - The starting and ending points have the same y value.
+	 *  - The joining point and the neighbor control points have the same y
+	 *    value.
+	 *  - The flex depth is 50.
+	 */
+	private hflex1(
+		dx1: number, dy1: number, dx2: number, dy2: number, dx3: number,
+		dx4: number,              dx5: number, dy5: number, dx6: number,
+	): void {
+		this.flex(
+			dx1, dy1, dx2, dy2, dx3, dy2,
+			dx4, dy2, dx5, dy5, dx6, dy1,
+			50,
+		);
+	}
+
+	/**
+	 * @param args dx1 dy1 dx2 dy2 dx3 dy3 dx4 dy4 dx5 dy5 d6
+	 *
+	 * Causes the two curves described by the arguments to be rendered as a
+	 * straight line when the flex depth is less than 0.5 device pixels, and as
+	 * curved lines when the flex depth is greater than or equal to 0.5 device
+	 * pixels.
+	 *
+	 * The `d6` argument will be either a `dx` or `dy` value, depending on the curve
+	 * (see Figure 3). To determine the correct value, compute the distance from
+	 * the starting point (x, y), the first point of the first curve, to the last
+	 * flex control point (dx5, dy5) by summing all the arguments except d6; call
+	 * this (dx, dy). If abs(dx) > abs(dy), then the last point’s x-value is
+	 * given by d6, and its y-value is equal to y. Otherwise, the last point’s
+	 * x-value is equal to x and its y-value is given by d6.
+	 *
+	 * flex1 is used if the conditions for hflex and hflex1 are not met but all
+	 * of the following are true:
+	 *  - The starting and ending points have the same x or y value.
+	 *  - The flex depth is 50.
+	 */
+	private flex1(
+		dx1: number, dy1: number, dx2: number, dy2: number, dx3: number, dy3: number,
+		dx4: number, dy4: number, dx5: number, dy5: number, d6: number,
+	): void {
+		const [x, y] = this._currentPoint;
+		const dx = dx1 + dx2 + dx3 + dx4 + dx5;
+		const dy = dy1 + dy2 + dy3 + dy4 + dy5;
+
+		const [dx6, dy6] = Math.abs(dx) > Math.abs(dy) ? [d6, dy1] : [dx1, d6];
+
+		this.flex(
+			dx1, dy1, dx2, dy2, dx3, dy3,
+			dx4, dy4, dx5, dy5, dx6, dy6,
+			50,
+		);
+	}
+
 
 	// TODO: Hinting
 	/**
@@ -827,14 +1072,4 @@ export class InterpreterCFF2 {
 	private vstemhm(...args: number[]): void {}
 	private cntrmask(...args: number[]): void {}
 	private hintmask(...args: number[]): void {}
-
-	// TODO:
-	// hhcurveto
-	// rcurveline
-	// rlinecurve
-	// vvcurveto
-	// flex
-	// hflex
-	// hflex1
-	// flex1
 }
