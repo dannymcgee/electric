@@ -1,4 +1,5 @@
 import {
+	ChangeDetectorRef,
 	Directive,
 	Injectable,
 	Input,
@@ -59,6 +60,7 @@ export class DeferredRenderDirective implements OnInit {
 	proxyTemplate!: TemplateRef<void>;
 
 	constructor (
+		private _cdRef: ChangeDetectorRef,
 		private _renderService: DeferredRenderService,
 		private _template: TemplateRef<void>,
 		private _viewContainer: ViewContainerRef,
@@ -77,6 +79,7 @@ export class DeferredRenderDirective implements OnInit {
 	render(): void {
 		this._viewContainer.clear();
 		this._viewContainer.createEmbeddedView(this._template);
+		this._cdRef.markForCheck();
 	}
 }
 
