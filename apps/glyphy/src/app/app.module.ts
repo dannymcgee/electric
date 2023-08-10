@@ -46,6 +46,7 @@ import {
 	CanvasRenderer,
 	LineRenderer,
 	PathRenderer,
+	PointRenderer,
 	RectRenderer,
 } from "./render";
 import {
@@ -90,6 +91,7 @@ import {
 		NewFamilyDialog,
 		ParentFolderExistsValidator,
 		PathRenderer,
+		PointRenderer,
 		RectRenderer,
 		TargetFolderIsNewValidator,
 		TransformDirective,

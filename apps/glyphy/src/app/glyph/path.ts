@@ -369,8 +369,10 @@ export class Path implements IPath {
 	}
 
 	moveTo(x: number, y: number, smooth?: boolean) {
+		if (this.lastPoint)
+			this.closePath();
+
 		this._commands.push(pathCommand(PathOp.MoveTo, x, y, smooth));
-		this.contours[this.contours.length-1]?.close();
 		this.contours.push(new Contour([new Point(x, y, smooth)]));
 	}
 

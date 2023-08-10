@@ -19,23 +19,23 @@ export class LineRenderer extends BaseRenderer implements RenderElement {
 	@Input() y2 = 0;
 
 	onDraw(ctx: CanvasRenderingContext2D): void {
-		console.log("LineRenderer:", ctx.getTransform());
-
 		if (!this.stroke || !this.strokeWidth)
 			return;
 
-		if (this.transform !== Matrix.Identity)
-			ctx.setTransform(this.transform.toDomMatrix());
+		let [x1, x2] = [this.x1, this.x2];
+		let [y1, y2] = [this.y1, this.y2];
+
+		if (this.transform !== Matrix.Identity) {
+			ctx.setTransform(this.transform.mul(devicePixelRatio).toDomMatrix());
+		}
+		else {
+			[x1, x2] = [this.transformX(this.x1), this.transformX(this.x2)];
+			[y1, y2] = [this.transformY(this.y1), this.transformY(this.y2)];
+		}
 
 		ctx.beginPath();
-		ctx.moveTo(
-			this.transformX(this.x1),
-			this.transformY(this.y1),
-		);
-		ctx.lineTo(
-			this.transformX(this.x2),
-			this.transformY(this.y2),
-		);
+		ctx.moveTo(x1, y1);
+		ctx.lineTo(x2, y2);
 
 		ctx.resetTransform();
 

@@ -18,8 +18,6 @@ export class RectRenderer extends BaseRenderer implements RenderElement, Rect {
 	@Input() height = 0;
 
 	onDraw(ctx: CanvasRenderingContext2D): void {
-		console.log("RectRenderer:", ctx.getTransform());
-
 		if (!this.width || !this.height)
 			return;
 

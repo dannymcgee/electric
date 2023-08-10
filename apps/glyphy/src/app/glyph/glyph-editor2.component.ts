@@ -6,8 +6,11 @@ import {
 	HostBinding,
 	HostListener,
 	Input,
+	OnChanges,
 	OnDestroy,
 	OnInit,
+	SimpleChanges,
+	TrackByFunction,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
 import { ElxResizeObserver } from "@electric/ng-utils";
@@ -33,6 +36,22 @@ import { FamilyService } from "../family";
 import { Matrix, nearlyEq, vec2 } from "../math";
 import { Rect } from "../render";
 import { Glyph } from "./glyph";
+import { Point } from "./path";
+
+class EditorPoint extends Point {
+	readonly contourIndex: number;
+	readonly pointIndex: number;
+
+	constructor (ci: number, pi: number, point: Const<Point>) {
+		super(point.x, point.y, point.smooth, point.hidden);
+
+		this.handle_in = point.handle_in;
+		this.handle_out = point.handle_out;
+
+		this.contourIndex = ci;
+		this.pointIndex = pi;
+	}
+}
 
 @Component({
 	selector: "g-glyph-editor",
@@ -40,7 +59,7 @@ import { Glyph } from "./glyph";
 	styleUrls: ["./glyph-editor2.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GlyphEditor2Component implements OnInit, OnDestroy {
+export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
 	// Configuration
 	@Input() glyph!: Glyph;
 	@Input() metricsThickness = 1;
@@ -58,6 +77,7 @@ export class GlyphEditor2Component implements OnInit, OnDestroy {
 	panAndZoom$ = this._panAndZoom$.pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
 	marquee: Option<Rect> = null;
+	points: EditorPoint[] = [];
 
 	// Transforms
 	contentRect$?: Observable<DOMRect>;
@@ -65,6 +85,12 @@ export class GlyphEditor2Component implements OnInit, OnDestroy {
 	canvasToGlyph$?: Observable<Const<Matrix>>;
 
 	private _onDestroy$ = new Subject<void>();
+
+	trackPoint: TrackByFunction<EditorPoint> = (_, p) => {
+		return this.points.length << 8
+			& p.contourIndex << 16
+			& p.pointIndex << 24;
+	}
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
@@ -130,6 +156,23 @@ export class GlyphEditor2Component implements OnInit, OnDestroy {
 			shareReplay({ bufferSize: 1, refCount: true }),
 			takeUntil(this._onDestroy$),
 		);
+	}
+
+	ngOnChanges(changes: SimpleChanges): void {
+		if ("glyph" in changes) {
+			if (!this.glyph.outline) {
+				this.points = [];
+				return;
+			}
+
+			const { contours } = this.glyph.outline;
+
+			this.points = contours.flatMap((contour, ci) =>
+				contour.points
+					.map((point, pi) => new EditorPoint(ci, pi, point))
+					.filter(p => !p.hidden)
+			);
+		}
 	}
 
 	ngOnDestroy(): void {
