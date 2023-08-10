@@ -1,4 +1,5 @@
 import {
+	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	EventEmitter,
@@ -27,6 +28,7 @@ const FONT_GROUPS_LUT = new Map<Font, UnicodeGroup[]>();
 	selector: "g-font-explorer",
 	templateUrl: "./font-explorer.component.html",
 	styleUrls: ["./font-explorer.component.scss"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FontExplorerComponent implements OnInit, OnDestroy {
 	@HostBinding("style.--cols")
