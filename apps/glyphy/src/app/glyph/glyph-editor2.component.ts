@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	ElementRef,
+	HostBinding,
 	HostListener,
 	Input,
 	OnDestroy,
@@ -21,6 +22,7 @@ import {
 	map,
 	Observable,
 	race,
+	scan,
 	shareReplay,
 	Subject,
 	takeUntil,
@@ -28,7 +30,7 @@ import {
 } from "rxjs";
 
 import { FamilyService } from "../family";
-import { Matrix, nearlyEq } from "../math";
+import { Matrix, nearlyEq, vec2 } from "../math";
 import { Rect } from "../render";
 import { Glyph } from "./glyph";
 
@@ -39,19 +41,28 @@ import { Glyph } from "./glyph";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlyphEditor2Component implements OnInit, OnDestroy {
+	// Configuration
 	@Input() glyph!: Glyph;
 	@Input() metricsThickness = 1;
 	@Input() pathThickness = 1;
 	@Input() handleThickness = 1;
 
-	marquee: Option<Rect> = null;
+	// User input / events
+	@HostBinding("class.pan-mode")
+	isPanMode = false;
 
-	contentRect$?: Observable<DOMRect>;
-	glyphToCanvas$?: Observable<Const<Matrix>>;
-	canvasToGlyph$?: Observable<Const<Matrix>>;
+	@HostBinding("class.panning")
+	isPanning = false;
 
 	private _panAndZoom$ = new BehaviorSubject<Matrix>(Matrix.Identity as Matrix);
 	panAndZoom$ = this._panAndZoom$.pipe(shareReplay({ bufferSize: 1, refCount: true }));
+
+	marquee: Option<Rect> = null;
+
+	// Transforms
+	contentRect$?: Observable<DOMRect>;
+	glyphToCanvas$?: Observable<Const<Matrix>>;
+	canvasToGlyph$?: Observable<Const<Matrix>>;
 
 	private _onDestroy$ = new Subject<void>();
 
@@ -128,10 +139,87 @@ export class GlyphEditor2Component implements OnInit, OnDestroy {
 		this._panAndZoom$.complete();
 	}
 
+	@HostListener("window:keydown", ["$event"])
+	onKeyDown(event: KeyboardEvent): void {
+		// TODO: Make hotkeys configurable
+		if (event.key === " ")
+			this.isPanMode = true;
+	}
+
+	@HostListener("window:keyup", ["$event"])
+	onKeyUp(event: KeyboardEvent): void {
+		if (event.key === " ")
+			this.isPanMode = false;
+	}
+
 	@HostListener("pointerdown", ["$event"])
 	onPointerDown(event: PointerEvent): void {
-		if (event.button === 0)
+		// TODO: Make pan button configurable
+		if (event.button === 1
+			|| (event.button === 0 && this.isPanMode))
+		{
+			this.beginPan();
+		}
+		else if (event.button === 0) {
 			this.beginMarqueeSelect(event);
+		}
+	}
+
+	@HostListener("wheel", ["$event"])
+	onWheel({ deltaY, offsetX, offsetY }: WheelEvent): void {
+		const delta = deltaY / (175 * 7.5); // TODO: Adjustable sensitivity
+		this.adjustZoom(delta, offsetX, offsetY);
+	}
+
+	private beginPan(): void {
+		this.isPanning = true;
+
+		fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove")
+			.pipe(
+				scan((accum, event) => ({
+					prev: accum.current,
+					current: event,
+				}), {
+					prev: null as Option<PointerEvent>,
+					current: null as Option<PointerEvent>,
+				}),
+				map(({ prev, current }) => {
+					if (!current || !prev) return vec2(0, 0);
+					return vec2(
+						current.clientX - prev.clientX,
+						current.clientY - prev.clientY,
+					);
+				}),
+				takeUntil(race(
+					fromEvent(this._ref.nativeElement, "pointerleave"),
+					fromEvent(document, "pointerup"),
+					this._onDestroy$,
+				)),
+			)
+			.subscribe({
+				next: ({ x: dx, y: dy }) => {
+					const matrix = this._panAndZoom$.value;
+
+					this._panAndZoom$.next(Matrix.concat(
+						matrix,
+						Matrix.translate(dx, dy),
+					));
+				},
+				complete: () => {
+					this.isPanning = false;
+				},
+			});
+	}
+
+	private adjustZoom(delta: number, originX: number, originY: number): void {
+		const matrix = this._panAndZoom$.value;
+
+		this._panAndZoom$.next(Matrix.concat(
+			matrix,
+			Matrix.translate(-originX, -originY),
+			Matrix.scale(1 - delta),
+			Matrix.translate(originX, originY),
+		));
 	}
 
 	private beginMarqueeSelect(event: PointerEvent): void {
