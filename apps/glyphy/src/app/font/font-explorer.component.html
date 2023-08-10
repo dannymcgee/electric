@@ -3,16 +3,23 @@
 	*ngIf="groupByCharacterSet && (unicodeGroups$ | async) as unicodeGroups
 	else flat"
 >
-	<ng-container *ngFor="let group of unicodeGroups">
+	<ng-container
+		*ngFor="let group of unicodeGroups
+			let groupIndex = index"
+	>
 		<section class="unicode-group"
 			*ngIf="group.glyphs.length"
 		>
 			<h2 class="unicode-group__heading">
 				{{ group.name }}
 			</h2>
-			<div class="glyphs">
+			<div class="glyphs"
+				*elxDeferRenderWhen="groupIndex > 3
+					proxy: dummyUnicodeGroup"
+			>
 				<div class="glyph"
-					*ngFor="let glyph of group.glyphs"
+					*ngFor="let glyph of group.glyphs
+						let i = index"
 					(dblclick)="openGlyph.emit(glyph)"
 				>
 					<svg class="glyph__svg"
@@ -35,6 +42,10 @@
 	</ng-container>
 </ng-container>
 </ng-container>
+
+<ng-template #dummyUnicodeGroup>
+	<div class="glyphs" style="height: 256px"></div>
+</ng-template>
 
 <ng-template #flat>
 	<ng-container *ngIf="(font$ | async) as font">

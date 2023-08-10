@@ -13,12 +13,15 @@ import { filter, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { FamilyService } from "../family";
 import { Glyph } from "../glyph";
+import { Font } from "./font";
 import { UNICODE_RANGES } from "./unicode-ranges";
 
 class UnicodeGroup {
 	glyphs: Glyph[] = [];
 	constructor (public name: string) {}
 }
+
+const FONT_GROUPS_LUT = new Map<Font, UnicodeGroup[]>();
 
 @Component({
 	selector: "g-font-explorer",
@@ -65,6 +68,11 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 			map(font => {
 				if (!font) return [];
 
+				if (FONT_GROUPS_LUT.has(font))
+					return FONT_GROUPS_LUT.get(font)!;
+
+				// performance.mark("unicodeGroups.map.start");
+
 				const groups = new Map<string, UnicodeGroup>();
 				groups.set("Other", new UnicodeGroup("Other"));
 
@@ -102,6 +110,14 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 				const result = UNICODE_RANGES
 					.map(([,name]) => groups.get(name) ?? new UnicodeGroup(name))
 					.concat(groups.get("Other")!);
+
+				// performance.mark("unicodeGroups.map.end");
+				// performance.measure("unicodeGroups.map",
+				// 	"unicodeGroups.map.start",
+				// 	"unicodeGroups.map.end",
+				// );
+
+				FONT_GROUPS_LUT.set(font, result);
 
 				return result;
 			}),
