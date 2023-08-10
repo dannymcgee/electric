@@ -80,17 +80,16 @@ export class Matrix {
 	static concat(...matrices: Const<Matrix>[]) {
 		let result = new Matrix();
 
-		while (matrices.length) {
-			const a = result.clone();
-			const b = matrices.pop()!;
+		for (let rhs of matrices) {
+			const lhs = result.clone();
 
-			const a_row_1 = a.row(1);
-			const a_row_2 = a.row(2);
-			const a_row_3 = a.row(3);
+			const a_row_1 = lhs.row(1);
+			const a_row_2 = lhs.row(2);
+			const a_row_3 = lhs.row(3);
 
-			const b_col_1 = b.col(1);
-			const b_col_2 = b.col(2);
-			const b_col_3 = b.col(3);
+			const b_col_1 = rhs.col(1);
+			const b_col_2 = rhs.col(2);
+			const b_col_3 = rhs.col(3);
 
 			result.m11 = vec3.dot(a_row_1, b_col_1);
 			result.m12 = vec3.dot(a_row_1, b_col_2);

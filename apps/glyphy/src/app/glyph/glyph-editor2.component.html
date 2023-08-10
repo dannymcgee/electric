@@ -1,0 +1,73 @@
+<ng-container *ngIf="(contentRect$ | async) as rect">
+<ng-container *ngIf="(glyphToCanvas$ | async) as glyphToCanvas">
+<ng-container *ngIf="(_familyService.family$ | async) as family">
+
+<g-canvas class="canvas">
+	<!-- Y rulers -->
+	<g-line
+		[x1]="rect.left" [x2]="rect.right"
+		[y1]="family.ascender" [y2]="family.ascender"
+		[yTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	></g-line>
+	<g-line *ngIf="family.capHeight"
+		[x1]="rect.left" [x2]="rect.right"
+		[y1]="family.capHeight" [y2]="family.capHeight"
+		[yTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	></g-line>
+	<g-line *ngIf="family.xHeight"
+		[x1]="rect.left" [x2]="rect.right"
+		[y1]="family.xHeight" [y2]="family.xHeight"
+		[yTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	></g-line>
+	<g-line
+		[x1]="rect.left" [x2]="rect.right"
+		[y1]="0" [y2]="0"
+		[yTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+	></g-line>
+	<g-line
+		[x1]="rect.left" [x2]="rect.right"
+		[y1]="family.descender" [y2]="family.descender"
+		[yTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	></g-line>
+
+	<!-- X rulers -->
+	<g-line
+		[x1]="0" [x2]="0"
+		[y1]="rect.top" [y2]="rect.bottom"
+		[xTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+	></g-line>
+	<g-line
+		[x1]="glyph.advance ?? 0" [x2]="glyph.advance ?? 0"
+		[y1]="rect.top" [y2]="rect.bottom"
+		[xTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+	></g-line>
+
+	<!-- Main outline -->
+	<g-path *ngIf="glyph.outline"
+		[outline]="glyph.outline"
+		[transform]="glyphToCanvas"
+		[fill]="theme.getHex('foreground', 50, 0.1)"
+		[stroke]="theme.getHex('foreground', 50)"
+		[strokeWidth]="1"
+	></g-path>
+
+	<!-- Marquee selection -->
+	<g-rect *ngIf="marquee"
+		[x]="marquee.x"
+		[y]="marquee.y"
+		[width]="marquee.width"
+		[height]="marquee.height"
+		[fill]="theme.getHex('accent', 400, 0.2)"
+	></g-rect>
+</g-canvas>
+
+</ng-container>
+</ng-container>
+</ng-container>

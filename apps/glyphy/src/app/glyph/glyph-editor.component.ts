@@ -44,7 +44,7 @@ import { Glyph } from "./glyph";
 import { Contour, Point } from "./path";
 
 @Component({
-	selector: "g-glyph-editor",
+	selector: "g-glyph-editor-svg",
 	templateUrl: "./glyph-editor.component.html",
 	styleUrls: ["./glyph-editor.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -100,18 +100,18 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 	// optimization will be a problem for Future Danny.
 	get renderTransform() {
 		return Matrix.concat(...[
-			this._clientToView,
-			this._panOffset,
-			this._zoom,
-			this._viewToClient,
 			this._viewBoxTransform,
+			this._viewToClient,
+			this._zoom,
+			this._panOffset,
+			this._clientToView,
 		].filter(exists));
 	}
 
 	get clientToGlyphCoords() {
 		return Matrix.concat(
-			this.renderTransform.inverse(),
 			this._clientToView,
+			this.renderTransform.inverse(),
 		);
 	}
 
@@ -195,9 +195,9 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 
 			const { x, y, width, height } = viewBox;
 			this._viewBoxTransform = Matrix.concat(
-				Matrix.translate(x + width/2, y + height/2),
-				Matrix.scale(1, -1),
 				Matrix.translate(-x - width/2, -y - height/2),
+				Matrix.scale(1, -1),
+				Matrix.translate(x + width/2, y + height/2),
 			);
 
 			this._cdRef.detectChanges();
@@ -314,12 +314,12 @@ export class GlyphEditorComponent implements OnChanges, OnInit, OnDestroy {
 
 	private adjustZoom(delta: number, clientX: number, clientY: number): void {
 		this._zoom = Matrix.concat(
-			this._panOffset.inverse(),
-			Matrix.translate(clientX, clientY),
-			Matrix.scale(1 - delta),
-			Matrix.translate(-clientX, -clientY),
-			this._panOffset,
 			this._zoom,
+			this._panOffset,
+			Matrix.translate(-clientX, -clientY),
+			Matrix.scale(1 - delta),
+			Matrix.translate(clientX, clientY),
+			this._panOffset.inverse(),
 		);
 
 		this._scaleFactor /= (1 - delta);

@@ -37,10 +37,17 @@ import { FontExplorerComponent } from "./font";
 import {
 	GlyphComponent,
 	GlyphContourComponent,
+	GlyphEditor2Component,
 	GlyphEditorComponent,
 	GlyphMetricsComponent,
 } from "./glyph";
 import { HybridCoordSpaceTransformDirective, TransformDirective } from "./math";
+import {
+	CanvasRenderer,
+	LineRenderer,
+	PathRenderer,
+	RectRenderer,
+} from "./render";
 import {
 	CffProgramPipe,
 	HexPipe,
@@ -68,17 +75,22 @@ import {
 	],
 	declarations: [
 		AppComponent,
+		CanvasRenderer,
 		CffProgramPipe,
 		FamilyPanelComponent,
 		FontExplorerComponent,
 		GlyphComponent,
 		GlyphContourComponent,
 		GlyphEditorComponent,
+		GlyphEditor2Component,
 		GlyphMetricsComponent,
 		HexPipe,
 		HybridCoordSpaceTransformDirective,
+		LineRenderer,
 		NewFamilyDialog,
 		ParentFolderExistsValidator,
+		PathRenderer,
+		RectRenderer,
 		TargetFolderIsNewValidator,
 		TransformDirective,
 		ViewBoxDirective,
