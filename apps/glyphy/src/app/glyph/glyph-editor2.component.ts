@@ -14,7 +14,7 @@ import {
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
 import { ElxResizeObserver } from "@electric/ng-utils";
-import { assert, Const, exists, Option } from "@electric/utils";
+import { assert, Const, exists, match, Option } from "@electric/utils";
 import {
 	animationFrameScheduler,
 	BehaviorSubject,
@@ -24,19 +24,29 @@ import {
 	fromEvent,
 	map,
 	Observable,
+	of,
 	race,
 	scan,
 	shareReplay,
 	Subject,
 	takeUntil,
+	tap,
 	throttleTime,
+	withLatestFrom,
 } from "rxjs";
 
 import { FamilyService } from "../family";
-import { Matrix, nearlyEq, vec2 } from "../math";
+import { Matrix, nearlyEq, Vec2, vec2 } from "../math";
 import { Rect } from "../render";
 import { Glyph } from "./glyph";
 import { Point } from "./path";
+
+type PointKey
+	= "coords"
+	| "handle_in"
+	| "handle_out";
+
+type HandleKey = Exclude<PointKey, "coords">;
 
 class EditorPoint extends Point {
 	readonly contourIndex: number;
@@ -78,6 +88,9 @@ export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
 
 	marquee: Option<Rect> = null;
 	points: EditorPoint[] = [];
+
+	activePoint?: EditorPoint;
+	activeKey?: PointKey;
 
 	// Transforms
 	contentRect$?: Observable<DOMRect>;
@@ -160,18 +173,12 @@ export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if ("glyph" in changes) {
-			if (!this.glyph.outline) {
-				this.points = [];
-				return;
-			}
+			this.updatePoints();
 
-			const { contours } = this.glyph.outline;
-
-			this.points = contours.flatMap((contour, ci) =>
-				contour.points
-					.map((point, pi) => new EditorPoint(ci, pi, point))
-					.filter(p => !p.hidden)
-			);
+			if (changes["glyph"].firstChange && this.glyph)
+				this.glyph.outline?.changes$
+					.pipe(takeUntil(this._onDestroy$))
+					.subscribe(() => this.updatePoints());
 		}
 	}
 
@@ -180,6 +187,32 @@ export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
 		this._onDestroy$.complete();
 		this._resizeObserver.unobserve(this._ref);
 		this._panAndZoom$.complete();
+	}
+
+	onCurvePointStyle(point: EditorPoint) {
+		const shape = point.smooth ? "circle" : "box";
+		let radius = point.smooth ? 4 : 3.5;
+		let strokeWidth = 1;
+
+		// TODO: Create a theme color for this
+		let fill = "#99C4FF80";
+		if (point.pointIndex === 0)
+			fill = this.theme.getHex("warning", 800, 0.5)!;
+		else if (point.smooth)
+			fill = this.theme.getHex("accent", 700, 0.5)!;
+
+		let stroke = "#99C4FF";
+		if (point.pointIndex === 0)
+			stroke = this.theme.getHex("warning", 800)!;
+		else if (point.smooth)
+			stroke = this.theme.getHex("accent", 800)!;
+
+		if (point === this.activePoint && this.activeKey === "coords") {
+			radius = 5.5;
+			strokeWidth = 2;
+		}
+
+		return { shape, radius, fill, stroke, strokeWidth } as const;
 	}
 
 	@HostListener("window:keydown", ["$event"])
@@ -203,15 +236,37 @@ export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
 		{
 			this.beginPan();
 		}
-		else if (event.button === 0) {
+		else if (event.button === 0 && !this.activePoint) {
 			this.beginMarqueeSelect(event);
 		}
+	}
+
+	@HostListener("pointerenter")
+	onPointerEnter(): void {
+		this.beginHitTesting();
 	}
 
 	@HostListener("wheel", ["$event"])
 	onWheel({ deltaY, offsetX, offsetY }: WheelEvent): void {
 		const delta = deltaY / (175 * 7.5); // TODO: Adjustable sensitivity
 		this.adjustZoom(delta, offsetX, offsetY);
+	}
+
+	private updatePoints(): void {
+		if (!this.glyph.outline) {
+			this.points = [];
+			this._cdRef.detectChanges();
+			return;
+		}
+
+		const { contours } = this.glyph.outline;
+
+		this.points = contours.flatMap((contour, ci) =>
+			contour.points
+				.map((point, pi) => new EditorPoint(ci, pi, point))
+				.filter(p => !p.hidden)
+		);
+		this._cdRef.detectChanges();
 	}
 
 	private beginPan(): void {
@@ -265,6 +320,252 @@ export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
 		));
 	}
 
+	private beginHitTesting(): void {
+		fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove")
+			.pipe(
+				throttleTime(0, animationFrameScheduler, {
+					leading: true,
+					trailing: true,
+				}),
+				withLatestFrom(combineLatest([
+					this.canvasToGlyph$ ?? of(Matrix.Identity),
+					this.glyphToCanvas$ ?? of(Matrix.Identity),
+				])),
+				map(([{ offsetX, offsetY }, [canvasToGlyph, glyphToCanvas]]) => {
+					const glyphCoords = canvasToGlyph.transformPoint(vec2(offsetX, offsetY));
+					const canvasCoords = vec2(offsetX, offsetY);
+					return {
+						glyphCoords,
+						canvasCoords,
+						glyphToCanvas,
+					}
+				}),
+				// FIXME: This event flow is unorthodox and kind of spaghet
+				tap(({ glyphCoords, canvasCoords, glyphToCanvas }) => {
+					this.hitTest(glyphCoords, canvasCoords, glyphToCanvas);
+				}),
+				takeUntil(race(
+					fromEvent(this._ref.nativeElement, "pointerleave").pipe(
+						// FIXME: This event flow is unorthodox and kind of spaghet
+						tap(() => {
+							if (this.activePoint || this.activeKey) {
+								this.activePoint = undefined;
+								this.activeKey = undefined;
+								this._cdRef.markForCheck();
+							}
+						}),
+					),
+					fromEvent(this._ref.nativeElement, "pointerdown").pipe(
+						tap(() => this.beginEditing())
+					),
+					this._onDestroy$,
+				)),
+			)
+			.subscribe();
+	}
+
+	private hitTest(
+		glyphCoords: Const<Vec2>,
+		canvasCoords: Const<Vec2>,
+		glyphToCanvas: Const<Matrix>
+	): void {
+		// Find the nearest EditorPoint to the cursor
+		const p = this.points.sort(ascendingByDistanceTo(glyphCoords))[0];
+
+		// Find the nearest control in the point
+		const closest = [
+			p.coords,
+			p.handle_in,
+			p.handle_out,
+		]
+			.filter(exists)
+			.sort((a, b) => vec2.dist2(a, glyphCoords) - vec2.dist2(b, glyphCoords))
+			[0];
+
+		// Check if it's within some small radius in screen-space
+		const canvasClosest = glyphToCanvas.transformPoint(closest);
+
+		if (vec2.dist(canvasClosest, canvasCoords) < 12) {
+			let needsCheck = (
+				!this.activePoint
+				|| !this.activeKey
+				|| this.activePoint !== p
+			);
+			this.activePoint = p;
+
+			const hoveringControl
+				= closest === p.coords    ? "coords"
+				: closest === p.handle_in ? "handle_in"
+				                          : "handle_out";
+
+			needsCheck ||= this.activeKey !== hoveringControl;
+			this.activeKey = hoveringControl;
+
+			if (needsCheck)
+				this._cdRef.markForCheck();
+		}
+		else if (this.activePoint || this.activeKey) {
+			this.activePoint = undefined;
+			this.activeKey = undefined;
+			this._cdRef.markForCheck();
+		}
+	}
+
+	private beginEditing(): void {
+		fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove")
+			.pipe(
+				throttleTime(0, animationFrameScheduler, {
+					leading: true,
+					trailing: true,
+				}),
+				withLatestFrom(this.canvasToGlyph$ ?? of(Matrix.Identity)),
+				takeUntil(race(
+					fromEvent(this._ref.nativeElement, "pointerleave"),
+					fromEvent(document, "pointerup").pipe(tap(() => this.beginHitTesting())),
+					this._onDestroy$,
+				)),
+			)
+			.subscribe({
+				next: ([event, canvasToGlyph]) => {
+					if (!this.activePoint || !this.activeKey) {
+						console.error("Uh oh");
+						return;
+					}
+					const { offsetX, offsetY } = event;
+					const coords = canvasToGlyph.transformPoint(vec2(offsetX, offsetY));
+
+					match (this.activeKey, {
+						"coords": () => this.updateOnCurve(event, coords),
+						"handle_in": () => this.updateOffCurve(event, coords),
+						"handle_out": () => this.updateOffCurve(event, coords),
+					})
+				},
+				complete: () => {
+					if (this.activePoint || this.activeKey) {
+						this.activePoint = undefined;
+						this.activeKey = undefined;
+						this._cdRef.markForCheck();
+					}
+				}
+			});
+	}
+
+	private updateOnCurve(event: PointerEvent, coords: Vec2): void {
+		assert(this.glyph.outline != null);
+		assert(this.activePoint != null);
+		assert(this.activeKey != null);
+
+		const p = this.activePoint;
+		const ci = p.contourIndex;
+		const pi = p.pointIndex;
+		const c = this.glyph.outline.contours[ci];
+
+		const updated = p.clone();
+		const oldCoords = p.coords;
+		const delta = vec2.sub(coords, oldCoords);
+
+		if (p.smooth) {
+			if (!p.handle_in || !p.handle_out) {
+				const [handle, handleKey, refPoint] = !!p.handle_in
+					? [p.handle_in, "handle_in", c.points[(pi + 1) % c.points.length]] as const
+					: [p.handle_out!, "handle_out", c.points[pi - 1] ?? c.last] as const;
+
+				const handleLen = vec2.dist(handle, oldCoords);
+				const direction = vec2.sub(coords, refPoint.coords).normalize();
+
+				updated[handleKey] = vec2.add(coords, vec2.mul(direction, handleLen));
+				updated.coords = coords;
+
+				return this.glyph.outline.editPoint(ci, pi, () => updated);
+			}
+
+			// TODO: Configurable keybindings
+			if (event.altKey) {
+				// Slide the on-curve point between the handles
+				const direction = vec2.sub(p.handle_in, p.handle_out).normalize();
+				const toHandle = vec2.sub(coords, p.handle_in);
+				const projLength = vec2.dot(direction, toHandle);
+
+				updated.coords = vec2.add(
+					p.handle_in,
+					vec2.mul(direction, projLength),
+				);
+
+				return this.glyph.outline.editPoint(ci, pi, () => updated);
+			}
+		}
+
+		updated.coords = coords;
+
+		updated.handle_in = p.handle_in
+			? vec2.add(p.handle_in, delta)
+			: undefined;
+
+		updated.handle_out = p.handle_out
+			? vec2.add(p.handle_out, delta)
+			: undefined;
+
+		this.glyph.outline.editPoint(ci, pi, () => updated);
+	}
+
+	private updateOffCurve(event: PointerEvent, coords: Vec2): void {
+		assert(this.glyph.outline != null);
+		assert(this.activePoint != null);
+		assert(this.activeKey != null);
+
+		const p = this.activePoint;
+		const ci = p.contourIndex;
+		const pi = p.pointIndex;
+		const key = this.activeKey as HandleKey;
+		const updated = p.clone();
+		const oldCoords = p[key]!;
+
+		if (!p.smooth) {
+			updated[key] = coords;
+
+			return this.glyph.outline.editPoint(ci, pi, () => updated);
+		}
+
+		const [other, otherKey] = match (key, {
+			"handle_in": () => [p.handle_out, "handle_out"] as const,
+			"handle_out": () => [p.handle_in, "handle_in"] as const,
+		});
+
+		if (!other) {
+			const newLength = vec2.dist(coords, p.coords);
+			const direction = vec2.sub(oldCoords, p.coords).normalize();
+			let constrained = vec2.add(p.coords, vec2.mul(direction, newLength));
+
+			if (vec2.dist(coords, constrained) > newLength) {
+				// we're trying to pull the handle in the opposite direction, past
+				// the on-curve point, which shouldn't be allowed.
+
+				// TODO: In the long term, collapsing the handle into the point like
+				// this should maybe erase the handle completely and turn the point
+				// into a corner, but we're not set up to handle that yet, so
+				// instead we'll clamp the newLength to a minimum of 1.
+				constrained = vec2.add(p.coords, direction);
+			}
+
+			updated[key] = constrained;
+
+			return this.glyph.outline.editPoint(ci, pi, () => updated);
+		}
+
+		// TODO: Configurable keybindings
+		const otherLength = event.altKey
+			? vec2.dist(coords, p.coords)
+			: vec2.dist(other, p.coords);
+
+		const direction = vec2.sub(p.coords, coords).normalize();
+		const otherCoords = vec2.add(p.coords, vec2.mul(direction, otherLength));
+
+		updated[key] = coords;
+		updated[otherKey] = otherCoords;
+
+		this.glyph.outline.editPoint(ci, pi, () => updated);
+	}
+
 	private beginMarqueeSelect(event: PointerEvent): void {
 		const { offsetX: xInit, offsetY: yInit } = event;
 
@@ -311,4 +612,23 @@ export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
 	private marqueeSelect(bounds: Rect): void {
 		console.log("Bounds for selection:", bounds);
 	}
+}
+
+function closestInPoint(point: EditorPoint, ref: Vec2) {
+	return [
+		point.coords,
+		point.handle_in,
+		point.handle_out,
+	].reduce(
+		(accum, p) => {
+			if (!p) return accum;
+			return Math.min(accum, vec2.dist2(p, ref));
+		},
+		Number.POSITIVE_INFINITY,
+	);
+}
+
+function ascendingByDistanceTo(coords: Vec2) {
+	return (a: EditorPoint, b: EditorPoint) =>
+		closestInPoint(a, coords) - closestInPoint(b, coords);
 }

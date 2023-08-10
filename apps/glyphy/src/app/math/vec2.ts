@@ -105,12 +105,20 @@ export namespace vec2 {
 		return lhs.x*rhs.x + lhs.y*rhs.y;
 	}
 
+	/** Squared distance */
+	export function dist2(lhs: Const<Vec2>, rhs: Const<Vec2>): number {
+		const dx = lhs.x - rhs.x;
+		const dy = lhs.y - rhs.y;
+		return dx*dx + dy*dy;
+	}
+
 	export function dist(lhs: Const<Vec2>, rhs: Const<Vec2>): number {
 		const dx = lhs.x - rhs.x;
 		const dy = lhs.y - rhs.y;
 		return Math.sqrt(dx*dx + dy*dy);
 	}
 
+	/** Squared vector length */
 	export function len2(v: Const<Vec2>): number {
 		const { x, y } = v;
 		return x*x + y*y;

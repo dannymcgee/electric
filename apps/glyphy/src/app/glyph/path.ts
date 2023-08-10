@@ -1,4 +1,5 @@
 import { assert, Const, exists, match } from "@electric/utils";
+import { Subject } from "rxjs";
 
 import { Matrix, nearlyEq, vec2, Vec2 } from "../math";
 import { pathCommand, PathCommand, PathOp } from "./path-command";
@@ -100,6 +101,9 @@ export interface PointTransformFn {
 }
 
 export class Path implements IPath {
+	private _changes$ = new Subject<void>();
+	changes$ = this._changes$.asObservable();
+
 	get lastPoint(): Point | undefined {
 		return this.contours[this.contours.length - 1]?.last;
 	}
@@ -366,13 +370,19 @@ export class Path implements IPath {
 		}
 
 		delete this._svg;
+		this._changes$.next();
 	}
 
 	moveTo(x: number, y: number, smooth?: boolean) {
-		if (this.lastPoint)
-			this.closePath();
+		// FIXME: This breaks the 1:1 mapping between contour+point indices and
+		//        command indices. Maybe we could insert these as phantom calls
+		//        in the toString / replay functions? It's pretty fugly and error-
+		//        prone to keep checking for the missing stroke at render time.
+		// if (this.lastPoint != null)
+		// 	this.closePath();
 
 		this._commands.push(pathCommand(PathOp.MoveTo, x, y, smooth));
+		this.contours[this.contours.length-1]?.close();
 		this.contours.push(new Contour([new Point(x, y, smooth)]));
 	}
 

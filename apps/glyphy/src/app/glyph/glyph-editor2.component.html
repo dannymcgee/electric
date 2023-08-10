@@ -69,38 +69,32 @@
 			<ng-container
 				*ngTemplateOutlet="handle, context: {
 					point: p,
-					handle: p.handle_in
+					handle: p.handle_in,
+					key: 'handle_in'
 				}"
 			></ng-container>
 			<ng-container
 				*ngTemplateOutlet="handle, context: {
 					point: p,
-					handle: p.handle_out
+					handle: p.handle_out,
+					key: 'handle_out'
 				}"
 			></ng-container>
 
-			<!-- TODO: Create a theme color for non-first/non-smooth points -->
-			<g-point
-				[shape]="p.smooth ? 'circle' : 'box'"
-				[cx]="p.x" [cy]="p.y" [r]="p.smooth ? 4 : 3.5"
+			<g-point *elxUnwrap="onCurvePointStyle(p) as style"
+				[shape]="style.shape"
+				[cx]="p.x" [cy]="p.y" [r]="style.radius"
 				[transform]="glyphToCanvas"
-				[fill]="p.pointIndex === 0
-					? theme.getHex('warning', 800, 0.5)
-					: p.smooth
-						? theme.getHex('accent', 700, 0.5)
-						: '#99C4FF80'"
-				[stroke]="p.pointIndex === 0
-					? theme.getHex('warning', 800)
-					: p.smooth
-						? theme.getHex('accent', 800)
-						: '#99C4FF'"
-				[strokeWidth]="1"
+				[fill]="style.fill"
+				[stroke]="style.stroke"
+				[strokeWidth]="style.strokeWidth"
 			></g-point>
 		</ng-container>
 
 		<ng-template #handle
 			let-p="point"
 			let-handle="handle"
+			let-key="key"
 		>
 			<g-line *ngIf="handle"
 				[x1]="p.x" [y1]="p.y"
@@ -111,11 +105,12 @@
 			></g-line>
 			<g-point *ngIf="handle"
 				shape="diamond"
-				[cx]="handle.x" [cy]="handle.y" [r]="2.5"
+				[cx]="handle.x" [cy]="handle.y"
+				[r]="p === activePoint && key === activeKey ? 4 : 2.5"
 				[transform]="glyphToCanvas"
 				[fill]="theme.getHex('primary', 700, 0.2)"
 				[stroke]="theme.getHex('primary', 800)"
-				[strokeWidth]="1"
+				[strokeWidth]="p === activePoint && key === activeKey ? 2 : 1"
 			></g-point>
 		</ng-template>
 	</ng-container>
