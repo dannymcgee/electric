@@ -1,12 +1,17 @@
 import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	HostBinding,
 	Input,
 	OnChanges,
+	OnDestroy,
+	OnInit,
 	SimpleChanges,
 	ViewEncapsulation,
 } from "@angular/core";
 import { Coerce } from "@electric/ng-utils";
+import { Subject, takeUntil } from "rxjs";
 
 import { FamilyService, FontMetrics } from "../family";
 import { getViewBox, ViewBox } from "../util";
@@ -16,9 +21,10 @@ import { Glyph } from "./glyph";
 	selector: "svg[g-glyph]",
 	templateUrl: "./glyph.component.svg",
 	styleUrls: ["./glyph.component.scss"],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 })
-export class GlyphComponent implements OnChanges {
+export class GlyphComponent implements OnChanges, OnInit, OnDestroy {
 	@Input("g-glyph") glyph?: Glyph;
 
 	@Coerce(Number)
@@ -46,7 +52,10 @@ export class GlyphComponent implements OnChanges {
 
 	_viewBox?: ViewBox;
 
+	private _onDestroy$ = new Subject<void>();
+
 	constructor (
+		private _cdRef: ChangeDetectorRef,
 		public _family: FamilyService,
 	) {}
 
@@ -64,5 +73,18 @@ export class GlyphComponent implements OnChanges {
 				this.lowerBound,
 			);
 		}
+	}
+
+	ngOnInit(): void {
+		this.glyph?.outline?.changes$
+			.pipe(takeUntil(this._onDestroy$))
+			.subscribe(() => {
+				this._cdRef.markForCheck();
+			});
+	}
+
+	ngOnDestroy(): void {
+		this._onDestroy$.next();
+		this._onDestroy$.complete();
 	}
 }
