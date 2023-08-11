@@ -5,7 +5,6 @@ import {
 	ElementRef,
 	OnDestroy,
 	OnInit,
-	ViewChild,
 } from "@angular/core";
 import { ElxResizeObserver, QueryList } from "@electric/ng-utils";
 import {
@@ -13,7 +12,6 @@ import {
 	distinctUntilChanged,
 	map,
 	merge,
-	shareReplay,
 	startWith,
 	Subject,
 	switchMap,
@@ -22,48 +20,28 @@ import {
 } from "rxjs";
 
 import { nearlyEq } from "../math";
-import {
-	RenderElement,
-	RenderHost,
-	RENDER_ELEMENT,
-	RENDER_HOST,
-} from "./render.types";
+import { RenderElement, RENDER_ELEMENT } from "./render.types";
 
 @Component({
-	selector: "g-canvas",
-	templateUrl: "./canvas.renderer.html",
-	styleUrls: ["./canvas.renderer.scss"],
-	providers: [{
-		provide: RENDER_HOST,
-		useExisting: CanvasRenderer,
-	}],
+	selector: "canvas[g-canvas]",
+	template: `<ng-content></ng-content>`,
 })
-export class CanvasRenderer
-	implements RenderHost, OnInit, AfterContentInit, OnDestroy
-{
-	private _context!: CanvasRenderingContext2D;
-	private _update$ = new Subject<CanvasRenderingContext2D>();
-	readonly update$ = this._update$.pipe(shareReplay({
-		bufferSize: 1,
-		refCount: true,
-	}));
-
-	@ViewChild("canvas", { static: true, read: ElementRef })
-	private _canvasRef!: ElementRef<HTMLCanvasElement>;
-	private get _canvas() { return this._canvasRef.nativeElement; }
-
+export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 	@ContentChildren(RENDER_ELEMENT)
 	private _elements!: QueryList<RenderElement>;
+
+	private get _canvas() { return this._ref.nativeElement; }
+	private _context!: CanvasRenderingContext2D;
 
 	private _onDestroy$ = new Subject<void>();
 
 	constructor (
-		private _ref: ElementRef<HTMLElement>,
+		private _ref: ElementRef<HTMLCanvasElement>,
 		private _resizeObserver: ElxResizeObserver,
 	) {}
 
 	ngOnInit(): void {
-		const { offsetWidth: width, offsetHeight: height } = this._ref.nativeElement;
+		const { offsetWidth: width, offsetHeight: height } = this._canvas;
 		this._canvas.width = width * devicePixelRatio;
 		this._canvas.height = height * devicePixelRatio;
 
@@ -89,7 +67,7 @@ export class CanvasRenderer
 					ctx.canvas.width = width * devicePixelRatio;
 					ctx.canvas.height = height * devicePixelRatio;
 
-					this._update$.next(ctx);
+					this.render();
 				},
 				complete: () => {
 					this._resizeObserver.unobserve(this._ref);
@@ -124,13 +102,18 @@ export class CanvasRenderer
 	ngOnDestroy(): void {
 		this._onDestroy$.next();
 		this._onDestroy$.complete();
-		this._update$.complete();
 	}
 
 	private render(): void {
+		// console.log(
+		// 	`CanvasRenderer.render [${this._canvas.width} x ${this._canvas.height}]`,
+		// 	this._elements.toArray(),
+		// );
+
 		const ctx = this._context;
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-		this._update$.next(ctx);
+		for (let element of this._elements)
+			element.onDraw(ctx);
 	}
 }

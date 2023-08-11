@@ -2,7 +2,7 @@
 <ng-container *ngIf="(glyphToCanvas$ | async) as glyphToCanvas">
 <ng-container *ngIf="(_familyService.family$ | async) as family">
 
-<g-canvas class="canvas">
+<canvas g-canvas class="canvas">
 	<ng-container *ngIf="!isPanMode">
 		<!-- Y rulers -->
 		<g-line
@@ -123,7 +123,7 @@
 		[height]="marquee.height"
 		[fill]="theme.getHex('accent', 400, 0.2)"
 	></g-rect>
-</g-canvas>
+</canvas>
 
 </ng-container>
 </ng-container>

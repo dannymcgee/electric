@@ -1,24 +1,18 @@
 import {
 	Directive,
 	EventEmitter,
-	Inject,
 	Input,
 	OnChanges,
-	OnDestroy,
-	OnInit,
 	Output,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
 import { Option } from "@electric/utils";
-import { Subject, takeUntil } from "rxjs";
 
 import { Matrix, vec2 } from "../math";
-import { PaintStyle, RenderElement, RenderHost, RENDER_HOST } from "./render.types";
+import { PaintStyle, RenderElement } from "./render.types";
 
 @Directive()
-export abstract class BaseRenderer
-	implements RenderElement, OnChanges, OnInit, OnDestroy
-{
+export abstract class BaseRenderer implements RenderElement, OnChanges {
 	@Input() transform = Matrix.Identity;
 
 	/** Transform that will only apply along the X dimension */
@@ -32,26 +26,12 @@ export abstract class BaseRenderer
 
 	@Output("changes") changes$ = new EventEmitter<void>();
 
-	protected onDestroy$ = new Subject<void>();
-
 	constructor (
-		@Inject(RENDER_HOST) protected host: RenderHost,
 		protected theme: ThemeService,
 	) {}
 
 	ngOnChanges(): void {
 		this.changes$.emit();
-	}
-
-	ngOnInit(): void {
-		this.host.update$
-			.pipe(takeUntil(this.onDestroy$))
-			.subscribe(ctx => this.onDraw?.(ctx));
-	}
-
-	ngOnDestroy(): void {
-		this.onDestroy$.next();
-		this.onDestroy$.complete();
 	}
 
 	abstract onDraw(ctx: CanvasRenderingContext2D): void;

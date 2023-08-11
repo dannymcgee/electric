@@ -1,10 +1,6 @@
 import { InjectionToken } from "@angular/core";
 import { Observable } from "rxjs";
 
-export interface RenderHost {
-	readonly update$: Observable<CanvasRenderingContext2D>;
-}
-
 export interface RenderElement {
 	readonly changes$: Observable<void>;
 	onDraw(context: CanvasRenderingContext2D): void;
@@ -22,5 +18,4 @@ export interface Rect {
 	height: number;
 }
 
-export const RENDER_HOST = new InjectionToken<RenderHost>("RenderHost");
 export const RENDER_ELEMENT = new InjectionToken<RenderElement>("RenderElement");

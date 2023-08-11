@@ -69,7 +69,7 @@ class EditorPoint extends Point {
 	styleUrls: ["./glyph-editor2.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GlyphEditor2Component implements OnInit, OnChanges, OnDestroy {
+export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 	// Configuration
 	@Input() glyph!: Glyph;
 	@Input() metricsThickness = 1;
