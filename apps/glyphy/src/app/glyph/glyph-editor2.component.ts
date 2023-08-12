@@ -1,4 +1,5 @@
 import {
+	AfterViewInit,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
@@ -23,6 +24,7 @@ import {
 	filter,
 	fromEvent,
 	map,
+	merge,
 	Observable,
 	of,
 	race,
@@ -36,8 +38,7 @@ import {
 } from "rxjs";
 
 import { FamilyService } from "../family";
-import { Matrix, nearlyEq, Vec2, vec2 } from "../math";
-import { Rect } from "../render";
+import { Matrix, Rect, Vec2, vec2 } from "../math";
 import { Glyph } from "./glyph";
 import { Point } from "./path";
 
@@ -69,7 +70,7 @@ class EditorPoint extends Point {
 	styleUrls: ["./glyph-editor2.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
+export class GlyphEditor2Component implements OnChanges, OnInit, AfterViewInit, OnDestroy {
 	// Configuration
 	@Input() glyph!: Glyph;
 	@Input() metricsThickness = 1;
@@ -93,16 +94,16 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 	activeKey?: PointKey;
 
 	// Transforms
-	contentRect$?: Observable<DOMRect>;
+	contentRect$?: Observable<Rect>;
 	glyphToCanvas$?: Observable<Const<Matrix>>;
 	canvasToGlyph$?: Observable<Const<Matrix>>;
 
 	private _onDestroy$ = new Subject<void>();
 
 	trackPoint: TrackByFunction<EditorPoint> = (_, p) => {
-		return this.points.length << 8
-			& p.contourIndex << 16
-			& p.pointIndex << 24;
+		return this.points.length << 0
+			| p.contourIndex << 8
+			| p.pointIndex << 16;
 	}
 
 	constructor (
@@ -116,29 +117,33 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 	ngOnInit(): void {
 		const resize$ = this._resizeObserver
 			.observe(this._ref)
-			.pipe(takeUntil(this._onDestroy$));
+			.pipe(
+				shareReplay({ bufferSize: 1, refCount: true }),
+				takeUntil(this._onDestroy$),
+			);
 
-		this.contentRect$ = resize$.pipe(
+		const contentRect$ = resize$.pipe(
 			map(entry => entry.contentRect),
-			distinctUntilChanged((a, b) => (
-				nearlyEq(a.x, b.x)
-				&& nearlyEq(a.y, b.y)
-				&& nearlyEq(a.width, b.width)
-				&& nearlyEq(a.height, b.height)
-			)),
+			takeUntil(this._onDestroy$),
+		);
+
+		const { width, height } = this._ref.nativeElement.getBoundingClientRect();
+		const initRect = new Rect(0, 0, width, height);
+
+		this.contentRect$ = merge(of(initRect), contentRect$).pipe(
+			distinctUntilChanged(Rect.nearlyEq(0.5)),
 			shareReplay({ bufferSize: 1, refCount: true }),
 			takeUntil(this._onDestroy$),
 		);
 
 		this.glyphToCanvas$ = combineLatest([
-			this._familyService.family$.pipe(filter(exists)),
+			this._familyService.family$.pipe(
+				filter(exists),
+				distinctUntilChanged(),
+			),
 			this.contentRect$,
 			this.panAndZoom$,
 		]).pipe(
-			throttleTime(0, animationFrameScheduler, {
-				leading: true,
-				trailing: true,
-			}),
 			map(([family, rect, panAndZoom]) => {
 				const { ascender, descender } = family;
 
@@ -161,6 +166,7 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 				);
 			}),
 			shareReplay({ bufferSize: 1, refCount: true }),
+			distinctUntilChanged(),
 			takeUntil(this._onDestroy$),
 		);
 
@@ -180,6 +186,10 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 					.pipe(takeUntil(this._onDestroy$))
 					.subscribe(() => this.updatePoints());
 		}
+	}
+
+	ngAfterViewInit(): void {
+		this._cdRef.markForCheck();
 	}
 
 	ngOnDestroy(): void {
@@ -328,8 +338,8 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 					trailing: true,
 				}),
 				withLatestFrom(combineLatest([
-					this.canvasToGlyph$ ?? of(Matrix.Identity),
-					this.glyphToCanvas$ ?? of(Matrix.Identity),
+					this.canvasToGlyph$!,
+					this.glyphToCanvas$!,
 				])),
 				map(([{ offsetX, offsetY }, [canvasToGlyph, glyphToCanvas]]) => {
 					const glyphCoords = canvasToGlyph.transformPoint(vec2(offsetX, offsetY));
@@ -355,8 +365,13 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 							}
 						}),
 					),
-					fromEvent(this._ref.nativeElement, "pointerdown").pipe(
-						tap(() => this.beginEditing())
+					fromEvent<PointerEvent>(this._ref.nativeElement, "pointerdown").pipe(
+						tap(event => {
+							if (event.button === 0 && this.activePoint)
+								this.beginEditing();
+							else
+								this.beginHitTesting();
+						}),
 					),
 					this._onDestroy$,
 				)),
@@ -371,6 +386,7 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 	): void {
 		// Find the nearest EditorPoint to the cursor
 		const p = this.points.sort(ascendingByDistanceTo(glyphCoords))[0];
+		if (!p) return;
 
 		// Find the nearest control in the point
 		const closest = [
@@ -414,10 +430,6 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 	private beginEditing(): void {
 		fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove")
 			.pipe(
-				throttleTime(0, animationFrameScheduler, {
-					leading: true,
-					trailing: true,
-				}),
 				withLatestFrom(this.canvasToGlyph$ ?? of(Matrix.Identity)),
 				takeUntil(race(
 					fromEvent(this._ref.nativeElement, "pointerleave"),
@@ -428,7 +440,6 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 			.subscribe({
 				next: ([event, canvasToGlyph]) => {
 					if (!this.activePoint || !this.activeKey) {
-						console.error("Uh oh");
 						return;
 					}
 					const { offsetX, offsetY } = event;
@@ -466,6 +477,8 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 
 		if (p.smooth) {
 			if (!p.handle_in || !p.handle_out) {
+				// Tangent point - keep the handle collinear with this and the
+				// nearest on-curve point
 				const [handle, handleKey, refPoint] = !!p.handle_in
 					? [p.handle_in, "handle_in", c.points[(pi + 1) % c.points.length]] as const
 					: [p.handle_out!, "handle_out", c.points[pi - 1] ?? c.last] as const;
@@ -495,6 +508,7 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 			}
 		}
 
+		// Move the on-curve point and its handles as a unit
 		updated.coords = coords;
 
 		updated.handle_in = p.handle_in
@@ -521,6 +535,7 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 		const oldCoords = p[key]!;
 
 		if (!p.smooth) {
+			// Just move the handle
 			updated[key] = coords;
 
 			return this.glyph.outline.editPoint(ci, pi, () => updated);
@@ -532,10 +547,13 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 		});
 
 		if (!other) {
+			// Tangent point - constrain the handle to length adjustments only
 			const newLength = vec2.dist(coords, p.coords);
 			const direction = vec2.sub(oldCoords, p.coords).normalize();
 			let constrained = vec2.add(p.coords, vec2.mul(direction, newLength));
 
+			// FIXME: This isn't a perfect test - we really want to know if the
+			// angle of coords -> p.coords <- nearest on-curve point is <= 90°
 			if (vec2.dist(coords, constrained) > newLength) {
 				// we're trying to pull the handle in the opposite direction, past
 				// the on-curve point, which shouldn't be allowed.
@@ -553,10 +571,12 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 		}
 
 		// TODO: Configurable keybindings
+		// Match the length of the other handle to this one if Alt key is down
 		const otherLength = event.altKey
 			? vec2.dist(coords, p.coords)
 			: vec2.dist(other, p.coords);
 
+		// Keep the other handle collinear with this one
 		const direction = vec2.sub(p.coords, coords).normalize();
 		const otherCoords = vec2.add(p.coords, vec2.mul(direction, otherLength));
 
@@ -569,12 +589,7 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 	private beginMarqueeSelect(event: PointerEvent): void {
 		const { offsetX: xInit, offsetY: yInit } = event;
 
-		this.marquee = {
-			x: xInit,
-			y: yInit,
-			width: 0,
-			height: 0,
-		};
+		this.marquee = new Rect(xInit, yInit, 0, 0);
 
 		fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove")
 			.pipe(takeUntil(race(
@@ -610,7 +625,7 @@ export class GlyphEditor2Component implements OnChanges, OnInit, OnDestroy {
 	}
 
 	private marqueeSelect(bounds: Rect): void {
-		console.log("Bounds for selection:", bounds);
+		// console.log("Bounds for selection:", bounds);
 	}
 }
 

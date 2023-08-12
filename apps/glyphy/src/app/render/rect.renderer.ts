@@ -2,7 +2,7 @@ import { Directive, Input } from "@angular/core";
 
 import { Matrix } from "../math";
 import { BaseRenderer } from "./base.renderer";
-import { Rect, RenderElement, RENDER_ELEMENT } from "./render.types";
+import { RenderElement, RENDER_ELEMENT } from "./render.types";
 
 @Directive({
 	selector: "g-rect",
@@ -11,7 +11,7 @@ import { Rect, RenderElement, RENDER_ELEMENT } from "./render.types";
 		useExisting: RectRenderer,
 	}],
 })
-export class RectRenderer extends BaseRenderer implements RenderElement, Rect {
+export class RectRenderer extends BaseRenderer implements RenderElement {
 	@Input() x = 0;
 	@Input() y = 0;
 	@Input() width = 0;

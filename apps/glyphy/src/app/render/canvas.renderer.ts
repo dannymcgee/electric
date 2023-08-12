@@ -3,8 +3,10 @@ import {
 	Component,
 	ContentChildren,
 	ElementRef,
+	EventEmitter,
 	OnDestroy,
 	OnInit,
+	Output,
 } from "@angular/core";
 import { ElxResizeObserver, QueryList } from "@electric/ng-utils";
 import {
@@ -12,6 +14,7 @@ import {
 	distinctUntilChanged,
 	map,
 	merge,
+	shareReplay,
 	startWith,
 	Subject,
 	switchMap,
@@ -19,7 +22,7 @@ import {
 	throttleTime,
 } from "rxjs";
 
-import { nearlyEq } from "../math";
+import { Rect } from "../math";
 import { RenderElement, RENDER_ELEMENT } from "./render.types";
 
 @Component({
@@ -27,6 +30,8 @@ import { RenderElement, RENDER_ELEMENT } from "./render.types";
 	template: `<ng-content></ng-content>`,
 })
 export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
+	@Output() update = new EventEmitter<void>();
+
 	@ContentChildren(RENDER_ELEMENT)
 	private _elements!: QueryList<RenderElement>;
 
@@ -45,7 +50,7 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 		this._canvas.width = width * devicePixelRatio;
 		this._canvas.height = height * devicePixelRatio;
 
-		this._context = this._canvas.getContext("2d", { willReadFrequently: true })!;
+		this._context = this._canvas.getContext("2d")!;
 		if (!this._context)
 			throw new Error("Failed to create canvas rendering context");
 
@@ -53,10 +58,7 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 			.observe(this._ref)
 			.pipe(
 				map(entry => entry.contentRect),
-				distinctUntilChanged((a, b) => (
-					nearlyEq(a.width, b.width)
-					&& nearlyEq(a.height, b.height)
-				)),
+				distinctUntilChanged(Rect.nearlyEq(0.5)),
 				takeUntil(this._onDestroy$),
 			)
 			.subscribe({
@@ -78,6 +80,7 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 	ngAfterContentInit(): void {
 		const elements$ = this._elements.changes.pipe(
 			startWith(this._elements),
+			shareReplay({ bufferSize: 1, refCount: true }),
 			takeUntil(this._onDestroy$),
 		);
 
@@ -105,15 +108,12 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 	}
 
 	private render(): void {
-		// console.log(
-		// 	`CanvasRenderer.render [${this._canvas.width} x ${this._canvas.height}]`,
-		// 	this._elements.toArray(),
-		// );
-
 		const ctx = this._context;
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 		for (let element of this._elements)
 			element.onDraw(ctx);
+
+		this.update.emit();
 	}
 }

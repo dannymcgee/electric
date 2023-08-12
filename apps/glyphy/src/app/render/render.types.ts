@@ -11,11 +11,4 @@ export type PaintStyle
 	| CanvasGradient
 	| CanvasPattern;
 
-export interface Rect {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-}
-
 export const RENDER_ELEMENT = new InjectionToken<RenderElement>("RenderElement");
