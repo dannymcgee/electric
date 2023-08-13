@@ -1,6 +1,6 @@
 import { coerceElement } from "@angular/cdk/coercion";
 import { ElementRef, Injectable, OnDestroy } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { Observable, ReplaySubject, Subject } from "rxjs";
 
 export interface ResizeEntry<T extends Element> extends ResizeObserverEntry {
 	target: T;
@@ -39,7 +39,7 @@ export class ElxResizeObserver implements OnDestroy {
 			}
 		}
 
-		let subject = new Subject<ResizeEntry<T>>();
+		let subject = new ReplaySubject<ResizeEntry<T>>(1);
 		this._streams.set(element, subject);
 		this._observer.observe(element, options);
 
