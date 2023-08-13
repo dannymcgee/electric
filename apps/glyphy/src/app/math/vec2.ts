@@ -1,6 +1,6 @@
 import { Const, Option } from "@electric/utils";
 
-import { nearlyEq } from "./util";
+import * as util from "./util";
 
 export class Vec2 {
 	static readonly zero: Const<Vec2> = new Vec2(0, 0);
@@ -39,7 +39,7 @@ export class Vec2 {
 	 */
 	normalize(): Vec2 {
 		const len2 = vec2.len2(this);
-		if (nearlyEq(len2, 1) || nearlyEq(len2, 0))
+		if (util.nearlyEq(len2, 1) || util.nearlyEq(len2, 0))
 			return this;
 
 		const invLen = 1 / Math.sqrt(len2);
@@ -56,7 +56,7 @@ export class Vec2 {
 	lengthAndNormal(): [number, Vec2] {
 		const len = this.length;
 
-		if (nearlyEq(len, 0))
+		if (util.nearlyEq(len, 0))
 			return [len, Vec2.zero];
 
 		const invLen = 1 / len;
@@ -161,7 +161,7 @@ export namespace vec2 {
 				}
 
 
-				if (nearlyEq(accum.slope, slope, 1e-5)) {
+				if (util.nearlyEq(accum.slope, slope, 1e-5)) {
 					accum.prev = point;
 
 					return accum;
@@ -176,5 +176,10 @@ export namespace vec2 {
 				prev: null as Option<Const<Vec2>>,
 			})
 			.result;
+	}
+
+	export function nearlyEq(lhs: Const<Vec2>, rhs: Const<Vec2>, tolerance = 1e-5): boolean {
+		return util.nearlyEq(lhs.x, rhs.x, tolerance)
+			&& util.nearlyEq(lhs.y, rhs.y, tolerance);
 	}
 }
