@@ -1,0 +1,53 @@
+<ng-container *ngIf="points">
+<ng-container
+	*ngFor="let p of points
+		trackBy: trackPoint"
+>
+	<ng-container
+		*ngTemplateOutlet="handle, context: {
+			point: p,
+			handle: p.handle_in,
+			key: 'handle_in'
+		}"
+	></ng-container>
+	<ng-container
+		*ngTemplateOutlet="handle, context: {
+			point: p,
+			handle: p.handle_out,
+			key: 'handle_out'
+		}"
+	></ng-container>
+
+	<g-point *elxUnwrap="p.getStyle(theme) as style"
+		[shape]="style.shape"
+		[cx]="p.x" [cy]="p.y" [r]="style.radius"
+		[transform]="glyphToCanvas"
+		[fill]="style.fill"
+		[stroke]="style.stroke"
+		[strokeWidth]="style.strokeWidth"
+	></g-point>
+</ng-container>
+
+<ng-template #handle
+	let-p="point"
+	let-handle="handle"
+	let-key="key"
+>
+	<g-line *ngIf="handle"
+		[x1]="p.x" [y1]="p.y"
+		[x2]="handle.x" [y2]="handle.y"
+		[transform]="glyphToCanvas"
+		[stroke]="theme.getHex('primary', 700, 0.5)"
+		[strokeWidth]="1"
+	></g-line>
+	<g-point *ngIf="handle"
+		shape="diamond"
+		[cx]="handle.x" [cy]="handle.y"
+		[r]="p.active && p.activeKey === key ? 4 : 2.5"
+		[transform]="glyphToCanvas"
+		[fill]="theme.getHex('primary', 700, 0.2)"
+		[stroke]="theme.getHex('primary', 800)"
+		[strokeWidth]="p.active && p.activeKey === key ? 2 : 1"
+	></g-point>
+</ng-template>
+</ng-container>

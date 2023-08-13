@@ -41,6 +41,11 @@ import {
 	GlyphEditorComponent,
 	GlyphMetricsComponent,
 } from "./glyph";
+import {
+	ContourEditorTool,
+	MetricsRenderer,
+	OutlinePointsRenderer,
+} from "./glyph/editor";
 import { HybridCoordSpaceTransformDirective, TransformDirective } from "./math";
 import {
 	CanvasRenderer,
@@ -78,6 +83,7 @@ import {
 		AppComponent,
 		CanvasRenderer,
 		CffProgramPipe,
+		ContourEditorTool,
 		FamilyPanelComponent,
 		FontExplorerComponent,
 		GlyphComponent,
@@ -88,7 +94,9 @@ import {
 		HexPipe,
 		HybridCoordSpaceTransformDirective,
 		LineRenderer,
+		MetricsRenderer,
 		NewFamilyDialog,
+		OutlinePointsRenderer,
 		ParentFolderExistsValidator,
 		PathRenderer,
 		PointRenderer,
