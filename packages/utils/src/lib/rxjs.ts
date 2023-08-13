@@ -1,6 +1,16 @@
 import { ElementRef } from "@angular/core";
-import { fromEvent, Observable } from "rxjs";
-import { filter } from "rxjs/operators";
+import {
+	animationFrameScheduler,
+	filter,
+	fromEvent,
+	MonoTypeOperatorFunction,
+	Observable,
+	pipe,
+	scheduled,
+	shareReplay,
+	takeUntil,
+} from "rxjs";
+import { ShareReplayConfig } from "rxjs/internal/operators/shareReplay";
 
 import { ModifierKey, MODIFIER_KEYS_NOLOCKS } from "./keys";
 import { Predicate } from "./types";
@@ -34,4 +44,25 @@ export function fromKeydown(
 	}
 
 	return keydown$;
+}
+
+export function replayUntil<T>(
+	notifier$: Observable<any>,
+	config?: ShareReplayConfig,
+): MonoTypeOperatorFunction<T> {
+	config ??= { refCount: false };
+	config.bufferSize ??= 1;
+
+	return pipe(
+		shareReplay(config),
+		takeUntil(notifier$),
+	);
+}
+
+export function animationFrames() {
+	return scheduled(endless(), animationFrameScheduler);
+}
+
+function* endless(): Generator<void> {
+	while (true) yield;
 }
