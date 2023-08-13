@@ -307,9 +307,7 @@ export class Path implements IPath {
 			delete (cmd as any)["_str"];
 		}
 
-		if (!nearlyEq(updated.coords.x, target.coords.x, 1e-5)
-			|| !nearlyEq(updated.coords.y, target.coords.y, 1e-5))
-		{
+		if (!vec2.nearlyEq(updated.coords, target.coords, 1e-5)) {
 			const { x, y } = updated.coords;
 			for (let coordsCmd of [cmd, cmdMerged].filter(exists)) {
 				match (coordsCmd.op, {
@@ -325,15 +323,14 @@ export class Path implements IPath {
 			}
 		}
 
-		if (!!updated.handle_in !== !!target.handle_in
-			|| !!updated.handle_out !== !!target.handle_out)
+		if (Boolean(updated.handle_in) !== Boolean(target.handle_in)
+			|| Boolean(updated.handle_out) !== Boolean(target.handle_out))
 		{
 			console.warn("Adding/removing control points is not yet supported!");
 		}
 		else {
 			if (updated.handle_in
-				&& (!nearlyEq(updated.handle_in.x, target.handle_in!.x, 1e-5)
-					|| !nearlyEq(updated.handle_in.y, target.handle_in!.y, 1e-5)))
+				&& !vec2.nearlyEq(updated.handle_in, target.handle_in!, 1e-5))
 			{
 				const handleCmd = cmdMerged ?? cmd;
 				assert(
@@ -346,8 +343,7 @@ export class Path implements IPath {
 			}
 
 			if (updated.handle_out
-				&& (!nearlyEq(updated.handle_out.x, target.handle_out!.x, 1e-5)
-					|| !nearlyEq(updated.handle_out.y, target.handle_out!.y, 1e-5)))
+				&& !vec2.nearlyEq(updated.handle_out, target.handle_out!, 1e-5))
 			{
 				assert(
 					cmdNext.op === PathOp.BezierCurveTo,
