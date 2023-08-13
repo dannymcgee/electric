@@ -7,5 +7,7 @@
 	"explorer.fileNesting.patterns": {
 		"*.component.ts": "${capture}.component.scss, ${capture}.component.css, ${capture}.component.html, ${capture}.component.svg, ${capture}.component.spec.ts",
 		"*.dialog.ts": "${capture}.dialog.scss, ${capture}.dialog.css, ${capture}.dialog.html, ${capture}.dialog.svg, ${capture}.dialog.spec.ts",
+		"*.renderer.ts": "${capture}.renderer.scss, ${capture}.renderer.css, ${capture}.renderer.html, ${capture}.renderer.svg, ${capture}.renderer.spec.ts",
+		"*.tool.ts": "${capture}.tool.scss, ${capture}.tool.css, ${capture}.tool.html, ${capture}.tool.svg, ${capture}.tool.spec.ts",
 	},
 }
