@@ -302,9 +302,6 @@ export class Path implements IPath {
 		if (updated === target)
 			return;
 
-		// FIXME: Make this configurable
-		updated.round();
-
 		if (updated.smooth !== Boolean(target.smooth)) {
 			cmd.args.splice(cmd.args.length-1, 1, updated.smooth);
 			delete (cmd as any)["_str"];
