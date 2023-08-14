@@ -315,6 +315,7 @@ export class Path implements IPath {
 		const proxy = new Path();
 		this.replay(proxy);
 		this.contours = proxy.contours;
+		this.cleanup({ autoSmooth: false });
 
 		delete this._svg;
 		this._changes$.next();
@@ -343,6 +344,7 @@ export class Path implements IPath {
 		const proxy = new Path();
 		this.replay(proxy);
 		this.contours = proxy.contours;
+		this.cleanup({ autoSmooth: false });
 
 		delete this._svg;
 		this._changes$.next();
