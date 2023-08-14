@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 
 import { Matrix, nearlyEq, vec2, Vec2 } from "../math";
 import { pathCommand, PathCommand, PathOp } from "./path-command";
-import { EditPayload, Transaction, TransactionEntry, TransactionType } from "./transaction";
+import { EditPayload, Transaction, TransactionType } from "./transaction";
 
 export interface IPath {
 	/**
@@ -536,11 +536,11 @@ export class Path implements IPath {
 		const cpx2 = x + twoThirds * (cpx - x);
 		const cpy2 = y + twoThirds * (cpy - y);
 
-		p.handle_out = new Vec2(cpx1, cpy1);
+		p.handle_out = vec2(cpx1, cpy1);
 		p.smooth = smooth ?? false;
 
 		const endPoint = new Point(x, y, smooth);
-		endPoint.handle_in = new Vec2(cpx2, cpy2);
+		endPoint.handle_in = vec2(cpx2, cpy2);
 
 		this._commands.push(pathCommand(PathOp.QuadraticCurveTo, cpx, cpy, x, y, smooth));
 		this.contours[this.contours.length-1].points.push(endPoint);
@@ -557,16 +557,16 @@ export class Path implements IPath {
 			return;
 		}
 
+		const cp1 = vec2(cpx1, cpy1);
 		if (!this.lastPoint.handle_out
-			&& (!nearlyEq(this.lastPoint.coords.x, cpx1, 1e-5)
-				|| !nearlyEq(this.lastPoint.coords.y, cpy1, 1e-5)))
+			&& !vec2.nearlyEq(this.lastPoint.coords, cp1, 1e-5))
 		{
-			this.lastPoint.handle_out = new Vec2(cpx1, cpy1);
+			this.lastPoint.handle_out = cp1;
 		}
 
 		const endPoint = new Point(x, y, smooth);
 		if (!nearlyEq(x, cpx2, 1e-5) || !nearlyEq(y, cpy2, 1e-5))
-			endPoint.handle_in = new Vec2(cpx2, cpy2);
+			endPoint.handle_in = vec2(cpx2, cpy2);
 
 		this._commands.push(pathCommand(PathOp.BezierCurveTo, cpx1, cpy1, cpx2, cpy2, x, y, smooth));
 		this.contours[this.contours.length-1].points.push(endPoint);
@@ -584,10 +584,7 @@ export class Path implements IPath {
 			const last = contour.last;
 			if (!first || !last) continue;
 
-			if (first !== last
-				&& nearlyEq(first.coords.x, last.coords.x, 1e-5)
-				&& nearlyEq(first.coords.y, last.coords.y, 1e-5))
-			{
+			if (first !== last && vec2.nearlyEq(first.coords, last.coords, 1e-5)) {
 				first.handle_in = last.handle_in;
 				last.hidden = true;
 			}
@@ -677,7 +674,7 @@ export class Point {
 		smooth?: boolean,
 		hidden?: boolean,
 	) {
-		this.coords = new Vec2(x, y);
+		this.coords = vec2(x, y);
 		this.smooth = smooth ?? false;
 		this.hidden = hidden ?? false;
 	}
