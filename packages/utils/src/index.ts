@@ -10,4 +10,5 @@ export * from "./lib/match";
 export * from "./lib/object";
 export * from "./lib/rxjs";
 export * from "./lib/sleep";
+export * from "./lib/stack";
 export * from "./lib/types";

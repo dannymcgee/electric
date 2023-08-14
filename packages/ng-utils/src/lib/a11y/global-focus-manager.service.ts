@@ -1,7 +1,7 @@
 import { DOCUMENT } from "@angular/common";
 import { Inject, Injectable } from "@angular/core";
 
-import { array } from "@electric/utils";
+import { array, Stack } from "@electric/utils";
 
 import { Loop } from "../loop";
 
@@ -38,7 +38,7 @@ export class GlobalFocusManager {
 	private watchForChanges(): void {
 		this.drainNullRefs();
 
-		let last = this._focusHistory.peek();
+		let last = this._focusHistory.top;
 		let current = this._document.activeElement as HTMLElement;
 
 		if (current && current !== this._document.body && current !== last) {
@@ -47,31 +47,8 @@ export class GlobalFocusManager {
 	}
 
 	private drainNullRefs(): void {
-		while (this._focusHistory.length && !this._focusHistory.peek()) {
+		while (this._focusHistory.length && !this._focusHistory.top) {
 			this._focusHistory.pop();
 		}
-	}
-}
-
-class Stack<T> extends Array<T> {
-	constructor (private _capacity?: number) {
-		super();
-	}
-
-	peek(): T | null {
-		if (this.length) {
-			return this[this.length - 1];
-		}
-		return null;
-	}
-
-	override push(...items: T[]): number {
-		super.push(...items);
-		if (!this._capacity) return this.length;
-
-		while (this.length > this._capacity) {
-			this.shift();
-		}
-		return this.length;
 	}
 }
