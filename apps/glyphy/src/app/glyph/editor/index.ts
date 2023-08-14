@@ -5,3 +5,4 @@ export * from "./outline-points.renderer";
 export * from "./ruler.renderer";
 export * from "./rulers.renderer";
 export * from "./types";
+export * from "./view-rect.provider";

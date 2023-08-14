@@ -11,7 +11,6 @@ import {
 	OnInit,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
-import { ElxResizeObserver } from "@electric/ng-utils";
 import { Const, exists, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
@@ -20,9 +19,7 @@ import {
 	filter,
 	fromEvent,
 	map,
-	merge,
 	Observable,
-	of,
 	race,
 	shareReplay,
 	Subject,
@@ -30,15 +27,18 @@ import {
 } from "rxjs";
 
 import { FamilyService } from "../family";
-import { Matrix, Rect } from "../math";
-import { InputProvider } from "./editor";
+import { Matrix } from "../math";
+import { InputProvider, ViewRectProvider } from "./editor";
 import { Glyph } from "./glyph";
 
 @Component({
 	selector: "g-glyph-editor",
 	templateUrl: "./glyph-editor.component.html",
 	styleUrls: ["./glyph-editor.component.scss"],
-	providers: [InputProvider],
+	providers: [
+		InputProvider,
+		ViewRectProvider,
+	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -58,7 +58,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	private _panAndZoom$ = new BehaviorSubject<Matrix>(Matrix.Identity as Matrix);
 	readonly panAndZoom$ = this._panAndZoom$.pipe(replayUntil(this._onDestroy$));
 
-	contentRect$?: Observable<Rect>;
+	get contentRect$() { return this._rect.contentRect$; }
 	glyphToCanvas$?: Observable<Const<Matrix>>;
 	canvasToGlyph$?: Observable<Const<Matrix>>;
 
@@ -67,28 +67,11 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 		public _familyService: FamilyService,
 		private _input: InputProvider,
 		private _ref: ElementRef<HTMLElement>,
-		private _resizeObserver: ElxResizeObserver,
+		private _rect: ViewRectProvider,
 		public theme: ThemeService,
 	) {}
 
 	ngOnInit(): void {
-		const resize$ = this._resizeObserver
-			.observe(this._ref)
-			.pipe(replayUntil(this._onDestroy$));
-
-		const contentRect$ = resize$.pipe(
-			map(entry => entry.contentRect),
-			takeUntil(this._onDestroy$),
-		);
-
-		const { width, height } = this._ref.nativeElement.getBoundingClientRect();
-		const initRect = new Rect(0, 0, width, height);
-
-		this.contentRect$ = merge(of(initRect), contentRect$).pipe(
-			distinctUntilChanged(Rect.nearlyEq(0.5)),
-			replayUntil(this._onDestroy$),
-		);
-
 		this.glyphToCanvas$ = combineLatest([
 			this._familyService.family$.pipe(
 				filter(exists),
@@ -136,7 +119,6 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	ngOnDestroy(): void {
 		this._onDestroy$.next();
 		this._onDestroy$.complete();
-		this._resizeObserver.unobserve(this._ref);
 		this._panAndZoom$.complete();
 	}
 

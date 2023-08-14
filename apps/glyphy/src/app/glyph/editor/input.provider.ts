@@ -1,18 +1,16 @@
 import { ElementRef, Injectable, OnDestroy } from "@angular/core";
-import { ElxResizeObserver } from "@electric/ng-utils";
 import { Const, delta, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
 	filter,
 	fromEvent,
 	map,
-	merge,
-	of,
 	ReplaySubject,
 	withLatestFrom,
 } from "rxjs";
 
 import { vec2, Vec2 } from "../../math";
+import { ViewRectProvider } from "./view-rect.provider";
 
 @Injectable()
 export class InputProvider implements OnDestroy {
@@ -32,20 +30,11 @@ export class InputProvider implements OnDestroy {
 
 	constructor (
 		private _ref: ElementRef<Element>,
-		private _resizeObserver: ElxResizeObserver,
+		private _rect: ViewRectProvider,
 	) {
-		const resizeClientRect$ = _resizeObserver.observe(_ref)
-			.pipe(
-				map(() => _ref.nativeElement.getBoundingClientRect()),
-				replayUntil(this._onDestroy$),
-			);
-
-		const initClientRect$ = of(_ref.nativeElement.getBoundingClientRect())
-			.pipe(replayUntil(this._onDestroy$));
-
 		fromEvent<PointerEvent>(_ref.nativeElement, "pointermove")
 			.pipe(
-				withLatestFrom(merge(initClientRect$, resizeClientRect$)),
+				withLatestFrom(this._rect.viewRect$),
 				map(([ptr, view]) => vec2(ptr.clientX-view.x, ptr.clientY-view.y)),
 				replayUntil(this._onDestroy$),
 			)
@@ -98,8 +87,6 @@ export class InputProvider implements OnDestroy {
 		this._keysDown$.complete();
 		this._ptrBtnsDown$.complete();
 		this._ptrLocation$.complete();
-
-		this._resizeObserver.unobserve(this._ref);
 	}
 
 	ptrDown(button = 0) {

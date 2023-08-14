@@ -8,11 +8,9 @@ import {
 	OnInit,
 	Output,
 } from "@angular/core";
-import { ElxResizeObserver, QueryList } from "@electric/ng-utils";
+import { QueryList } from "@electric/ng-utils";
 import {
 	animationFrameScheduler,
-	distinctUntilChanged,
-	map,
 	merge,
 	shareReplay,
 	startWith,
@@ -21,8 +19,8 @@ import {
 	takeUntil,
 	throttleTime,
 } from "rxjs";
+import { ViewRectProvider } from "../glyph/editor";
 
-import { Rect } from "../math";
 import { RenderElement, RENDER_ELEMENT } from "./render.types";
 
 @Component({
@@ -42,7 +40,7 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 
 	constructor (
 		private _ref: ElementRef<HTMLCanvasElement>,
-		private _resizeObserver: ElxResizeObserver,
+		private _rect: ViewRectProvider,
 	) {}
 
 	ngOnInit(): void {
@@ -54,27 +52,12 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 		if (!this._context)
 			throw new Error("Failed to create canvas rendering context");
 
-		this._resizeObserver
-			.observe(this._ref)
-			.pipe(
-				map(entry => entry.contentRect),
-				distinctUntilChanged(Rect.nearlyEq(0.5)),
-				takeUntil(this._onDestroy$),
-			)
-			.subscribe({
-				next: ({ width, height }) => {
-					const ctx = this._context;
-					ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		this._rect.contentRect$.subscribe(({ width, height }) => {
+			this._canvas.width = width * devicePixelRatio;
+			this._canvas.height = height * devicePixelRatio;
 
-					ctx.canvas.width = width * devicePixelRatio;
-					ctx.canvas.height = height * devicePixelRatio;
-
-					this.render();
-				},
-				complete: () => {
-					this._resizeObserver.unobserve(this._ref);
-				},
-			});
+			this.render();
+		});
 	}
 
 	ngAfterContentInit(): void {
