@@ -6,3 +6,4 @@ export * from "./path.renderer";
 export * from "./point.renderer";
 export * from "./rect.renderer";
 export * from "./render.types";
+export * from "./text.renderer";

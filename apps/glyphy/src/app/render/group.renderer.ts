@@ -62,7 +62,8 @@ export abstract class GroupRenderer
 	}
 
 	onDraw(ctx: CanvasRenderingContext2D): void {
-		for (let element of this.children)
-			element.onDraw(ctx);
+		if (this.children)
+			for (let element of this.children)
+				element.onDraw(ctx);
 	}
 }

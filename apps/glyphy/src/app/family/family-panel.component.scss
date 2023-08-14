@@ -5,14 +5,15 @@
 
 :host {
 	@include layout.flex(column);
-	width: a11y.rem(256);
+	width: a11y.rem(258);
 	padding: a11y.rem(8) 0 0;
 	gap: a11y.rem(8);
-	overflow: hidden;
-	@include anim.transition(width, 200ms, anim.$ease-in-out-sine);
+	@include anim.transition((width, border-color), 200ms, anim.$ease-in-out-sine);
+	border-right: 2px solid color.background(500);
 
 	&.collapsed {
-		width: a11y.rem(48);
+		width: a11y.rem(50);
+		border-color: color.background(600);
 	}
 }
 
@@ -63,6 +64,7 @@
 	cursor: default;
 	user-select: none;
 	border-right: 2px solid transparent;
+	margin-right: -2px;
 	outline: none !important;
 	@include anim.transition((background, color, border-color));
 
@@ -87,10 +89,6 @@
 	&:focus-visible {
 		background: color.accent(50);
 		color: color.accent(800);
-	}
-
-	&:where(.collapsed #{&}) {
-		border-color: transparent;
 	}
 
 	&__icon {

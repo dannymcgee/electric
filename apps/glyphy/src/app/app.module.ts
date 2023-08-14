@@ -44,6 +44,8 @@ import {
 	ContourEditorTool,
 	MetricsRenderer,
 	OutlinePointsRenderer,
+	RulerRenderer,
+	RulersRenderer,
 } from "./glyph/editor";
 import { HybridCoordSpaceTransformDirective, TransformDirective } from "./math";
 import {
@@ -52,6 +54,7 @@ import {
 	PathRenderer,
 	PointRenderer,
 	RectRenderer,
+	TextRenderer,
 } from "./render";
 import {
 	CffProgramPipe,
@@ -99,7 +102,10 @@ import {
 		PathRenderer,
 		PointRenderer,
 		RectRenderer,
+		RulerRenderer,
+		RulersRenderer,
 		TargetFolderIsNewValidator,
+		TextRenderer,
 		TransformDirective,
 		ViewBoxDirective,
 	],

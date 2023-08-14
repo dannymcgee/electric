@@ -1,0 +1,30 @@
+<g-ruler
+	orientation="horizontal"
+	[hashes]="hashes.x"
+	[x]="viewRect.left + 28"
+	[y]="viewRect.top"
+	[width]="viewRect.width - 28"
+	[height]="28"
+	[glyphToCanvas]="glyphToCanvas"
+	[canvasToGlyph]="canvasToGlyph"
+	[background]="background"
+></g-ruler>
+
+<g-ruler
+	orientation="vertical"
+	[hashes]="hashes.y"
+	[x]="viewRect.left"
+	[y]="viewRect.top + 28"
+	[width]="28"
+	[height]="viewRect.height - 28"
+	[glyphToCanvas]="glyphToCanvas"
+	[canvasToGlyph]="canvasToGlyph"
+	[background]="background"
+></g-ruler>
+
+<g-rect
+	[x]="0" [y]="0"
+	[width]="28"
+	[height]="28"
+	[fill]="background"
+></g-rect>
