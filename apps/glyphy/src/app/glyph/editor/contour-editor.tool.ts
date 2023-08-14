@@ -11,9 +11,9 @@ import {
 import { ThemeService } from "@electric/components";
 import { KeybindRegistry } from "@electric/ng-utils";
 import {
-	animationFrames,
 	assert,
 	Const,
+	delta,
 	match,
 	Option,
 	replayUntil,
@@ -146,12 +146,7 @@ export class ContourEditorTool
 		);
 
 		// Pointer coords in client space
-		const clientPtr$ = animationFrames().pipe(
-			withLatestFrom(this._input.ptrLocation$),
-			distinctUntilChanged(([, a], [, b]) => vec2.nearlyEq(a, b, 0.5)),
-			map(([, ptr]) => ptr),
-			replayUntil(this.onDestroy$),
-		);
+		const clientPtr$ = this._input.ptrLocation$.pipe(replayUntil(this.onDestroy$));
 
 		// Pointer coords in glyph space
 		const glyphPtr$ = clientPtr$.pipe(
@@ -205,7 +200,10 @@ export class ContourEditorTool
 		// Edit
 		this._input.ptrDown(0)
 			.pipe(
-				switchMap(() => combineLatest([glyphPtr$, this._input.keysDown$]).pipe(
+				switchMap(() => combineLatest([
+					glyphPtr$.pipe(delta({ diff: vec2.sub, zero: Vec2.zero })),
+					this._input.keysDown$
+				]).pipe(
 					withLatestFrom(this.activePoint$),
 					takeUntil(race(
 						this._input.ptrUp(0),
@@ -214,9 +212,9 @@ export class ContourEditorTool
 				)),
 				takeUntil(this.onDestroy$),
 			)
-			.subscribe(([[gPtr, keys], activePoint]) => {
+			.subscribe(([[delta, keys], activePoint]) => {
 				if (activePoint)
-					this.editPoint(gPtr, keys, activePoint);
+					this.editPoint(delta, keys, activePoint);
 			});
 
 		// Render
@@ -292,15 +290,15 @@ export class ContourEditorTool
 	/**
 	 * Update the active point.
 	 *
-	 * @param gPtr The pointer coordinates, in glyph coordinate space
+	 * @param delta The amount of change to apply, in glyph coordinate space
 	 * @param keys Keyboard keys currently being pressed
 	 * @param point The point to update
 	 */
-	editPoint(gPtr: Const<Vec2>, keys: ReadonlySet<string>, point: Const<EditorPoint>): void {
+	editPoint(delta: Const<Vec2>, keys: ReadonlySet<string>, point: Const<EditorPoint>): void {
 		const updated = match (point.activeKey!, {
-			"coords": () => this.editOnCurvePoint(gPtr, keys, point),
-			"handle_in": () => this.editOffCurvePoint(gPtr, keys, point),
-			"handle_out": () => this.editOffCurvePoint(gPtr, keys, point),
+			"coords": () => this.editOnCurvePoint(delta, keys, point),
+			"handle_in": () => this.editOffCurvePoint(delta, keys, point),
+			"handle_out": () => this.editOffCurvePoint(delta, keys, point),
 		});
 
 		this._activePoint$.next(updated);
@@ -312,12 +310,12 @@ export class ContourEditorTool
 	 *
 	 * @returns a copy of the point with the changes applied.
 	 *
-	 * @param gPtr The pointer coordinates, in glyph coordinate space
+	 * @param delta The amount of change to apply, in glyph coordinate space
 	 * @param keys Keyboard keys currently being pressed
 	 * @param p The point to update
 	 */
 	editOnCurvePoint(
-		gPtr: Const<Vec2>,
+		delta: Const<Vec2>,
 		keys: ReadonlySet<string>,
 		p: Const<EditorPoint>
 	): EditorPoint {
@@ -326,9 +324,9 @@ export class ContourEditorTool
 		const ci = p.contourIndex;
 		const pi = p.pointIndex;
 		const c = this.outline.contours[ci];
+		const targetCoords = vec2.add(p.coords, delta);
 
 		const updated = p.clone();
-		const delta = vec2.sub(gPtr, p.coords);
 
 		if (p.smooth) {
 			if (!p.handle_in || !p.handle_out) {
@@ -341,8 +339,8 @@ export class ContourEditorTool
 				const handleLen = vec2.dist(handle, p.coords);
 				const direction = vec2.sub(p.coords, refPoint.coords).normalize();
 
-				updated[handleKey] = vec2.add(gPtr, vec2.mul(direction, handleLen));
-				updated.coords = gPtr;
+				updated[handleKey] = vec2.add(targetCoords, vec2.mul(direction, handleLen));
+				updated.coords = targetCoords;
 
 				return updated;
 			}
@@ -351,7 +349,7 @@ export class ContourEditorTool
 			if (keys.has("Alt")) {
 				// Slide the on-curve point between the handles
 				const direction = vec2.sub(p.handle_in, p.handle_out).normalize();
-				const toHandle = vec2.sub(gPtr, p.handle_in);
+				const toHandle = vec2.sub(targetCoords, p.handle_in);
 				const projLength = vec2.dot(direction, toHandle);
 
 				updated.coords = vec2.add(
@@ -364,7 +362,7 @@ export class ContourEditorTool
 		}
 
 		// Move the on-curve point and its handles as a unit
-		updated.coords = gPtr;
+		updated.coords = targetCoords;
 
 		updated.handle_in = p.handle_in
 			? vec2.add(p.handle_in, delta)
@@ -382,12 +380,12 @@ export class ContourEditorTool
 	 *
 	 * @returns a copy of the point with the changes applied.
 	 *
-	 * @param gPtr The pointer coordinates, in glyph coordinate space
+	 * @param delta The amount of change to apply, in glyph coordinate space
 	 * @param keys Keyboard keys currently being pressed
 	 * @param p The point to update
 	 */
 	editOffCurvePoint(
-		gPtr: Const<Vec2>,
+		delta: Const<Vec2>,
 		keys: ReadonlySet<string>,
 		p: Const<EditorPoint>,
 	): EditorPoint {
@@ -396,10 +394,11 @@ export class ContourEditorTool
 		const key = p.activeKey as HandleKey;
 		const updated = p.clone();
 		const pActiveCoords = p[key]!;
+		const targetCoords = vec2.add(pActiveCoords, delta);
 
 		if (!p.smooth) {
 			// Just move the handle
-			updated[key] = gPtr;
+			updated[key] = targetCoords;
 
 			return updated;
 		}
@@ -411,13 +410,13 @@ export class ContourEditorTool
 
 		if (!other) {
 			// Tangent point - constrain the handle to length adjustments only
-			const newLength = vec2.dist(gPtr, p.coords);
+			const newLength = vec2.dist(targetCoords, p.coords);
 			const direction = vec2.sub(pActiveCoords, p.coords).normalize();
 			let constrained = vec2.add(p.coords, vec2.mul(direction, newLength));
 
 			// FIXME: This isn't a perfect test - we really want to know if the
 			// angle of coords -> p.coords <- nearest on-curve point is <= 90°
-			if (vec2.dist(gPtr, constrained) > newLength) {
+			if (vec2.dist(targetCoords, constrained) > newLength) {
 				// we're trying to pull the handle in the opposite direction, past
 				// the on-curve point, which shouldn't be allowed.
 
@@ -436,14 +435,14 @@ export class ContourEditorTool
 		// TODO: Configurable keybindings
 		// Match the length of the other handle to this one if Alt key is down
 		const otherLength = keys.has("Alt")
-			? vec2.dist(gPtr, p.coords)
+			? vec2.dist(targetCoords, p.coords)
 			: vec2.dist(other, p.coords);
 
 		// Keep the other handle collinear with this one
-		const direction = vec2.sub(p.coords, gPtr).normalize();
+		const direction = vec2.sub(p.coords, targetCoords).normalize();
 		const otherCoords = vec2.add(p.coords, vec2.mul(direction, otherLength));
 
-		updated[key] = gPtr;
+		updated[key] = targetCoords;
 		updated[otherKey] = otherCoords;
 
 		return updated;
