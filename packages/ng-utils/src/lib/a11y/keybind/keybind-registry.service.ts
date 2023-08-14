@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import { assert, fromKeydown, isModifier, partition } from "@electric/utils";
 import { Subscription } from "rxjs";
-import { normalize } from "./keybind-util";
+
+import { normalize } from "./util";
 
 export interface KeybindHandler {
 	(event: KeyboardEvent): any;

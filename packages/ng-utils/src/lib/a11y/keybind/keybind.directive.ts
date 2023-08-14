@@ -10,7 +10,7 @@ import {
 import { Fn } from "@electric/utils";
 
 import { KeybindRegistry } from "./keybind-registry.service";
-import { normalize } from "./keybind-util";
+import { normalize } from "./util";
 
 @Directive({
 	selector: "[keybind]"
