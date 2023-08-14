@@ -37,7 +37,7 @@ import { FontExplorerComponent } from "./font";
 import {
 	GlyphComponent,
 	GlyphContourComponent,
-	GlyphEditor2Component,
+	GlyphEditorComponent,
 	GlyphMetricsComponent,
 } from "./glyph";
 import {
@@ -87,7 +87,7 @@ import {
 		FontExplorerComponent,
 		GlyphComponent,
 		GlyphContourComponent,
-		GlyphEditor2Component,
+		GlyphEditorComponent,
 		GlyphMetricsComponent,
 		HexPipe,
 		HybridCoordSpaceTransformDirective,

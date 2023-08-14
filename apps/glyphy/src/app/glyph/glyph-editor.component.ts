@@ -59,12 +59,12 @@ class EditorPoint extends Point {
 
 @Component({
 	selector: "g-glyph-editor",
-	templateUrl: "./glyph-editor2.component.html",
-	styleUrls: ["./glyph-editor2.component.scss"],
+	templateUrl: "./glyph-editor.component.html",
+	styleUrls: ["./glyph-editor.component.scss"],
 	providers: [InputProvider],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GlyphEditor2Component implements OnInit, AfterViewInit, OnDestroy {
+export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	// Configuration
 	@Input() glyph!: Glyph;
 	@Input() metricsThickness = 1;
