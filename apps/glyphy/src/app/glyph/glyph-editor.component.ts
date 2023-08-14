@@ -9,11 +9,10 @@ import {
 	Input,
 	OnDestroy,
 	OnInit,
-	TrackByFunction,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
 import { ElxResizeObserver } from "@electric/ng-utils";
-import { Const, exists, Option } from "@electric/utils";
+import { Const, exists, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
 	combineLatest,
@@ -25,37 +24,15 @@ import {
 	Observable,
 	of,
 	race,
-	scan,
 	shareReplay,
 	Subject,
 	takeUntil,
 } from "rxjs";
 
 import { FamilyService } from "../family";
-import { Matrix, Rect, Vec2, vec2 } from "../math";
+import { Matrix, Rect } from "../math";
 import { InputProvider } from "./editor";
 import { Glyph } from "./glyph";
-import { Point } from "./path";
-
-type PointKey
-	= "coords"
-	| "handle_in"
-	| "handle_out";
-
-class EditorPoint extends Point {
-	readonly contourIndex: number;
-	readonly pointIndex: number;
-
-	constructor (ci: number, pi: number, point: Const<Point>) {
-		super(point.x, point.y, point.smooth, point.hidden);
-
-		this.handle_in = point.handle_in;
-		this.handle_out = point.handle_out;
-
-		this.contourIndex = ci;
-		this.pointIndex = pi;
-	}
-}
 
 @Component({
 	selector: "g-glyph-editor",
@@ -65,44 +42,30 @@ class EditorPoint extends Point {
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
-	// Configuration
 	@Input() glyph!: Glyph;
 	@Input() metricsThickness = 1;
 	@Input() pathThickness = 1;
 	@Input() handleThickness = 1;
 
-	// User input / events
 	@HostBinding("class.pan-mode")
 	isPanMode = false;
 
 	@HostBinding("class.panning")
 	isPanning = false;
 
+	private _onDestroy$ = new Subject<void>();
+
 	private _panAndZoom$ = new BehaviorSubject<Matrix>(Matrix.Identity as Matrix);
-	panAndZoom$ = this._panAndZoom$.pipe(shareReplay({ bufferSize: 1, refCount: true }));
+	readonly panAndZoom$ = this._panAndZoom$.pipe(replayUntil(this._onDestroy$));
 
-	marquee: Option<Rect> = null;
-	points: EditorPoint[] = [];
-
-	activePoint?: EditorPoint;
-	activeKey?: PointKey;
-
-	// Transforms
 	contentRect$?: Observable<Rect>;
 	glyphToCanvas$?: Observable<Const<Matrix>>;
 	canvasToGlyph$?: Observable<Const<Matrix>>;
 
-	private _onDestroy$ = new Subject<void>();
-
-	trackPoint: TrackByFunction<EditorPoint> = (_, p) => {
-		return this.points.length << 0
-			| p.contourIndex << 8
-			| p.pointIndex << 16;
-	}
-
 	constructor (
 		private _cdRef: ChangeDetectorRef,
 		public _familyService: FamilyService,
+		private _input: InputProvider,
 		private _ref: ElementRef<HTMLElement>,
 		private _resizeObserver: ElxResizeObserver,
 		public theme: ThemeService,
@@ -111,10 +74,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	ngOnInit(): void {
 		const resize$ = this._resizeObserver
 			.observe(this._ref)
-			.pipe(
-				shareReplay({ bufferSize: 1, refCount: true }),
-				takeUntil(this._onDestroy$),
-			);
+			.pipe(replayUntil(this._onDestroy$));
 
 		const contentRect$ = resize$.pipe(
 			map(entry => entry.contentRect),
@@ -126,8 +86,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.contentRect$ = merge(of(initRect), contentRect$).pipe(
 			distinctUntilChanged(Rect.nearlyEq(0.5)),
-			shareReplay({ bufferSize: 1, refCount: true }),
-			takeUntil(this._onDestroy$),
+			replayUntil(this._onDestroy$),
 		);
 
 		this.glyphToCanvas$ = combineLatest([
@@ -166,8 +125,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.canvasToGlyph$ = this.glyphToCanvas$.pipe(
 			map(matrix => matrix.inverse()),
-			shareReplay({ bufferSize: 1, refCount: true }),
-			takeUntil(this._onDestroy$),
+			replayUntil(this._onDestroy$),
 		);
 	}
 
@@ -214,28 +172,12 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	private beginPan(): void {
 		this.isPanning = true;
 
-		fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove")
-			.pipe(
-				scan((accum, event) => ({
-					prev: accum.current,
-					current: event,
-				}), {
-					prev: null as Option<PointerEvent>,
-					current: null as Option<PointerEvent>,
-				}),
-				map(({ prev, current }) => {
-					if (!current || !prev) return vec2(0, 0);
-					return vec2(
-						current.clientX - prev.clientX,
-						current.clientY - prev.clientY,
-					);
-				}),
-				takeUntil(race(
-					fromEvent(this._ref.nativeElement, "pointerleave"),
-					fromEvent(document, "pointerup"),
-					this._onDestroy$,
-				)),
-			)
+		this._input.ptrMove()
+			.pipe(takeUntil(race(
+				fromEvent(this._ref.nativeElement, "pointerleave"),
+				fromEvent(document, "pointerup"),
+				this._onDestroy$,
+			)))
 			.subscribe({
 				next: ({ x: dx, y: dy }) => {
 					const matrix = this._panAndZoom$.value;
@@ -261,23 +203,4 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 			Matrix.translate(originX, originY),
 		));
 	}
-}
-
-function closestInPoint(point: EditorPoint, ref: Vec2) {
-	return [
-		point.coords,
-		point.handle_in,
-		point.handle_out,
-	].reduce(
-		(accum, p) => {
-			if (!p) return accum;
-			return Math.min(accum, vec2.dist2(p, ref));
-		},
-		Number.POSITIVE_INFINITY,
-	);
-}
-
-function ascendingByDistanceTo(coords: Vec2) {
-	return (a: EditorPoint, b: EditorPoint) =>
-		closestInPoint(a, coords) - closestInPoint(b, coords);
 }

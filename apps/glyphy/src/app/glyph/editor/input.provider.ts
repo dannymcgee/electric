@@ -1,6 +1,6 @@
 import { ElementRef, Injectable, OnDestroy } from "@angular/core";
 import { ElxResizeObserver } from "@electric/ng-utils";
-import { Const, replayUntil } from "@electric/utils";
+import { Const, delta, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
 	filter,
@@ -108,5 +108,12 @@ export class InputProvider implements OnDestroy {
 
 	ptrUp(button = 0) {
 		return this._ptrBtnsDown$.pipe(filter(btns => !btns.has(button)));
+	}
+
+	ptrMove() {
+		return fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove").pipe(
+			map(({ clientX, clientY }) => vec2(clientX, clientY)),
+			delta({ diff: vec2.sub, zero: Vec2.zero }),
+		);
 	}
 }
