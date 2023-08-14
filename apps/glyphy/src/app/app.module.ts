@@ -38,7 +38,6 @@ import {
 	GlyphComponent,
 	GlyphContourComponent,
 	GlyphEditor2Component,
-	GlyphEditorComponent,
 	GlyphMetricsComponent,
 } from "./glyph";
 import {
@@ -88,7 +87,6 @@ import {
 		FontExplorerComponent,
 		GlyphComponent,
 		GlyphContourComponent,
-		GlyphEditorComponent,
 		GlyphEditor2Component,
 		GlyphMetricsComponent,
 		HexPipe,
