@@ -1,8 +1,9 @@
-import { assert, Const, exists, match } from "@electric/utils";
+import { assert, Const, exists, Fn, match, Option, Stack } from "@electric/utils";
 import { Subject } from "rxjs";
 
 import { Matrix, nearlyEq, vec2, Vec2 } from "../math";
 import { pathCommand, PathCommand, PathOp } from "./path-command";
+import { EditPayload, Transaction, TransactionEntry, TransactionType } from "./transaction";
 
 export interface IPath {
 	/**
@@ -112,6 +113,13 @@ export class Path implements IPath {
 	get svg(): string { return this._svg ??= this._commands.join(""); }
 
 	private _commands: PathCommand[] = [];
+
+	// TODO: Could make the capacity configurable with a warning about memory
+	//       consumption, similar to Blender
+	private _undoStack = new Stack<Transaction>(1024);
+	private _redoStack = new Stack<Transaction>(1024);
+	private _inProgress?: Transaction;
+	private _recording = false;
 
 	constructor (
 		public contours: Contour[] = [],
@@ -266,6 +274,116 @@ export class Path implements IPath {
 			return result;
 	}
 
+	beginTransaction(): void {
+		this._recording = true;
+		this._inProgress ??= [];
+	}
+
+	endTransaction(): void {
+		this._recording = false;
+
+		if (this._inProgress?.length) {
+			this._undoStack.push(this._inProgress);
+			delete this._inProgress;
+			this._redoStack.clear();
+		}
+	}
+
+	undo(): void {
+		const transaction = this._undoStack.pop()?.slice();
+		if (!transaction) return;
+
+		this._redoStack.push(transaction.slice());
+
+		while (transaction.length) {
+			const entry = transaction.pop()!;
+			switch (entry.type) {
+				case TransactionType.Edit: {
+					const { index, prev } = entry.payload;
+					this._commands[index] = prev.clone() as PathCommand;
+					break;
+				}
+				default: {
+					console.error(
+						`TransactionType "${TransactionType[entry.type]}" not yet implemented!`
+					);
+				}
+			}
+		}
+
+		// TODO: Do this less wastefully lol
+		const proxy = new Path();
+		this.replay(proxy);
+		this.contours = proxy.contours;
+
+		delete this._svg;
+		this._changes$.next();
+	}
+
+	redo(): void {
+		const transaction = this._redoStack.pop()?.slice();
+		if (!transaction) return;
+
+		this._undoStack.push(transaction.slice());
+
+		for (let entry of transaction) {
+			switch (entry.type) {
+				case TransactionType.Edit: {
+					const { index, next } = entry.payload;
+					this._commands[index] = next.clone() as PathCommand;
+					break;
+				}
+				default: {
+					console.error(`TransactionType ${entry.type} not yet implemented!`);
+				}
+			}
+		}
+
+		// TODO: Do this less wastefully lol
+		const proxy = new Path();
+		this.replay(proxy);
+		this.contours = proxy.contours;
+
+		delete this._svg;
+		this._changes$.next();
+	}
+
+	private recordEdit_before(cmd: PathCommand): Option<Omit<EditPayload, "next">> {
+		if (!this._recording) return null;
+
+		const index = this._commands.indexOf(cmd);
+		const prev = cmd.clone() as PathCommand;
+
+		return { index, prev };
+	}
+
+	private recordEdit_after(cmd: PathCommand, partial: Option<Omit<EditPayload, "next">>) {
+		if (!this._recording) return;
+
+		assert(this._inProgress != null);
+		assert(partial != null);
+
+		const next = cmd.clone() as PathCommand;
+		const transaction = this._inProgress.find(it => (
+			it.type === TransactionType.Edit
+			&& it.payload.index === partial.index
+		));
+
+		if (transaction)
+			(transaction.payload as EditPayload).next = next;
+		else
+			this._inProgress.push({
+				type: TransactionType.Edit as const,
+				payload: { ...partial, next },
+			});
+	}
+
+	private recordEdit(cmd: PathCommand, doEdit: Fn<[], void>): void {
+		const partial = this.recordEdit_before(cmd);
+		doEdit();
+		this.recordEdit_after(cmd, partial);
+	}
+
 	// FIXME: This function is a mess!
 	editPoint(contourIndex: number, pointIndex: number, edit: PointTransformFn): void {
 		if (!this.contours[contourIndex]?.points[pointIndex])
@@ -303,23 +421,28 @@ export class Path implements IPath {
 			return;
 
 		if (updated.smooth !== Boolean(target.smooth)) {
-			cmd.args.splice(cmd.args.length-1, 1, updated.smooth);
-			delete (cmd as any)["_str"];
+			this.recordEdit(cmd, () => {
+				cmd.args.splice(cmd.args.length-1, 1, updated.smooth);
+				delete (cmd as any)["_str"];
+			});
 		}
 
 		if (!vec2.nearlyEq(updated.coords, target.coords, 1e-5)) {
 			const { x, y } = updated.coords;
 			for (let coordsCmd of [cmd, cmdMerged].filter(exists)) {
-				match (coordsCmd.op, {
-					[PathOp.MoveTo]: () => coordsCmd.args.splice(0, 2, x, y),
-					[PathOp.LineTo]: () => coordsCmd.args.splice(0, 2, x, y),
-					[PathOp.BezierCurveTo]: () => coordsCmd.args.splice(4, 2, x, y),
-					[PathOp.QuadraticCurveTo]: () => {
-						throw new Error("Editing quadratic curves is not yet supported");
-					},
-					_: () => assert(false),
+				this.recordEdit(coordsCmd, () => {
+					match (coordsCmd.op, {
+						[PathOp.MoveTo]: () => coordsCmd.args.splice(0, 2, x, y),
+						[PathOp.LineTo]: () => coordsCmd.args.splice(0, 2, x, y),
+						[PathOp.BezierCurveTo]: () => coordsCmd.args.splice(4, 2, x, y),
+						[PathOp.QuadraticCurveTo]: () => {
+							throw new Error("Editing quadratic curves is not yet supported");
+						},
+						_: () => assert(false),
+					});
+
+					delete (coordsCmd as any)["_str"];
 				});
-				delete (coordsCmd as any)["_str"];
 			}
 		}
 
@@ -337,9 +460,13 @@ export class Path implements IPath {
 					handleCmd.op === PathOp.BezierCurveTo,
 					`Expected ${PathOp[PathOp.BezierCurveTo]}, found ${PathOp[handleCmd.op]}`
 				);
-				const { x, y } = updated.handle_in;
-				handleCmd.args.splice(2, 2, x, y);
-				delete (handleCmd as any)["_str"];
+
+				const { x, y } = updated.handle_in!;
+
+				this.recordEdit(handleCmd, () => {
+					handleCmd.args.splice(2, 2, x, y);
+					delete (handleCmd as any)["_str"];
+				});
 			}
 
 			if (updated.handle_out
@@ -350,8 +477,11 @@ export class Path implements IPath {
 					`Expected ${PathOp[PathOp.BezierCurveTo]}, found ${PathOp[cmdNext.op]}`
 				);
 				const { x, y } = updated.handle_out;
-				cmdNext.args.splice(0, 2, x, y);
-				delete (cmdNext as any)["_str"];
+
+				this.recordEdit(cmdNext, () => {
+					cmdNext.args.splice(0, 2, x, y);
+					delete (cmdNext as any)["_str"];
+				});
 			}
 		}
 

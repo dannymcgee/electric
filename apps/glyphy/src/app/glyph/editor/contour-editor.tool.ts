@@ -9,6 +9,7 @@ import {
 	SimpleChanges,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
+import { KeybindRegistry } from "@electric/ng-utils";
 import {
 	animationFrames,
 	assert,
@@ -21,6 +22,7 @@ import {
 	BehaviorSubject,
 	combineLatest,
 	distinctUntilChanged,
+	filter,
 	map,
 	race,
 	Subject,
@@ -79,6 +81,7 @@ export class ContourEditorTool
 	constructor (
 		private _cdRef: ChangeDetectorRef,
 		private _input: InputProvider,
+		private _keyBinds: KeybindRegistry,
 		public theme: ThemeService,
 	) {
 		super();
@@ -174,6 +177,31 @@ export class ContourEditorTool
 				this._activePoint$.next(activePoint);
 			});
 
+		// Edit start
+		this._input.ptrDown(0)
+			.pipe(
+				withLatestFrom(this.activePoint$),
+				filter(([, activePoint]) => activePoint != null),
+				takeUntil(this.onDestroy$),
+			)
+			.subscribe(() => {
+				this.outline!.beginTransaction();
+			});
+
+		// Edit end
+		this._input.ptrUp(0)
+			.pipe(
+				withLatestFrom(this.activePoint$),
+				filter(([, activePoint]) => activePoint != null),
+				takeUntil(this.onDestroy$),
+			)
+			.subscribe(() => {
+				this.outline!.endTransaction();
+			});
+
+		this._keyBinds.register("Ctrl+Z", this.undo);
+		this._keyBinds.register("Ctrl+Shift+Z", this.redo);
+
 		// Edit
 		this._input.ptrDown(0)
 			.pipe(
@@ -210,6 +238,9 @@ export class ContourEditorTool
 
 		this._outline$.complete();
 		this._newOutlineEvent$.complete();
+
+		this._keyBinds.unregister("Ctrl+Z", this.undo);
+		this._keyBinds.unregister("Ctrl+Shift+Z", this.redo);
 	}
 
 	/**
@@ -416,6 +447,16 @@ export class ContourEditorTool
 		updated[otherKey] = otherCoords;
 
 		return updated;
+	}
+
+	undo = (): void => {
+		console.log("Undo");
+		this.outline?.undo();
+	}
+
+	redo = (): void => {
+		console.log("Redo");
+		this.outline?.redo();
 	}
 
 	// TODO: Marquee-selection and batch transformation of points.
