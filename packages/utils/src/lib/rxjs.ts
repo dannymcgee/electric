@@ -3,9 +3,11 @@ import {
 	animationFrameScheduler,
 	filter,
 	fromEvent,
+	map,
 	MonoTypeOperatorFunction,
 	Observable,
 	pipe,
+	scan,
 	scheduled,
 	shareReplay,
 	takeUntil,
@@ -13,7 +15,7 @@ import {
 import { ShareReplayConfig } from "rxjs/internal/operators/shareReplay";
 
 import { ModifierKey, MODIFIER_KEYS_NOLOCKS } from "./keys";
-import { Predicate } from "./types";
+import { Fn, Option, Predicate } from "./types";
 
 export function fromKeydown(
 	eventTarget: ElementRef<Element> | Element | Document | Window,
@@ -65,4 +67,91 @@ export function animationFrames() {
 
 function* endless(): Generator<void> {
 	while (true) yield;
+}
+
+export interface DeltaOptions<T> {
+	/** A function that subtracts `rhs` from `lhs` to find the difference. */
+	diff(lhs: T, rhs: T): T,
+	/** A value that represents no change. */
+	zero: T,
+}
+
+/**
+ * Convert a stream of values that change over time into a stream of the deltas
+ * between those values.
+ *
+ * @example
+ * ```typescript
+ * import { delta } from "@electric/utils";
+ * import { of } from "rxjs";
+ *
+ * of(1, 2, 3, 4, 5)
+ * 	.pipe(delta())
+ * 	.subscribe(v => {
+ * 		console.log(`delta: ${v}`);
+ * 	});
+ *
+ * // Logs:
+ * // delta: 0
+ * // delta: 1
+ * // delta: 1
+ * // delta: 1
+ * // delta: 1
+ * ```
+ */
+export function delta(options?: Partial<DeltaOptions<number>>): MonoTypeOperatorFunction<number>;
+
+/**
+ * Convert a stream of values that change over time into a stream of the deltas
+ * between those values.
+ *
+ * @param options must be provided if `T` is not `number`
+ *
+ * @example
+ * ```typescript
+ * import { delta } from "@electric/utils";
+ * import { fromEvent, map } from "rxjs";
+ *
+ * fromEvent(window, "pointermove").pipe(
+ * 	map(event => [event.clientX, event.clientY]),
+ * 	delta({
+ * 		diff: ([x1, y1], [x2, y2]) => [x1-x2, y1-y2],
+ * 		zero: [0, 0],
+ * 	}),
+ *	);
+ * ```
+ */
+export function delta<T>(options: DeltaOptions<T>): MonoTypeOperatorFunction<T>;
+
+export function delta<T = number>(
+	options?: Partial<DeltaOptions<T>>
+): MonoTypeOperatorFunction<T> {
+	options ??= {};
+	// Note: TypeScript cannot understand that we want this object and its
+	// properties to be optional only if T == number. The overloads correctly
+	// enforce that behavior for consumers, so we can be reasonably confident
+	// that `options` will not be null unless T == number, but we need to use an
+	// escape hatch to actually provide the defaults for that case.
+	// @ts-ignore
+	options.diff ??= (lhs, rhs) => lhs - rhs;
+	// @ts-ignore
+	options.zero ??= 0;
+
+	const { diff, zero } = options;
+
+	return pipe(
+		scan((accum, current) => ({
+			prev: accum.current,
+			current,
+		}), {
+			prev: null as Option<T>,
+			current: null as Option<T>,
+		}),
+		map(({ prev, current }) => {
+			if (prev == null || current == null)
+				return zero!;
+
+			return diff!(current, prev);
+		}),
+	);
 }
