@@ -1,5 +1,5 @@
 import { Directive, Input } from "@angular/core";
-import { Matrix } from "../math";
+import { Matrix, Rect, vec2, Vec2 } from "../math";
 
 import { BaseRenderer } from "./base.renderer";
 import { RenderElement, RENDER_ELEMENT } from "./render.types";
@@ -36,11 +36,18 @@ export class TextRenderer extends BaseRenderer implements RenderElement {
 	@Input() align: TextAlign = "center";
 	@Input() baseline: TextBaseline = "alphabetic";
 
+	private _transformedOrigin?: Vec2;
+	get transformedOrigin() {
+		return this._transformedOrigin ??= vec2(
+			this.transformX(this.x),
+			this.transformY(this.y),
+		);
+	}
+
 	onDraw(ctx: CanvasRenderingContext2D): void {
 		if (!this.value) return;
 
-		const x = this.transformX(this.x);
-		const y = this.transformY(this.y);
+		const { x, y } = this.transformedOrigin;
 
 		if (this.transform !== Matrix.Identity)
 			ctx.setTransform(this.transform.toDomMatrix());
@@ -59,17 +66,24 @@ export class TextRenderer extends BaseRenderer implements RenderElement {
 		}
 
 		ctx.resetTransform();
+
+		delete this._transformedOrigin;
 	}
 
-	measure(ctx: CanvasRenderingContext2D): TextMetrics {
-		if (this.transform !== Matrix.Identity)
-			ctx.setTransform(this.transform.toDomMatrix());
-
+	measure(ctx: CanvasRenderingContext2D): Rect {
 		this.setTextStyle(ctx);
 
-		const result = ctx.measureText(this.value);
+		const metrics = ctx.measureText(this.value);
 
-		ctx.resetTransform();
+		const { x, y } = this.transformedOrigin;
+		const result = new Rect(
+			x - metrics.actualBoundingBoxLeft,
+			y - metrics.actualBoundingBoxAscent,
+			metrics.width,
+			metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent,
+		);
+
+		result.transform_inPlace(this.transform);
 
 		return result;
 	}

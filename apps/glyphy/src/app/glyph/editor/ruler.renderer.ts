@@ -6,12 +6,13 @@ import {
 import { Orientation, ThemeService } from "@electric/components";
 import { Const, Option } from "@electric/utils";
 
-import { Matrix, Rect, vec2 } from "../../math";
+import { Matrix, Rect } from "../../math";
 import {
 	GroupRenderer,
 	PaintStyle,
 	RenderElement,
 	RENDER_ELEMENT,
+	TextRenderer,
 } from "../../render";
 
 export interface Hash {
@@ -52,6 +53,27 @@ export class RulerRenderer extends GroupRenderer implements RenderElement {
 		public theme: ThemeService,
 	) {
 		super();
+	}
+
+	override onDraw(ctx: CanvasRenderingContext2D): void {
+		if (!this.children) return;
+
+		const occupied: Rect[] = [];
+		for (let element of this.children) {
+			if (element instanceof TextRenderer) {
+				// Ensure that text elements don't overlap each other, giving
+				// priority to elements that are rendered first.
+				const rect = element.measure(ctx);
+				rect.inflate_inPlace(6 * devicePixelRatio);
+
+				if (occupied.some(r => r.intersects(rect)))
+					continue;
+
+				occupied.push(rect);
+			}
+
+			element.onDraw(ctx);
+		}
 	}
 
 	/**

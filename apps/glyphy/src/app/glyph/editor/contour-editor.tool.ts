@@ -33,7 +33,7 @@ import {
 } from "rxjs";
 
 import { FontMetrics } from "../../family";
-import { Matrix, nearlyEq, Rect, Vec2, vec2 } from "../../math";
+import { IRect, Matrix, nearlyEq, Vec2, vec2 } from "../../math";
 import { GroupRenderer, RenderElement, RENDER_ELEMENT } from "../../render";
 import { Glyph } from "../glyph";
 import { Path } from "../path";
@@ -57,7 +57,7 @@ export class ContourEditorTool
 	@Input() outline?: Const<Path>;
 	@Input() metrics!: Const<FontMetrics>;
 
-	@Input() viewRect!: Const<Rect>;
+	@Input() viewRect!: Const<IRect>;
 	@Input() glyphToCanvas!: Const<Matrix>;
 	@Input() canvasToGlyph!: Const<Matrix>;
 

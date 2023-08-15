@@ -3,7 +3,7 @@ import { ThemeService } from "@electric/components";
 import { Const } from "@electric/utils";
 
 import { FontMetrics } from "../../family";
-import { Matrix, Rect } from "../../math";
+import { IRect, Matrix } from "../../math";
 import { GroupRenderer, RenderElement, RENDER_ELEMENT } from "../../render";
 import { Glyph } from "../glyph";
 
@@ -20,7 +20,7 @@ export class MetricsRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyph!: Const<Glyph>;
 	@Input() metrics!: Const<FontMetrics>;
 	@Input() glyphToCanvas!: Const<Matrix>;
-	@Input() viewRect!: Const<Rect>;
+	@Input() viewRect!: Const<IRect>;
 
 	constructor (
 		public theme: ThemeService,

@@ -3,7 +3,7 @@ import { ThemeService } from "@electric/components";
 import { Const, exists } from "@electric/utils";
 
 import { FontMetrics } from "../../family";
-import { Matrix, Rect, vec2 } from "../../math";
+import { IRect, Matrix, Rect } from "../../math";
 import {
 	GroupRenderer,
 	PaintStyle,
@@ -26,7 +26,7 @@ export class RulersRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyph!: Const<Glyph>;
 	@Input() metrics!: Const<FontMetrics>;
 
-	@Input() viewRect: Const<Rect> = new Rect(0, 0, 0, 0);
+	@Input() viewRect: Const<IRect> = new Rect(0, 0, 0, 0);
 	@Input() glyphToCanvas = Matrix.Identity;
 	@Input() canvasToGlyph = Matrix.Identity;
 

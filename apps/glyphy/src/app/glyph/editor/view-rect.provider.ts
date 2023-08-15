@@ -13,16 +13,16 @@ import {
 	takeUntil,
 } from "rxjs";
 
-import { Rect } from "../../math";
+import { IRect, Rect } from "../../math";
 
 @Injectable()
 export class ViewRectProvider implements OnDestroy {
 	get viewRect() { return this._viewRect$.value; }
-	readonly viewRect$: Observable<Const<Rect>>;
-	private _viewRect$ = new BehaviorSubject<Const<Rect>>(new Rect(0, 0, 0, 0));
+	readonly viewRect$: Observable<Const<IRect>>;
+	private _viewRect$ = new BehaviorSubject<Const<IRect>>(new Rect(0, 0, 0, 0));
 
-	readonly contentRect$: Observable<Const<Rect>>;
-	readonly clientRect$: Observable<Const<Rect>>;
+	readonly contentRect$: Observable<Const<IRect>>;
+	readonly clientRect$: Observable<Const<IRect>>;
 
 	private _onDestroy$ = new Subject<void>();
 
