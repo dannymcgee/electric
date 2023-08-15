@@ -38,6 +38,7 @@ import { GroupRenderer, RenderElement, RENDER_ELEMENT } from "../../render";
 import { Glyph } from "../glyph";
 import { Path } from "../path";
 import { InputProvider } from "./input.provider";
+import { Hash2D } from "./rulers.renderer";
 import { EditorPoint, HandleKey } from "./types";
 
 @Component({
@@ -78,6 +79,9 @@ export class ContourEditorTool
 
 	private _outline$ = new BehaviorSubject<Option<Const<Path>>>(null);
 	private _newOutlineEvent$ = new Subject<void>();
+
+	private _hashes$ = new BehaviorSubject<Hash2D[]>([]);
+	get hashes() { return this._hashes$.value; }
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
@@ -170,6 +174,9 @@ export class ContourEditorTool
 				takeUntil(this.onDestroy$),
 			)
 			.subscribe(activePoint => {
+				if (!activePoint)
+					this._hashes$.next([]);
+
 				this._activePoint$.next(activePoint);
 			});
 
@@ -218,8 +225,14 @@ export class ContourEditorTool
 			.pipe(takeUntil(this.onDestroy$))
 			.subscribe(([points, activePoint]) => {
 				if (activePoint) {
+					this._hashes$.next([{
+						value: activePoint[activePoint.activeKey!]!,
+						lineColor: this.theme.getHex("primary", 600)!,
+						textColor: this.theme.getHex("primary", 600)!,
+					}]);
+
 					const idx = points.findIndex(p => p.id === activePoint.id);
-					points.splice(idx, 1, activePoint);
+					points[idx] = activePoint;
 				}
 
 				this._points$.next(points);
@@ -230,8 +243,11 @@ export class ContourEditorTool
 	override ngOnDestroy(): void {
 		super.ngOnDestroy();
 
+		this._points$.complete();
+		this._activePoint$.complete();
 		this._outline$.complete();
 		this._newOutlineEvent$.complete();
+		this._hashes$.complete();
 
 		this._keyBinds.unregister("Ctrl+Z", this.undo);
 		this._keyBinds.unregister("Ctrl+Shift+Z", this.redo);
@@ -460,12 +476,10 @@ export class ContourEditorTool
 	}
 
 	undo = (): void => {
-		console.log("Undo");
 		this.outline?.undo();
 	}
 
 	redo = (): void => {
-		console.log("Redo");
 		this.outline?.redo();
 	}
 

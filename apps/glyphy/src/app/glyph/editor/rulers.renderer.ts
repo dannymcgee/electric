@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { ThemeService } from "@electric/components";
+import { ThemeService, Vec2 } from "@electric/components";
 import { Const, exists } from "@electric/utils";
 
 import { FontMetrics } from "../../family";
@@ -13,6 +13,10 @@ import {
 import { Glyph } from "../glyph";
 import { Hash } from "./ruler.renderer";
 
+export interface Hash2D extends Omit<Hash, "value"> {
+	value: Vec2;
+}
+
 @Component({
 	selector: "g-rulers",
 	templateUrl: "./rulers.renderer.html",
@@ -25,6 +29,7 @@ import { Hash } from "./ruler.renderer";
 export class RulersRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyph!: Const<Glyph>;
 	@Input() metrics!: Const<FontMetrics>;
+	@Input() extras: Hash2D[] = [];
 
 	@Input() viewRect: Const<IRect> = new Rect(0, 0, 0, 0);
 	@Input() glyphToCanvas = Matrix.Identity;
@@ -50,12 +55,20 @@ export class RulersRenderer extends GroupRenderer implements RenderElement {
 		const glyphRect = new Rect(origin.x, origin.y, size.x, size.y);
 
 		const step
-			= (glyphRect.width /  100) < 35 ?  100
+			= (glyphRect.width /   10) < 35 ?   10
+			: (glyphRect.width /   25) < 35 ?   25
+			: (glyphRect.width /   50) < 35 ?   50
+			: (glyphRect.width /  100) < 35 ?  100
 			: (glyphRect.width /  250) < 35 ?  250
 			: (glyphRect.width /  500) < 35 ?  500
 			: (glyphRect.width / 1000) < 35 ? 1000
 			: (glyphRect.width / 2500) < 35 ? 2500
 			                                : 5000;
+
+		for (let { value, lineColor, textColor } of this.extras) {
+			result.x.push({ value: Math.round(value.x), lineColor, textColor });
+			result.y.push({ value: Math.round(value.y), lineColor, textColor });
+		}
 
 		const xEmphasized = [0, this.glyph.advance];
 		const yEmphasized = [
@@ -78,14 +91,12 @@ export class RulersRenderer extends GroupRenderer implements RenderElement {
 		let gx = Math.round(glyphRect.left);
 		while (gx % step) ++gx;
 		for (; gx <= glyphRect.right; gx += step)
-			if (!xEmphasized.includes(gx))
-				result.x.push({ value: gx, lineColor, textColor });
+			result.x.push({ value: gx, lineColor, textColor });
 
 		let gy = Math.round(glyphRect.top);
 		while (gy % step) --gy;
 		for (; gy >= glyphRect.bottom; gy -= step)
-			if (!yEmphasized.includes(gy))
-				result.y.push({ value: gy, lineColor, textColor });
+			result.y.push({ value: gy, lineColor, textColor });
 
 		return result;
 	}
