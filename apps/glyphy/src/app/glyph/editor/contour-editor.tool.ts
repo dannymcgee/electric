@@ -33,7 +33,7 @@ import {
 } from "rxjs";
 
 import { FontMetrics } from "../../family";
-import { Matrix, Rect, Vec2, vec2 } from "../../math";
+import { Matrix, nearlyEq, Rect, Vec2, vec2 } from "../../math";
 import { GroupRenderer, RenderElement, RENDER_ELEMENT } from "../../render";
 import { Glyph } from "../glyph";
 import { Path } from "../path";
@@ -348,10 +348,25 @@ export class ContourEditorTool
 				const toHandle = vec2.sub(targetCoords, p.handle_in);
 				const projLength = vec2.dot(direction, toHandle);
 
-				updated.coords = vec2.add(
-					p.handle_in,
-					vec2.mul(direction, projLength),
-				);
+				let constrained = vec2.add(p.handle_in, vec2.mul(direction, projLength));
+
+				// Don't allow the on-curve point to slide _past_ either of the handles
+				const distHandleIn = vec2.dist(constrained, p.handle_in);
+				const distHandleOut = vec2.dist(constrained, p.handle_out);
+				const distHandles = vec2.dist(p.handle_in, p.handle_out);
+
+				if (distHandleIn+distHandleOut > distHandles
+					&& !nearlyEq(distHandleIn+distHandleOut, distHandles, 1e-5))
+				{
+					const [handle, other] = match (Math.min(distHandleIn, distHandleOut), {
+						[distHandleIn]: () => [p.handle_in!, p.handle_out!],
+						[distHandleOut]: () => [p.handle_out!, p.handle_in!],
+					});
+					const direction = vec2.sub(other, handle).normalize();
+					constrained = vec2.add(handle, direction);
+				}
+
+				updated.coords = constrained;
 
 				return updated;
 			}
