@@ -27,6 +27,7 @@ import {
 	race,
 	Subject,
 	switchMap,
+	take,
 	takeUntil,
 	withLatestFrom,
 } from "rxjs";
@@ -181,17 +182,12 @@ export class ContourEditorTool
 			)
 			.subscribe(() => {
 				this.outline!.beginTransaction();
-			});
 
-		// Edit end
-		this._input.ptrUp(0)
-			.pipe(
-				withLatestFrom(this.activePoint$),
-				filter(([, activePoint]) => activePoint != null),
-				takeUntil(this.onDestroy$),
-			)
-			.subscribe(() => {
-				this.outline!.endTransaction();
+				race(this._input.ptrUp(0), this.onDestroy$)
+					.pipe(take(1))
+					.subscribe(() => {
+						this.outline?.endTransaction();
+					});
 			});
 
 		this._keyBinds.register("Ctrl+Z", this.undo);
