@@ -62,7 +62,7 @@ export class RulerRenderer extends GroupRenderer implements RenderElement {
 	 */
 	_textTransform(cx: number, gy: number): Const<Matrix> {
 		const x = cx * devicePixelRatio;
-		const y = this.glyphToCanvas.transformPoint(vec2(0, gy)).y * devicePixelRatio;
+		const y = this.glyphToCanvas.transformPoint(0, gy).y * devicePixelRatio;
 
 		return Matrix.concat(
 			Matrix.translate(-x, -y),

@@ -45,8 +45,8 @@ export class RulersRenderer extends GroupRenderer implements RenderElement {
 		};
 
 		const vr = this.viewRect;
-		const size = this.canvasToGlyph.transformVector(vec2(vr.width, vr.height));
-		const origin = this.canvasToGlyph.transformPoint(vec2(vr.x, vr.y));
+		const size = this.canvasToGlyph.transformVector(vr.width, vr.height);
+		const origin = this.canvasToGlyph.transformPoint(vr.x, vr.y);
 		const glyphRect = new Rect(origin.x, origin.y, size.x, size.y);
 
 		const step

@@ -21,8 +21,8 @@ export class HybridCoordSpaceTransformDirective implements OnChanges {
 	) {}
 
 	ngOnChanges(): void {
-		const { x } = this.xTransform.transformPoint(vec2(this.xPosition, 0));
-		const { y } = this.yTransform.transformPoint(vec2(0, this.yPosition));
+		const { x } = this.xTransform.transformPoint(this.xPosition, 0);
+		const { y } = this.yTransform.transformPoint(0, this.yPosition);
 
 		if (this._element instanceof HTMLElement) {
 			this._element.style.setProperty("transform", `translate(${x}px, ${y}px)`);

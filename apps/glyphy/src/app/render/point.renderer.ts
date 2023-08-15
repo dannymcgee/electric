@@ -28,7 +28,7 @@ export class PointRenderer extends BaseRenderer implements RenderElement {
 		if (!this.r)
 			return;
 
-		let { x: cx, y: cy } = this.transform.transformPoint(vec2(this.cx, this.cy));
+		let { x: cx, y: cy } = this.transform.transformPoint(this.cx, this.cy);
 
 		cx *= devicePixelRatio;
 		cy *= devicePixelRatio

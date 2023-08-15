@@ -142,24 +142,24 @@ export class Path implements IPath {
 				case PathOp.MoveTo:
 				case PathOp.LineTo: {
 					const [x, y, smooth] = cmd.args;
-					const p = m.transformPoint(vec2(x, y));
+					const p = m.transformPoint(x, y);
 
 					this._commands[i] = pathCommand(cmd.op, p.x, p.y, smooth);
 					break;
 				}
 				case PathOp.QuadraticCurveTo: {
 					const [x1, y1, x2, y2, smooth] = cmd.args;
-					const p1 = m.transformPoint(vec2(x1, y1));
-					const p2 = m.transformPoint(vec2(x2, y2));
+					const p1 = m.transformPoint(x1, y1);
+					const p2 = m.transformPoint(x2, y2);
 
 					this._commands[i] = pathCommand(cmd.op, p1.x, p1.y, p2.x, p2.y, smooth);
 					break;
 				}
 				case PathOp.BezierCurveTo: {
 					const [x1, y1, x2, y2, x3, y3, smooth] = cmd.args;
-					const p1 = m.transformPoint(vec2(x1, y1));
-					const p2 = m.transformPoint(vec2(x2, y2));
-					const p3 = m.transformPoint(vec2(x3, y3));
+					const p1 = m.transformPoint(x1, y1);
+					const p2 = m.transformPoint(x2, y2);
+					const p3 = m.transformPoint(x3, y3);
 
 					this._commands[i] = pathCommand(cmd.op, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, smooth);
 					break;

@@ -40,13 +40,13 @@ export abstract class BaseRenderer implements RenderElement, OnChanges {
 		if (this.xTransform === Matrix.Identity)
 			return value * devicePixelRatio;
 
-		return this.xTransform.transformPoint(vec2(value, 0)).x * devicePixelRatio;
+		return this.xTransform.transformPoint(value, 0).x * devicePixelRatio;
 	}
 
 	protected transformY(value: number): number {
 		if (this.yTransform === Matrix.Identity)
 			return value * devicePixelRatio;
 
-		return this.yTransform.transformPoint(vec2(0, value)).y * devicePixelRatio;
+		return this.yTransform.transformPoint(0, value).y * devicePixelRatio;
 	}
 }

@@ -34,7 +34,7 @@ export class Matrix {
 	static scale(factor: number): Matrix;
 	static scale(x: number, y: number): Matrix;
 
-	static scale(...args: number[]): Matrix {
+	static scale(...args: [number] | [number, number]): Matrix {
 		switch (args.length) {
 			case 1: {
 				const [s] = args;
@@ -52,8 +52,6 @@ export class Matrix {
 					0, 0, 1,
 				);
 			}
-			default:
-				throw new Error(`Matrix.scale expected 1 or 2 args, but received ${args.length}`);
 		}
 	}
 
@@ -105,12 +103,28 @@ export class Matrix {
 		return result;
 	}
 
-	transformPoint(p: Const<Vec2>): Vec2 {
-		const row = vec3(p.x, p.y, 1);
-		return vec2(
-			vec3.dot(row, this.col(1)),
-			vec3.dot(row, this.col(2)),
-		);
+	transformPoint(x: number, y: number): Vec2;
+	transformPoint(p: Const<Vec2>): Vec2;
+
+	transformPoint(...args: [number, number] | [Const<Vec2>]): Vec2 {
+		switch (args.length) {
+			case 1: {
+				const [p] = args as [Const<Vec2>];
+				const row = vec3(p.x, p.y, 1);
+				return vec2(
+					vec3.dot(row, this.col(1)),
+					vec3.dot(row, this.col(2)),
+				);
+			}
+			case 2: {
+				const [x, y] = args as [number, number];
+				const row = vec3(x, y, 1);
+				return vec2(
+					vec3.dot(row, this.col(1)),
+					vec3.dot(row, this.col(2)),
+				);
+			}
+		}
 	}
 
 	transformPoint_inPlace(p: Vec2): void {
@@ -119,12 +133,28 @@ export class Matrix {
 		p.y = vec3.dot(row, this.col(2));
 	}
 
-	transformVector(v: Const<Vec2>): Vec2 {
-		const row = vec3(v.x, v.y, 0);
-		return vec2(
-			vec3.dot(row, this.col(1)),
-			vec3.dot(row, this.col(2)),
-		);
+	transformVector(x: number, y: number): Vec2;
+	transformVector(p: Const<Vec2>): Vec2;
+
+	transformVector(...args: [number, number] | [Const<Vec2>]): Vec2 {
+		switch (args.length) {
+			case 1: {
+				const [v] = args as [Const<Vec2>];
+				const row = vec3(v.x, v.y, 0);
+				return vec2(
+					vec3.dot(row, this.col(1)),
+					vec3.dot(row, this.col(2)),
+				);
+			}
+			case 2: {
+				const [x, y] = args as [number, number];
+				const row = vec3(x, y, 0);
+				return vec2(
+					vec3.dot(row, this.col(1)),
+					vec3.dot(row, this.col(2)),
+				);
+			}
+		}
 	}
 
 	transformVector_inPlace(v: Vec2): void {
@@ -134,21 +164,11 @@ export class Matrix {
 	}
 
 	clone(): Matrix {
-		const result = new Matrix();
-
-		result.m11 = this.m11;
-		result.m12 = this.m12;
-		result.m13 = this.m13;
-
-		result.m21 = this.m21;
-		result.m22 = this.m22;
-		result.m23 = this.m23;
-
-		result.m31 = this.m31;
-		result.m32 = this.m32;
-		result.m33 = this.m33;
-
-		return result;
+		return new Matrix(
+			this.m11, this.m12, this.m13,
+			this.m21, this.m22, this.m23,
+			this.m31, this.m32, this.m33,
+		);
 	}
 
 	toString(): string {
