@@ -81,27 +81,25 @@ export class Matrix {
 		let result = new Matrix();
 
 		for (let rhs of matrices) {
-			const lhs = result.clone();
+			const lhs_row_1 = result.row(1);
+			const lhs_row_2 = result.row(2);
+			const lhs_row_3 = result.row(3);
 
-			const a_row_1 = lhs.row(1);
-			const a_row_2 = lhs.row(2);
-			const a_row_3 = lhs.row(3);
+			const rhs_col_1 = rhs.col(1);
+			const rhs_col_2 = rhs.col(2);
+			const rhs_col_3 = rhs.col(3);
 
-			const b_col_1 = rhs.col(1);
-			const b_col_2 = rhs.col(2);
-			const b_col_3 = rhs.col(3);
+			result.m11 = vec3.dot(lhs_row_1, rhs_col_1);
+			result.m12 = vec3.dot(lhs_row_1, rhs_col_2);
+			result.m13 = vec3.dot(lhs_row_1, rhs_col_3);
 
-			result.m11 = vec3.dot(a_row_1, b_col_1);
-			result.m12 = vec3.dot(a_row_1, b_col_2);
-			result.m13 = vec3.dot(a_row_1, b_col_3);
+			result.m21 = vec3.dot(lhs_row_2, rhs_col_1);
+			result.m22 = vec3.dot(lhs_row_2, rhs_col_2);
+			result.m23 = vec3.dot(lhs_row_2, rhs_col_3);
 
-			result.m21 = vec3.dot(a_row_2, b_col_1);
-			result.m22 = vec3.dot(a_row_2, b_col_2);
-			result.m23 = vec3.dot(a_row_2, b_col_3);
-
-			result.m31 = vec3.dot(a_row_3, b_col_1);
-			result.m32 = vec3.dot(a_row_3, b_col_2);
-			result.m33 = vec3.dot(a_row_3, b_col_3);
+			result.m31 = vec3.dot(lhs_row_3, rhs_col_1);
+			result.m32 = vec3.dot(lhs_row_3, rhs_col_2);
+			result.m33 = vec3.dot(lhs_row_3, rhs_col_3);
 		}
 
 		return result;
