@@ -1,0 +1,9 @@
+{
+	"lib": {
+		"entryFile": "../src/lib/tooltip/index.ts",
+		"styleIncludePaths": [
+			"../../../node_modules",
+			"../../style/src"
+		]
+	}
+}

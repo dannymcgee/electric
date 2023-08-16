@@ -9,3 +9,4 @@ export * from "./lib/menu";
 export * from "./lib/resize-handle";
 export * from "./lib/tabs";
 export * from "./lib/theme";
+export * from "./lib/tooltip";

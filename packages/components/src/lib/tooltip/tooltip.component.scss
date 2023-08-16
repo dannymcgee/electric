@@ -1,0 +1,11 @@
+@use "elx/style/color";
+@use "elx/style/elevation";
+
+.elx-tooltip {
+	display: block;
+	width: max-content;
+	padding: 8px 12px;
+	background: color.background(700, 0.6);
+	backdrop-filter: blur(24px);
+	@include elevation.shadow(200);
+}
