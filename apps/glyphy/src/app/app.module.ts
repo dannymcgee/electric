@@ -37,7 +37,6 @@ import {
 import { FontExplorerComponent } from "./font";
 import {
 	GlyphComponent,
-	GlyphContourComponent,
 	GlyphEditorComponent,
 	GlyphMetricsComponent,
 } from "./glyph";
@@ -92,7 +91,6 @@ import {
 		FamilyPanelComponent,
 		FontExplorerComponent,
 		GlyphComponent,
-		GlyphContourComponent,
 		GlyphEditorComponent,
 		GlyphMetricsComponent,
 		HexPipe,
