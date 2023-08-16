@@ -14,6 +14,7 @@ import {
 	TabsModule,
 	ThemeModule,
 	ThemeService,
+	TooltipModule,
 } from "@electric/components";
 import {
 	A11yModule,
@@ -80,6 +81,7 @@ import {
 		PlatformModule.forPlatform(AppPlatform.Tauri),
 		TabsModule,
 		ThemeModule.withTheme(DEFAULT_THEME, "dark"),
+		TooltipModule,
 		UtilityModule,
 	],
 	declarations: [

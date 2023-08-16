@@ -1,3 +1,4 @@
+@use "elx/a11y";
 @use "elx/layout";
 @use "elx/anim";
 @use "elx/style/color";
@@ -69,5 +70,20 @@
 	&.active {
 		background: color.primary(200);
 		color: color.foreground(100);
+	}
+}
+
+.tooltip {
+	@include layout.flex(row, $a:baseline);
+	gap: 1ch;
+	font-size: a11y.rem(14);
+
+	&__name {
+		font-weight: 600;
+		color: color.foreground(200);
+	}
+
+	&__keybind {
+		color: color.foreground(400);
 	}
 }

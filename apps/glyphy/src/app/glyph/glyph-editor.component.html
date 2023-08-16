@@ -36,6 +36,14 @@
 		<div role="button"
 			class="tool contour-editor"
 			[class.active]="activeTool === 'select'"
+
+			[elxTooltip]="toolPaletteTooltip"
+			[elxTooltipContext]="{
+				name: 'Select / Move',
+				keybind: activeTool === 'pen' ? 'Q or Hold Ctrl' : 'Q'
+			}"
+			elxTooltipPosition="right"
+
 			keybind="Q"
 			(click)="activeTool = passiveTool = 'select'"
 		>
@@ -44,6 +52,14 @@
 		<div role="button"
 			class="tool pen"
 			[class.active]="activeTool === 'pen'"
+
+			[elxTooltip]="toolPaletteTooltip"
+			[elxTooltipContext]="{
+				name: 'Pen Tool',
+				keybind: 'W'
+			}"
+			elxTooltipPosition="right"
+
 			keybind="W"
 			(click)="activeTool = passiveTool = 'pen'"
 		>
@@ -52,12 +68,30 @@
 		<div role="button"
 			class="tool pan"
 			[class.active]="activeTool === 'pan'"
+
+			[elxTooltip]="toolPaletteTooltip"
+			[elxTooltipContext]="{
+				name: 'Pan View',
+				keybind: 'Hold Spacebar'
+			}"
+			elxTooltipPosition="right"
+
 			(click)="activeTool = 'pan'"
 		>
 			<elx-icon icon="MoveAlt"></elx-icon>
 		</div>
 	</div>
 </div>
+
+<ng-template #toolPaletteTooltip
+	let-name="name"
+	let-keybind="keybind"
+>
+	<div class="tooltip">
+		<span class="tooltip__name">{{ name }}</span>
+		<span class="tooltip__keybind" *ngIf="keybind">({{ keybind }})</span>
+	</div>
+</ng-template>
 
 </ng-container>
 </ng-container>
