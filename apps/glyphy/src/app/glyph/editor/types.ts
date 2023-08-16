@@ -1,6 +1,7 @@
 import { ThemeService } from "@electric/components";
 import { Const } from "@electric/utils";
 
+import { Matrix, vec2 } from "../../math";
 import { Point } from "../path";
 
 export type PointKey = "coords" | "handle_in" | "handle_out";
@@ -27,7 +28,12 @@ export class EditorPoint extends Point {
 	}
 
 	getStyle(theme: ThemeService) {
-		const shape = this.smooth ? "circle" : "box";
+		const shape = this.smooth
+			? (!this.handle_in || !this.handle_out
+				? "triangle"
+				: "circle")
+			: "box";
+
 		let radius = this.smooth ? 4 : 3.5;
 		let strokeWidth = 1;
 
@@ -49,7 +55,29 @@ export class EditorPoint extends Point {
 			strokeWidth = 2;
 		}
 
-		return { shape, radius, fill, stroke, strokeWidth } as const;
+		let rotation = Matrix.Identity;
+		if (shape === "triangle") {
+			// Rotate to point the X-axis at the lone handle
+			const handle = (this.handle_in ?? this.handle_out)!;
+			const { x: m11, y: m12 } = vec2.sub(handle, this.coords).normalize();
+			const m21 = m12;
+			const m22 = -m11;
+
+			rotation = new Matrix(
+				m11, m12, 0,
+				m21, m22, 0,
+				  0,   0, 1,
+			);
+		}
+
+		return {
+			shape,
+			radius,
+			fill,
+			rotation,
+			stroke,
+			strokeWidth,
+		} as const;
 	}
 
 	override clone(): EditorPoint {

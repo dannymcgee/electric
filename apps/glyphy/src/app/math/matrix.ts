@@ -1,10 +1,8 @@
 import { Const, match } from "@electric/utils";
-import { nearlyEq } from "./util";
+import { DEG2RAD, nearlyEq } from "./util";
 
 import { vec2, Vec2 } from "./vec2";
 import { vec3, Vec3 } from "./vec3";
-
-const DEG2RAD = Math.PI / 180;
 
 export class Matrix {
 	static Identity: Const<Matrix> = new Matrix();
