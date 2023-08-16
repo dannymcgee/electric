@@ -92,3 +92,5 @@ export class EditorPoint extends Point {
 		return result;
 	}
 }
+
+export type ToolMode = "select" | "pen" | "pan";

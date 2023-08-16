@@ -3,14 +3,16 @@
 <ng-container *ngIf="(canvasToGlyph$ | async) as canvasToGlyph">
 <ng-container *ngIf="(_familyService.family$ | async) as family">
 
-<canvas g-canvas class="canvas">
-	<g-path *ngIf="isPanMode && glyph.outline"
+<canvas g-canvas class="canvas"
+	[ngSwitch]="activeTool"
+>
+	<g-path *ngSwitchCase="'pan'"
 		[outline]="glyph.outline"
 		[transform]="glyphToCanvas"
 		[fill]="theme.getHex('foreground', 50)"
 	></g-path>
 
-	<g-contour-editor *ngIf="!isPanMode"
+	<g-contour-editor *ngSwitchCase="'select'"
 		[glyph]="glyph"
 		[outline]="glyph.outline"
 		[metrics]="family"
@@ -18,7 +20,44 @@
 		[glyphToCanvas]="glyphToCanvas"
 		[canvasToGlyph]="canvasToGlyph"
 	></g-contour-editor>
+
+	<g-pen-tool *ngSwitchCase="'pen'"
+		[glyph]="glyph"
+		[outline]="glyph.outline"
+		[metrics]="family"
+		[viewRect]="viewRect"
+		[glyphToCanvas]="glyphToCanvas"
+		[canvasToGlyph]="canvasToGlyph"
+	></g-pen-tool>
 </canvas>
+
+<div class="ui-overlay">
+	<div class="tool-palette">
+		<div role="button"
+			class="tool contour-editor"
+			[class.active]="activeTool === 'select'"
+			keybind="Q"
+			(click)="activeTool = passiveTool = 'select'"
+		>
+			<elx-icon icon="Pointer"></elx-icon>
+		</div>
+		<div role="button"
+			class="tool pen"
+			[class.active]="activeTool === 'pen'"
+			keybind="W"
+			(click)="activeTool = passiveTool = 'pen'"
+		>
+			<elx-icon icon="PenTool"></elx-icon>
+		</div>
+		<div role="button"
+			class="tool pan"
+			[class.active]="activeTool === 'pan'"
+			(click)="activeTool = 'pan'"
+		>
+			<elx-icon icon="MoveAlt"></elx-icon>
+		</div>
+	</div>
+</div>
 
 </ng-container>
 </ng-container>

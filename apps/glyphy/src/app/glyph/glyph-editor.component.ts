@@ -28,7 +28,8 @@ import {
 
 import { FamilyService } from "../family";
 import { Matrix } from "../math";
-import { InputProvider, ViewRectProvider } from "./editor";
+import tauri from "../tauri.bridge";
+import { InputProvider, ToolMode, ViewRectProvider } from "./editor";
 import { Glyph } from "./glyph";
 
 @Component({
@@ -47,8 +48,9 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	@Input() pathThickness = 1;
 	@Input() handleThickness = 1;
 
-	@HostBinding("class.pan-mode")
-	isPanMode = false;
+	@HostBinding("class")
+	activeTool: ToolMode = "select";
+	passiveTool: ToolMode = "select";
 
 	@HostBinding("class.panning")
 	isPanning = false;
@@ -123,23 +125,36 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	@HostListener("window:keydown", ["$event"])
-	onKeyDown(event: KeyboardEvent): void {
+	async onKeyDown(event: KeyboardEvent): Promise<void> {
 		// TODO: Make hotkeys configurable
 		if (event.key === " ")
-			this.isPanMode = true;
+			this.activeTool = "pan";
+
+		else if (this.activeTool === "pen"
+			// FIXME: Need an abstraction for checking platform-conventional modifier keys
+			&& (event.key === "Control"
+				|| await tauri.platform() === "darwin" && event.key === "Meta"))
+		{
+			this.activeTool = "select";
+		}
 	}
 
 	@HostListener("window:keyup", ["$event"])
-	onKeyUp(event: KeyboardEvent): void {
-		if (event.key === " ")
-			this.isPanMode = false;
+	async onKeyUp(event: KeyboardEvent): Promise<void> {
+		if (event.key === " "
+			|| (this.passiveTool === "pen"
+			&& (event.key === "Control"
+				|| await tauri.platform() === "darwin" && event.key === "Meta")))
+		{
+			this.activeTool = this.passiveTool;
+		}
 	}
 
 	@HostListener("pointerdown", ["$event"])
 	onPointerDown(event: PointerEvent): void {
 		// TODO: Make pan button configurable
 		if (event.button === 1
-			|| (event.button === 0 && this.isPanMode))
+			|| (event.button === 0 && this.activeTool === "pan"))
 		{
 			this.beginPan();
 		}

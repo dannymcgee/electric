@@ -44,6 +44,7 @@ import {
 	ContourEditorTool,
 	MetricsRenderer,
 	OutlinePointsRenderer,
+	PenTool,
 	RulerRenderer,
 	RulersRenderer,
 } from "./glyph/editor";
@@ -100,6 +101,7 @@ import {
 		OutlinePointsRenderer,
 		ParentFolderExistsValidator,
 		PathRenderer,
+		PenTool,
 		PointRenderer,
 		RectRenderer,
 		RulerRenderer,

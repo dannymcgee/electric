@@ -1,5 +1,8 @@
 @use "elx/layout";
+@use "elx/anim";
 @use "elx/style/color";
+@use "elx/style/cursor";
+@use "elx/style/elevation";
 
 :host {
 	position: relative;
@@ -8,8 +11,16 @@
 	height: 100%;
 	background: color.background(200);
 
-	&.pan-mode {
+	&.pan {
 		cursor: grab;
+	}
+
+	&.select {
+		cursor: cursor.select();
+	}
+
+	&.pen {
+		cursor: cursor.pen();
 	}
 
 	&.panning {
@@ -22,4 +33,41 @@
 	inset: 0;
 	width: 100%;
 	height: 100%;
+}
+
+.ui-overlay {
+	@include layout.absolute(28px, 0, 0, 28px);
+	pointer-events: none;
+}
+
+.tool-palette {
+	@include layout.inline-flex(column);
+	margin: {
+		top: 16px;
+		left: 16px;
+	}
+	padding: 4px 0;
+	background: color.background(400);
+	@include elevation.shadow(100);
+	pointer-events: auto;
+}
+
+.tool {
+	@include layout.flex($a:center, $j:center);
+	width: 40px;
+	height: 40px;
+	color: color.foreground(400);
+	@include anim.transition((background, color));
+	cursor: default;
+	outline: none !important; // FIXME: need :focus-visible styles
+
+	&:hover {
+		background: color.background(500);
+		color: color.foreground(200);
+	}
+
+	&.active {
+		background: color.primary(200);
+		color: color.foreground(100);
+	}
 }

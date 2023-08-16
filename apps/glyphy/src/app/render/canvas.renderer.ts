@@ -94,8 +94,9 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 		const ctx = this._context;
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-		for (let element of this._elements)
-			element.onDraw(ctx);
+		if (this._elements)
+			for (let element of this._elements)
+				element.onDraw(ctx);
 
 		this.update.emit();
 	}
