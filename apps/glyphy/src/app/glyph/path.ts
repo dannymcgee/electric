@@ -101,6 +101,10 @@ export interface PointTransformFn {
 	(target: Const<Point>, prev: Const<Point>, next: Const<Point>): Point | Const<Point>;
 }
 
+export interface ReplayOptions {
+	insertClosePaths?: boolean;
+}
+
 export class Path implements IPath {
 	private _changes$ = new Subject<void>();
 	changes$ = this._changes$.asObservable();
@@ -499,13 +503,6 @@ export class Path implements IPath {
 	}
 
 	moveTo(x: number, y: number, smooth?: boolean) {
-		// FIXME: This breaks the 1:1 mapping between contour+point indices and
-		//        command indices. Maybe we could insert these as phantom calls
-		//        in the toString / replay functions? It's pretty fugly and error-
-		//        prone to keep checking for the missing stroke at render time.
-		// if (this.lastPoint != null)
-		// 	this.closePath();
-
 		this._commands.push(pathCommand(PathOp.MoveTo, x, y, smooth));
 		this.contours[this.contours.length-1]?.close();
 		this.contours.push(new Contour([new Point(x, y, smooth)]));
@@ -594,10 +591,14 @@ export class Path implements IPath {
 			this.autoSmooth({ inPlace: true });
 	}
 
-	replay(ctx: IPath): void {
-		for (let cmd of this._commands) {
+	replay(ctx: IPath, options?: ReplayOptions): void {
+		for (let i = 0; i < this._commands.length; ++i) {
+			const cmd = this._commands[i];
 			switch (cmd.op) {
 				case PathOp.MoveTo: {
+					if (options?.insertClosePaths && i > 0)
+						ctx.closePath();
+
 					ctx.moveTo(...cmd.args);
 					break;
 				}

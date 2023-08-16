@@ -23,7 +23,10 @@ export class PathRenderer extends BaseRenderer implements RenderElement {
 			ctx.setTransform(this.transform.mul(devicePixelRatio).toDomMatrix());
 
 		ctx.beginPath();
-		this.outline.replay(ctx);
+
+		this.outline.replay(ctx, {
+			insertClosePaths: true,
+		});
 
 		ctx.resetTransform();
 
