@@ -1,4 +1,5 @@
 import { animate, state, style, transition, trigger } from "@angular/animations";
+import { EaseInOut, anim } from "@electric/style";
 
 export const BLOCK_FIRST_ENTER_ANIM = trigger("blockFirstEnterAnim", [
 	transition(":enter", []),
@@ -18,6 +19,6 @@ export const ACCORDION_TRIGGER = trigger("accordion", [
 		opacity: "*",
 	})),
 	transition("collapsed <=> expanded", [
-		animate("100ms ease-in-out"),
+		animate(`${anim.frameTime(6)}ms ${EaseInOut.Sine}`),
 	]),
 ]);
