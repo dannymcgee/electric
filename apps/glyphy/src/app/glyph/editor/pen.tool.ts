@@ -2,9 +2,11 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	EventEmitter,
 	Input,
 	OnChanges,
 	OnInit,
+	Output,
 	SimpleChanges,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
@@ -36,6 +38,12 @@ import { findNearestPoint } from "./glyph-editor.utils";
 //       Would be nice to have a better abstraction for varying behavior while
 //       sharing large parts of the view.
 
+export type PenToolVariant
+	= "Add"
+	| "Remove"
+	| "New"
+	;
+
 @Component({
 	selector: "g-pen-tool",
 	templateUrl: "./pen.tool.html",
@@ -56,6 +64,8 @@ export class PenTool
 	@Input() viewRect!: Const<IRect>;
 	@Input() glyphToCanvas!: Const<Matrix>;
 	@Input() canvasToGlyph!: Const<Matrix>;
+
+	@Output() toolVariantChange = new EventEmitter<Option<PenToolVariant>>();
 
 	private _points$ = new BehaviorSubject<EditorPoint[]>([]);
 	get points() { return this._points$.value; }
@@ -189,6 +199,8 @@ export class PenTool
 
 				switch (hitResult.kind) {
 					case HitResultKind.None: {
+						this.toolVariantChange.emit(null);
+
 						this._newPoint$.next(hitResult.value);
 						this._points$.next(points);
 						this._hashes$.next([{
@@ -200,6 +212,8 @@ export class PenTool
 						break;
 					}
 					case HitResultKind.ExistingPoint: {
+						this.toolVariantChange.emit("Remove");
+
 						hitResult.value.active = true;
 						hitResult.value.activeKey = "coords";
 
@@ -217,6 +231,8 @@ export class PenTool
 						break;
 					}
 					case HitResultKind.NewPointOnCurve: {
+						this.toolVariantChange.emit("Add");
+
 						this._newPoint$.next(hitResult.value.coords);
 						this._points$.next(points);
 						this._hashes$.next([{

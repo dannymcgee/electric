@@ -11,7 +11,8 @@ import {
 	OnInit,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
-import { Const, exists, replayUntil } from "@electric/utils";
+import { cursor } from "@electric/style";
+import { Const, Option, exists, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
 	combineLatest,
@@ -29,7 +30,7 @@ import {
 import { FamilyService } from "../family";
 import { Matrix } from "../math";
 import tauri from "../tauri.bridge";
-import { InputProvider, ToolMode, ViewRectProvider } from "./editor";
+import { InputProvider, PenToolVariant, ToolMode, ViewRectProvider } from "./editor";
 import { Glyph } from "./glyph";
 
 @Component({
@@ -49,7 +50,14 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	@Input() handleThickness = 1;
 
 	@HostBinding("class")
-	activeTool: ToolMode = "select";
+	get activeTool() { return this._activeTool; }
+	set activeTool(value) {
+		this._activeTool = value;
+		const { style } = this._elementRef.nativeElement;
+		style.removeProperty("cursor");
+	}
+	private _activeTool: ToolMode = "select";
+
 	passiveTool: ToolMode = "select";
 
 	@HostBinding("class.panning")
@@ -66,6 +74,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
+		private _elementRef: ElementRef<HTMLElement>,
 		public _familyService: FamilyService,
 		private _input: InputProvider,
 		private _ref: ElementRef<HTMLElement>,
@@ -164,6 +173,14 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	onWheel({ deltaY, offsetX, offsetY }: WheelEvent): void {
 		const delta = deltaY / (175 * 7.5); // TODO: Adjustable sensitivity
 		this.adjustZoom(delta, offsetX, offsetY);
+	}
+
+	setPenCursorVariant(variant: Option<PenToolVariant>): void {
+		const { style } = this._elementRef.nativeElement;
+		if (!variant)
+			style.removeProperty("cursor");
+		else
+			style.setProperty("cursor", cursor.pen(variant));
 	}
 
 	private beginPan(): void {

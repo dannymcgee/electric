@@ -28,6 +28,7 @@
 		[viewRect]="viewRect"
 		[glyphToCanvas]="glyphToCanvas"
 		[canvasToGlyph]="canvasToGlyph"
+		(toolVariantChange)="setPenCursorVariant($event)"
 	></g-pen-tool>
 </canvas>
 
