@@ -159,7 +159,8 @@ export class MenuItemComponent implements MenuItem, OnInit, OnDestroy {
 		if (event instanceof KeyboardEvent) {
 			this._element.click();
 		}
-
-		this.pressed$.next();
+		else {
+			this.pressed$.next();
+		}
 	}
 }
