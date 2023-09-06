@@ -2,6 +2,7 @@ import { Const, Fn, match } from "@electric/utils";
 
 import { Matrix } from "./matrix";
 import { nearlyEq } from "./util";
+import { Vec2 } from "./vec2";
 
 export interface IRect {
 	x: number;
@@ -26,6 +27,23 @@ export class Rect {
 		public width: number,
 		public height: number,
 	) {}
+
+	static containing(...points: Const<Vec2>[]): Rect {
+		let xMin = Infinity;
+		let xMax = -Infinity;
+		let yMin = Infinity;
+		let yMax = -Infinity;
+
+		for (let p of points) {
+			xMin = Math.min(xMin, p.x);
+			yMin = Math.min(yMin, p.y);
+
+			xMax = Math.max(xMax, p.x);
+			yMax = Math.max(yMax, p.y);
+		}
+
+		return new Rect(xMin, yMin, xMax-xMin, yMax-yMin);
+	}
 
 	static nearlyEq(a: IRect, b: IRect, tolerance?: number): boolean;
 	static nearlyEq(tolerance?: number): (a: IRect, b: IRect) => boolean;
@@ -96,5 +114,26 @@ export class Rect {
 			&& this.right >= rect.left
 			&& this.top <= rect.bottom
 			&& this.bottom >= rect.top;
+	}
+
+	contains(x: number, y: number): boolean;
+	contains(p: Const<Vec2>): boolean;
+
+	contains(...args: [number, number] | [Const<Vec2>]): boolean {
+		return match (args.length, {
+			1: () => {
+				const [{ x, y }] = args as [Const<Vec2>];
+				return this._contains(x, y);
+			},
+			2: () => {
+				const [x, y] = args as [number, number];
+				return this._contains(x, y);
+			}
+		});
+	}
+
+	private _contains(x: number, y: number): boolean {
+		return x >= this.left && x <= this.right
+			&& y >= this.top && y <= this.bottom;
 	}
 }

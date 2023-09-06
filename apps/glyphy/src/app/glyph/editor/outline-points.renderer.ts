@@ -22,7 +22,6 @@ import { EditorPoint } from "./types";
 })
 export class OutlinePointsRenderer extends GroupRenderer implements RenderElement {
 	@Input() points: Option<readonly EditorPoint[]>;
-	@Input() activePoint: Option<EditorPoint>;
 	@Input() glyphToCanvas!: Const<Matrix>;
 
 	trackPoint: TrackByFunction<EditorPoint> = (_, p) => p.id;

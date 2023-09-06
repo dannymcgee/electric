@@ -1,3 +1,4 @@
+export * from "./bezier";
 export * from "./hybrid-coord-space.directive";
 export * from "./matrix";
 export * from "./rect";

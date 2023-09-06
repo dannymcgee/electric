@@ -37,6 +37,7 @@ import { IRect, Matrix, nearlyEq, Vec2, vec2 } from "../../math";
 import { GroupRenderer, RenderElement, RENDER_ELEMENT } from "../../render";
 import { Glyph } from "../glyph";
 import { Path } from "../path";
+import { findNearestPoint } from "./glyph-editor.utils";
 import { InputProvider } from "./input.provider";
 import { Hash2D } from "./rulers.renderer";
 import { EditorPoint, HandleKey } from "./types";
@@ -235,7 +236,7 @@ export class ContourEditorTool
 					points[idx] = activePoint;
 				}
 
-				this._points$.next(points);
+				this._points$.next(points.slice());
 				this._cdRef.detectChanges();
 			});
 	}
@@ -270,30 +271,16 @@ export class ContourEditorTool
 		for (let i = 0; i < points.length; ++i)
 			points[i].active = false;
 
-		const sorted = points.slice().sort(ascendingByDistanceTo(gPtr));
-		const nearestPoint = sorted[0];
+		const result = findNearestPoint(gPtr, points);
+		if (!result) return null;
 
-		const d2Coords = vec2.dist2(nearestPoint.coords, gPtr);
-		const d2Handle_in = nearestPoint.handle_in
-			? vec2.dist2(nearestPoint.handle_in, gPtr)
-			: Infinity;
-		const d2Handle_out = nearestPoint.handle_out
-			? vec2.dist2(nearestPoint.handle_out, gPtr)
-			: Infinity;
+		const { key, point } = result;
+		const cCoords = this.glyphToCanvas.transformPoint(point[key]!);
+		if (vec2.dist2(cCoords, cPtr) <= 12*12) {
+			point.active = true;
+			point.activeKey = key;
 
-		const d2Nearest = Math.min(d2Coords, d2Handle_in, d2Handle_out);
-		const key = match (d2Nearest, {
-			[d2Coords]: () => "coords" as const,
-			[d2Handle_in]: () => "handle_in" as const,
-			[d2Handle_out]: () => "handle_out" as const,
-		});
-
-		const cNearestCoords = this.glyphToCanvas.transformPoint(nearestPoint[key]!);
-		if (vec2.dist2(cNearestCoords, cPtr) <= 12*12) {
-			nearestPoint.active = true;
-			nearestPoint.activeKey = key;
-
-			return nearestPoint;
+			return point;
 		}
 
 		return null;
@@ -530,23 +517,4 @@ export class ContourEditorTool
 		// console.log("Bounds for selection:", bounds);
 	}
 	*/
-}
-
-function ascendingByDistanceTo(coords: Const<Vec2>) {
-	return (a: EditorPoint, b: EditorPoint) =>
-		closestInPoint(a, coords) - closestInPoint(b, coords);
-}
-
-function closestInPoint(point: EditorPoint, ref: Const<Vec2>) {
-	return [
-		point.coords,
-		point.handle_in,
-		point.handle_out,
-	].reduce(
-		(accum, p) => {
-			if (!p) return accum;
-			return Math.min(accum, vec2.dist2(p, ref));
-		},
-		Infinity,
-	);
 }

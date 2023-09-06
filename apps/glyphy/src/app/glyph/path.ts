@@ -117,6 +117,7 @@ export class Path implements IPath {
 	get svg(): string { return this._svg ??= this._commands.join(""); }
 
 	private _commands: PathCommand[] = [];
+	get commands(): readonly Const<PathCommand>[] { return this._commands; }
 
 	// TODO: Could make the capacity configurable with a warning about memory
 	//       consumption, similar to Blender
@@ -179,12 +180,18 @@ export class Path implements IPath {
 		return result;
 	}
 
+	printCommand(cmd: PathCommand, idx?: number): string {
+		idx ??= this._commands.indexOf(cmd);
+		const op = PathOp[cmd.op];
+		return `[${idx}] ${op} (${cmd.args
+			.filter(exists)
+			.map(arg => typeof arg === "number" ? Math.round(arg) : arg)
+			.join(", ")})`;
+	}
+
 	printCommands(): string {
 		return this._commands
-			.map((cmd, i) => {
-				const op = PathOp[cmd.op];
-				return `[${i}] ${op} (${cmd.args.filter(exists).join(", ")})`;
-			})
+			.map(cmd => this.printCommand(cmd))
 			.join("\n");
 	}
 
@@ -198,12 +205,11 @@ export class Path implements IPath {
 
 			contour.points.forEach((point, p) => {
 				result.push(`    [${p}] Point {`);
-
 				const cmd = this._commands[cmdIdx];
 				if (cmd) {
 					result.push(
-						`      [${cmdIdx}] ${PathOp[cmd.op]} (${cmd.args.filter(exists).join(", ")})`,
-						"      " + point.toString(),
+						`      ${this.printCommand(cmd, cmdIdx)}`,
+						`      ${point.toString()}`,
 					);
 				}
 				else {

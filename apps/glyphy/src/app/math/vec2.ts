@@ -1,4 +1,4 @@
-import { Const, Option } from "@electric/utils";
+import { Const, Fn, match, Option } from "@electric/utils";
 
 import * as util from "./util";
 
@@ -178,7 +178,27 @@ export namespace vec2 {
 			.result;
 	}
 
-	export function nearlyEq(lhs: Const<Vec2>, rhs: Const<Vec2>, tolerance = 1e-5): boolean {
+	const DEFAULT_TOLERANCE = 1e-5;
+
+	export function nearlyEq(lhs: Const<Vec2>, rhs: Const<Vec2>, tolerance?: number): boolean;
+	export function nearlyEq(tolerance?: number): Fn<[Const<Vec2>, Const<Vec2>], boolean>;
+
+	export function nearlyEq(...args: any[]) {
+		return match (args.length, {
+			0: () => (a: Const<Vec2>, b: Const<Vec2>) => _nearlyEq(a, b, DEFAULT_TOLERANCE),
+			1: () => {
+				const [tolerance] = args;
+				return (a: Const<Vec2>, b: Const<Vec2>) => _nearlyEq(a, b, tolerance);
+			},
+			_: () => {
+				let [a, b, tolerance] = args;
+				tolerance ??= DEFAULT_TOLERANCE;
+				return _nearlyEq(a, b, tolerance);
+			}
+		}) as boolean | Fn<[Const<Vec2>, Const<Vec2>], boolean>;
+	}
+
+	function _nearlyEq(lhs: Const<Vec2>, rhs: Const<Vec2>, tolerance: number): boolean {
 		return util.nearlyEq(lhs.x, rhs.x, tolerance)
 			&& util.nearlyEq(lhs.y, rhs.y, tolerance);
 	}

@@ -21,14 +21,24 @@ export class RectRenderer extends BaseRenderer implements RenderElement {
 		if (!this.width || !this.height)
 			return;
 
-		if (this.transform !== Matrix.Identity)
-			ctx.setTransform(this.transform.toDomMatrix());
+		let x!: number;
+		let y!: number;
+		let width!: number;
+		let height!: number;
 
-		const x = this.transformX(this.x);
-		const y = this.transformY(this.y);
-
-		const width = this.transformX(this.width);
-		const height = this.transformY(this.height);
+		if (this.transform !== Matrix.Identity) {
+			ctx.setTransform(this.transform.mul(devicePixelRatio).toDomMatrix());
+			x = this.x;
+			y = this.y;
+			width = this.width;
+			height = this.height;
+		}
+		else {
+			x = this.transformX(this.x);
+			y = this.transformY(this.y);
+			width = this.transformX(this.width);
+			height = this.transformY(this.height);
+		}
 
 		ctx.beginPath();
 		ctx.rect(x, y, width, height);

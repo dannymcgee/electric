@@ -1,7 +1,7 @@
 import { ThemeService } from "@electric/components";
 import { Const } from "@electric/utils";
 
-import { Matrix, vec2 } from "../../math";
+import { Bezier, Matrix, vec2 } from "../../math";
 import { Point } from "../path";
 
 export type PointKey = "coords" | "handle_in" | "handle_out";
@@ -90,6 +90,18 @@ export class EditorPoint extends Point {
 		result.activeKey = this.activeKey;
 
 		return result;
+	}
+}
+
+export class EditorBezier extends Bezier {
+	constructor (
+		{ p0, p1, p2, p3 }: Bezier,
+		/** Contour index */
+		public ci: number,
+		/** Starting and ending point indices */
+		public pis: [number, number]
+	) {
+		super(p0, p1, p2, p3);
 	}
 }
 

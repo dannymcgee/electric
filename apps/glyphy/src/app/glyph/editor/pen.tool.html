@@ -14,13 +14,42 @@
 ></g-path>
 
 <g-outline-points
-	[points]="points$ | async"
+	[points]="points"
 	[glyphToCanvas]="glyphToCanvas"
 ></g-outline-points>
+
+<ng-container *ngIf="(newPoint$ | async)! as p">
+	<g-point
+		shape="circle"
+		[cx]="p.x" [cy]="p.y" [r]="4"
+		[transform]="glyphToCanvas"
+		[fill]="theme.getHex('accent', 700)"
+	></g-point>
+</ng-container>
+
+<g-rect *ngFor="let bb of (activeBoundingBoxes$ | async)"
+	[x]="bb.x"
+	[y]="bb.y"
+	[width]="bb.width"
+	[height]="bb.height"
+	[transform]="glyphToCanvas"
+	fill="#00FFFF40"
+	stroke="#00FFFF"
+	[strokeWidth]="1"
+></g-rect>
+
+<!-- <g-point *ngFor="let p of (debugPoints$ | async)"
+	[cx]="p.x"
+	[cy]="p.y"
+	[r]="4"
+	[transform]="glyphToCanvas"
+	fill="magenta"
+></g-point> -->
 
 <g-rulers
 	[glyph]="glyph"
 	[metrics]="metrics"
+	[extras]="hashes"
 	[viewRect]="viewRect"
 	[glyphToCanvas]="glyphToCanvas"
 	[canvasToGlyph]="canvasToGlyph"
