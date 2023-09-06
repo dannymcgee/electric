@@ -34,7 +34,6 @@ import {
 
 <elx-icon class="elx-menuitem__icon"
 	*ngIf="icon"
-	size="sm"
 	[icon]="icon"
 ></elx-icon>
 

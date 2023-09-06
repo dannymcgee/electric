@@ -19,7 +19,7 @@
 
 	&__icon {
 		margin-right: 10px;
-		color: color.foreground(300);
+		color: color.foreground(400);
 		@include anim.transition(color);
 	}
 
@@ -28,7 +28,7 @@
 		user-select: none;
 
 		&:first-child {
-			margin-left: calc(#{rem(18)} + 10px);
+			margin-left: calc(#{rem(20)} + 10px);
 		}
 	}
 
@@ -42,18 +42,18 @@
 	&__submenu-icon {
 		margin-left: auto;
 		margin-right: -20px;
-		color: color.foreground(300);
+		color: color.foreground(400);
 	}
 
 	&:hover  { background: color.background(100, 0.333) }
 	&:active { background: color.background(100, 0.667) }
 	&:focus-visible {
 		background: color.accent(100);
-		color: color.accent(700);
+		color: color.accent(800);
 
 		.elx-icon,
 		#{$block}__keybind {
-			color: color.accent(500);
+			color: color.accent(400);
 		}
 	}
 
