@@ -313,9 +313,19 @@ export class Path implements IPath {
 					this._commands[index] = prev.clone() as PathCommand;
 					break;
 				}
+				case TransactionType.Insert: {
+					const { index, commands } = entry.payload;
+					this._commands.splice(index, commands.length);
+					break;
+				}
+				case TransactionType.Remove: {
+					const { index, commands } = entry.payload;
+					this._commands.splice(index, 0, ...commands.slice());
+					break;
+				}
 				default: {
 					console.error(
-						`TransactionType "${TransactionType[entry.type]}" not yet implemented!`
+						`TransactionType "${TransactionType[(entry as any).type]}" not yet implemented!`
 					);
 				}
 			}
@@ -344,8 +354,18 @@ export class Path implements IPath {
 					this._commands[index] = next.clone() as PathCommand;
 					break;
 				}
+				case TransactionType.Insert: {
+					const { index, commands } = entry.payload;
+					this._commands.splice(index, 0, ...commands.slice());
+					break;
+				}
+				case TransactionType.Remove: {
+					const { index, commands } = entry.payload;
+					this._commands.splice(index, commands.length);
+					break;
+				}
 				default: {
-					console.error(`TransactionType ${entry.type} not yet implemented!`);
+					console.error(`TransactionType ${(entry as any).type} not yet implemented!`);
 				}
 			}
 		}
@@ -502,6 +522,69 @@ export class Path implements IPath {
 		if (pointIndex === 0 && contour.last?.hidden) {
 			contour.last.coords = updated.coords;
 			contour.last.handle_in = updated.handle_in;
+		}
+
+		delete this._svg;
+		this._changes$.next();
+	}
+
+	insertPoint(contourIndex: number, pointIndex: number, point: Point): void {
+		let cmdBaseIdx = 0;
+		for (let c = 0; c < contourIndex; ++c)
+			cmdBaseIdx += this.contours[c].points.length;
+
+		const contour = this.contours[contourIndex];
+
+		{
+			const cmdIdx = cmdBaseIdx + pointIndex;
+			const cmd = this._commands[cmdIdx];
+			const { x, y } = point;
+
+			if (point.handle_in) {
+				const { x: cpx2, y: cpy2 } = point.handle_in;
+
+				assert(cmd.op === PathOp.BezierCurveTo);
+				this.recordEdit(cmd, () => {
+					cmd.args.splice(2, 5, cpx2, cpy2, x, y, point.smooth);
+					delete (cmd as any)["_str"];
+				});
+			}
+			else {
+				assert(cmd.op === PathOp.LineTo);
+				this.recordEdit(cmd, () => {
+					cmd.args.splice(0, 3, x, y, point.smooth);
+					delete (cmd as any)["_str"];
+				});
+			}
+		}
+
+		{
+			const end = contour.points[pointIndex];
+			const { x, y } = end;
+
+			const cmdIdx = cmdBaseIdx + pointIndex + 1;
+			let cmd: PathCommand | undefined;
+
+			if (point.handle_out) {
+				const { x: cpx1, y: cpy1 } = point.handle_out;
+				const { x: cpx2, y: cpy2 } = end.handle_in!;
+
+				cmd = pathCommand(PathOp.BezierCurveTo, cpx1, cpy1, cpx2, cpy2, x, y, end.smooth);
+			}
+			else {
+				cmd = pathCommand(PathOp.LineTo, x, y, end.smooth);
+			}
+
+			this._inProgress?.push({
+				type: TransactionType.Insert,
+				payload: {
+					index: cmdIdx,
+					commands: [cmd.clone() as PathCommand],
+				},
+			});
+
+			this._commands.splice(cmdIdx, 0, cmd);
+			contour.points.splice(pointIndex, 0, point);
 		}
 
 		delete this._svg;
@@ -716,11 +799,11 @@ export class Point {
 
 	toString(): string {
 		let result = `(${
-			this.handle_in?.join(",")
+			this.handle_in?.rounded().join(",")
 		}) <- (${
-			this.coords.join(",")
+			this.coords.rounded().join(",")
 		}) -> (${
-			this.handle_out?.join(",")
+			this.handle_out?.rounded().join(",")
 		})`;
 
 		if (this.smooth)

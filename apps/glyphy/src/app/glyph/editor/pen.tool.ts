@@ -28,7 +28,7 @@ import { FontMetrics } from "../../family";
 import { Bezier, IRect, Matrix, Rect, Vec2, vec2 } from "../../math";
 import { GroupRenderer, RenderElement, RENDER_ELEMENT } from "../../render";
 import { Glyph } from "../glyph";
-import { Path } from "../path";
+import { Path, Point } from "../path";
 import { InputProvider } from "./input.provider";
 import { EditorBezier, EditorPoint } from "./types";
 import { Hash2D } from "./rulers.renderer";
@@ -187,7 +187,7 @@ export class PenTool
 					this.onDestroy$,
 				)),
 			)),
-			takeUntil(this.onDestroy$),
+			replayUntil(this.onDestroy$),
 		);
 
 		// Render
@@ -247,13 +247,38 @@ export class PenTool
 
 				this._cdRef.detectChanges();
 			});
+
+		this._input.ptrDown(0)
+			.pipe(
+				withLatestFrom(hitResult$),
+				takeUntil(this.onDestroy$),
+			)
+			.subscribe(([, hitResult]) => {
+				// TODO: Watch for hold-and-drag on add/insert, which should allow
+				//       the user to create / edit the new point's handles
+				switch (hitResult.kind) {
+					case HitResultKind.None: {
+						this.addPoint(hitResult.value);
+						break;
+					}
+					case HitResultKind.ExistingPoint: {
+						this.removePoint(hitResult.value);
+						break;
+					}
+					case HitResultKind.NewPointOnCurve: {
+						const { bezier, t, coords } = hitResult.value;
+						this.insertPoint(bezier, t, coords);
+						break;
+					}
+				}
+			});
 	}
 
 	hitTest(
 		gPtr: Const<Vec2>,
 		cPtr: Const<Vec2>,
 		points: readonly Const<EditorPoint>[],
-		beziers: Bezier[],
+		beziers: EditorBezier[],
 		bbs: Rect[],
 	): HitResult {
 		const nearestPoint = findNearestPoint(gPtr, points);
@@ -269,7 +294,7 @@ export class PenTool
 		}
 
 		const activeBbs: Rect[] = [];
-		const candidateBeziers: Bezier[] = [];
+		const candidateBeziers: EditorBezier[] = [];
 
 		for (let i = 0; i < beziers.length; ++i) {
 			const bbox = bbs[i];
@@ -298,6 +323,83 @@ export class PenTool
 			kind: HitResultKind.None,
 			value: gPtr,
 		};
+	}
+
+	addPoint(p: Const<Vec2>): void {
+		console.log(`addPoint([${p.x}, ${p.y}])`);
+	}
+
+	removePoint(p: Const<EditorPoint>): void {
+		console.log(`removePoint`, p);
+	}
+
+	insertPoint(bezier: Const<EditorBezier>, t: number, coords: Const<Vec2>): void {
+		if (!this.outline) return;
+
+		this.outline.beginTransaction();
+
+		const [p0, p1, p2, p3, p4] = this.subdivideCurve(bezier, t, coords);
+		const ci = bezier.ci;
+		let [piStart, piEnd] = bezier.pis;
+
+		const start = this.outline.contours[ci].points[piStart];
+		const end = this.outline.contours[ci].points[piEnd];
+
+		// Update start point's handle-out
+		this.outline.editPoint(ci, piStart, p => {
+			if (!p.handle_out) return p;
+
+			const result = p.clone();
+			result.handle_out = p0;
+
+			return result;
+		});
+
+		// Update end point's handle-in
+		this.outline.editPoint(ci, piEnd, p => {
+			if (!p.handle_in) return p;
+
+			const result = p.clone();
+			result.handle_in = p4;
+
+			return result;
+		});
+
+		if (end.hidden) {
+			this.outline.editPoint(ci, 0, p => {
+				if (!p.handle_in) return p;
+
+				const result = p.clone();
+				result.handle_in = p4;
+
+				return result;
+			});
+		}
+
+		// Insert the new point
+		const handle_in = start.handle_out ? p1 : undefined;
+		const handle_out = end.handle_in ? p3 : undefined;
+		const smooth = !!handle_in && !!handle_out; // Collinearity is implied
+
+		const p = new Point(p2.x, p2.y, smooth);
+		p.handle_in = handle_in;
+		p.handle_out = handle_out;
+		this.outline.insertPoint(ci, piEnd, p);
+
+		this.outline.endTransaction();
+	}
+
+	subdivideCurve(bezier: Const<EditorBezier>, t: number, coords: Const<Vec2>): Vec2[] {
+		const { p0, p1, p2, p3 } = bezier;
+
+		const p01 = vec2.lerp(t, [p0, p1]);
+		const p12 = vec2.lerp(t, [p1, p2]);
+		const p23 = vec2.lerp(t, [p2, p3]);
+
+		const handle_in = vec2.lerp(t, [p01, p12]);
+		const handle_out = vec2.lerp(t, [p12, p23]);
+
+		return [p01, handle_in, coords, handle_out, p23];
 	}
 
 	// override onDraw(ctx: CanvasRenderingContext2D): void {
@@ -378,7 +480,7 @@ type HitResult = {
 } | {
 	kind: HitResultKind.NewPointOnCurve;
 	value: {
-		bezier: Bezier;
+		bezier: EditorBezier;
 		t: number;
 		coords: Vec2;
 	};

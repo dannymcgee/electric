@@ -1,3 +1,4 @@
+import { anim } from "@electric/style";
 import { Const, Fn, match, Option } from "@electric/utils";
 
 import * as util from "./util";
@@ -67,6 +68,10 @@ export class Vec2 {
 
 	join(sep: string): string {
 		return `${this.x}${sep}${this.y}`;
+	}
+
+	rounded(): Vec2 {
+		return new Vec2(Math.round(this.x), Math.round(this.y));
 	}
 
 	toString(): string {
@@ -201,5 +206,13 @@ export namespace vec2 {
 	function _nearlyEq(lhs: Const<Vec2>, rhs: Const<Vec2>, tolerance: number): boolean {
 		return util.nearlyEq(lhs.x, rhs.x, tolerance)
 			&& util.nearlyEq(lhs.y, rhs.y, tolerance);
+	}
+
+	/** Linear interpolation */
+	export function lerp(t: number, [from, to]: [Const<Vec2>, Const<Vec2>]): Vec2 {
+		const x = anim.lerp(t, [from.x, to.x]);
+		const y = anim.lerp(t, [from.y, to.y]);
+
+		return vec2(x, y);
 	}
 }
