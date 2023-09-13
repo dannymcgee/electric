@@ -1,20 +1,31 @@
 import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, OnDestroy } from "@angular/core";
 
 import { array, Stack } from "@electric/utils";
+import { BehaviorSubject, shareReplay } from "rxjs";
 
 import { Loop } from "../loop";
 
 @Injectable({
 	providedIn: "root",
 })
-export class GlobalFocusManager {
+export class GlobalFocusManager implements OnDestroy {
 	private _focusHistory = new Stack<HTMLElement>(100);
+
+	private _activeElement$ = new BehaviorSubject<HTMLElement>(this._document.body);
+	readonly activeElement$ = this._activeElement$.pipe(shareReplay({
+		bufferSize: 1,
+		refCount: false,
+	}));
 
 	constructor (
 		@Inject(DOCUMENT) private _document: Document,
 	) {
 		this.watchForChanges();
+	}
+
+	ngOnDestroy(): void {
+		this._activeElement$.complete();
 	}
 
 	getLastValidFocusTarget(): HTMLElement | null {
@@ -41,9 +52,11 @@ export class GlobalFocusManager {
 		let last = this._focusHistory.top;
 		let current = this._document.activeElement as HTMLElement;
 
-		if (current && current !== this._document.body && current !== last) {
+		if (current && current !== this._document.body && current !== last)
 			this._focusHistory.push(current);
-		}
+
+		if (current && current !== this._activeElement$.value)
+			this._activeElement$.next(current);
 	}
 
 	private drainNullRefs(): void {
