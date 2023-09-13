@@ -1,6 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
+import { GlobalFocusManager } from "@electric/ng-utils";
 import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
-import { Subject, takeUntil } from "rxjs";
+import { filter, Subject, takeUntil } from "rxjs";
 
 import { Font, NewFont } from "./font";
 import { Glyph } from "./glyph";
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
 	constructor (
 		@Inject(WINDOW_PROVIDER) private _win: WindowProvider,
 		public _familyService: FamilyService,
+		private _focusManager: GlobalFocusManager,
 	) {}
 
 	ngOnInit(): void {
@@ -38,6 +40,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
 				// TODO: Remember the last open glyph editor for a given font
 				this.openGlyphs$.next(this._openGlyphsMap.get(font) ?? []);
+			});
+
+		this._focusManager.activeElement$
+			.pipe(
+				filter(activeElement => activeElement === document.body),
+				takeUntil(this._onDestroy$),
+			)
+			.subscribe(() => {
+				this._focusManager.getLastValidFocusTarget()?.focus();
 			});
 	}
 
