@@ -76,13 +76,9 @@ export class AppComponent implements OnInit, OnDestroy {
 		if (!this._openGlyphsMap.has(font))
 			this._openGlyphsMap.set(font, openGlyphs);
 
-		if (openGlyphs.includes(glyph)) {
-			this.activeTabIndex = openGlyphs.indexOf(glyph) + 1;
-		}
-		else {
-			openGlyphs.push(glyph);
-			this.activeTabIndex = openGlyphs.length;
-		}
+		this.activeTabIndex = openGlyphs.includes(glyph)
+			? openGlyphs.indexOf(glyph) + 1
+			: openGlyphs.push(glyph);
 
 		this.openGlyphs$.next(openGlyphs);
 	}
