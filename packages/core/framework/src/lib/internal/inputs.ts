@@ -14,14 +14,14 @@ export type CustomElementCtor<T extends HTMLElement = HTMLElement>
 //   static observedAttributes = ["foo", "bar"]
 //
 //   // @input foo = "bar"
-//   #__$foo_accessor = new InputAccessor({ serde: __$STRING, init: "bar" })
-//   set #__$foo(value) { this.#__$foo_accessor.set(value) }
 //   get foo() { return this.#__$foo_accessor.get() }
+//   set #__$foo(value) { this.#__$foo_accessor.set(value) }
+//   #__$foo_accessor = new InputAccessor({ serde: __$STRING, init: "bar" })
 //
 //   // @input bar = "baz"
-//   #__$bar_accessor = new InputAccessor({ serde: __$STRING, init: "baz" })
-//   set #__$bar(value) { this.#__$bar_accessor.set(value) }
 //   get bar() { return this.#__$bar_accessor.get() }
+//   set #__$bar(value) { this.#__$bar_accessor.set(value) }
+//   #__$bar_accessor = new InputAccessor({ serde: __$STRING, init: "baz" })
 //
 //   attributeChangedCallback(prev, current, attrName) {
 //     if (prev === current) return
@@ -36,7 +36,7 @@ export type CustomElementCtor<T extends HTMLElement = HTMLElement>
 //   }
 // }
 //
-export default function setupInputs<T extends HTMLElement = HTMLElement>(
+export function setupInputs<T extends HTMLElement = HTMLElement>(
 	Type: CustomElementCtor<T>,
 	observedAttributes: Record<string, InputConfig<any>>,
 ) {
@@ -76,7 +76,7 @@ export interface InputConfig<T> {
 	init?: T
 }
 
-class InputAccessor<T> {
+export class InputAccessor<T> {
 	#value?: T
 	#serde: Serde<T>
 

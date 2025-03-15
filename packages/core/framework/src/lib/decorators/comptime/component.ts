@@ -21,10 +21,21 @@ export function Component(tagName: string): ClassDecorator {
 		return [
 			$.ImportDecl(
 				undefined,
+				// $.ImportClause(
+				// 	false,
+				// 	$.Identifier("__$setupInputs"),
+				// 	undefined
+				// ),
 				$.ImportClause(
 					false,
-					$.Identifier("__$setupInputs"),
-					undefined
+					undefined,
+					$.NamedImports([
+						$.ImportSpecifier(
+							false,
+							$.Identifier("InputAccessor"),
+							$.Identifier("__$InputAccessor")
+						)
+					])
 				),
 				$.StringLiteral("@electric/framework/src/lib/internal/inputs")
 			),
@@ -67,30 +78,30 @@ export function Component(tagName: string): ClassDecorator {
 					]
 				)
 			),
-			$.ExpressionStmt(
-				$.CallExpr(
-					$.Identifier("__$setupInputs"),
-					undefined,
-					[
-						node.name!,
-						$.ObjectLiteralExpr(
-							inputs.map(p => $.PropertyAssignment(
-								p.name,
-								$.ObjectLiteralExpr([
-									$.PropertyAssignment(
-										$.Identifier("serde"),
-										$.Identifier("__$STRING"),
-									),
-									$.PropertyAssignment(
-										$.Identifier("init"),
-										p.initializer ?? $.Identifier("undefined")
-									)
-								])
-							))
-						)
-					]
-				)
-			)
+			// $.ExpressionStmt(
+			// 	$.CallExpr(
+			// 		$.Identifier("__$setupInputs"),
+			// 		undefined,
+			// 		[
+			// 			node.name!,
+			// 			$.ObjectLiteralExpr(
+			// 				inputs.map(p => $.PropertyAssignment(
+			// 					p.name,
+			// 					$.ObjectLiteralExpr([
+			// 						$.PropertyAssignment(
+			// 							$.Identifier("serde"),
+			// 							$.Identifier("__$STRING"),
+			// 						),
+			// 						$.PropertyAssignment(
+			// 							$.Identifier("init"),
+			// 							p.initializer ?? $.Identifier("undefined")
+			// 						)
+			// 					])
+			// 				))
+			// 			)
+			// 		]
+			// 	)
+			// )
 		]
 	}
 }
