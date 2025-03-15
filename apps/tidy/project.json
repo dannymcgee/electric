@@ -99,7 +99,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/apps/tidy"],
 			"options": {
-				"jestConfig": "apps/tidy/jest.config.js",
+				"jestConfig": "apps/tidy/jest.config.ts",
 				"passWithNoTests": true
 			}
 		}

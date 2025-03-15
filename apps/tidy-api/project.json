@@ -4,7 +4,7 @@
 	"projectType": "application",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/node:build",
+			"executor": "@nrwl/node:webpack",
 			"outputs": ["{options.outputPath}"],
 			"options": {
 				"outputPath": "dist/apps/tidy-api",
@@ -27,7 +27,7 @@
 			}
 		},
 		"serve": {
-			"executor": "@nrwl/node:execute",
+			"executor": "@nrwl/node:node",
 			"options": {
 				"buildTarget": "tidy-api:build"
 			}
@@ -36,7 +36,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/apps/tidy-api"],
 			"options": {
-				"jestConfig": "apps/tidy-api/jest.config.js",
+				"jestConfig": "apps/tidy-api/jest.config.ts",
 				"passWithNoTests": true
 			}
 		}

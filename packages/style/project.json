@@ -4,7 +4,7 @@
 	"projectType": "library",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/workspace:tsc",
+			"executor": "@nrwl/js:tsc",
 			"outputs": ["{options.outputPath}"],
 			"options": {
 				"outputPath": "dist/packages/style",
@@ -32,7 +32,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/packages/style"],
 			"options": {
-				"jestConfig": "packages/style/jest.config.js",
+				"jestConfig": "packages/style/jest.config.ts",
 				"passWithNoTests": true
 			}
 		}
