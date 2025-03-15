@@ -24,7 +24,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/packages/ng-utils"],
 			"options": {
-				"jestConfig": "packages/ng-utils/jest.config.js",
+				"jestConfig": "packages/ng-utils/jest.config.ts",
 				"passWithNoTests": true
 			}
 		},

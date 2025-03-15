@@ -24,7 +24,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/packages/components"],
 			"options": {
-				"jestConfig": "packages/components/jest.config.js",
+				"jestConfig": "packages/components/jest.config.ts",
 				"passWithNoTests": true,
 				"stylePreprocessorOptions": {
 					"includePaths": ["node_modules", "packages/style/src"]

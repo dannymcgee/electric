@@ -105,7 +105,7 @@
 			"executor": "@nrwl/jest:jest",
 			"outputs": ["coverage/apps/glyphy"],
 			"options": {
-				"jestConfig": "apps/glyphy/jest.config.js",
+				"jestConfig": "apps/glyphy/jest.config.ts",
 				"passWithNoTests": true,
 				"stylePreprocessorOptions": {
 					"includePaths": ["node_modules", "packages/style/src"]
