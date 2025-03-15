@@ -65,7 +65,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	private _onDestroy$ = new Subject<void>();
 
-	private _panAndZoom$ = new BehaviorSubject<Matrix>(Matrix.Identity as Matrix);
+	private _panAndZoom$ = new BehaviorSubject(Matrix.Identity);
 	readonly panAndZoom$ = this._panAndZoom$.pipe(replayUntil(this._onDestroy$));
 
 	get contentRect$() { return this._rect.contentRect$; }
