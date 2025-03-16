@@ -1,4 +1,5 @@
 {
+	"name": "tidy-api",
 	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"sourceRoot": "apps/tidy-api/src",
 	"projectType": "application",
