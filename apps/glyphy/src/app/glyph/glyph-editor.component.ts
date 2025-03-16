@@ -53,7 +53,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	get activeTool() { return this._activeTool; }
 	set activeTool(value) {
 		this._activeTool = value;
-		const { style } = this._elementRef.nativeElement;
+		const { style } = this._ref.nativeElement;
 		style.removeProperty("cursor");
 	}
 	private _activeTool: ToolMode = "select";
@@ -74,7 +74,6 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	constructor (
 		private _cdRef: ChangeDetectorRef,
-		private _elementRef: ElementRef<HTMLElement>,
 		public _familyService: FamilyService,
 		private _input: InputProvider,
 		private _ref: ElementRef<HTMLElement>,
@@ -176,7 +175,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	setPenCursorVariant(variant: Option<PenToolVariant>): void {
-		const { style } = this._elementRef.nativeElement;
+		const { style } = this._ref.nativeElement;
 		if (!variant)
 			style.removeProperty("cursor");
 		else

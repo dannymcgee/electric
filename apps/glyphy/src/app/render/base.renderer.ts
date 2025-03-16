@@ -8,7 +8,7 @@ import {
 import { ThemeService } from "@electric/components";
 import { Option } from "@electric/utils";
 
-import { Matrix, vec2 } from "../math";
+import { Matrix } from "../math";
 import { PaintStyle, RenderElement } from "./render.types";
 
 @Directive()

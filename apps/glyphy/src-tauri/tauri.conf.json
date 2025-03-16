@@ -7,7 +7,7 @@
   "build": {
     "distDir": "../../../dist/apps/glyphy",
     "devPath": "http://localhost:4200",
-    "beforeDevCommand": "nx serve glyphy",
+    "beforeDevCommand": "nx run glyphy:serve:production",
     "beforeBuildCommand": "nx build glyphy"
   },
   "tauri": {

@@ -45,7 +45,7 @@ export class FieldsetComponent
 	extends NgModelGroup
 	implements DoCheck
 {
-	@Input() override name!: string;
+	@Input() override name = "";
 
 	@HostBinding("attr.role")
 	@Input() role: "group"|"radiogroup" = "group";

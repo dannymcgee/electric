@@ -94,6 +94,8 @@ export class ContourEditorTool
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
+		this.changes$.emit();
+
 		if ("outline" in changes) {
 			this._newOutlineEvent$.next();
 

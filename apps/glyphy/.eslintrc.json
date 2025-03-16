@@ -9,28 +9,38 @@
 				"plugin:@angular-eslint/template/process-inline-templates"
 			],
 			"rules": {
-				"@angular-eslint/directive-selector": [
-					"error",
-					{
-						"type": "attribute",
-						"prefix": "g",
-						"style": "camelCase"
-					}
-				],
-				"@angular-eslint/component-selector": [
-					"error",
-					{
-						"type": "element",
-						"prefix": "g",
-						"style": "kebab-case"
-					}
-				]
+				"@angular-eslint/directive-selector": "off",
+				"@angular-eslint/component-selector": "off",
+				"@angular-eslint/component-class-suffix": "off",
+				"@angular-eslint/directive-class-suffix": "off",
+				"@angular-eslint/no-output-rename": "off",
+				"@angular-eslint/no-input-rename": "off"
 			}
 		},
 		{
 			"files": ["*.html"],
 			"extends": ["plugin:@nrwl/nx/angular-template"],
 			"rules": {}
+		},
+		{
+			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+			"rules": {
+				"@nrwl/nx/enforce-module-boundaries": [
+					"error",
+					{
+						"enforceBuildableLibDependency": true,
+						"allow": [],
+						"depConstraints": [
+							{
+								"sourceTag": "*",
+								"onlyDependOnLibsWithTags": ["*"]
+							}
+						]
+					}
+				],
+				"prefer-const": "off",
+				"@typescript-eslint/no-non-null-assertion": "off"
+			}
 		}
 	]
 }
