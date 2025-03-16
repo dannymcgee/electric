@@ -1,4 +1,4 @@
-import { ɵmarkDirty as markDirty } from "@angular/core";
+import { ɵdetectChanges as detectChanges } from "@angular/core";
 
 import { decorateMethod, NgClass } from "./internal/decorate";
 
@@ -28,7 +28,10 @@ export function DetectChanges(): PropertyDecorator {
 				this[propSymbol] = value;
 
 				if (this[initSymbol]) {
-					markDirty(this);
+					// FIXME: this is going to be significantly slower than the old
+					//        `markDirty` call. Instead, see if we can `inject(ChangeDetectorRef)`
+					//        from the decorator now that we have a function for that
+					detectChanges(this);
 				}
 			},
 			enumerable: true,

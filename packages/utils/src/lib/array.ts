@@ -1,5 +1,4 @@
-import { assertType } from "./assert";
-import { keys } from "./object";
+import { assert } from "./assert";
 import { Fn, Predicate, TypePredicate } from "./types";
 
 type Collection<T> = T extends Element ? HTMLCollectionOf<T>
@@ -48,25 +47,30 @@ export function sort<T>(compare: Fn<[T, T], number>) {
 	};
 }
 
-type KeyOf<T> = T extends Record<infer K, any> ? (K & string & keyof T)
-	: string & keyof T;
+type KeyedBy<T extends object, K extends keyof T>
+	= T[K] extends PropertyKey
+	? Record<T[K], T>
+	: never;
 
-export function keyBy<T>(key: KeyOf<T>) {
-	return (collection: Iterable<T>): { [key: string]: Omit<T, KeyOf<T>> } => {
-		return array(collection)
-			.reduce((accum, current) => {
-				let currentKey = current[key] ?? "";
-				let currentValue = {} as any;
+export function keyBy<T extends object, K extends keyof T>
+	(key: K): (coll: Iterable<T>) => KeyedBy<T, K>;
 
-				for (let k of keys(current)) {
-					if (k !== key) currentValue[k] = current[k];
-				}
+export function keyBy<T extends object, K extends keyof T>
+	(key: K, coll: Iterable<T>): KeyedBy<T, K>;
 
-				assertType<string>(currentKey);
+export function keyBy<T extends object, K extends keyof T>(key: K, coll?: Iterable<T>) {
+	if (!coll) return (coll: Iterable<T>) => keyBy_impl(key, coll);
+	return keyBy_impl(key, coll);
+}
 
-				return { ...accum, [currentKey]: currentValue };
-			}, {});
-	};
+function keyBy_impl<T extends object, K extends keyof T>(key: K, coll: Iterable<T>) {
+	let result = {} as KeyedBy<T, K>;
+	for (let element of coll) {
+		assert(key in element && /(^string|number|symbol$)/.test(typeof element[key]));
+		result[element[key]] = element as KeyedBy<T, K>[T[K]];
+	}
+
+	return result;
 }
 
 export function map<T, R>(transform: Fn<[T, number?], R>) {
