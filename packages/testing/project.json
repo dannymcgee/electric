@@ -1,14 +1,15 @@
 {
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"projectType": "library",
-	"root": "packages/testing",
 	"sourceRoot": "packages/testing/src",
 	"prefix": "electric",
 	"targets": {
 		"build": {
 			"executor": "@nrwl/angular:package",
-			"outputs": ["dist/packages/testing"],
+			"outputs": ["{workspaceRoot}/dist/packages/testing"],
 			"options": {
-				"project": "packages/testing/ng-package.json"
+				"project": "packages/testing/ng-package.json",
+				"tsConfig": "packages/testing/tsconfig.lib.json"
 			},
 			"configurations": {
 				"production": {

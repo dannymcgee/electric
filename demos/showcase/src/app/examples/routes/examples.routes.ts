@@ -1,12 +1,12 @@
 import { NgModule } from "@angular/core";
-import { RouterModule } from "@angular/router";
+import { RouterModule, Routes } from "@angular/router";
 
 import { AccordionExample } from "./accordion/accordion.example";
 import { ButtonExample } from "./button/button.example";
 import { DialogExample } from "./dialog/dialog.example";
 import { GraphExample } from "./graph/graph.example";
 
-export const ROUTES = [{
+export const ROUTES: Routes = [{
 	path: "",
 	children: [{
 		path: "accordion",

@@ -1,14 +1,15 @@
 {
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"projectType": "library",
-	"root": "packages/components",
 	"sourceRoot": "packages/components/src",
 	"prefix": "elx",
 	"targets": {
 		"build": {
 			"executor": "@nrwl/angular:package",
-			"outputs": ["dist/packages/components"],
+			"outputs": ["{workspaceRoot}/dist/packages/components"],
 			"options": {
-				"project": "packages/components/ng-package.json"
+				"project": "packages/components/ng-package.json",
+				"tsConfig": "packages/components/tsconfig.lib.json"
 			},
 			"configurations": {
 				"production": {
@@ -22,7 +23,7 @@
 		},
 		"test": {
 			"executor": "@nrwl/jest:jest",
-			"outputs": ["coverage/packages/components"],
+			"outputs": ["{workspaceRoot}/coverage/packages/components"],
 			"options": {
 				"jestConfig": "packages/components/jest.config.ts",
 				"passWithNoTests": true,

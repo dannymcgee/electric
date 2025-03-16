@@ -1,6 +1,6 @@
 {
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"projectType": "application",
-	"root": "apps/glyphy",
 	"sourceRoot": "apps/glyphy/src",
 	"prefix": "g",
 	"targets": {
@@ -79,7 +79,7 @@
 			"defaultConfiguration": "development"
 		},
 		"launch": {
-			"executor": "@nrwl/workspace:run-commands",
+			"executor": "nx:run-commands",
 			"options": {
 				"command": "tauri dev",
 				"cwd": "apps/glyphy",
@@ -103,7 +103,7 @@
 		},
 		"test": {
 			"executor": "@nrwl/jest:jest",
-			"outputs": ["coverage/apps/glyphy"],
+			"outputs": ["{workspaceRoot}/coverage/apps/glyphy"],
 			"options": {
 				"jestConfig": "apps/glyphy/jest.config.ts",
 				"passWithNoTests": true,
