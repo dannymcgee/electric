@@ -36,6 +36,7 @@
 		"@nestjs/core": "9.0.0",
 		"@nestjs/platform-express": "9.0.0",
 		"@tauri-apps/api": "^1.0.0",
+		"@types/prettier": "~2.6.0",
 		"@vscode-devkit/grammar": "0.0.1",
 		"chroma-js": "^2.4.2",
 		"d3": "^7.3.0",
