@@ -7,7 +7,7 @@ import { ROUTES } from "../examples/routes/examples.routes";
 
 interface ExampleRoute {
 	path: string;
-	name: string;
+	data: { name: string };
 }
 
 @Component({
@@ -20,7 +20,7 @@ interface ExampleRoute {
 	routerLink="/examples/{{ route.path }}"
 	routerLinkActive="active"
 >
-	{{ route.name }}
+	{{ route.data.name }}
 </a>
 
 <elx-resize-handle
@@ -42,10 +42,10 @@ export class NavComponent {
 
 	routes = ROUTES.flatMap(root =>
 		root.children
-			.filter(isExampleRoute)
+			?.filter(isExampleRoute)
 			.map(route => ({
 				path: route.path,
-				name: route.name,
+				data: route.data,
 			}))
 	) as ExampleRoute[];
 
@@ -60,6 +60,10 @@ function isExampleRoute(route: unknown): route is ExampleRoute {
 		typeof route === "object"
 		&& route != null
 		&& "path" in route
-		&& "name" in route
+		&& "data" in route
+		&& route.data != null
+		&& typeof route.data === "object"
+		&& "name" in route.data
+		&& typeof route.data.name === "string"
 	);
 }

@@ -1,25 +1,32 @@
 import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { RouterModule, Route as NgRoute } from "@angular/router";
 
 import { AccordionExample } from "./accordion/accordion.example";
 import { ButtonExample } from "./button/button.example";
 import { DialogExample } from "./dialog/dialog.example";
 import { GraphExample } from "./graph/graph.example";
 
-export const ROUTES: Routes = [{
+interface Route<T extends object> extends NgRoute {
+	data?: T;
+	children?: Route<T>[];
+}
+
+export type ShowcaseRoute = Route<{ name: string }>;
+
+export const ROUTES: ShowcaseRoute[] = [{
 	path: "",
 	children: [{
 		path: "accordion",
-		name: "Accordion",
 		component: AccordionExample,
+		data: { name: "Accordion" },
 	}, {
 		path: "button",
-		name: "Button",
 		component: ButtonExample,
+		data: { name: "Button" },
 	}, {
 		path: "dialog",
-		name: "Dialog",
 		component: DialogExample,
+		data: { name: "Button" },
 	}, /* { // TODO: this feature is really not demo-ready in its current state
 		path: "graph",
 		name: "Graph",
