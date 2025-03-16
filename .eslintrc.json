@@ -19,7 +19,6 @@
 						]
 					}
 				],
-				"prefer-let/prefer-let": "warn",
 				"prefer-const": "off",
 				"@typescript-eslint/no-non-null-assertion": "off"
 			}
