@@ -1,6 +1,6 @@
 {
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"projectType": "application",
-	"root": "demos/showcase",
 	"sourceRoot": "demos/showcase/src",
 	"prefix": "showcase",
 	"targets": {
@@ -103,7 +103,7 @@
 			"defaultConfiguration": "development"
 		},
 		"launch": {
-			"executor": "@nrwl/workspace:run-commands",
+			"executor": "nx:run-commands",
 			"options": {
 				"command": "tauri dev",
 				"cwd": "demos/tauri-app"

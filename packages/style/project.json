@@ -1,5 +1,5 @@
 {
-	"root": "packages/style",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"sourceRoot": "packages/style/src",
 	"projectType": "library",
 	"targets": {
@@ -30,7 +30,7 @@
 		},
 		"test": {
 			"executor": "@nrwl/jest:jest",
-			"outputs": ["coverage/packages/style"],
+			"outputs": ["{workspaceRoot}/coverage/packages/style"],
 			"options": {
 				"jestConfig": "packages/style/jest.config.ts",
 				"passWithNoTests": true

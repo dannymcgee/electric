@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable */
+export default {
 	displayName: "ng-utils",
 
 	setupFilesAfterEnv: ["<rootDir>/src/test-setup.ts"],

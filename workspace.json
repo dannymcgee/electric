@@ -11,5 +11,6 @@
 		"tidy": "apps/tidy",
 		"tidy-api": "apps/tidy-api",
 		"utils": "packages/utils"
-	}
+	},
+	"$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

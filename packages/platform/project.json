@@ -1,12 +1,12 @@
 {
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"projectType": "library",
-	"root": "packages/platform",
 	"sourceRoot": "packages/platform/src",
 	"prefix": "electric",
 	"targets": {
 		"build": {
 			"executor": "@nrwl/angular:package",
-			"outputs": ["dist/packages/platform"],
+			"outputs": ["{workspaceRoot}/dist/packages/platform"],
 			"options": {
 				"project": "packages/platform/ng-package.json"
 			},

@@ -1,16 +1,18 @@
 {
-	"root": "apps/tidy-api",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"sourceRoot": "apps/tidy-api/src",
 	"projectType": "application",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/node:webpack",
+			"executor": "@nrwl/webpack:webpack",
 			"outputs": ["{options.outputPath}"],
 			"options": {
 				"outputPath": "dist/apps/tidy-api",
 				"main": "apps/tidy-api/src/main.ts",
 				"tsConfig": "apps/tidy-api/tsconfig.app.json",
-				"assets": ["apps/tidy-api/src/assets"]
+				"assets": ["apps/tidy-api/src/assets"],
+				"target": "node",
+				"compiler": "tsc"
 			},
 			"configurations": {
 				"production": {
@@ -34,7 +36,7 @@
 		},
 		"test": {
 			"executor": "@nrwl/jest:jest",
-			"outputs": ["coverage/apps/tidy-api"],
+			"outputs": ["{workspaceRoot}/coverage/apps/tidy-api"],
 			"options": {
 				"jestConfig": "apps/tidy-api/jest.config.ts",
 				"passWithNoTests": true
