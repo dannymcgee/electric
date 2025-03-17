@@ -26,7 +26,7 @@ export const ROUTES: ShowcaseRoute[] = [{
 	}, {
 		path: "dialog",
 		component: DialogExample,
-		data: { name: "Button" },
+		data: { name: "Dialog" },
 	}, /* { // TODO: this feature is really not demo-ready in its current state
 		path: "graph",
 		name: "Graph",
