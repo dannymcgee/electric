@@ -72,7 +72,7 @@ export class DialogExample {
 					private onComplete: Fn,
 					private _seconds: number,
 				) {
-					this.tick();
+					this._tick();
 				}
 
 				cancel(): void {
@@ -80,7 +80,7 @@ export class DialogExample {
 				}
 
 				@Loop()
-				private tick(deltaTime = 0): void | false {
+				_tick(deltaTime = 0): void | false {
 					if (this._cancelled)
 						return false;
 
@@ -220,7 +220,7 @@ class Timer {
 		private onComplete: Fn,
 		private _seconds: number,
 	) {
-		this.tick();
+		this._tick();
 	}
 
 	cancel(): void {
@@ -228,7 +228,7 @@ class Timer {
 	}
 
 	@Loop()
-	private tick(deltaTime = 0): void | false {
+	_tick(deltaTime = 0): void | false {
 		if (this._cancelled)
 			return false;
 

@@ -19,7 +19,7 @@ export function Debounce(timeout: number): MethodDecorator<any, VoidFn> {
 			}, timeout);
 		}
 
-		if (NG_LIFECYCLE.test(methodName)) {
+		if (typeof methodName === "string" && NG_LIFECYCLE.test(methodName)) {
 			Object.defineProperty(proto, methodName, { value: updated });
 			return Object.getOwnPropertyDescriptor(proto, methodName);
 		}
