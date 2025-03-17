@@ -11,8 +11,7 @@
 				"outputPath": "dist/packages/style",
 				"main": "packages/style/src/index.ts",
 				"tsConfig": "packages/style/tsconfig.lib.json",
-				"assets": ["packages/style/*.md", "packages/style/src/assets"],
-				"updateBuildableProjectDepsInPackageJson": true
+				"assets": ["packages/style/*.md", "packages/style/src/assets"]
 			}
 		},
 		"build-icons": {
@@ -25,17 +24,13 @@
 		},
 		"lint": {
 			"executor": "@nx/eslint:lint",
-			"outputs": ["{options.outputFile}"],
-			"options": {
-				"lintFilePatterns": ["packages/style/**/*.ts"]
-			}
+			"outputs": ["{options.outputFile}"]
 		},
 		"test": {
 			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/packages/style"],
 			"options": {
-				"jestConfig": "packages/style/jest.config.ts",
-				"passWithNoTests": true
+				"jestConfig": "packages/style/jest.config.ts"
 			}
 		}
 	},

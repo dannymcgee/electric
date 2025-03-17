@@ -39,8 +39,7 @@
 			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/apps/tidy-api"],
 			"options": {
-				"jestConfig": "apps/tidy-api/jest.config.ts",
-				"passWithNoTests": true
+				"jestConfig": "apps/tidy-api/jest.config.ts"
 			}
 		}
 	},

@@ -10,8 +10,7 @@
 			"outputs": ["{workspaceRoot}/dist/packages/ng-utils"],
 			"options": {
 				"project": "packages/ng-utils/ng-package.json",
-				"tsConfig": "packages/ng-utils/tsconfig.lib.json",
-				"updateBuildableProjectDepsInPackageJson": true
+				"tsConfig": "packages/ng-utils/tsconfig.lib.json"
 			},
 			"configurations": {
 				"production": {
@@ -27,18 +26,11 @@
 			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/packages/ng-utils"],
 			"options": {
-				"jestConfig": "packages/ng-utils/jest.config.ts",
-				"passWithNoTests": true
+				"jestConfig": "packages/ng-utils/jest.config.ts"
 			}
 		},
 		"lint": {
-			"executor": "@nx/eslint:lint",
-			"options": {
-				"lintFilePatterns": [
-					"packages/ng-utils/src/**/*.ts",
-					"packages/ng-utils/src/**/*.html"
-				]
-			}
+			"executor": "@nx/eslint:lint"
 		}
 	},
 	"tags": []

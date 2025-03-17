@@ -71,10 +71,10 @@
 			"executor": "@angular-devkit/build-angular:dev-server",
 			"configurations": {
 				"production": {
-					"browserTarget": "glyphy:build:production"
+					"buildTarget": "glyphy:build:production"
 				},
 				"development": {
-					"browserTarget": "glyphy:build:development"
+					"buildTarget": "glyphy:build:development"
 				}
 			},
 			"defaultConfiguration": "development"
@@ -90,24 +90,17 @@
 		"extract-i18n": {
 			"executor": "@angular-devkit/build-angular:extract-i18n",
 			"options": {
-				"browserTarget": "glyphy:build"
+				"buildTarget": "glyphy:build"
 			}
 		},
 		"lint": {
-			"executor": "@nx/eslint:lint",
-			"options": {
-				"lintFilePatterns": [
-					"apps/glyphy/src/**/*.ts",
-					"apps/glyphy/src/**/*.html"
-				]
-			}
+			"executor": "@nx/eslint:lint"
 		},
 		"test": {
 			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/apps/glyphy"],
 			"options": {
 				"jestConfig": "apps/glyphy/jest.config.ts",
-				"passWithNoTests": true,
 				"stylePreprocessorOptions": {
 					"includePaths": ["node_modules", "packages/style/src"]
 				}

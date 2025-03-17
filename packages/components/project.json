@@ -10,8 +10,7 @@
 			"outputs": ["{workspaceRoot}/dist/packages/components"],
 			"options": {
 				"project": "packages/components/ng-package.json",
-				"tsConfig": "packages/components/tsconfig.lib.json",
-				"updateBuildableProjectDepsInPackageJson": true
+				"tsConfig": "packages/components/tsconfig.lib.json"
 			},
 			"configurations": {
 				"production": {
@@ -28,36 +27,13 @@
 			"outputs": ["{workspaceRoot}/coverage/packages/components"],
 			"options": {
 				"jestConfig": "packages/components/jest.config.ts",
-				"passWithNoTests": true,
 				"stylePreprocessorOptions": {
 					"includePaths": ["node_modules", "packages/style/src"]
 				}
 			}
 		},
 		"lint": {
-			"executor": "@nx/eslint:lint",
-			"options": {
-				"lintFilePatterns": [
-					"packages/components/src/**/*.ts",
-					"packages/components/src/**/*.html",
-					"packages/components/theme/**/*.ts",
-					"packages/components/theme/**/*.html",
-					"packages/components/button/**/*.ts",
-					"packages/components/button/**/*.html",
-					"packages/components/icon/**/*.ts",
-					"packages/components/icon/**/*.html",
-					"packages/components/accordion/**/*.ts",
-					"packages/components/accordion/**/*.html",
-					"packages/components/dialog/**/*.ts",
-					"packages/components/dialog/**/*.html",
-					"packages/components/menu/**/*.ts",
-					"packages/components/menu/**/*.html",
-					"packages/components/app-shell/**/*.ts",
-					"packages/components/app-shell/**/*.html",
-					"packages/components/form-controls/**/*.ts",
-					"packages/components/form-controls/**/*.html"
-				]
-			}
+			"executor": "@nx/eslint:lint"
 		}
 	},
 	"generators": {

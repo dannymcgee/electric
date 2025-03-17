@@ -86,16 +86,16 @@
 			"executor": "@angular-devkit/build-angular:dev-server",
 			"configurations": {
 				"production": {
-					"browserTarget": "showcase:build:production"
+					"buildTarget": "showcase:build:production"
 				},
 				"development": {
-					"browserTarget": "showcase:build:development"
+					"buildTarget": "showcase:build:development"
 				},
 				"electron": {
-					"browserTarget": "showcase:build:electron,development"
+					"buildTarget": "showcase:build:electron,development"
 				},
 				"tauri": {
-					"browserTarget": "showcase:build:tauri,development"
+					"buildTarget": "showcase:build:tauri,development"
 				}
 			},
 			"defaultConfiguration": "development"
@@ -110,7 +110,7 @@
 		"extract-i18n": {
 			"executor": "@angular-devkit/build-angular:extract-i18n",
 			"options": {
-				"browserTarget": "showcase:build"
+				"buildTarget": "showcase:build"
 			}
 		}
 	},

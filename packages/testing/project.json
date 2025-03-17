@@ -10,8 +10,7 @@
 			"outputs": ["{workspaceRoot}/dist/packages/testing"],
 			"options": {
 				"project": "packages/testing/ng-package.json",
-				"tsConfig": "packages/testing/tsconfig.lib.json",
-				"updateBuildableProjectDepsInPackageJson": true
+				"tsConfig": "packages/testing/tsconfig.lib.json"
 			},
 			"configurations": {
 				"production": {
