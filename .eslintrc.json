@@ -1,12 +1,12 @@
 {
 	"root": true,
 	"ignorePatterns": ["**/*"],
-	"plugins": ["@nrwl/nx", "prefer-let"],
+	"plugins": ["@nx", "prefer-let"],
 	"overrides": [
 		{
 			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
 			"rules": {
-				"@nrwl/nx/enforce-module-boundaries": [
+				"@nx/enforce-module-boundaries": [
 					"error",
 					{
 						"enforceBuildableLibDependency": true,

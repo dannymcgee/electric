@@ -6,7 +6,7 @@
 	"prefix": "electric",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/angular:package",
+			"executor": "@nx/angular:package",
 			"outputs": ["{workspaceRoot}/dist/packages/platform"],
 			"options": {
 				"project": "packages/platform/ng-package.json"
@@ -30,7 +30,7 @@
 			}
 		},
 		"lint": {
-			"executor": "@nrwl/linter:eslint",
+			"executor": "@nx/linter:eslint",
 			"options": {
 				"lintFilePatterns": [
 					"packages/platform/src/**/*.ts",

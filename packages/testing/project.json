@@ -6,7 +6,7 @@
 	"prefix": "electric",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/angular:package",
+			"executor": "@nx/angular:package",
 			"outputs": ["{workspaceRoot}/dist/packages/testing"],
 			"options": {
 				"project": "packages/testing/ng-package.json",

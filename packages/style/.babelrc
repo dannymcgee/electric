@@ -1,6 +1,6 @@
 {
 	"presets": [
-		["@nrwl/web/babel", {
+		["@nx/js/babel", {
 			"useBuiltIns": "usage"
 		}]
 	],
