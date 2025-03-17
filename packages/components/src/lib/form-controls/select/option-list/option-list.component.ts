@@ -1,13 +1,15 @@
 import {
-	Component,
-	ViewEncapsulation,
 	ChangeDetectionStrategy,
-	TemplateRef,
-	Input,
+	ChangeDetectorRef,
+	Component,
+	EventEmitter,
 	HostBinding,
 	HostListener,
+	inject,
+	Input,
 	Output,
-	EventEmitter,
+	TemplateRef,
+	ViewEncapsulation,
 } from "@angular/core";
 
 import { DetectChanges } from "@electric/ng-utils";
@@ -43,4 +45,7 @@ export class OptionListComponent {
 	private onClose(): void {
 		this.close.emit();
 	}
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 }

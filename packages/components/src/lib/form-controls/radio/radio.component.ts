@@ -1,16 +1,18 @@
 import { FocusMonitor } from "@angular/cdk/a11y";
 import {
-	Component,
-	ViewEncapsulation,
 	ChangeDetectionStrategy,
-	Input,
-	HostBinding,
-	Output,
-	EventEmitter,
-	OnInit,
-	HostListener,
+	ChangeDetectorRef,
+	Component,
 	ElementRef,
+	EventEmitter,
+	HostBinding,
+	HostListener,
+	inject,
+	Input,
 	OnDestroy,
+	OnInit,
+	Output,
+	ViewEncapsulation,
 } from "@angular/core";
 
 import { DetectChanges } from "@electric/ng-utils";
@@ -70,6 +72,9 @@ export class RadioComponent<T> implements Radio<T>, OnInit, OnDestroy {
 	@HostBinding("class.focus")
 	@DetectChanges()
 	_focused?: boolean;
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	private _onDestroy$ = new Subject<void>();
 

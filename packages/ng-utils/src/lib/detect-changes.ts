@@ -1,6 +1,10 @@
-import { ɵdetectChanges } from "@angular/core";
+import { ChangeDetectorRef } from "@angular/core";
 
-import { decorateMethod, NgClass } from "./internal/decorate";
+import { decorateMethod, NgClass, PropertyDecorator } from "./internal/decorate";
+
+export interface ChangeDetectable {
+	readonly changeDetector: ChangeDetectorRef;
+}
 
 /**
  * Marks a component as dirty (needing change detection) when the property value
@@ -11,7 +15,7 @@ import { decorateMethod, NgClass } from "./internal/decorate";
  * This decorator uses internal Angular APIs, and cannot be guaranteed to remain
  * stable between Angular minor/patch versions. You have been warned!
  */
-export function DetectChanges(): PropertyDecorator {
+export function DetectChanges<T extends ChangeDetectable>(): PropertyDecorator<T> {
 	return (proto, propName) => {
 		let $prop = Symbol(propName.toString());
 		let $initialized = Symbol("init");
@@ -24,17 +28,11 @@ export function DetectChanges(): PropertyDecorator {
 			get() {
 				return this[$prop];
 			},
-			set(value: any) {
-				this[$prop] = value;
+			set(this: T, value: any) {
+				(this as any)[$prop] = value;
 
-				if (this[$initialized]) {
-					// FIXME: this is going to be significantly slower than the old
-					//        `ɵmarkDirty` call, which has been removed from
-					//        `@angular/core`'s exports. Instead, try and come up
-					//        with a way to get access to the `ChangeDetectorRef` for
-					//        this component.
-					ɵdetectChanges(this);
-				}
+				if ((this as any)[$initialized])
+					this.changeDetector.markForCheck();
 			},
 			enumerable: true,
 			configurable: true,

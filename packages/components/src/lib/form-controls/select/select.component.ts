@@ -6,12 +6,14 @@ import {
 import {
 	AfterContentInit,
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	ContentChildren,
 	ElementRef,
 	forwardRef,
 	HostBinding,
 	HostListener,
+	inject,
 	Injector,
 	Input,
 	NgZone,
@@ -171,6 +173,9 @@ implements
 
 	@ViewChild("optionsTemplate", { read: TemplateRef, static: true })
 	private _optionsTemplate!: TemplateRef<void>;
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	private _keyManager?: ActiveDescendantKeyManager<Option<T>>;
 

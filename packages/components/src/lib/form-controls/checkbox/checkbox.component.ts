@@ -1,11 +1,13 @@
 import { FocusMonitor } from "@angular/cdk/a11y";
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	ElementRef,
 	EventEmitter,
 	HostBinding,
 	HostListener,
+	inject,
 	Input,
 	OnDestroy,
 	OnInit,
@@ -78,6 +80,9 @@ implements ValueAccessor<boolean>, OnInit, OnDestroy {
 	@HostBinding("class.focus")
 	@DetectChanges()
 	_focused?: boolean;
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	private _deferredValueChange?: boolean;
 	private _deferredOnTouch?: boolean;
