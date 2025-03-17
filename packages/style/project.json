@@ -11,7 +11,8 @@
 				"outputPath": "dist/packages/style",
 				"main": "packages/style/src/index.ts",
 				"tsConfig": "packages/style/tsconfig.lib.json",
-				"assets": ["packages/style/*.md", "packages/style/src/assets"]
+				"assets": ["packages/style/*.md", "packages/style/src/assets"],
+				"updateBuildableProjectDepsInPackageJson": true
 			}
 		},
 		"build-icons": {

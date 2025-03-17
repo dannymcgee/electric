@@ -10,7 +10,8 @@
 			"outputs": ["{workspaceRoot}/dist/packages/ng-utils"],
 			"options": {
 				"project": "packages/ng-utils/ng-package.json",
-				"tsConfig": "packages/ng-utils/tsconfig.lib.json"
+				"tsConfig": "packages/ng-utils/tsconfig.lib.json",
+				"updateBuildableProjectDepsInPackageJson": true
 			},
 			"configurations": {
 				"production": {
