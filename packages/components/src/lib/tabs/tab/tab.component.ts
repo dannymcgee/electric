@@ -2,11 +2,13 @@ import { FocusableOption, FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
 import { ContentObserver } from "@angular/cdk/observers";
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	ElementRef,
 	EventEmitter,
 	HostBinding,
 	HostListener,
+	inject,
 	Input,
 	OnDestroy,
 	OnInit,
@@ -103,6 +105,9 @@ export class TabComponent
 	readonly width$ = this._width$.asObservable();
 
 	private _onDestroy$ = new Subject<void>();
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	constructor (
 		private _contentObserver: ContentObserver,

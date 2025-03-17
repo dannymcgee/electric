@@ -1,5 +1,6 @@
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	ContentChild,
 	DoCheck,
@@ -11,6 +12,7 @@ import {
 	Self,
 	SkipSelf,
 	ViewEncapsulation,
+	inject,
 } from "@angular/core";
 import {
 	AsyncValidator,
@@ -59,6 +61,9 @@ export class FieldsetComponent
 
 	@ContentChild(FORM_LABEL)
 	private _label?: FormLabel;
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	constructor (
 		@Host() @SkipSelf()

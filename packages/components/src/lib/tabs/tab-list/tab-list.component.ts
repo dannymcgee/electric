@@ -8,6 +8,7 @@ import {
 	ElementRef,
 	EventEmitter,
 	HostBinding,
+	inject,
 	Input,
 	OnDestroy,
 	OnInit,
@@ -104,6 +105,9 @@ export class TabListComponent implements OnInit, AfterContentInit, OnDestroy {
 
 	private _onDestroy$ = new Subject<void>();
 	private _keyManager?: FocusKeyManager<Tab>;
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	constructor (
 		@SkipSelf() private _parentChangeDetector: ChangeDetectorRef,

@@ -1,18 +1,20 @@
 import { Highlightable, ListKeyManagerOption } from "@angular/cdk/a11y";
 import { DOCUMENT } from "@angular/common";
 import {
-	Component,
-	ViewEncapsulation,
 	ChangeDetectionStrategy,
-	ViewChild,
-	TemplateRef,
-	Input,
-	HostBinding,
-	Output,
-	EventEmitter,
-	HostListener,
+	ChangeDetectorRef,
+	Component,
 	ElementRef,
+	EventEmitter,
+	HostBinding,
+	HostListener,
 	Inject,
+	inject,
+	Input,
+	Output,
+	TemplateRef,
+	ViewChild,
+	ViewEncapsulation,
 } from "@angular/core";
 
 import { DetectChanges } from "@electric/ng-utils";
@@ -83,6 +85,9 @@ implements
 	}
 
 	@Output() select = new EventEmitter<Option<T>>();
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	constructor (
 		@Inject(DOCUMENT) private _document: Document,

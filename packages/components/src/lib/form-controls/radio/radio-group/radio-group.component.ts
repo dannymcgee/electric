@@ -1,14 +1,16 @@
 import {
-	Component,
-	ViewEncapsulation,
-	ChangeDetectionStrategy,
-	OnInit,
 	AfterContentInit,
-	OnDestroy,
-	HostListener,
-	HostBinding,
-	Input,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
 	ContentChildren,
+	HostBinding,
+	HostListener,
+	inject,
+	Input,
+	OnDestroy,
+	OnInit,
+	ViewEncapsulation,
 } from "@angular/core";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import {
@@ -100,6 +102,9 @@ implements
 	private _deferredValueChange?: T;
 
 	private _onDestroy$ = new Subject<void>();
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 
 	ngOnInit(): void {
 		if (!this.name) {

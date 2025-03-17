@@ -12,6 +12,10 @@ export interface MethodDecorator<
 	): (typeof descriptor) | undefined;
 }
 
+export interface PropertyDecorator<T> {
+	(proto: T, propName: keyof T): void;
+}
+
 export type NgClass =
 	& Record<PropertyKey, any>
 	& Partial<OnInit & OnDestroy>;

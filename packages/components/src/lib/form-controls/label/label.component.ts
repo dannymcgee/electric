@@ -1,10 +1,12 @@
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	ContentChild,
 	Directive,
 	forwardRef,
 	HostBinding,
+	inject,
 	Input,
 	TemplateRef,
 	ViewEncapsulation,
@@ -83,6 +85,9 @@ export class LabelComponent implements FormLabel {
 
 	@ContentChild(forwardRef(() => LabelPostfixDirective))
 	private _postfix?: LabelPostfixDirective;
+
+	private _cdRef = inject(ChangeDetectorRef);
+	get changeDetector() { return this._cdRef; }
 }
 
 @Directive({
