@@ -19,25 +19,25 @@ export interface LoopMethod {
  */
 export function Loop<T extends NgClass>(): MethodDecorator<T, LoopMethod> {
 	return (proto, methodName, descriptor) => {
-		let frameRequest = Symbol("frameRequest");
-		let lastTick = Symbol("lastTick");
+		const $frameRequest = Symbol("frameRequest");
+		const $lastTick = Symbol("lastTick");
 
-		let tick = function (this: any) {
-			this[frameRequest] = requestAnimationFrame((time) => {
+		function tick(this: any) {
+			this[$frameRequest] = requestAnimationFrame((time) => {
 				if (!this) return;
 
-				if (this[lastTick] == null) {
-					this[lastTick] = time;
+				if (this[$lastTick] == null) {
+					this[$lastTick] = time;
 				}
 
-				let deltaTime = (time - this[lastTick]) / 1000;
-				this[lastTick] = time;
+				let deltaTime = (time - this[$lastTick]) / 1000;
+				this[$lastTick] = time;
 
 				if (this[methodName].call(this, deltaTime) === false) {
-					cancelAnimationFrame(this[frameRequest]);
+					cancelAnimationFrame(this[$frameRequest]);
 
-					this[frameRequest] = undefined;
-					this[lastTick] = undefined;
+					this[$frameRequest] = undefined;
+					this[$lastTick] = undefined;
 				}
 			});
 		};
@@ -45,8 +45,8 @@ export function Loop<T extends NgClass>(): MethodDecorator<T, LoopMethod> {
 		decorateMethod(proto, "ngOnInit", tick);
 
 		decorateMethod(proto, "ngOnDestroy", function (this: any) {
-			if (this[frameRequest]) {
-				cancelAnimationFrame(this[frameRequest]);
+			if (this[$frameRequest]) {
+				cancelAnimationFrame(this[$frameRequest]);
 			}
 		});
 

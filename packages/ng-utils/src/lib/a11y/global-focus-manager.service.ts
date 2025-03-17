@@ -6,6 +6,8 @@ import { BehaviorSubject, shareReplay } from "rxjs";
 
 import { Loop } from "../loop";
 
+const $watchForChanges = Symbol("watchForChanges");
+
 @Injectable({
 	providedIn: "root",
 })
@@ -20,9 +22,7 @@ export class GlobalFocusManager implements OnDestroy {
 
 	constructor (
 		@Inject(DOCUMENT) private _document: Document,
-	) {
-		this.watchForChanges();
-	}
+	) {}
 
 	ngOnDestroy(): void {
 		this._activeElement$.complete();
@@ -46,7 +46,7 @@ export class GlobalFocusManager implements OnDestroy {
 	}
 
 	@Loop()
-	private watchForChanges(): void {
+	[$watchForChanges](): void {
 		this.drainNullRefs();
 
 		let last = this._focusHistory.top;
