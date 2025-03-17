@@ -94,7 +94,7 @@
 			}
 		},
 		"lint": {
-			"executor": "@nrwl/linter:eslint",
+			"executor": "@nx/linter:eslint",
 			"options": {
 				"lintFilePatterns": [
 					"apps/glyphy/src/**/*.ts",
@@ -103,7 +103,7 @@
 			}
 		},
 		"test": {
-			"executor": "@nrwl/jest:jest",
+			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/apps/glyphy"],
 			"options": {
 				"jestConfig": "apps/glyphy/jest.config.ts",

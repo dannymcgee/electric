@@ -30,13 +30,13 @@
 			}
 		},
 		"serve": {
-			"executor": "@nrwl/node:node",
+			"executor": "@nx/node:node",
 			"options": {
 				"buildTarget": "tidy-api:build"
 			}
 		},
 		"test": {
-			"executor": "@nrwl/jest:jest",
+			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/apps/tidy-api"],
 			"options": {
 				"jestConfig": "apps/tidy-api/jest.config.ts",
