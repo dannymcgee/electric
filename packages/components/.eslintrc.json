@@ -23,7 +23,8 @@
 						"prefix": "elx",
 						"style": "kebab-case"
 					}
-				]
+				],
+				"@angular-eslint/template/eqeqeq": "off"
 			}
 		},
 		{
