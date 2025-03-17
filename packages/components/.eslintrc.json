@@ -24,7 +24,12 @@
 						"style": "kebab-case"
 					}
 				],
-				"@angular-eslint/template/eqeqeq": "off"
+				"@angular-eslint/template/eqeqeq": [
+					"warn",
+					{
+						"allowNullOrUndefined": true
+					}
+				]
 			}
 		},
 		{
