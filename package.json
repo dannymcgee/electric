@@ -14,7 +14,6 @@
 	"scripts": {
 		"postinstall": "run-p postinstall:*",
 		"postinstall:tools": "npm run build-executors",
-		"postinstall:ngcc": "ngcc --properties es2015 browser module main",
 		"build-executors": "run-s build-executors:*",
 		"build-executors:schemas": "ts-node --project tools/tsconfig.tools.json tools/scripts/generate-schemas.ts",
 		"build-executors:tsc": "tsc --project tools/tsconfig.executors.json",
