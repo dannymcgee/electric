@@ -93,6 +93,7 @@ export class TitlebarComponent {
 
 	@Output() maximizedChange = new EventEmitter<boolean>();
 	@Output() minimize = new EventEmitter<void>();
+	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() close = new EventEmitter<void>();
 
 	@ContentChild(forwardRef(() => TitlebarIconDirective))

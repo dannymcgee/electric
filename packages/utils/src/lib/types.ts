@@ -13,22 +13,26 @@ export type f64 = number;
 export type FWORD = number;
 export type UFWORD = number;
 
-export type Obj = { [key: string]: any };
-export type Predicate<T> = (item: T) => boolean;
-export type TypePredicate<T, U extends T> = (item: T) => item is U;
+export type Key = PropertyKey;
+export type Obj = { [key: Key]: unknown };
+
+export type Pred<T> = (value: T) => boolean;
+export type TypePred<T> = (value: unknown) => value is T;
+export type TypeNarrow<T, U extends T> = (value: T) => value is U;
+
 export type Nullish = undefined | null | void;
-export type Option<T> = Nullish | T;
+export type Opt<T> = Nullish | T;
 export type Transparent<T> = {} & { [K in keyof T]: T[K]; };
 
-export interface Fn<Args extends any[] = [], R = void> {
+export interface Fn<Args extends unknown[] = [], R = void> {
 	(...args: Args): R;
 }
 
-export interface AsyncFn<Args extends any[] = [], R = void> {
+export interface AsyncFn<Args extends unknown[] = [], R = void> {
 	(...args: Args): Promise<R>;
 }
 
-export interface Ctor<T, Args extends any[] = []> {
+export interface Ctor<T, Args extends unknown[] = []> {
 	new (...args: Args): T;
 }
 
@@ -38,13 +42,15 @@ export function instanceOf<T>(Type: Ctor<T, any[]>) {
 
 export type Const<T> = {
 	readonly [K in keyof T]:
-		T[K] extends Array<any> ? ConstMappedArray<T[K]> :
+		T[K] extends Array<unknown> ? ConstMappedArray<T[K]> :
 		T[K] extends Set<infer U> ? ReadonlySet<Const<U>> :
 		T[K] extends Map<infer U, infer V> ? ReadonlyMap<U, Const<V>> :
-		T[K] extends ((...args: any[]) => any) ? T[K] :
-		T[K] extends Const<any> ? T[K] :
-		T[K] extends { [key: string|number|symbol]: any } ? Const<T[K]> :
+		T[K] extends ((...args: unknown[]) => unknown) ? T[K] :
+		T[K] extends Const<unknown> ? T[K] :
+		T[K] extends { [key: string|number|symbol]: unknown } ? Const<T[K]> :
 		T[K];
 }
 
-type ConstMappedArray<T extends any[]> = readonly [...{ [Idx in keyof T]: Const<T[Idx]> }];
+type ConstMappedArray<T extends unknown[]> = readonly [
+	...{ [Idx in keyof T]: Const<T[Idx]> }
+];

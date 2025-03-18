@@ -77,7 +77,7 @@ export class Font {
 	) {
 		this._family = family;
 		this.weight = weight;
-		this.weightName = weightName,
+		this.weightName = weightName;
 		this.style = style;
 		this.italicAngle = italicAngle ?? match(style, {
 			[FontStyle.Upright]: () => 0,

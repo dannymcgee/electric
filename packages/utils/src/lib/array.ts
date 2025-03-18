@@ -1,5 +1,5 @@
 import { assert } from "./assert";
-import { Fn, Predicate, TypePredicate } from "./types";
+import { Fn, Pred, TypeNarrow } from "./types";
 
 type Collection<T> = T extends Element ? HTMLCollectionOf<T>
 	: Iterable<T> | ArrayLike<T>;
@@ -17,10 +17,10 @@ export function last<T>(array: T[]): T {
 	return array[array.length - 1];
 }
 
-export function partition<T, U extends T>(predicate: TypePredicate<T, U>): Fn<[Iterable<T>], [U[], T[]]>;
-export function partition<T>(predicate: Predicate<T>): Fn<[Iterable<T>], [T[], T[]]>;
+export function partition<T, U extends T>(predicate: TypeNarrow<T, U>): Fn<[Iterable<T>], [U[], T[]]>;
+export function partition<T>(predicate: Pred<T>): Fn<[Iterable<T>], [T[], T[]]>;
 
-export function partition<T>(predicate: Predicate<T>) {
+export function partition<T>(predicate: Pred<T>) {
 	return (collection: Iterable<T>): [T[], T[]] => {
 		let subsetA: T[] = [];
 		let subsetB: T[] = [];
@@ -77,15 +77,13 @@ export function map<T, R>(transform: Fn<[T, number?], R>) {
 	return (collection: Iterable<T>): R[] => array(collection).map(transform);
 }
 
-export function filter<T, R extends T>(
-	predicate: (it: T, idx?: number) => it is R,
-): (collection: Iterable<T>) => R[];
-export function filter<T>(
-	predicate: Fn<[T, number?], any>,
-): (collection: Iterable<T>) => T[];
-
-export function filter(predicate: any) {
-	return (collection: any) => array(collection).filter(predicate);
+export function filter<T, U extends T>(pred: TypeNarrow<T, U>): (arr: readonly T[]) => U[]
+export function filter<T, U extends T>(pred: TypeNarrow<T, U>, arr: readonly T[]): U[]
+export function filter<T>(pred: Pred<T>): (arr: readonly T[]) => T[]
+export function filter<T>(pred: Pred<T>, arr: readonly T[]): T[]
+export function filter<T>(pred: Pred<T>, arr?: readonly T[]) {
+	if (arr) return arr.filter(pred)
+	return (arr: readonly T[]) => arr.filter(pred)
 }
 
 export function replaceAt<T>(index: number, newItem: T) {

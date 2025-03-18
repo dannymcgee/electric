@@ -40,6 +40,7 @@ export class OptionListComponent {
 	@DetectChanges()
 	@Input() template?: TemplateRef<void>;
 
+	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() close = new EventEmitter<void>();
 
 	@HostListener("window:click")

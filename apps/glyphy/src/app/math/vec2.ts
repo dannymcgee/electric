@@ -1,5 +1,5 @@
 import { anim } from "@electric/style";
-import { Const, Fn, match, Option } from "@electric/utils";
+import { Const, Fn, match, Opt } from "@electric/utils";
 
 import * as util from "./util";
 
@@ -83,6 +83,7 @@ export function vec2(x: number, y: number) {
 	return new Vec2(x, y);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace vec2 {
 	export function add(lhs: Const<Vec2>, rhs: Const<Vec2>): Vec2 {
 		return vec2(lhs.x+rhs.x, lhs.y+rhs.y);
@@ -178,7 +179,7 @@ export namespace vec2 {
 			}, {
 				result: true,
 				slope: Number.NaN,
-				prev: null as Option<Const<Vec2>>,
+				prev: null as Opt<Const<Vec2>>,
 			})
 			.result;
 	}

@@ -15,7 +15,7 @@ import {
 import { ShareReplayConfig } from "rxjs/internal/operators/shareReplay";
 
 import { ModifierKey, MODIFIER_KEYS_NOLOCKS } from "./keys";
-import { Fn, Option, Predicate } from "./types";
+import { Opt, Pred } from "./types";
 
 export function fromKeydown(
 	eventTarget: ElementRef<Element> | Element | Document | Window,
@@ -28,7 +28,7 @@ export function fromKeydown(
 	let keydown$ = fromEvent<KeyboardEvent>(target, "keydown");
 
 	if (primaryKey) {
-		let predicate: Predicate<KeyboardEvent> =
+		let predicate: Pred<KeyboardEvent> =
 			typeof primaryKey === "string"
 				? evt => evt.key.toUpperCase() === primaryKey.toUpperCase()
 				: evt => primaryKey.test(evt.key);
@@ -49,7 +49,7 @@ export function fromKeydown(
 }
 
 export function replayUntil<T>(
-	notifier$: Observable<any>,
+	notifier$: Observable<unknown>,
 	config?: ShareReplayConfig,
 ): MonoTypeOperatorFunction<T> {
 	config ??= { refCount: false };
@@ -132,8 +132,12 @@ export function delta<T = number>(
 	// enforce that behavior for consumers, so we can be reasonably confident
 	// that `options` will not be null unless T == number, but we need to use an
 	// escape hatch to actually provide the defaults for that case.
+
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	options.diff ??= (lhs, rhs) => lhs - rhs;
+
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	options.zero ??= 0;
 
@@ -144,8 +148,8 @@ export function delta<T = number>(
 			prev: accum.current,
 			current,
 		}), {
-			prev: null as Option<T>,
-			current: null as Option<T>,
+			prev: null as Opt<T>,
+			current: null as Opt<T>,
 		}),
 		map(({ prev, current }) => {
 			if (prev == null || current == null)

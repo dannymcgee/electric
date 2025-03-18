@@ -2,11 +2,9 @@ import { DOCUMENT } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	Component,
-	HostBinding,
 	HostListener,
 	Inject,
 	Input,
-	OnInit,
 	ViewEncapsulation,
 } from "@angular/core";
 import { animationFrames, fromEvent, merge, takeUntil } from "rxjs";

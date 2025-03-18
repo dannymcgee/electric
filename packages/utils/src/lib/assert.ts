@@ -1,7 +1,7 @@
 export function assert(
 	condition: boolean,
 	message?: string,
-	...data: any[]
+	...data: unknown[]
 ): asserts condition {
 	if (!condition) {
 		if (data.length) {
@@ -11,4 +11,4 @@ export function assert(
 	}
 }
 
-export function assertType<T>(object: unknown): asserts object is T {}
+export function assertType<T>(value: unknown): asserts value is T {}

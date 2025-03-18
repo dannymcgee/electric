@@ -53,6 +53,7 @@ export function vec3(x: number, y: number, z: number) {
 	return new Vec3(x, y, z);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace vec3 {
 	export function add(lhs: Const<Vec3>, rhs: Const<Vec3>): Vec3 {
 		return vec3(

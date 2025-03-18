@@ -15,7 +15,7 @@ import {
 	Const,
 	delta,
 	match,
-	Option,
+	Opt,
 	replayUntil,
 } from "@electric/utils";
 import {
@@ -75,11 +75,11 @@ export class ContourEditorTool
 	private _points$ = new BehaviorSubject<EditorPoint[]>([]);
 	get points() { return this._points$.value; }
 
-	private _activePoint$ = new BehaviorSubject<Option<EditorPoint>>(null);
+	private _activePoint$ = new BehaviorSubject<Opt<EditorPoint>>(null);
 	readonly activePoint$ = this._activePoint$.asObservable();
 	get activePoint() { return this._activePoint$.value; }
 
-	private _outline$ = new BehaviorSubject<Option<Const<Path>>>(null);
+	private _outline$ = new BehaviorSubject<Opt<Const<Path>>>(null);
 	private _newOutlineEvent$ = new Subject<void>();
 
 	private _hashes$ = new BehaviorSubject<Hash2D[]>([]);
@@ -268,7 +268,7 @@ export class ContourEditorTool
 	 * @param cPtr The pointer coordinates, in client coordinate space
 	 * @param points The control points of the outline
 	 */
-	hitTest(gPtr: Const<Vec2>, cPtr: Const<Vec2>, points: EditorPoint[]): Option<EditorPoint> {
+	hitTest(gPtr: Const<Vec2>, cPtr: Const<Vec2>, points: EditorPoint[]): Opt<EditorPoint> {
 		if (!points.length) return null;
 
 		for (let i = 0; i < points.length; ++i)
@@ -334,7 +334,7 @@ export class ContourEditorTool
 			if (!p.handle_in || !p.handle_out) {
 				// Tangent point - keep the handle collinear with this and the
 				// nearest on-curve point
-				const [handle, handleKey, refPoint] = !!p.handle_in
+				const [handle, handleKey, refPoint] = p.handle_in
 					? [p.handle_in, "handle_in", c.points[(pi + 1) % c.points.length]] as const
 					: [p.handle_out!, "handle_out", c.points[pi - 1] ?? c.last] as const;
 

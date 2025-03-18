@@ -40,7 +40,7 @@ const XML_LUT = new Map<string, Ctor<XmlElement, [Element]>>();
  * ```typescript
  * import { Xml, XmlElement, attr, child, int, str } from "src/app/font/types/xml";
  *
- * ‌@​Xml("Foo")
+ * ‌@Xml("Foo")
  * export class Foo extends XmlElement {
  *   ‌@attr(int)
  *   bar!: number;
@@ -192,7 +192,7 @@ export function textContent<V>({ read, write }: Serde<V>) {
 export interface Serde<T> {
 	read(value: string): T;
 	write(value: T): string;
-	new (): {};
+	new (): object;
 }
 
 export const float: Serde<number> = class {
@@ -266,7 +266,7 @@ export const date: Serde<Date> = class {
 	static read(value: string): Date {
 		return new Date(value);
 	}
-	static write(value: Date): string {
+	static write(_value: Date): string {
 		throw new Error("TODO");
 	}
 }

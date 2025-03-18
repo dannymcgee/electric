@@ -223,7 +223,7 @@ export class InterpreterCFF2 {
 	 * must be used only once. In non-marking characters, such as the space
 	 * character, the left sidebearing point should be (0, 0).
 	 */
-	private hsbw(sbx: number, wx: number): void {}
+	private hsbw(_sbx: number, _wx: number): void {}
 
 	/**
 	 * for standard encoding accented character, makes an accented character from
@@ -255,7 +255,7 @@ export class InterpreterCFF2 {
 	 * not possible, use of Subrs subroutines is a more general means for
 	 * creating accented characters.
 	 */
-	private seac(asb: number, adx: number, ady: number, bchar: number, achar: number): void {}
+	private seac(_asb: number, _adx: number, _ady: number, _bchar: number, _achar: number): void {}
 
 	/**
 	 * sets the left sidebearing point to (sbx, sby) and sets the character width
@@ -268,7 +268,7 @@ export class InterpreterCFF2 {
 	 * Either sbw or hsbw must be used once as the first command in a character
 	 * outline definition. It must be used only once.
 	 */
-	private sbw(sbx: number, sby: number, wx: number, wy: number): void {}
+	private sbw(_sbx: number, _sby: number, _wx: number, _wy: number): void {}
 
 	/**
 	 * closepath closes a subpath. Adobe strongly recommends that all character
@@ -772,7 +772,7 @@ export class InterpreterCFF2 {
 	/**
 	 * behaves like `div` in the PostScript language.
 	 */
-	private div(num1: number, num2: number): void {}
+	private div(_num1: number, _num2: number): void {}
 
 	/**
 	 * is a mechanism used by Type 1 BuildChar to make calls on the PostScript
@@ -791,7 +791,7 @@ export class InterpreterCFF2 {
 	 * back to the Type 1 BuildChar operand stack. See Chapter 8, “Using
 	 * Subroutines,” for details on using callothersubr.
 	 */
-	private callothersubr(othersubr: number, n: number, ...args: number[]): void {}
+	private callothersubr(_othersubr: number, _n: number, ..._args: number[]): void {}
 
 	/**
 	 * calls a charstring subroutine with index subr# from the Subrs array in the
@@ -850,7 +850,7 @@ export class InterpreterCFF2 {
 	 * relative path building command. The setcurrentpoint command is used only
 	 * in conjunction with results from OtherSubrs procedures.
 	 */
-	private setcurrentpoint(x: number, y: number): void {}
+	private setcurrentpoint(_x: number, _y: number): void {}
 
 	/**
 	 * @param args dx1 dx2 dy2 dx3 dx4 dx5 dx6
@@ -905,7 +905,7 @@ export class InterpreterCFF2 {
 	private flex(
 		dx1: number, dy1: number, dx2: number, dy2: number, dx3: number, dy3: number,
 		dx4: number, dy4: number, dx5: number, dy5: number, dx6: number, dy6: number,
-		fd: number,
+		_fd: number,
 	): void {
 		// TODO: Implement the actual "flex" functionality
 		// FIXME: Really not sure what I'm doing wrong here, but this is not
@@ -967,7 +967,6 @@ export class InterpreterCFF2 {
 		dx1: number, dy1: number, dx2: number, dy2: number, dx3: number, dy3: number,
 		dx4: number, dy4: number, dx5: number, dy5: number, d6: number,
 	): void {
-		const [x, y] = this._currentPoint;
 		const dx = dx1 + dx2 + dx3 + dx4 + dx5;
 		const dy = dy1 + dy2 + dy3 + dy4 + dy5;
 
@@ -992,7 +991,7 @@ export class InterpreterCFF2 {
 	 * replacement, see section 8.1, “Changing Hints Within a Character,” in
 	 * Chapter 8, “Using Subroutines.”
 	 */
-	private vstem(x: number, dx: number): void {}
+	private vstem(_x: number, _dx: number): void {}
 
 	/**
 	 * declares the horizontal ranges of three vertical stem zones between the x
@@ -1019,9 +1018,9 @@ export class InterpreterCFF2 {
 	 * counters of characters such as a lower case “m.”
 	 */
 	private vstem3(
-		x0: number, dx0: number,
-		x1: number, dx1: number,
-		x2: number, dx2: number,
+		_x0: number, _dx0: number,
+		_x1: number, _dx1: number,
+		_x2: number, _dx2: number,
 	): void {}
 
 	/**
@@ -1034,7 +1033,7 @@ export class InterpreterCFF2 {
 	 * replacement, see section 8.1, “Changing Hints Within a Character,” in
 	 * Chapter 8, “Using Subroutines.”
 	 */
-	private hstem(y: number, dy: number): void {}
+	private hstem(_y: number, _dy: number): void {}
 
 	/**
 	 * declares the vertical ranges of three horizontal stem zones between the y
@@ -1063,13 +1062,13 @@ export class InterpreterCFF2 {
 	 * the mathematical equivalence symbol or the division symbol.
 	 */
 	private hstem3(
-		y0: number, dy0: number,
-		y1: number, dy1: number,
-		y2: number, dy2: number,
+		_y0: number, _dy0: number,
+		_y1: number, _dy1: number,
+		_y2: number, _dy2: number,
 	): void {}
 
-	private hstemhm(...args: number[]): void {}
-	private vstemhm(...args: number[]): void {}
-	private cntrmask(...args: number[]): void {}
-	private hintmask(...args: number[]): void {}
+	private hstemhm(..._args: number[]): void {}
+	private vstemhm(..._args: number[]): void {}
+	private cntrmask(..._args: number[]): void {}
+	private hintmask(..._args: number[]): void {}
 }

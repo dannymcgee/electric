@@ -8,7 +8,7 @@ import {
 	OnDestroy,
 	TemplateRef,
 } from "@angular/core";
-import { match, Option } from "@electric/utils";
+import { match, Opt } from "@electric/utils";
 import { fromEvent, race, Subject, take, takeUntil, timer } from "rxjs";
 
 import { TooltipComponent } from "./tooltip.component";
@@ -24,11 +24,11 @@ export type TooltipPosition
 	exportAs: "elxTooltip",
 	standalone: false,
 })
-export class TooltipDirective<Ctx extends Option<{ [key: string]: any }>>
+export class TooltipDirective<Ctx extends Opt<{ [key: string]: any }>>
 	implements OnDestroy
 {
 	@Input("elxTooltip")
-	content?: Option<TemplateRef<Ctx>>;
+	content?: Opt<TemplateRef<Ctx>>;
 
 	@Input("elxTooltipContext")
 	context?: Ctx;

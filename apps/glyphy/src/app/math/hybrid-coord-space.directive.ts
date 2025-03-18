@@ -2,7 +2,6 @@ import { Directive, ElementRef, Input, OnChanges } from "@angular/core";
 import { assert, Const, instanceOf } from "@electric/utils";
 
 import { Matrix } from "./matrix";
-import { vec2 } from "./vec2";
 
 @Directive({
 	selector: "[gHybridCoordSpace]",

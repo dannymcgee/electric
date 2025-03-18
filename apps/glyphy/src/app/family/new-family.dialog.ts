@@ -26,6 +26,7 @@ class NewFontFromForm extends NewFont {
 	standalone: false,
 })
 export class NewFamilyDialog {
+	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() cancel = new EventEmitter<void>();
 	@Output() confirm = new EventEmitter<[NewFontFamily, NewFont[]]>();
 
@@ -122,7 +123,7 @@ export class ParentFolderExistsValidator implements AsyncValidator {
 		if (!control.value) return null;
 
 		const pathname = control.value as string;
-		const segments = pathname.split(/[\/\\]/g).filter(Boolean);
+		const segments = pathname.split(/[/\\]/g).filter(Boolean);
 		segments.pop();
 		const parentPathname = segments.join("/");
 

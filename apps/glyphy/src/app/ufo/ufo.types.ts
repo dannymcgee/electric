@@ -140,6 +140,7 @@ export class FontInfo extends PList {
 	@prop(int) openTypeOS2WeightClass?: uint;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GLIF {
 	@plist
 	export class Contents extends PList implements Iterable<[string, string]> {
@@ -160,7 +161,7 @@ export namespace GLIF {
 		}
 
 		get(key: string) {
-			this.lut.get(key)?.textContent;
+			return this.lut.get(key)?.textContent;
 		}
 
 		set(key: string, value: string) {

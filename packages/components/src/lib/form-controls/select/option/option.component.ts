@@ -85,6 +85,7 @@ implements
 		return (14 / a11y.REM_BASE_DEFAULT) * remBase + 18;
 	}
 
+	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() select = new EventEmitter<Option<T>>();
 
 	private _cdRef = inject(ChangeDetectorRef);

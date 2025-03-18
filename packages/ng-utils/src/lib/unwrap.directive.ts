@@ -5,6 +5,9 @@ interface Ctx<T> {
 	elxUnwrap?: T;
 }
 
+/**
+ * @deprecated Use `@let` instead.
+ */
 @Directive({
 	selector: "[elxUnwrap]",
 	standalone: false,

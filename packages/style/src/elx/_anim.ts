@@ -1,6 +1,7 @@
 import { Fn } from "@electric/utils";
 import { bezier } from "./internal/bezier";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace anim {
 	export function frameTime(frames: number): number {
 		return frames / 30 * 1000;
@@ -29,10 +30,14 @@ export namespace anim {
 
 	type Easing = EaseIn | EaseOut | EaseInOut;
 
+	type EaseParams
+		= [number, Easing]
+		| [number, [number, number], Easing];
+
 	export function ease(t: number, easing: Easing): number;
 	export function ease(t: number, [from, to]: [number, number], easing: Easing): number;
 
-	export function ease(...args: any[]) {
+	export function ease(...args: EaseParams): number {
 		if (args.length === 2) {
 			let [t, easing] = args;
 
@@ -72,7 +77,7 @@ export enum Duration {
 export enum EaseIn {
 	Sine  = "cubic-bezier(0.12, 0, 0.39, 0)",
 	Quad  = "cubic-bezier(0.11, 0, 0.5,  0)",
-	Cubic = "cubic-bezier(0.12, 0, 0.39, 0)",
+	Cubic = "cubic-bezier(0.32, 0, 0.67, 0)",
 }
 
 // dprint-ignore

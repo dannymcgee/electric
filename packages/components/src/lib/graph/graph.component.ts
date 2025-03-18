@@ -299,10 +299,10 @@ implements Graph, OnInit, AfterViewInit, OnDestroy {
 	}
 
 	completeConnection(
-		nodeId: string,
-		direction: "input"|"output",
-		type: string,
-		portIndex: number,
+		_nodeId: string,
+		_direction: "input"|"output",
+		_type: string,
+		_portIndex: number,
 	): void {
 
 	}

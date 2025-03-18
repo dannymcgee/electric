@@ -3,11 +3,11 @@ import { Fn } from "./types";
 type Key = string | number;
 
 type ExhaustiveMatcher<Union extends Key>
-	= Record<Union, () => any>
+	= Record<Union, () => unknown>
 
 type MatcherWithFallback<Union extends Key>
-	= Partial<Record<Union, () => any>>
-	& { _: () => any }
+	= Partial<Record<Union, () => unknown>>
+	& { _: () => unknown }
 
 type Matcher<Union extends Key>
 	= ExhaustiveMatcher<Union>
@@ -21,10 +21,10 @@ export function match<K extends Key, T extends Matcher<K>>(
 	: never
 {
 	if (subject in matcher)
-		return matcher[subject]!();
+		return matcher[subject]!() as any;
 
 	if ("_" in matcher)
-		return matcher._();
+		return matcher._() as any;
 
 	throw new Error(`No match found for subject \`${subject}\` in matcher`);
 }
