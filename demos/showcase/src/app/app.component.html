@@ -8,20 +8,22 @@
 		[(maximized)]="maximized"
 		(close)="close()"
 	>
-		<ng-container *elxTitlebarIcon
-			[ngSwitch]="platform"
-		>
-			<img *ngSwitchCase="'tauri'"
-				src="assets/favicon.tauri.ico"
-				alt="Tauri Favicon"
-			/>
-			<img *ngSwitchCase="'electron'"
-				src="assets/favicon.electron.ico"
-				alt="Electron Favicon"
-			/>
-			<elx-icon *ngSwitchDefault
-				icon="Base"
-			></elx-icon>
+		<ng-container *elxTitlebarIcon>
+			@switch (platform) {
+				@case ("tauri") {
+					<img src="assets/favicon.tauri.ico"
+						alt="Tauri Favicon"
+					/>
+				}
+				@case ("electron") {
+					<img src="assets/favicon.electron.ico"
+						alt="Electron Favicon"
+					/>
+				}
+				@default {
+					<elx-icon icon="Base" />
+				}
+			}
 		</ng-container>
 
 		<elx-menubar>
@@ -32,8 +34,8 @@
 	</elx-titlebar>
 
 	<elx-main-viewport class="main">
-		<showcase-nav></showcase-nav>
-		<router-outlet></router-outlet>
+		<showcase-nav />
+		<router-outlet />
 	</elx-main-viewport>
 
 </elx-app-shell>

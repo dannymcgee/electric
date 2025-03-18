@@ -3,17 +3,17 @@
 		<elx-accordion-group class="accordion-group"
 			[multi]="accordionGroup.multi"
 		>
-			<elx-accordion
-				*ngFor="
-					let accordion of accordions;
-					let first = first;"
-				[expanded]="first"
-			>
-				<elx-accordion-header>
-					{{ accordion.header }}
-				</elx-accordion-header>
-				<p>{{ accordion.content }}</p>
-			</elx-accordion>
+			@for (accordion of accordions;
+				let first = $first;
+				track accordion)
+			{
+				<elx-accordion [expanded]="first">
+					<elx-accordion-header>
+						{{ accordion.header }}
+					</elx-accordion-header>
+					<p>{{ accordion.content }}</p>
+				</elx-accordion>
+			}
 		</elx-accordion-group>
 	</showcase-example-demo>
 
@@ -25,10 +25,7 @@
 		</ng-container>
 
 		<ng-container *showcaseControlsSection="'Accordions'">
-			<ng-container
-				*ngFor="let accordion of accordions;
-					let i = index;"
-			>
+			@for (accordion of accordions; let i = $index; track accordion) {
 				<elx-form-field>
 					<elx-label>Header</elx-label>
 					<input elx-input
@@ -42,8 +39,7 @@
 						[(ngModel)]="accordions[i].content"
 					/>
 				</elx-form-field>
-
-			</ng-container>
+			}
 		</ng-container>
 	</showcase-example-controls>
 
@@ -51,5 +47,5 @@
 		[controller]="controller"
 		[template]="template"
 		[stylesheet]="stylesheet"
-	></showcase-example-code>
+	/>
 </showcase-example>

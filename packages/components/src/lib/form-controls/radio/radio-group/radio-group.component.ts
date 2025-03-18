@@ -36,7 +36,7 @@ import { Radio, RADIO } from "../radio.types";
 
 @Component({
 	selector: "elx-radio-group",
-	template: `<ng-content></ng-content>`,
+	template: `<ng-content />`,
 	styleUrls: ["./radio-group.component.scss"],
 	providers: [{
 		provide: CUSTOM_CONTROL,

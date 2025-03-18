@@ -12,24 +12,21 @@ import { Defaults } from "../../examples.types";
 	selector: "showcase-example-code-view",
 	template: `
 
-<ng-container
-	*elxUnwrap="(
-		src | lines
-			| slice : 1
-			| stripIndents
-			| stripDefaults : defaults
-			| fmt : language
-		) as lines"
->
-	<ol [showcaseLineNumbersFor]="lines"></ol>
-	<code class="language-{{ language }}"
-		[innerHtml]="
-			lines
-				| joinLines
-				| highlight : language
-				| async"
-	></code>
-</ng-container>
+@let lines = src
+	| lines
+	| slice : 1
+	| stripIndents
+	| stripDefaults : defaults
+	| fmt : language;
+
+<ol [showcaseLineNumbersFor]="lines"></ol>
+<code class="language-{{ language }}"
+	[innerHtml]="
+		lines
+			| joinLines
+			| highlight : language
+			| async"
+></code>
 
 	`,
 	styleUrls: ["./example-code-view.component.scss"],

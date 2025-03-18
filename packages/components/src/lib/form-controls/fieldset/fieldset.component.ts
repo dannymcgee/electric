@@ -30,11 +30,7 @@ import { FormLabel, FORM_LABEL } from "../form-controls.types";
 
 @Component({
 	selector: "elx-fieldset",
-	template: `
-
-<ng-content></ng-content>
-
-	`,
+	template: `<ng-content />`,
 	styleUrls: ["./fieldset.component.scss"],
 	providers: [{
 		provide: ControlContainer,

@@ -14,21 +14,22 @@ interface ExampleRoute {
 	selector: "showcase-nav",
 	template: `
 
-<a *ngFor="let route of routes"
-	class="nav-item"
-	role="link"
-	routerLink="/examples/{{ route.path }}"
-	routerLinkActive="active"
->
-	{{ route.data.name }}
-</a>
+@for (route of routes; track route.path) {
+	<a class="nav-item"
+		role="link"
+		routerLink="/examples/{{ route.path }}"
+		routerLinkActive="active"
+	>
+		{{ route.data.name }}
+	</a>
+}
 
 <elx-resize-handle
 	class="resize-handle"
 	direction="horizontal"
 	align="right"
 	(move)="resize($event)"
-></elx-resize-handle>
+/>
 
 	`,
 	styleUrls: ["./nav.component.scss"],

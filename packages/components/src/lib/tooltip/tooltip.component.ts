@@ -10,7 +10,7 @@ import {
 } from "@angular/core";
 
 @Component({
-	template: `<ng-container #viewContainer></ng-container>`,
+	template: `<ng-container #viewContainer />`,
 	styleUrls: ["./tooltip.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,

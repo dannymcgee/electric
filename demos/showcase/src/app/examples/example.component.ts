@@ -16,9 +16,9 @@ import { ExampleCodeComponent } from "./example-code/example-code.component";
 	selector: "showcase-example",
 	template: `
 
-<ng-content select="showcase-example-demo"></ng-content>
-<ng-content select="showcase-example-code"></ng-content>
-<ng-content select="showcase-example-controls"></ng-content>
+<ng-content select="showcase-example-demo" />
+<ng-content select="showcase-example-code" />
+<ng-content select="showcase-example-controls" />
 
 	`,
 	styles: [`

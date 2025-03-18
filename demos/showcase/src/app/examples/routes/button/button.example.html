@@ -40,15 +40,15 @@
 				<elx-label>Icon</elx-label>
 				<elx-select [(ngModel)]="inputs.icon">
 					<elx-option>None</elx-option>
-					<elx-option *ngFor="let icon of icons"
-						[value]="icon"
-					>
-						<elx-icon class="icon"
-							size="sm"
-							[icon]="icon"
-						></elx-icon>
-						{{ icon }}
-					</elx-option>
+					@for (icon of icons; track icon) {
+						<elx-option [value]="icon">
+							<elx-icon class="icon"
+								size="sm"
+								[icon]="icon"
+							/>
+							{{ icon }}
+						</elx-option>
+					}
 				</elx-select>
 			</elx-form-field>
 		</ng-container>
@@ -92,5 +92,5 @@
 	<showcase-example-code
 		[template]="template"
 		[templateDefaults]="defaults"
-	></showcase-example-code>
+	/>
 </showcase-example>

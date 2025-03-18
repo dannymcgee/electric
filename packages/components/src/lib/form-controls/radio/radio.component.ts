@@ -38,7 +38,7 @@ import { RADIO, Radio } from "./radio.types";
 </div>
 <label class="elx-radio__label"
 	[attr.for]="id"
-><ng-content></ng-content></label>
+><ng-content /></label>
 
 	`,
 	styleUrls: ["./radio.component.scss"],

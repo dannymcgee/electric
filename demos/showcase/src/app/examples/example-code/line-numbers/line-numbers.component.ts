@@ -4,9 +4,9 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 	selector: "ol[showcaseLineNumbersFor]",
 	template: `
 
-<li class="line-number"
-	*ngFor="let _ of lines"
-></li>
+@for (_ of lines; track $index) {
+	<li class="line-number"></li>
+}
 
 	`,
 	styleUrls: ["./line-numbers.component.scss"],

@@ -20,7 +20,7 @@ import { Defaults } from "../examples.types";
 <elx-resize-handle class="resize-handle"
 	direction="vertical"
 	align="top"
-></elx-resize-handle>
+/>
 
 <elx-tab-list #tabs class="tabs"
 	animated
@@ -46,20 +46,18 @@ import { Defaults } from "../examples.types";
 		*elxTabPanel
 		language="typescript"
 		[src]="controller"
-	></showcase-example-code-view>
-
+	/>
 	<showcase-example-code-view
 		*elxTabPanel
 		language="html"
 		[src]="template"
 		[defaults]="templateDefaults"
-	></showcase-example-code-view>
-
+	/>
 	<showcase-example-code-view
 		*elxTabPanel
 		language="scss"
 		[src]="stylesheet"
-	></showcase-example-code-view>
+	/>
 </elx-tab-group>
 
 	`,

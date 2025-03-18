@@ -10,7 +10,7 @@ import { Coerce } from "@electric/ng-utils";
 
 @Component({
 	selector: "elx-main-viewport, [elx-main-viewport]",
-	template: `<ng-content></ng-content>`,
+	template: `<ng-content />`,
 	styleUrls: ["./main-viewport.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

@@ -11,8 +11,8 @@ import { Coerce } from "@electric/ng-utils";
 	selector: "elx-app-shell",
 	template: `
 
-<ng-content select="elx-titlebar"></ng-content>
-<ng-content select="elx-main-viewport, [elx-main-viewport]"></ng-content>
+<ng-content select="elx-titlebar" />
+<ng-content select="elx-main-viewport, [elx-main-viewport]" />
 
 	`,
 	styleUrls: ["./app-shell.component.scss"],
