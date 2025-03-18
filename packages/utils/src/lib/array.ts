@@ -67,10 +67,40 @@ function keyBy_impl<T extends object, K extends keyof T>(key: K, coll: Iterable<
 	let result = {} as KeyedBy<T, K>;
 	for (let element of coll) {
 		assert(key in element && /(^string|number|symbol$)/.test(typeof element[key]));
-		result[element[key]] = element as KeyedBy<T, K>[T[K]];
+		result[element[key]] = omit([key], element) as KeyedBy<T, K>[T[K]];
 	}
 
 	return result;
+}
+
+export function omit<
+	T extends object,
+	const Keys extends readonly (keyof T)[]
+>(keys: Keys): (obj: T) => Omit<T, Keys[number]>
+
+export function omit<
+	T extends object,
+	const Keys extends readonly (keyof T)[]
+>(keys: Keys, obj: T): Omit<T, Keys[number]>
+
+export function omit<
+	T extends object,
+	const Keys extends readonly (keyof T)[]
+>(keys: Keys, obj?: T) {
+	if (obj) return omit_impl(keys, obj)
+	return (obj: T) => omit_impl(keys, obj)
+}
+
+function omit_impl<
+	T extends object,
+	const Keys extends readonly (keyof T)[]
+>(keys: Keys, obj: T) {
+	let result = {} as Omit<T, Keys[number]>
+	for (let [key, value] of Object.entries(obj))
+		if (!keys.includes(key as keyof T))
+			result[key as keyof Omit<T, Keys[number]>] = value
+
+	return result
 }
 
 export function map<T, R>(transform: Fn<[T, number?], R>) {

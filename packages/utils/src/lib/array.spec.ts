@@ -22,7 +22,7 @@ describe("keyBy", () => {
 			name: "Joe",
 			age: 20,
 		}];
-		let keyed = keyBy("name")(people);
+		let keyed = keyBy("name", people);
 
 		expect(keyed).toEqual({
 			Bob: { age: 30 },

@@ -13,5 +13,5 @@ export default {
 	},
 	moduleFileExtensions: ["ts", "tsx", "js", "jsx"],
 	coverageDirectory: "../../coverage/packages/style",
-	preset: "..\\..\\jest.preset.ts",
+	preset: "../../jest.preset.js",
 };

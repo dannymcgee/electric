@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
-import { createComponentFactory, Spectator } from "@ngneat/spectator";
+import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
+
 import { COLOR_SCHEME, THEME, ThemeService } from "./theme.service";
 import { ThemeDefinition } from "./theme.types";
 

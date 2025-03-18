@@ -54,7 +54,7 @@
 		"@angular/language-service": "19.2.2",
 		"@nestjs/schematics": "10.0.1",
 		"@nestjs/testing": "10.0.2",
-		"@ngneat/spectator": "^9.0.0",
+		"@ngneat/spectator": "^19.4.1",
 		"@nx/angular": "20.6.1",
 		"@nx/eslint": "20.6.1",
 		"@nx/eslint-plugin": "20.6.1",

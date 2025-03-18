@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
 	displayName: "tidy-api",
 
@@ -14,5 +13,5 @@ export default {
 	},
 	moduleFileExtensions: ["ts", "js", "html"],
 	coverageDirectory: "../../coverage/apps/tidy-api",
-	preset: "..\\..\\jest.preset.ts",
+	preset: "../../jest.preset.js",
 };
