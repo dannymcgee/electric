@@ -16,10 +16,10 @@ import {
 import { fromEvent, Observable, Subject, timer } from "rxjs";
 import { filter, map, take, takeUntil } from "rxjs/operators";
 
-import { IconName } from "@electric/components/icon";
 import { Coerce } from "@electric/ng-utils";
 import { array } from "@electric/utils";
 
+import { IconName } from "../../icon";
 import {
 	MENU_ITEM,
 	MENU_TRIGGER,

@@ -52,7 +52,7 @@ export class DialogTriggerDirective<T> {
 	) {}
 
 	private onTriggerChange(value?: T): void {
-		if (!!value) {
+		if (value) {
 			if (this.overlayRef.hasAttached()) {
 				this._viewRef!.context.$implicit = value;
 				this._viewRef!.context.elxDialogTrigger = value;

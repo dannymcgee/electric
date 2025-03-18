@@ -2,8 +2,9 @@ import { A11yModule as CdkA11yModule } from "@angular/cdk/a11y";
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { IconModule } from "@electric/components/icon";
 import { A11yModule } from "@electric/ng-utils";
+
+import { IconModule } from "../icon";
 
 import {
 	AccordionComponent,

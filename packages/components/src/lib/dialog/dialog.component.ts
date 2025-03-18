@@ -25,13 +25,14 @@ import {
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { IconName } from "@electric/components/icon";
 import {
 	Coerce,
 	Focusable,
 	GlobalFocusManager,
 	INITIAL_FOCUS_TARGET,
 } from "@electric/ng-utils";
+
+import { IconName } from "../icon";
 
 @Component({
 	selector: "elx-dialog",
@@ -86,6 +87,7 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	}
 	private _completed?: number;
 
+	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output("close")
 	closeEvent = new EventEmitter<void>();
 

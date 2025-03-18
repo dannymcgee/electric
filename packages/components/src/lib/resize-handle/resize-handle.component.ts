@@ -11,7 +11,7 @@ import {
 	HostListener,
 	Inject,
 } from "@angular/core";
-import { Option } from "@electric/utils";
+import { Opt } from "@electric/utils";
 import {
 	fromEvent,
 	merge,
@@ -94,8 +94,8 @@ export class ResizeHandleComponent implements ResizeHandle, OnDestroy {
 				prev: null,
 				current: null,
 			} as {
-				prev: Option<PointerEvent>;
-				current: Option<PointerEvent>;
+				prev: Opt<PointerEvent>;
+				current: Opt<PointerEvent>;
 			}),
 			takeUntil(merge(
 				fromEvent(this._document, "pointerup"),

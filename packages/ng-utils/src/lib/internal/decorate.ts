@@ -1,10 +1,7 @@
 import { OnDestroy, OnInit } from "@angular/core";
 import { Fn } from "@electric/utils";
 
-export interface MethodDecorator<
-	T extends any,
-	Signature extends Fn<any[], any>
-> {
+export interface MethodDecorator<T, Signature extends Fn<any[], any>> {
 	(
 		proto: T,
 		methodName: keyof T,
@@ -21,11 +18,11 @@ export type NgClass =
 	& Partial<OnInit & OnDestroy>;
 
 export const NG_LIFECYCLE = /^ng(OnChanges|OnInit|AfterContentInit|AfterViewInit|OnDestroy)$/;
-const SIDE_EFFECTS_MAP = new WeakMap<Object, Map<PropertyKey, Fn<any[]>[]>>();
+const SIDE_EFFECTS_MAP = new WeakMap<object, Map<PropertyKey, Fn<any[]>[]>>();
 const NOOP = () => {};
 
 export function decorateMethod<
-	T extends Object,
+	T extends object,
 	K extends keyof T,
 	F extends Fn,
 >(
@@ -47,7 +44,7 @@ export function decorateMethod<
 	return descriptor;
 }
 
-function getSideEffects(proto: Object, propName: PropertyKey) {
+function getSideEffects(proto: object, propName: PropertyKey) {
 	if (!SIDE_EFFECTS_MAP.has(proto)) {
 		SIDE_EFFECTS_MAP.set(proto, new Map<string, Fn<any[]>[]>());
 	}
@@ -59,7 +56,7 @@ function getSideEffects(proto: Object, propName: PropertyKey) {
 }
 
 function createMethodDescriptor<
-	T extends Object,
+	T extends object,
 	K extends keyof T,
 >(proto: T, propName: K) {
 	let originalMethod = (proto[propName] ?? NOOP) as Fn<any[]>;
@@ -76,7 +73,7 @@ function createMethodDescriptor<
 }
 
 function modifyMethodDescriptor<
-	T extends Object,
+	T extends object,
 	K extends keyof T,
 >(proto: T, propName: K, descriptor: TypedPropertyDescriptor<T[K]>) {
 	let originalMethod = descriptor.value as Fn<any[]> & T[K];

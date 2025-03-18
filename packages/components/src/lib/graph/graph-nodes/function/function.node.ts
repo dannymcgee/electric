@@ -3,10 +3,8 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	ElementRef,
-	EventEmitter,
 	Inject,
 	Input,
-	Output,
 	ViewEncapsulation,
 } from "@angular/core";
 import { fromEvent, merge, takeUntil } from "rxjs";

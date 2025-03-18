@@ -96,6 +96,7 @@ export class TabComponent
 	@DetectChanges()
 	_label?: string;
 
+	// eslint-disable-next-line @angular-eslint/no-output-native
 	@Output() select = new EventEmitter<void>();
 	@Output() remove = new EventEmitter<void>();
 

@@ -24,8 +24,8 @@ import {
 	NodeAlignment,
 	Point,
 	Port,
+	PortConnectionEvent,
 } from "../graph.types";
-import { PortConnectionEvent } from "..";
 
 @Component({
 	template: ``,

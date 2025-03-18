@@ -1,6 +1,6 @@
-import { Nullish, Option } from "./types";
+import { Nullish, Opt } from "./types";
 
-export function exists<T>(value?: Option<T>): value is NonNullable<T> {
+export function exists<T>(value?: Opt<T>): value is NonNullable<T> {
 	return value != null;
 }
 

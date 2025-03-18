@@ -11,9 +11,9 @@ import {
 	HostBinding,
 } from "@angular/core";
 
-import { IconName } from "@electric/components/icon";
 import { Focusable, INITIAL_FOCUS_TARGET } from "@electric/ng-utils";
 
+import { IconName } from "../icon";
 import { ButtonSize, ButtonVariant } from "./button.types";
 
 @Component({
