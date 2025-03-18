@@ -10,10 +10,10 @@
 			[indeterminate]="inputs.indeterminate"
 			(close)="showDialog = false"
 		>
-			<elx-dialog-heading>
-				{{ heading }}
-			</elx-dialog-heading>
+			<elx-dialog-heading>{{ heading }}</elx-dialog-heading>
+
 			<p>{{ content }}</p>
+
 			<elx-dialog-footer>
 				<button elx-btn icon="Cancel"
 					(click)="dialog.close()"
@@ -36,10 +36,10 @@
 			[indeterminate]="inputs.indeterminate"
 			(close)="showDialog = false"
 		>
-			<elx-dialog-heading>
-				{{ heading }}
-			</elx-dialog-heading>
+			<elx-dialog-heading>{{ heading }}</elx-dialog-heading>
+
 			<p>{{ content }}</p>
+
 			<elx-dialog-footer>
 				<button elx-btn icon="Cancel"
 					(click)="dialog.close()"
@@ -60,10 +60,10 @@
 			role="alert"
 			(close)="showAlert = false"
 		>
-			<elx-dialog-heading>
-				{{ heading }}
-			</elx-dialog-heading>
+			<elx-dialog-heading>{{ heading }}</elx-dialog-heading>
+
 			<p>{{ content }}</p>
+
 			<elx-dialog-footer>
 				<button elx-btn icon="Back"
 					(click)="dialog.close()"
@@ -87,13 +87,13 @@
 			[total]="timer?.total"
 			(close)="stopTimer()"
 		>
-			<elx-dialog-heading>
-				{{ heading }}
-			</elx-dialog-heading>
+			<elx-dialog-heading>{{ heading }}</elx-dialog-heading>
+
 			<p>{{ content }}</p>
-			<p *ngIf="inputs.indeterminate">
-				(This example won't close on its own.)
-			</p>
+			@if (inputs.indeterminate) {
+				<p>(This example won't close on its own.)</p>
+			}
+
 			<elx-dialog-footer>
 				<button elx-btn icon="Cancel"
 					(click)="dialog.close()"
@@ -136,13 +136,15 @@
 				Indeterminate
 			</elx-checkbox>
 
-			<elx-form-field *ngIf="inputs.loader">
-				<elx-label>Duration</elx-label>
-				<input elx-input="number"
-					[disabled]="inputs.indeterminate"
-					[(ngModel)]="inputs.duration"
-				/>
-			</elx-form-field>
+			@if (inputs.loader) {
+				<elx-form-field>
+					<elx-label>Duration</elx-label>
+					<input elx-input="number"
+						[disabled]="inputs.indeterminate"
+						[(ngModel)]="inputs.duration"
+					/>
+				</elx-form-field>
+			}
 		</ng-container>
 
 		<ng-container *showcaseControlsSection="'Content'">
@@ -165,5 +167,5 @@
 		[controller]="controller"
 		[template]="template"
 		[templateDefaults]="defaults"
-	></showcase-example-code>
+	/>
 </showcase-example>

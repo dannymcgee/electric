@@ -17,7 +17,7 @@ import { MENU, MENU_ITEM, Menu, MenuItem } from "./menu.types";
 	template: `
 
 <ng-template>
-	<ng-content></ng-content>
+	<ng-content />
 </ng-template>
 
 	`,

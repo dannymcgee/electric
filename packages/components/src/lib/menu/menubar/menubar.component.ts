@@ -42,7 +42,7 @@ import {
 
 @Component({
 	selector: "elx-menubar",
-	template: `<ng-content></ng-content>`,
+	template: `<ng-content />`,
 	styleUrls: ["./menubar.component.scss"],
 	providers: [{
 		provide: MENUBAR,

@@ -22,29 +22,26 @@ import { QueryList } from "@electric/ng-utils";
 <elx-resize-handle class="resize-handle"
 	direction="horizontal"
 	align="left"
-></elx-resize-handle>
+/>
 
 <div class="scroll-container">
-	<elx-accordion-group multi
-		*ngIf="_sections"
-	>
-		<elx-accordion expanded
-			*ngFor="let section of _sections"
-		>
-			<elx-accordion-header>
-				{{ section.name }}
-			</elx-accordion-header>
-
-			<section class="controls-section">
-				<ng-template
-					[ngTemplateOutlet]="section.template"
-				></ng-template>
-			</section>
-
-		</elx-accordion>
-
-		<ng-content></ng-content>
-	</elx-accordion-group>
+	@if (_sections) {
+		<elx-accordion-group multi>
+			@for (section of _sections; track section) {
+				<elx-accordion expanded>
+					<elx-accordion-header>
+						{{ section.name }}
+					</elx-accordion-header>
+					<section class="controls-section">
+						<ng-template
+							[ngTemplateOutlet]="section.template"
+						/>
+					</section>
+				</elx-accordion>
+			}
+			<ng-content />
+		</elx-accordion-group>
+	}
 </div>
 
 	`,

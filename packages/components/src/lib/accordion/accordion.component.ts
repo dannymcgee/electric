@@ -88,13 +88,13 @@ export class AccordionToolbarDirective {
 	(click)="toggle()"
 >
 	<span class="elx-accordion-header__title">
-		<ng-content></ng-content>
+		<ng-content />
 	</span>
-	<ng-content select="[elxAccordionToolbar]"></ng-content>
+	<ng-content select="[elxAccordionToolbar]" />
 	<div class="elx-accordion-header__icon"
 		[class.elx-accordion-header__icon--expanded]="accordion.expanded"
 	>
-		<elx-icon icon="ChevronRightSmall"></elx-icon>
+		<elx-icon icon="ChevronRightSmall" />
 	</div>
 </div>
 
@@ -153,7 +153,7 @@ export class AccordionHeaderComponent implements FocusableOption {
 // FIXME: `multi` input no longer working as expected?
 @Component({
 	selector: "elx-accordion-group, [elxAccordionGroup]",
-	template: `<ng-content></ng-content>`,
+	template: `<ng-content />`,
 	styleUrls: ["./accordion-group.component.scss"],
 	providers: [{
 		provide: CdkAccordion,
@@ -236,7 +236,7 @@ export class AccordionGroupComponent
 
 <ng-content
 	select="elx-accordion-header, [elxAccordionHeader]"
-></ng-content>
+/>
 
 <section class="elx-accordion-body"
 	[id]="panelId"
@@ -246,7 +246,7 @@ export class AccordionGroupComponent
 	(@accordion.start)="onAnimationStart($event)"
 	(@accordion.done)="onAnimationDone($event)"
 >
-	<ng-content></ng-content>
+	<ng-content />
 </section>
 
 	`,

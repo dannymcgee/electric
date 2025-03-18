@@ -29,10 +29,10 @@ import { Option, OPTION } from "../select.types";
 
 <ng-template
 	[ngTemplateOutlet]="contentTemplate"
-></ng-template>
+/>
 
 <ng-template #contentTemplate>
-	<ng-content></ng-content>
+	<ng-content />
 </ng-template>
 
 	`,
