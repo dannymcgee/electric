@@ -1,4 +1,4 @@
-import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
@@ -23,7 +23,6 @@ import { FilesModule } from "./files/files.module";
 	imports: [
 		BrowserModule,
 		BrowserAnimationsModule,
-		HttpClientModule,
 		FilesModule,
 		FormsModule,
 		AppShellModule,
@@ -34,7 +33,9 @@ import { FilesModule } from "./files/files.module";
 		ResizeHandleModule,
 		ThemeModule.withTheme(DEFAULT_THEME, "dark"),
 	],
-	providers: [],
+	providers: [
+		provideHttpClient(withInterceptorsFromDi()),
+	],
 	bootstrap: [
 		AppComponent,
 	],
