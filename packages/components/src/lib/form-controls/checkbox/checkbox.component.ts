@@ -26,7 +26,8 @@ import { ValueAccessor } from "../form-controls.types";
 	selector: "elx-checkbox",
 	template: `
 
-<div class="elx-checkbox__checkbox"
+<div
+	class="elx-checkbox__checkbox"
 	[class.elx-checkbox__checkbox--checked]="checked"
 >
 	<input class="elx-checkbox__input"
@@ -37,17 +38,18 @@ import { ValueAccessor } from "../form-controls.types";
 		(change)="onChange(!checked)"
 		(click)="$event.stopImmediatePropagation()"
 	/>
-	<elx-icon class="elx-checkbox__icon"
-		*ngIf="checked"
-		icon="Confirm"
-		size="sm"
-	></elx-icon>
-</div>
-<label class="elx-checkbox__label"
-	[attr.for]="id"
-><ng-content></ng-content></label>
+		@if (checked) {
+			<elx-icon class="elx-checkbox__icon"
+				icon="Confirm"
+				size="sm"
+			/>
+		}
+	</div>
+	<label class="elx-checkbox__label"
+		[attr.for]="id"
+	><ng-content /></label>
 
-	`,
+`,
 	styleUrls: ["./checkbox.component.scss"],
 	providers: [{
 		provide: NG_VALUE_ACCESSOR,

@@ -18,12 +18,11 @@ import { DetectChanges } from "@electric/ng-utils";
 	selector: "elx-option-list",
 	template: `
 
-<ng-container
-	*ngIf="template != null"
-	[ngTemplateOutlet]="template"
-></ng-container>
+@if (template != null) {
+	<ng-container *ngTemplateOutlet="template" />
+}
 
-	`,
+`,
 	styleUrls: ["./option-list.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

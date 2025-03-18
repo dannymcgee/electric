@@ -20,49 +20,45 @@ import { APP_PLATFORM, AppPlatform } from "@electric/platform";
 	selector: "elx-titlebar",
 	template: `
 
-<div class="elx-titlebar__icon"
-	*ngIf="_icon != null"
->
-	<ng-template [ngTemplateOutlet]="_icon!.templateRef"></ng-template>
-</div>
+@if (_icon != null) {
+	<div class="elx-titlebar__icon">
+		<ng-template [ngTemplateOutlet]="_icon!.templateRef" />
+	</div>
+}
 
-<ng-content select="elx-menubar"></ng-content>
+<ng-content select="elx-menubar" />
 
-<div class="elx-titlebar__title"
-	*ngIf="title != null;
-	else projectedTitle"
->
-	{{ title }}
-</div>
-<ng-template #projectedTitle>
-	<ng-content select="[elxTitlebarTitle]"></ng-content>
-</ng-template>
+@if (title != null) {
+	<div class="elx-titlebar__title">{{ title }}</div>
+} @else {
+	<ng-content select="[elxTitlebarTitle]" />
+}
 
-<ng-content></ng-content>
+<ng-content />
 
 <div class="elx-window-controls">
 	<div class="elx-window-controls__button"
 		(click)="minimize.emit()"
 	>
-		<elx-icon icon="WindowsMinimize"></elx-icon>
+		<elx-icon icon="WindowsMinimize" />
 	</div>
 	<div class="elx-window-controls__button"
 		(click)="maximizedChange.emit(!maximized)"
 	>
 		<elx-icon
 			[icon]="maximized ? 'WindowsRestore' : 'WindowsMaximize'"
-		></elx-icon>
+		/>
 	</div>
 	<div
 		class="elx-window-controls__button
 		       elx-window-controls__button--close"
 		(click)="close.emit()"
 	>
-		<elx-icon icon="WindowsClose"></elx-icon>
+		<elx-icon icon="WindowsClose" />
 	</div>
 </div>
 
-	`,
+`,
 	styleUrls: ["./titlebar.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

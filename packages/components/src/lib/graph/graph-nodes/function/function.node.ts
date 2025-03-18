@@ -34,11 +34,12 @@ import { BaseNode } from "../base.node";
 	elx-function-node__connections--input"
 >
 	<div class="elx-function-node__connection"></div>
-	<elx-function-cx
-		*ngFor="let input of inputs"
-		[type]="input.type"
-		[connected]="input.connectedTo != null"
-	></elx-function-cx>
+	@for (input of inputs; track input) {
+		<elx-function-cx
+			[type]="input.type"
+			[connected]="input.connectedTo != null"
+		/>
+	}
 	<div class="elx-function-node__connection"></div>
 </div>
 
@@ -48,11 +49,12 @@ import { BaseNode } from "../base.node";
 	elx-function-node__connections--output"
 >
 	<div class="elx-function-node__connection"></div>
-	<elx-function-cx
-		*ngFor="let output of outputs"
-		[type]="output.type"
-		[connected]="output.connectedTo != null"
-	></elx-function-cx>
+	@for (output of outputs; track output) {
+		<elx-function-cx
+			[type]="output.type"
+			[connected]="output.connectedTo != null"
+		/>
+	}
 	<div class="elx-function-node__connection"></div>
 </div>
 
@@ -63,34 +65,34 @@ import { BaseNode } from "../base.node";
 		elx-function-node__ports
 		elx-function-node__ports--input"
 	>
-		<elx-function-port
-			*ngFor="let input of inputs
-				let idx = index"
-			direction="input"
-			[name]="input.name"
-			[connected]="input.connectedTo != null"
-			(draggedOut)="spawnConnector('input', input.type, idx)"
-			(receivedDrop)="tryConnect('input', input.type, idx)"
-		></elx-function-port>
+		@for (input of inputs; let idx = $index; track input) {
+			<elx-function-port
+				direction="input"
+				[name]="input.name"
+				[connected]="input.connectedTo != null"
+				(draggedOut)="spawnConnector('input', input.type, idx)"
+				(receivedDrop)="tryConnect('input', input.type, idx)"
+			/>
+		}
 	</div>
 	<!-- Outputs -->
 	<div class="
 		elx-function-node__ports
 		elx-function-node__ports--output"
 	>
-		<elx-function-port
-			*ngFor="let output of outputs
-				let idx = index"
-			direction="output"
-			[name]="output.name"
-			[connected]="output.connectedTo != null"
-			(draggedOut)="spawnConnector('output', output.type, idx)"
-			(receivedDrop)="tryConnect('output', output.type, idx)"
-		></elx-function-port>
+		@for (output of outputs; let idx = $index; track output) {
+			<elx-function-port
+				direction="output"
+				[name]="output.name"
+				[connected]="output.connectedTo != null"
+				(draggedOut)="spawnConnector('output', output.type, idx)"
+				(receivedDrop)="tryConnect('output', output.type, idx)"
+			/>
+		}
 	</div>
 </div>
 
-	`,
+`,
 	styleUrls: ["./function.node.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,

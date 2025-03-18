@@ -20,35 +20,35 @@ import { FormLabel, FORM_LABEL } from "../form-controls.types";
 	selector: "elx-label",
 	template: `
 
-<ng-template
-	*ngIf="_prefixTemplate"
-	[ngTemplateOutlet]="_prefixTemplate"
-></ng-template>
+@if (_prefixTemplate) {
+	<ng-template [ngTemplateOutlet]="_prefixTemplate" />
+}
 
-<label class="elx-label__label"
-	*ngIf="useNative"
-	[attr.for]="for"
->
-	<ng-template [ngTemplateOutlet]="labelContent"></ng-template>
-</label>
+@if (useNative) {
+	<label class="elx-label__label"
+		[attr.for]="for"
+	>
+		<ng-template [ngTemplateOutlet]="labelContent" />
+	</label>
+}
 
-<span class="elx-label__label"
-	*ngIf="!useNative"
-	[id]="id"
->
-	<ng-template [ngTemplateOutlet]="labelContent"></ng-template>
-</span>
+@if (!useNative) {
+	<span class="elx-label__label"
+		[id]="id"
+	>
+		<ng-template [ngTemplateOutlet]="labelContent" />
+	</span>
+}
 
 <ng-template #labelContent>
-	<ng-content></ng-content>
+	<ng-content />
 </ng-template>
 
-<ng-template
-	*ngIf="_postfixTemplate"
-	[ngTemplateOutlet]="_postfixTemplate"
-></ng-template>
+@if (_postfixTemplate) {
+	<ng-template [ngTemplateOutlet]="_postfixTemplate" />
+}
 
-	`,
+`,
 	styleUrls: ["./label.component.scss"],
 	providers: [{
 		provide: FORM_LABEL,

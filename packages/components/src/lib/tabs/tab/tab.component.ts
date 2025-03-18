@@ -36,15 +36,17 @@ import { TAB, Tab } from "../tabs.types";
 	selector: "elx-tab, [elx-tab]",
 	template: `
 
-	<ng-content></ng-content>
+<ng-content></ng-content>
 
-	<elx-icon *ngIf="removable"
+@if (removable) {
+	<elx-icon
 		class="elx-tab__close"
 		icon="CancelSmall"
 		(click)="onRemove($event)"
-	></elx-icon>
+	/>
+}
 
-	`,
+`,
 	styleUrls: ["./tab.component.scss"],
 	providers: [
 		ElxResizeObserver,
