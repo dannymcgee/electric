@@ -19,6 +19,7 @@ import { EditorPoint } from "./types";
 		useExisting: OutlinePointsRenderer,
 	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class OutlinePointsRenderer extends GroupRenderer implements RenderElement {
 	@Input() points: Option<readonly EditorPoint[]>;

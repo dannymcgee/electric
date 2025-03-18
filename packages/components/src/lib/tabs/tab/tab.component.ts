@@ -56,6 +56,7 @@ import { TAB, Tab } from "../tabs.types";
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	exportAs: "tab",
+	standalone: false,
 })
 export class TabComponent
 	implements OnInit, OnDestroy, Tab, FocusableOption

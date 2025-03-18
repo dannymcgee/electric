@@ -52,6 +52,7 @@ export type PenToolVariant
 		useExisting: PenTool,
 	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class PenTool
 	extends GroupRenderer

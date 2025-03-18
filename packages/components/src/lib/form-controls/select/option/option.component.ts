@@ -43,6 +43,7 @@ import { Option, OPTION } from "../select.types";
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class OptionComponent<T>
 implements

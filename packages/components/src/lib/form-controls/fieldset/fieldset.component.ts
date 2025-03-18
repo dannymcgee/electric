@@ -42,6 +42,7 @@ import { FormLabel, FORM_LABEL } from "../form-controls.types";
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FieldsetComponent
 	extends NgModelGroup

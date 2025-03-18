@@ -18,6 +18,7 @@ import { Coerce } from "@electric/ng-utils";
 	styleUrls: ["./app-shell.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class AppShellComponent {
 	@HostBinding("class")

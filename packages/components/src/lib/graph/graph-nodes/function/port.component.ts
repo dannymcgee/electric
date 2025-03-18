@@ -26,6 +26,7 @@ import { fromEvent, mapTo, merge, race, Subject, take } from "rxjs";
 	styleUrls: ["./port.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FunctionPortComponent implements OnDestroy {
 	@HostBinding("class")

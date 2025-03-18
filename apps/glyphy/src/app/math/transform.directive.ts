@@ -5,6 +5,7 @@ import { Matrix } from "./matrix";
 
 @Directive({
 	selector: "[gTransform]",
+	standalone: false,
 })
 export class TransformDirective {
 	@Input("gTransform")

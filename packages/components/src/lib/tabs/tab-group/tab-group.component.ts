@@ -40,6 +40,7 @@ import { Tab } from "../tabs.types";
 	styleUrls: ["./tab-group.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class TabGroupComponent implements AfterContentInit, OnDestroy {
 	@HostBinding("class")

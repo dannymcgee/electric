@@ -33,6 +33,7 @@ import { ExampleCodeComponent } from "./example-code/example-code.component";
 }
 
 	`],
+	standalone: false,
 })
 export class ExampleComponent implements AfterContentInit, OnDestroy {
 	@HostBinding("style.grid-template-columns")

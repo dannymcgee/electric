@@ -24,6 +24,7 @@ export type TextBaseline
 		provide: RENDER_ELEMENT,
 		useExisting: TextRenderer,
 	}],
+	standalone: false,
 })
 export class TextRenderer extends BaseRenderer implements RenderElement {
 	@Input() value = "";

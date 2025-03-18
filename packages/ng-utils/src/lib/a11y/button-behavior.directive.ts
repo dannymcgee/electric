@@ -3,6 +3,7 @@ import { Directive, ElementRef, HostBinding, HostListener, Input } from "@angula
 
 @Directive({
 	selector: "[role=\"button\"]",
+	standalone: false,
 })
 export class ButtonBehaviorDirective {
 	@Input()

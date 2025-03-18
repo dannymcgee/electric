@@ -17,6 +17,7 @@ import { Focusable, INITIAL_FOCUS_TARGET } from "./a11y.types";
 		provide: INITIAL_FOCUS_TARGET,
 		useExisting: AutofocusDirective,
 	}],
+	standalone: false,
 })
 export class AutofocusDirective implements OnInit, OnDestroy, Focusable {
 	/**

@@ -35,6 +35,7 @@ import { BaseNode } from "../base.node";
 	styleUrls: ["./reroute.node.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class RerouteNode extends BaseNode {
 	protected override readonly hostClass = "elx-reroute-node";

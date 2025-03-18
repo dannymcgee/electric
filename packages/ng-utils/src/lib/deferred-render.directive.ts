@@ -50,6 +50,7 @@ import {
  */
 @Directive({
 	selector: "[elxDeferRender], [elxDeferRenderWhen]",
+	standalone: false,
 })
 export class DeferredRenderDirective implements OnInit {
 	@Input("elxDeferRenderWhen")

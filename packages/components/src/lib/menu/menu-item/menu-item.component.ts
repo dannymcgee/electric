@@ -61,6 +61,7 @@ import {
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class MenuItemComponent implements MenuItem, OnInit, OnDestroy {
 	@HostBinding("class")

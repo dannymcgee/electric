@@ -49,6 +49,7 @@ import { QueryList } from "@electric/ng-utils";
 
 	`,
 	styleUrls: ["./example-controls.component.scss"],
+	standalone: false,
 })
 export class ExampleControlsComponent {
 	@HostBinding("class")
@@ -66,6 +67,7 @@ export class ExampleControlsComponent {
 
 @Directive({
 	selector: "[showcaseControlsSection]",
+	standalone: false,
 })
 export class ExampleControlsSectionDirective {
 	@Input("showcaseControlsSection")

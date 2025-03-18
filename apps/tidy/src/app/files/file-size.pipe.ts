@@ -7,6 +7,7 @@ const TB = 1024 * GB;
 
 @Pipe({
 	name: "filesize",
+	standalone: false,
 })
 export class FileSizePipe implements PipeTransform {
 	transform(size: number): string {

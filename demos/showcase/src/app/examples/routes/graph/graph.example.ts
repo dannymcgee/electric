@@ -8,6 +8,7 @@ import { PortType } from "@electric/components";
 		"../example.shared.scss",
 		"./graph.example.scss",
 	],
+	standalone: false,
 })
 export class GraphExample {
 	PortType = PortType;

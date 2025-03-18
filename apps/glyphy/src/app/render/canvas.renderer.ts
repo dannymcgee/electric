@@ -28,6 +28,7 @@ import { RenderElement, RENDER_ELEMENT } from "./render.types";
 	selector: "canvas[g-canvas]",
 	template: `<ng-content></ng-content>`,
 	changeDetection: ChangeDetectionStrategy.Default,
+	standalone: false,
 })
 export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 	@Output() update = new EventEmitter<void>();

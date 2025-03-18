@@ -8,7 +8,7 @@ import { IconModule } from "../../icon";
 import { MenuModule } from "../menu.module";
 import { MenubarComponent } from "./menubar.component";
 
-@Component({})
+@Component({ standalone: false })
 class MenubarHostComponent {}
 
 type Spectator = SpectatorHost<MenubarComponent, MenubarHostComponent>;

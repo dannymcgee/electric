@@ -48,6 +48,7 @@ export function getViewBox(
 
 @Directive({
 	selector: "svg[gViewBox]",
+	standalone: false,
 })
 export class ViewBoxDirective {
 	@Input("gViewBox") viewBox?: Option<ViewBox>;

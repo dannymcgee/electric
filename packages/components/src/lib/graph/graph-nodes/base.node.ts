@@ -31,6 +31,7 @@ import { PortConnectionEvent } from "..";
 	template: ``,
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class BaseNode
 implements OnInit, OnDestroy, GraphNode {

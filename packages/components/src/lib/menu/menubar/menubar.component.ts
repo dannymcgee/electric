@@ -50,6 +50,7 @@ import {
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class MenubarComponent implements AfterContentInit, OnDestroy {
 	@HostBinding("class")

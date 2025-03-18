@@ -17,6 +17,7 @@ import { Glyph } from "./glyph";
 	styleUrls: ["./glyph-metrics.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
+	standalone: false,
 })
 export class GlyphMetricsComponent {
 	@Input() glyph?: Glyph;

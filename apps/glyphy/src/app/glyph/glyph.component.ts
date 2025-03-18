@@ -23,6 +23,7 @@ import { Glyph } from "./glyph";
 	styleUrls: ["./glyph.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
+	standalone: false,
 })
 export class GlyphComponent implements OnChanges, OnInit, OnDestroy {
 	@Input("g-glyph") glyph?: Glyph;

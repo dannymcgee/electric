@@ -22,6 +22,7 @@ const COS_120_DEG = Math.cos(120 * DEG2RAD);
 		provide: RENDER_ELEMENT,
 		useExisting: PointRenderer,
 	}],
+	standalone: false,
 })
 export class PointRenderer extends BaseRenderer implements RenderElement {
 	@Input() shape: PointShape = "circle";

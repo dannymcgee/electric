@@ -35,6 +35,7 @@ import { Defaults } from "../../examples.types";
 	styleUrls: ["./example-code-view.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class ExampleCodeViewComponent {
 	@HostBinding("class")

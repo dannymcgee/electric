@@ -10,6 +10,7 @@ import { RenderElement, RENDER_ELEMENT } from "./render.types";
 		provide: RENDER_ELEMENT,
 		useExisting: RectRenderer,
 	}],
+	standalone: false,
 })
 export class RectRenderer extends BaseRenderer implements RenderElement {
 	@Input() x = 0;

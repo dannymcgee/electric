@@ -5,6 +5,7 @@ import { ThemeDefinition } from "./theme.types";
 
 @Component({
 	template: `<p>ThemeTestingComponent works!</p>`,
+	standalone: false,
 })
 class ThemeTestingComponent {
 	constructor (private _: ThemeService) {}

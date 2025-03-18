@@ -23,6 +23,7 @@ class NewFontFromForm extends NewFont {
 	selector: "g-new-family-dialog",
 	templateUrl: "./new-family.dialog.html",
 	styleUrls: ["./new-family.dialog.scss"],
+	standalone: false,
 })
 export class NewFamilyDialog {
 	@Output() cancel = new EventEmitter<void>();
@@ -114,6 +115,7 @@ export class NewFamilyDialog {
 		useExisting: ParentFolderExistsValidator,
 		multi: true,
 	}],
+	standalone: false,
 })
 export class ParentFolderExistsValidator implements AsyncValidator {
 	async validate(control: AbstractControl) {
@@ -141,6 +143,7 @@ export class ParentFolderExistsValidator implements AsyncValidator {
 		useExisting: TargetFolderIsNewValidator,
 		multi: true,
 	}],
+	standalone: false,
 })
 export class TargetFolderIsNewValidator implements AsyncValidator {
 	@Input("gTargetFolderIsNew")

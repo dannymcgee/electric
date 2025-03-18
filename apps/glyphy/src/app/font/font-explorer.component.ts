@@ -29,6 +29,7 @@ const FONT_GROUPS_LUT = new Map<Font, UnicodeGroup[]>();
 	templateUrl: "./font-explorer.component.html",
 	styleUrls: ["./font-explorer.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FontExplorerComponent implements OnInit, OnDestroy {
 	@HostBinding("style.--cols")

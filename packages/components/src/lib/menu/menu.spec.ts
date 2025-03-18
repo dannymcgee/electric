@@ -8,7 +8,7 @@ import { MenuModule } from "./menu.module";
 
 type Spectator = SpectatorHost<MenuComponent, MenuHostComponent>;
 
-@Component({})
+@Component({ standalone: false })
 class MenuHostComponent {
 	foo(): void {}
 	bar(): void {}

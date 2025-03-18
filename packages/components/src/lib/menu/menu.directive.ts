@@ -27,6 +27,7 @@ import {
 		MenuOverlayManager,
 	],
 	exportAs: "menuTrigger",
+	standalone: false,
 })
 export class MenuTriggerDirective implements MenuTrigger, OnDestroy {
 	@HostBinding("class")
@@ -70,6 +71,7 @@ export class MenuTriggerDirective implements MenuTrigger, OnDestroy {
 		{ provide: MENU_TRIGGER, useExisting: ContextMenuTriggerDirective },
 		MenuOverlayManager,
 	],
+	standalone: false,
 })
 export class ContextMenuTriggerDirective implements MenuTrigger, AfterViewInit {
 	@Input("elxContextMenuTriggerFor")
@@ -92,6 +94,7 @@ export class ContextMenuTriggerDirective implements MenuTrigger, AfterViewInit {
 		{ provide: MENU_TRIGGER, useExisting: SubmenuTriggerDirective },
 		MenuOverlayManager,
 	],
+	standalone: false,
 })
 export class SubmenuTriggerDirective implements MenuTrigger {
 	@Input("elxSubmenuTriggerFor")

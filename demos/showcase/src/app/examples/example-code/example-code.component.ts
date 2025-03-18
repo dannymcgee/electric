@@ -64,6 +64,7 @@ import { Defaults } from "../examples.types";
 
 	`,
 	styleUrls: ["./example-code.component.scss"],
+	standalone: false,
 })
 export class ExampleCodeComponent implements OnInit {
 	@HostBinding("style.grid-area")

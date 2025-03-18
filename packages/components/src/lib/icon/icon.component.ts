@@ -20,6 +20,7 @@ import { IconName, IconSize } from "./icon.types";
 	styleUrls: ["./icon.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class IconComponent {
 	@Input()

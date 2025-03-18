@@ -42,6 +42,7 @@ import { Glyph } from "./glyph";
 		ViewRectProvider,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	@Input() glyph!: Glyph;

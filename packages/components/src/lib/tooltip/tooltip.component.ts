@@ -14,6 +14,7 @@ import {
 	styleUrls: ["./tooltip.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
+	standalone: false,
 })
 export class TooltipComponent {
 	@HostBinding("class")

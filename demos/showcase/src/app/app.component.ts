@@ -12,6 +12,7 @@ import { match } from "@electric/utils";
 	selector: "showcase-root",
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.scss"],
+	standalone: false,
 })
 export class AppComponent {
 	get maximized() { return this._window.maximized; }

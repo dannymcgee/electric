@@ -32,6 +32,7 @@ interface ExampleRoute {
 
 	`,
 	styleUrls: ["./nav.component.scss"],
+	standalone: false,
 })
 export class NavComponent {
 	@HostBinding("attr.role")

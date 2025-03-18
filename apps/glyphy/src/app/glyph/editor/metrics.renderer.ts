@@ -15,6 +15,7 @@ import { Glyph } from "../glyph";
 		useExisting: MetricsRenderer,
 	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class MetricsRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyph!: Const<Glyph>;

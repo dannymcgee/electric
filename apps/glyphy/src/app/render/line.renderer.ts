@@ -10,6 +10,7 @@ import { RenderElement, RENDER_ELEMENT } from "./render.types";
 		provide: RENDER_ELEMENT,
 		useExisting: LineRenderer,
 	}],
+	standalone: false,
 })
 export class LineRenderer extends BaseRenderer implements RenderElement {
 	@Input() x1 = 0;

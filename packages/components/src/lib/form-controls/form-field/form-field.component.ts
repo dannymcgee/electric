@@ -30,6 +30,7 @@ import {
 	styleUrls: ["./form-field.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FormFieldComponent implements DoCheck, OnDestroy {
 	@HostBinding("class")

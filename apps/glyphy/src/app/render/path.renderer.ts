@@ -12,6 +12,7 @@ import { RenderElement, RENDER_ELEMENT } from "./render.types";
 		provide: RENDER_ELEMENT,
 		useExisting: PathRenderer,
 	}],
+	standalone: false,
 })
 export class PathRenderer extends BaseRenderer implements RenderElement {
 	@Input() outline?: Const<Path>;

@@ -8,6 +8,7 @@ import { FamilyService } from "./family.service";
 	templateUrl: "./family-panel.component.html",
 	styleUrls: ["./family-panel.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FamilyPanelComponent {
 	@HostBinding("class.collapsed")

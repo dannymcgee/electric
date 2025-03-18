@@ -29,6 +29,7 @@ export interface Hash {
 		useExisting: RulerRenderer,
 	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class RulerRenderer extends GroupRenderer implements RenderElement {
 	@Input() orientation: Orientation = "horizontal";

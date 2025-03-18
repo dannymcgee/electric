@@ -50,6 +50,7 @@ import { EditorPoint, HandleKey } from "./types";
 		useExisting: ContourEditorTool,
 	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class ContourEditorTool
 	extends GroupRenderer

@@ -49,6 +49,7 @@ import { IndicatorPosition, Tab, TAB } from "../tabs.types";
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	exportAs: "tablist",
+	standalone: false,
 })
 export class TabListComponent implements OnInit, AfterContentInit, OnDestroy {
 	@HostBinding("class")

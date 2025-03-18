@@ -5,7 +5,8 @@ import { Matrix } from "./matrix";
 import { vec2 } from "./vec2";
 
 @Directive({
-	selector: "[gHybridCoordSpace]"
+	selector: "[gHybridCoordSpace]",
+	standalone: false,
 })
 export class HybridCoordSpaceTransformDirective implements OnChanges {
 	@Input() xTransform: Const<Matrix> = Matrix.Identity;

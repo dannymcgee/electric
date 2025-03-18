@@ -56,6 +56,7 @@ import { ValueAccessor } from "../form-controls.types";
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class CheckboxComponent
 implements ValueAccessor<boolean>, OnInit, OnDestroy {

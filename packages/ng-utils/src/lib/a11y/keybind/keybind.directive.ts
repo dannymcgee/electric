@@ -13,7 +13,8 @@ import { KeybindRegistry } from "./keybind-registry.service";
 import { normalize } from "./util";
 
 @Directive({
-	selector: "[keybind]"
+	selector: "[keybind]",
+	standalone: false,
 })
 export class KeybindDirective implements OnDestroy {
 	@Input()

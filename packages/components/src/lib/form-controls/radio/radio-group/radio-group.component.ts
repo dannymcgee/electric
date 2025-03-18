@@ -48,6 +48,7 @@ import { Radio, RADIO } from "../radio.types";
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class RadioGroupComponent<T>
 implements

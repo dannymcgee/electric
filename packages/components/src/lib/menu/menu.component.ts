@@ -28,6 +28,7 @@ import { MENU, MENU_ITEM, Menu, MenuItem } from "./menu.types";
 	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	exportAs: "menu",
+	standalone: false,
 })
 export class MenuComponent implements Menu {
 	@Input("class")

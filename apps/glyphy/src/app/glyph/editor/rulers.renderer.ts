@@ -25,6 +25,7 @@ export interface Hash2D extends Omit<Hash, "value"> {
 		useExisting: RulersRenderer,
 	}],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class RulersRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyph!: Const<Glyph>;

@@ -1,7 +1,10 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { SafeHtml } from "@angular/platform-browser";
 
-@Pipe({ name: "program" })
+@Pipe({
+	name: "program",
+	standalone: false,
+})
 export class CffProgramPipe implements PipeTransform {
 	transform(value: string | undefined): SafeHtml {
 		if (!value) return "";
