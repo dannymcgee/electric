@@ -27,7 +27,7 @@ export const MODIFIER_KEYS_NOLOCKS = MODIFIER_KEYS.filter(key => (
 	&& key !== ModifierKey.ScrollLock
 	&& key !== ModifierKey.FnLock
 	&& key !== ModifierKey.SymbolLock
-));
+)) as ModifierKey[];
 
 export interface IsModifierOptions {
 	excludeLocks: boolean;
