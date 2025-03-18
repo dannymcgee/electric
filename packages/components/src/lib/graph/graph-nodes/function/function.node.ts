@@ -96,6 +96,7 @@ import { BaseNode } from "../base.node";
 	styleUrls: ["./function.node.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FunctionNode extends BaseNode {
 	protected override readonly hostClass = "elx-function-node";

@@ -56,6 +56,7 @@ import { FormLabel, FORM_LABEL } from "../form-controls.types";
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class LabelComponent implements FormLabel {
 	@HostBinding("class")
@@ -92,6 +93,7 @@ export class LabelComponent implements FormLabel {
 
 @Directive({
 	selector: "[elxLabelPrefix]",
+	standalone: false,
 })
 export class LabelPrefixDirective {
 	constructor (
@@ -101,6 +103,7 @@ export class LabelPrefixDirective {
 
 @Directive({
 	selector: "[elxLabelPostfix]",
+	standalone: false,
 })
 export class LabelPostfixDirective {
 	constructor (

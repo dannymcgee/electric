@@ -41,6 +41,7 @@ export type InputType =
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class InputComponent<T extends string|number>
 implements NativeControl, ValueAccessor<T> {

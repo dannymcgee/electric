@@ -21,6 +21,7 @@ export enum InteractionFlags {
 
 @Directive({
 	selector: "[tdTableRowInteraction]",
+	standalone: false,
 })
 export class TableRowInteractionDirective implements OnInit, OnChanges, OnDestroy {
 	@Input() entry!: Entry;

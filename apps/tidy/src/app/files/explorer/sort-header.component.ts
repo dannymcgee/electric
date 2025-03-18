@@ -21,6 +21,7 @@ type Column = keyof Entry;
 
 @Pipe({
 	name: "sortIcon",
+	standalone: false,
 })
 export class SortIconPipe implements PipeTransform {
 	transform(active: boolean, direction: Sort): IconName {
@@ -47,6 +48,7 @@ export class SortIconPipe implements PipeTransform {
 	`,
 	styleUrls: ["./sort-header.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class SortHeaderComponent
 extends CdkHeaderCell

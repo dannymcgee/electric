@@ -22,6 +22,7 @@ export type TooltipPosition
 @Directive({
 	selector: "[elxTooltip]",
 	exportAs: "elxTooltip",
+	standalone: false,
 })
 export class TooltipDirective<Ctx extends Option<{ [key: string]: any }>>
 	implements OnDestroy

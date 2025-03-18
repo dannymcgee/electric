@@ -10,6 +10,7 @@ import { Defaults } from "../../examples.types";
 		"../example.shared.scss",
 		"./dialog.example.scss",
 	],
+	standalone: false,
 })
 export class DialogExample {
 	showDialog = false;

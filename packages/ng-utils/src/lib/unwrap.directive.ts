@@ -7,6 +7,7 @@ interface Ctx<T> {
 
 @Directive({
 	selector: "[elxUnwrap]",
+	standalone: false,
 })
 export class UnwrapDirective<T> {
 	@Input("elxUnwrap")

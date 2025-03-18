@@ -66,6 +66,7 @@ import { APP_PLATFORM, AppPlatform } from "@electric/platform";
 	styleUrls: ["./titlebar.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class TitlebarComponent {
 	@HostBinding("class")
@@ -105,6 +106,7 @@ export class TitlebarComponent {
 
 @Directive({
 	selector: "[elxTitlebarIcon]",
+	standalone: false,
 })
 export class TitlebarIconDirective {
 	constructor (

@@ -103,6 +103,7 @@ type Column = keyof Entry;
 	styleUrls: ["./file-explorer.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	providers: [ExplorerDataSource],
+	standalone: false,
 })
 export class FileExplorer {
 	@Input()

@@ -18,6 +18,7 @@ import { GraphLibrary } from "../../graph-library.service";
 	styleUrls: ["./connection.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FunctionConnectionComponent implements OnInit {
 	@HostBinding("class")

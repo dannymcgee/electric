@@ -41,6 +41,7 @@ import {
 
 @Directive({
 	selector: "ng-template[elxAccordionContent]",
+	standalone: false,
 })
 export class AccordionContentDirective {
 	@HostBinding("class")
@@ -57,6 +58,7 @@ export class AccordionContentDirective {
 
 @Directive({
 	selector: "elx-accordion-toolbar, [elxAccordionToolbar]",
+	standalone: false,
 })
 export class AccordionToolbarDirective {
 	@HostBinding("class")
@@ -96,7 +98,8 @@ export class AccordionToolbarDirective {
 	</div>
 </div>
 
-	`
+	`,
+	standalone: false,
 })
 export class AccordionHeaderComponent implements FocusableOption {
 	@HostBinding("attr.role")
@@ -157,6 +160,7 @@ export class AccordionHeaderComponent implements FocusableOption {
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class AccordionGroupComponent
 	extends CdkAccordion
@@ -253,6 +257,7 @@ export class AccordionGroupComponent
 	animations: [ACCORDION_TRIGGER, BLOCK_FIRST_ENTER_ANIM],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class AccordionComponent extends CdkAccordionItem implements DoCheck {
 	@HostBinding("class")

@@ -83,7 +83,8 @@ interface GraphNodeMenuItem {
 		useClass: GraphViewModelService,
 	}],
 	encapsulation: ViewEncapsulation.None,
-	changeDetection: ChangeDetectionStrategy.OnPush
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class GraphComponent
 implements Graph, OnInit, AfterViewInit, OnDestroy {

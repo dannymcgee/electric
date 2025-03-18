@@ -29,6 +29,7 @@ class StateModel {
 		"../example.shared.scss",
 		"./button.example.scss",
 	],
+	standalone: false,
 })
 export class ButtonExample {
 	icons = keys(ICONS);

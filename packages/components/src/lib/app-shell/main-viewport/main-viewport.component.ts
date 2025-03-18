@@ -14,6 +14,7 @@ import { Coerce } from "@electric/ng-utils";
 	styleUrls: ["./main-viewport.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class MainViewportComponent {
 	@HostBinding("class")

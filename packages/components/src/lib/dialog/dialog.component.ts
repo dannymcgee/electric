@@ -58,6 +58,7 @@ import {
 	styleUrls: ["./dialog.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	exportAs: "dialog",
+	standalone: false,
 })
 export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	@HostBinding("class")
@@ -183,6 +184,7 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	`,
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class DialogHeadingComponent {
 	@HostBinding("class")
@@ -197,6 +199,7 @@ export class DialogHeadingComponent {
 
 @Directive({
 	selector: "elx-dialog-footer, [elx-dialog-footer]",
+	standalone: false,
 })
 export class DialogFooterDirective {
 	@HostBinding("class")

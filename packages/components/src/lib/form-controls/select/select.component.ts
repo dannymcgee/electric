@@ -110,6 +110,7 @@ const VALUE_ACCESSOR_PROVIDER = {
 	],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class SelectComponent<T>
 implements
@@ -437,6 +438,7 @@ implements
 @Component({
 	template: `<ng-content></ng-content>`,
 	encapsulation: ViewEncapsulation.None,
+	standalone: false,
 })
 export class SelectedValueComponent {
 	@HostBinding("class")

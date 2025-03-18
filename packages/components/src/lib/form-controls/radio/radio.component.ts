@@ -48,6 +48,7 @@ import { RADIO, Radio } from "./radio.types";
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class RadioComponent<T> implements Radio<T>, OnInit, OnDestroy {
 	@HostBinding("class")

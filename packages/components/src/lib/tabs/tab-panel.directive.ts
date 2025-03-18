@@ -3,6 +3,7 @@ import { Coerce } from "@electric/ng-utils";
 
 @Directive({
 	selector: "[elxTabPanel]",
+	standalone: false,
 })
 export class TabPanelDirective {
 	@Coerce(Boolean)

@@ -23,6 +23,7 @@ import { MenuPanel } from "../menu.types";
 	styleUrls: ["./menu-panel.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class MenuPanelComponent implements MenuPanel {
 	@HostBinding("class")

@@ -3,6 +3,7 @@ import { Entry } from "@tidy-api";
 
 @Pipe({
 	name: "filetype",
+	standalone: false,
 })
 export class FileTypePipe implements PipeTransform {
 	transform(entry?: Entry): string {

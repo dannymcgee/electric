@@ -25,6 +25,7 @@
 						"style": "kebab-case"
 					}
 				],
+				"@angular-eslint/prefer-standalone": "off",
 				"@typescript-eslint/no-non-null-assertion": "off"
 			}
 		},

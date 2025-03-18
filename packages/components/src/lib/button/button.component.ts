@@ -22,6 +22,7 @@ import { ButtonSize, ButtonVariant } from "./button.types";
 	styleUrls: ["./button.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class ButtonComponent implements Focusable, OnInit, OnDestroy {
 	@HostBinding("class")
@@ -101,6 +102,7 @@ export class ButtonComponent implements Focusable, OnInit, OnDestroy {
 	}],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class PrimaryButtonComponent extends ButtonComponent {
 	// This extremely hacky component only exists to provide the

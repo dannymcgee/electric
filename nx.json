@@ -54,5 +54,6 @@
 		}
 	},
 	"defaultBase": "main",
-	"useDaemonProcess": false
+	"useDaemonProcess": false,
+	"useLegacyCache": true
 }

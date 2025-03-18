@@ -19,6 +19,7 @@ import EXTENSIONS from "../extensions";
 	styleUrls: ["./file-icon.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class FileIcon {
 	static ExtMap?: Map<string, string>;

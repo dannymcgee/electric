@@ -9,6 +9,7 @@ const INITIAL_CONTENT =
 		"../example.shared.scss",
 		"./accordion.example.scss",
 	],
+	standalone: false,
 })
 export class AccordionExample {
 	accordionGroup = {

@@ -27,6 +27,7 @@ import { DetectChanges } from "@electric/ng-utils";
 	styleUrls: ["./option-list.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class OptionListComponent {
 	@HostBinding("class")

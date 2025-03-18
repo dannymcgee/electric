@@ -33,6 +33,7 @@ import { BaseNode } from "../base.node";
 	styleUrls: ["./connector.node.scss"],
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class ConnectorNode extends BaseNode implements OnInit {
 	protected override readonly hostClass = "elx-connector-node";

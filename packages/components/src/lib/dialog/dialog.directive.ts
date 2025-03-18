@@ -17,6 +17,7 @@ interface DialogTriggerContext<T> {
 
 @Directive({
 	selector: "[elxDialogTrigger]",
+	standalone: false,
 })
 export class DialogTriggerDirective<T> {
 	@Input("elxDialogTrigger")

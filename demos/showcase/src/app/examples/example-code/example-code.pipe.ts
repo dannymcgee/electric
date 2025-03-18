@@ -13,7 +13,10 @@ import { HTML_IDENT } from "./languages/common";
 import { regex } from "./languages/util";
 import { HighlightService } from "./highlight.service";
 
-@Pipe({ name: "highlight" })
+@Pipe({
+	name: "highlight",
+	standalone: false,
+})
 export class HighlightPipe implements PipeTransform {
 	constructor (
 		private _highlighter: HighlightService,
@@ -26,14 +29,20 @@ export class HighlightPipe implements PipeTransform {
 	}
 }
 
-@Pipe({ name: "lines" })
+@Pipe({
+	name: "lines",
+	standalone: false,
+})
 export class LinesPipe implements PipeTransform {
 	transform(src?: string): string[] {
 		return src?.split("\n") ?? [];
 	}
 }
 
-@Pipe({ name: "stripIndents" })
+@Pipe({
+	name: "stripIndents",
+	standalone: false,
+})
 export class StripIndentsPipe implements PipeTransform {
 	transform(lines?: string[]): string[] {
 		if (!lines) return [];
@@ -47,7 +56,10 @@ export class StripIndentsPipe implements PipeTransform {
 	}
 }
 
-@Pipe({ name: "stripDefaults" })
+@Pipe({
+	name: "stripDefaults",
+	standalone: false,
+})
 export class StripDefaultsPipe implements PipeTransform {
 	transform(lines?: string[], defaults?: Defaults): string[] {
 		if (!lines) return [];
@@ -80,7 +92,10 @@ export class StripDefaultsPipe implements PipeTransform {
 	}
 }
 
-@Pipe({ name: "fmt" })
+@Pipe({
+	name: "fmt",
+	standalone: false,
+})
 export class FormatCodePipe implements PipeTransform {
 	transform(lines?: string[], language?: string): string[] {
 		if (!lines) return [];
@@ -121,7 +136,10 @@ export class FormatCodePipe implements PipeTransform {
 	}
 }
 
-@Pipe({ name: "joinLines" })
+@Pipe({
+	name: "joinLines",
+	standalone: false,
+})
 export class JoinLinesPipe implements PipeTransform {
 	transform(lines?: string[]): string {
 		if (!lines) return "";

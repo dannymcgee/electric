@@ -11,6 +11,7 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 	`,
 	styleUrls: ["./line-numbers.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	standalone: false,
 })
 export class LineNumbersComponent {
 	@Input("showcaseLineNumbersFor")
