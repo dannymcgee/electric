@@ -8,6 +8,31 @@ import {
 	ViewContainerRef,
 } from "@angular/core";
 
+@Injectable({
+	providedIn: "root",
+})
+export class DeferredRenderService {
+	private _observer = new IntersectionObserver(entries => this.onReady(entries), {
+		rootMargin: "0px",
+		threshold: 0,
+	})
+	private _map = new WeakMap<Element, DeferredRenderDirective>();
+
+	register(proxy: Element, loader: DeferredRenderDirective): void {
+		this._map.set(proxy, loader);
+		this._observer.observe(proxy);
+	}
+
+	private onReady(entries: IntersectionObserverEntry[]): void {
+		for (let entry of entries) {
+			if (entry.isIntersecting) {
+				this._observer.unobserve(entry.target);
+				this._map.get(entry.target)?.render();
+			}
+		}
+	}
+}
+
 /**
  * Defer rendering a view until it's scrolled into the viewport. Useful for
  * components with expensive initialization routines or excessively long
@@ -81,30 +106,5 @@ export class DeferredRenderDirective implements OnInit {
 		this._viewContainer.clear();
 		this._viewContainer.createEmbeddedView(this._template);
 		this._cdRef.markForCheck();
-	}
-}
-
-@Injectable({
-	providedIn: "root",
-})
-export class DeferredRenderService {
-	private _observer = new IntersectionObserver(entries => this.onReady(entries), {
-		rootMargin: "0px",
-		threshold: 0,
-	})
-	private _map = new WeakMap<Element, DeferredRenderDirective>();
-
-	register(proxy: Element, loader: DeferredRenderDirective): void {
-		this._map.set(proxy, loader);
-		this._observer.observe(proxy);
-	}
-
-	private onReady(entries: IntersectionObserverEntry[]): void {
-		for (let entry of entries) {
-			if (entry.isIntersecting) {
-				this._observer.unobserve(entry.target);
-				this._map.get(entry.target)?.render();
-			}
-		}
 	}
 }
