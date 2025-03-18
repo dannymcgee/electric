@@ -5,7 +5,6 @@ import {
 	ChangeDetectorRef,
 	Component,
 	ContentChildren,
-	ElementRef,
 	EventEmitter,
 	HostBinding,
 	inject,
@@ -13,7 +12,6 @@ import {
 	OnDestroy,
 	OnInit,
 	Output,
-	SkipSelf,
 	ViewEncapsulation,
 } from "@angular/core";
 import {
@@ -37,7 +35,7 @@ import {
 	takeUntil,
 } from "rxjs";
 
-import { Coerce, DetectChanges, QueryList } from "@electric/ng-utils";
+import { Coerce, DetectChanges, injectRef, QueryList } from "@electric/ng-utils";
 import { assert, exists, fromKeydown } from "@electric/utils";
 
 import { IndicatorPosition, Tab, TAB } from "../tabs.types";
@@ -110,11 +108,9 @@ export class TabListComponent implements OnInit, AfterContentInit, OnDestroy {
 	private _cdRef = inject(ChangeDetectorRef);
 	get changeDetector() { return this._cdRef; }
 
-	constructor (
-		@SkipSelf() private _parentChangeDetector: ChangeDetectorRef,
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-	) {}
+	private _parentChangeDetector = inject(ChangeDetectorRef, { skipSelf: true });
+	private _elementRef = injectRef<HTMLElement>();
+	private _focusMonitor = inject(FocusMonitor);
 
 	ngOnInit(): void {
 		let focusChanges$ = this._focusMonitor

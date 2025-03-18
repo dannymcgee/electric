@@ -9,7 +9,6 @@ import {
 	ChangeDetectorRef,
 	Component,
 	ContentChildren,
-	ElementRef,
 	forwardRef,
 	HostBinding,
 	HostListener,
@@ -20,7 +19,6 @@ import {
 	OnChanges,
 	OnDestroy,
 	OnInit,
-	Self,
 	SimpleChanges,
 	TemplateRef,
 	ViewChild,
@@ -42,7 +40,7 @@ import {
 	takeUntil,
 } from "rxjs";
 
-import { Coerce, DetectChanges, QueryList } from "@electric/ng-utils";
+import { Coerce, DetectChanges, injectRef, QueryList } from "@electric/ng-utils";
 import { array, assert, elementId, Fn, fromKeydown } from "@electric/utils";
 
 import {
@@ -186,15 +184,13 @@ implements
 	private _menuClose$ = new Subject<void>();
 	private _onDestroy$ = new Subject<void>();
 
-	constructor (
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-		private _injector: Injector,
-		@Self() private _overlayData: OptionListOverlayData,
-		@Self() private _overlay: SelectOverlayManager,
-		private _viewContainer: ViewContainerRef,
-		private _zone: NgZone,
-	) {}
+	private _elementRef = injectRef<HTMLElement>();
+	private _focusMonitor = inject(FocusMonitor);
+	private _injector = inject(Injector);
+	private _overlayData = inject(OptionListOverlayData, { self: true });
+	private _overlay = inject(SelectOverlayManager, { self: true });
+	private _viewContainer = inject(ViewContainerRef);
+	private _zone = inject(NgZone);
 
 	// #region Angular lifecycle ------------------------------------------------
 

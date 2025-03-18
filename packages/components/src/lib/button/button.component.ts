@@ -1,17 +1,17 @@
 import { FocusMonitor, FocusOrigin, FocusOptions } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import {
+	ChangeDetectionStrategy,
 	Component,
+	HostBinding,
+	inject,
+	Input,
+	OnDestroy,
 	OnInit,
 	ViewEncapsulation,
-	ChangeDetectionStrategy,
-	OnDestroy,
-	ElementRef,
-	Input,
-	HostBinding,
 } from "@angular/core";
 
-import { Focusable, INITIAL_FOCUS_TARGET } from "@electric/ng-utils";
+import { Focusable, INITIAL_FOCUS_TARGET, injectRef } from "@electric/ng-utils";
 
 import { IconName } from "../icon";
 import { ButtonSize, ButtonVariant } from "./button.types";
@@ -72,11 +72,8 @@ export class ButtonComponent implements Focusable, OnInit, OnDestroy {
 	}
 
 	private get _element() { return this._elementRef.nativeElement; }
-
-	constructor (
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-	) {}
+	private _elementRef = injectRef<HTMLElement>();
+	private _focusMonitor = inject(FocusMonitor);
 
 	ngOnInit(): void {
 		this._focusMonitor.monitor(this._elementRef);

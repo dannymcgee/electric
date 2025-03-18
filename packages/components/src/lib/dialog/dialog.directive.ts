@@ -2,9 +2,10 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
-	Attribute,
 	Directive,
 	EmbeddedViewRef,
+	HostAttributeToken,
+	inject,
 	Input,
 	TemplateRef,
 	ViewContainerRef,
@@ -43,13 +44,11 @@ export class DialogTriggerDirective<T> {
 	private _portal: TemplatePortal<DialogTriggerContext<T>> | null = null;
 	private _viewRef: EmbeddedViewRef<DialogTriggerContext<T>> | null = null;
 
-	constructor (
-		private _overlay: Overlay,
-		private _template: TemplateRef<DialogTriggerContext<T>>,
-		private _viewContainer: ViewContainerRef,
-		@Attribute("blocking") private _blockingAttr: string,
-		@Attribute("role") private _roleAttr: string,
-	) {}
+	private _overlay = inject(Overlay);
+	private _template = inject<TemplateRef<DialogTriggerContext<T>>>(TemplateRef);
+	private _viewContainer = inject(ViewContainerRef);
+	private _blockingAttr = inject(new HostAttributeToken("blocking"));
+	private _roleAttr = inject(new HostAttributeToken("role"));
 
 	private onTriggerChange(value?: T): void {
 		if (value) {

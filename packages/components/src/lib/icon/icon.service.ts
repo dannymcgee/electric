@@ -1,5 +1,5 @@
 import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 
 import { SvgIcon } from "@electric/style";
 import { entries } from "@electric/utils";
@@ -9,12 +9,10 @@ import { ICON_LIBRARY } from "./icon.types";
 @Injectable()
 export class IconRegistry {
 	private _svgMap = new Map<string, SvgIcon>();
+	private _document = inject(DOCUMENT);
 
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-		@Inject(ICON_LIBRARY) icons: Record<string, string>,
-	) {
-		this.register(icons);
+	constructor () {
+		this.register(inject(ICON_LIBRARY));
 	}
 
 	has(id: string) {

@@ -1,15 +1,15 @@
 import { DOCUMENT } from "@angular/common";
 import {
-	Component,
-	ViewEncapsulation,
 	ChangeDetectionStrategy,
-	HostBinding,
-	Input,
-	Output,
+	Component,
 	EventEmitter,
-	OnDestroy,
+	HostBinding,
 	HostListener,
-	Inject,
+	inject,
+	Input,
+	OnDestroy,
+	Output,
+	ViewEncapsulation,
 } from "@angular/core";
 import { Opt } from "@electric/utils";
 import {
@@ -60,10 +60,7 @@ export class ResizeHandleComponent implements ResizeHandle, OnDestroy {
 	@Output() move = new EventEmitter<Vec2>();
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-	) {}
+	private _document = inject(DOCUMENT);
 
 	@HostListener("pointerdown", ["$event"])
 	onPointerdown(event: PointerEvent): void {

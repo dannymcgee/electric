@@ -1,17 +1,16 @@
 import { FocusKeyManager, FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
 import { DOCUMENT } from "@angular/common";
 import {
-	Component,
-	ViewEncapsulation,
-	ChangeDetectionStrategy,
 	AfterContentInit,
-	OnDestroy,
-	HostBinding,
+	ChangeDetectionStrategy,
+	Component,
 	ContentChildren,
-	QueryList,
-	Inject,
-	ElementRef,
+	HostBinding,
 	HostListener,
+	inject,
+	OnDestroy,
+	QueryList,
+	ViewEncapsulation,
 } from "@angular/core";
 import {
 	combineLatest,
@@ -30,6 +29,7 @@ import {
 	withLatestFrom,
 } from "rxjs";
 
+import { injectRef } from "@electric/ng-utils";
 import { fromKeydown } from "@electric/utils";
 
 import {
@@ -75,11 +75,9 @@ export class MenubarComponent implements AfterContentInit, OnDestroy {
 	private _keyManager?: FocusKeyManager<MenuItem>;
 	private _onDestroy$ = new Subject<void>();
 
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-	) {}
+	private _document = inject(DOCUMENT);
+	private _elementRef = injectRef<HTMLElement>();
+	private _focusMonitor = inject(FocusMonitor);
 
 	ngAfterContentInit(): void {
 		this._menuItems$ = this._menuItems!

@@ -5,8 +5,9 @@ import {
 	HostBinding,
 	TemplateRef,
 	ChangeDetectorRef,
-	ElementRef,
+	inject,
 } from "@angular/core";
+import { injectRef } from "@electric/ng-utils";
 
 import { MenuPanel } from "../menu.types";
 
@@ -38,8 +39,6 @@ export class MenuPanelComponent implements MenuPanel {
 	}
 	private _template?: TemplateRef<void>;
 
-	constructor (
-		public elementRef: ElementRef<HTMLElement>,
-		private _changeDetector: ChangeDetectorRef,
-	) {}
+	elementRef = injectRef<HTMLElement>();
+	private _changeDetector = inject(ChangeDetectorRef);
 }

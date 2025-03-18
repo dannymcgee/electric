@@ -2,12 +2,13 @@ import {
 	Component,
 	ViewEncapsulation,
 	ChangeDetectionStrategy,
+	inject,
 	Input,
-	ElementRef,
 	isDevMode,
 	HostBinding,
 } from "@angular/core";
 
+import { injectRef } from "@electric/ng-utils";
 import { a11y } from "@electric/style";
 import { camelToKebabCase, match } from "@electric/utils";
 
@@ -59,10 +60,8 @@ export class IconComponent {
 		return this._elementRef.nativeElement;
 	}
 
-	constructor (
-		private _elementRef: ElementRef<HTMLElement>,
-		private _registry: IconRegistry,
-	) {}
+	private _elementRef = injectRef<HTMLElement>();
+	private _registry = inject(IconRegistry);
 
 	private render(): void {
 		if (this._registry.has(this.icon!)) {

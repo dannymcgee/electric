@@ -1,14 +1,14 @@
 import {
 	AfterViewInit,
 	Directive,
-	ElementRef,
 	HostBinding,
 	HostListener,
-	Inject,
+	inject,
 	Input,
 	OnDestroy,
-	Self,
 } from "@angular/core";
+
+import { injectRef } from "@electric/ng-utils";
 
 import { MenuCoordinator } from "./menu-coordinator.service";
 import { MenuOverlayManager } from "./menu-overlay.service";
@@ -43,11 +43,9 @@ export class MenuTriggerDirective implements MenuTrigger, OnDestroy {
 	get orientation() { return this.overlay.orientation }
 	set orientation(value) { this.overlay.orientation = value }
 
-	constructor (
-		public elementRef: ElementRef<HTMLElement>,
-		@Self() public overlay: MenuOverlayManager,
-		private _coordinator: MenuCoordinator,
-	) {}
+	elementRef = injectRef<HTMLElement>();
+	overlay = inject(MenuOverlayManager, { self: true });
+	private _coordinator = inject(MenuCoordinator);
 
 	ngOnDestroy(): void {
 		this._coordinator.unregister(this);
@@ -77,11 +75,9 @@ export class ContextMenuTriggerDirective implements MenuTrigger, AfterViewInit {
 	@Input("elxContextMenuTriggerFor")
 	menu!: Menu;
 
-	constructor (
-		public elementRef: ElementRef<HTMLElement>,
-		@Self() public overlay: MenuOverlayManager,
-		private _coordinator: MenuCoordinator,
-	) {}
+	elementRef = injectRef<HTMLElement>();
+	overlay = inject(MenuOverlayManager, { self: true });
+	private _coordinator = inject(MenuCoordinator);
 
 	ngAfterViewInit(): void {
 		this._coordinator.register(MenuKind.Context, this, this.overlay);
@@ -103,12 +99,10 @@ export class SubmenuTriggerDirective implements MenuTrigger {
 	@HostBinding("attr.aria-haspopup")
 	readonly ariaHasPopup = "menu";
 
-	constructor (
-		public elementRef: ElementRef<HTMLElement>,
-		@Self() public overlay: MenuOverlayManager,
-		private _coordinator: MenuCoordinator,
-		@Inject(MENU) private _parentMenu: Menu,
-	) {}
+	elementRef = injectRef<HTMLElement>();
+	overlay = inject(MenuOverlayManager, { self: true });
+	private _coordinator = inject(MenuCoordinator);
+	private _parentMenu = inject(MENU);
 
 	@HostListener("mouseenter")
 	@HostListener("focus")

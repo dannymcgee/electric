@@ -8,7 +8,7 @@ import {
 	PositionStrategy,
 } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
-import { ElementRef, Injectable, OnDestroy, TemplateRef } from "@angular/core";
+import { ElementRef, inject, Injectable, OnDestroy, TemplateRef } from "@angular/core";
 import { Subject } from "rxjs";
 import { share } from "rxjs/operators";
 
@@ -55,9 +55,7 @@ export class MenuOverlayManager implements OnDestroy {
 				.withPositions(this._positions);
 	}
 
-	constructor (
-		private _overlay: Overlay,
-	) {}
+	private _overlay = inject(Overlay);
 
 	ngOnDestroy(): void {
 		this._onDestroy$.next();

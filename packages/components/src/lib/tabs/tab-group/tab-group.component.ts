@@ -4,8 +4,8 @@ import {
 	ChangeDetectorRef,
 	Component,
 	ContentChildren,
-	ElementRef,
 	HostBinding,
+	inject,
 	Input,
 	OnDestroy,
 	TrackByFunction,
@@ -26,7 +26,7 @@ import {
 	takeUntil,
 } from "rxjs";
 
-import { Coerce, QueryList } from "@electric/ng-utils";
+import { Coerce, injectRef, QueryList } from "@electric/ng-utils";
 import { anim } from "@electric/style";
 import { assert } from "@electric/utils";
 
@@ -66,11 +66,10 @@ export class TabGroupComponent implements AfterContentInit, OnDestroy {
 	trackById: TrackByFunction<Tab> = (_, tab) => tab.id;
 
 	private _onDestroy$ = new Subject<void>();
+	private _changeDetector = inject(ChangeDetectorRef);
+	private _elementRef = injectRef<HTMLElement>();
 
-	constructor (
-		private _changeDetector: ChangeDetectorRef,
-		private _elementRef: ElementRef<HTMLElement>,
-	) {
+	constructor () {
 		this._computedStyle = getComputedStyle(this._elementRef.nativeElement);
 	}
 

@@ -1,22 +1,19 @@
 import { FocusMonitor, FocusOrigin } from "@angular/cdk/a11y";
 import {
+	ChangeDetectionStrategy,
 	Component,
+	HostBinding,
+	HostListener,
+	inject,
+	Input,
+	OnDestroy,
 	OnInit,
 	ViewEncapsulation,
-	ChangeDetectionStrategy,
-	OnDestroy,
-	Input,
-	HostBinding,
-	ElementRef,
-	Optional,
-	Inject,
-	Host,
-	HostListener,
 } from "@angular/core";
 import { fromEvent, Observable, Subject, timer } from "rxjs";
 import { filter, map, take, takeUntil } from "rxjs/operators";
 
-import { Coerce } from "@electric/ng-utils";
+import { Coerce, injectRef } from "@electric/ng-utils";
 import { array } from "@electric/utils";
 
 import { IconName } from "../../icon";
@@ -91,16 +88,13 @@ export class MenuItemComponent implements MenuItem, OnInit, OnDestroy {
 	hovered$ = new Subject<HTMLElement>();
 
 	private _onDestroy$ = new Subject<void>();
+
+	elementRef = injectRef<HTMLElement>();
 	private get _element() { return this.elementRef.nativeElement }
 
-	constructor (
-		public elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-		@Optional() @Inject(MENU_TRIGGER)
-			private _menuTrigger: unknown | null,
-		@Optional() @Host() @Inject(MENUBAR)
-			private _menubar: unknown | null,
-	) {}
+	private _focusMonitor = inject(FocusMonitor);
+	private _menuTrigger = inject(MENU_TRIGGER, { optional: true });
+	private _menubar = inject(MENUBAR, { optional: true, host: true });
 
 	ngOnInit(): void {
 		this.focused$ = this._focusMonitor

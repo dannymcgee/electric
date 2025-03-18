@@ -3,22 +3,14 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	HostListener,
-	Inject,
+	inject,
 	Input,
 	ViewEncapsulation,
 } from "@angular/core";
 import { animationFrames, fromEvent, merge, takeUntil } from "rxjs";
-import { GraphLibrary } from "../..";
 
-import {
-	Graph,
-	GRAPH,
-	GraphViewModel,
-	GRAPH_VIEW_MODEL,
-	NodeAlignment,
-	Port,
-	PortType,
-} from "../../graph.types";
+import { NodeAlignment, Port, PortType } from "../../graph.types";
+import { GraphLibrary } from "../../graph-library.service";
 import { BaseNode } from "../base.node";
 
 @Component({
@@ -49,14 +41,8 @@ export class RerouteNode extends BaseNode {
 	get color() { return this._color ??= this._library.typeColor(this.type); }
 	private _color?: string;
 
-	constructor (
-		@Inject(GRAPH) graph: Graph,
-		@Inject(GRAPH_VIEW_MODEL) vm: GraphViewModel,
-		@Inject(DOCUMENT) private _document: Document,
-		private _library: GraphLibrary,
-	) {
-		super(graph, vm);
-	}
+	private _document = inject<Document>(DOCUMENT);
+	private _library = inject(GraphLibrary);
 
 	@HostListener("pointerdown", ["$event"])
 	onPointerdown(event: PointerEvent): void {

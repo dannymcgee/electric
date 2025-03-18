@@ -1,10 +1,8 @@
-import { Inject, Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import {
 	GRAPH_NODE_DESCRIPTOR_SET,
 	GRAPH_TYPES,
 	GraphNodeDescriptor,
-	GraphNodeDescriptorSet,
-	GraphType,
 } from "./graph.types";
 
 @Injectable()
@@ -16,10 +14,10 @@ export class GraphLibrary {
 	}
 	private _nodes = new Map<string, GraphNodeDescriptor>();
 
-	constructor (
-		@Inject(GRAPH_TYPES) types: GraphType[],
-		@Inject(GRAPH_NODE_DESCRIPTOR_SET) nodes: GraphNodeDescriptorSet,
-	) {
+	constructor () {
+		const types = inject(GRAPH_TYPES);
+		const nodes = inject(GRAPH_NODE_DESCRIPTOR_SET);
+
 		for (let type of types)
 			this._types.set(type.type, type.color);
 

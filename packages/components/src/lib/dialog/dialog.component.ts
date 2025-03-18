@@ -7,7 +7,6 @@ import { DragRef, DragDrop } from "@angular/cdk/drag-drop";
 import { DOCUMENT } from "@angular/common";
 import {
 	AfterContentInit,
-	Attribute,
 	ChangeDetectionStrategy,
 	Component,
 	ContentChild,
@@ -15,9 +14,10 @@ import {
 	ElementRef,
 	EventEmitter,
 	forwardRef,
+	HostAttributeToken,
 	HostBinding,
 	HostListener,
-	Inject,
+	inject,
 	Input,
 	OnDestroy,
 	OnInit,
@@ -112,14 +112,12 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 			|| this.role === "alert";
 	}
 
-	constructor (
-		private _dragDrop: DragDrop,
-		@Inject(DOCUMENT) private _document: Document,
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusTrapFactory: ConfigurableFocusTrapFactory,
-		private _globalFocusManager: GlobalFocusManager,
-		@Attribute("blocking") private _blockingAttr: string,
-	) {}
+	private _dragDrop = inject(DragDrop);
+	private _document = inject(DOCUMENT);
+	private _elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+	private _focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+	private _globalFocusManager = inject(GlobalFocusManager);
+	private _blockingAttr = inject(new HostAttributeToken("blocking"));
 
 	ngOnInit(): void {
 		if (this._isBlocking) {
@@ -199,9 +197,7 @@ export class DialogHeadingComponent {
 
 	@Input() icon?: IconName;
 
-	constructor (
-		public _elementRef: ElementRef,
-	) {}
+	_elementRef = inject(ElementRef);
 }
 
 @Directive({

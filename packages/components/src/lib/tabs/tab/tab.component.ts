@@ -4,7 +4,6 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	ElementRef,
 	EventEmitter,
 	HostBinding,
 	HostListener,
@@ -13,7 +12,6 @@ import {
 	OnDestroy,
 	OnInit,
 	Output,
-	Self,
 	ViewEncapsulation,
 } from "@angular/core";
 import {
@@ -27,7 +25,7 @@ import {
 	takeUntil,
 } from "rxjs";
 
-import { Coerce, DetectChanges, ElxResizeObserver } from "@electric/ng-utils";
+import { Coerce, DetectChanges, ElxResizeObserver, injectRef } from "@electric/ng-utils";
 import { elementId, getLabel } from "@electric/utils";
 
 import { TAB, Tab } from "../tabs.types";
@@ -113,12 +111,10 @@ export class TabComponent
 	private _cdRef = inject(ChangeDetectorRef);
 	get changeDetector() { return this._cdRef; }
 
-	constructor (
-		private _contentObserver: ContentObserver,
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-		@Self() private _resizeObserver: ElxResizeObserver,
-	) {}
+	private _contentObserver = inject(ContentObserver);
+	private _elementRef = injectRef<HTMLElement>();
+	private _focusMonitor = inject(FocusMonitor);
+	private _resizeObserver = inject(ElxResizeObserver, { self: true });
 
 	ngOnInit(): void {
 		this._label = this.getLabel();

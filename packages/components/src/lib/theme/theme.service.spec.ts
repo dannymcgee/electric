@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
 
 import { COLOR_SCHEME, THEME, ThemeService } from "./theme.service";
@@ -9,7 +9,7 @@ import { ThemeDefinition } from "./theme.types";
 	standalone: false,
 })
 class ThemeTestingComponent {
-	constructor (private _: ThemeService) {}
+	private _ = inject(ThemeService);
 }
 
 const TEST_THEME: ThemeDefinition = {

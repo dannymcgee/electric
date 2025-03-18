@@ -2,20 +2,14 @@ import { DOCUMENT } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	Component,
-	ElementRef,
-	Inject,
+	inject,
 	Input,
 	ViewEncapsulation,
 } from "@angular/core";
+import { injectRef } from "@electric/ng-utils";
 import { fromEvent, merge, takeUntil } from "rxjs";
 
-import {
-	GraphViewModel,
-	GRAPH,
-	Point,
-	Graph,
-	GRAPH_VIEW_MODEL,
-} from "../../graph.types";
+import { Point } from "../../graph.types";
 import { BaseNode } from "../base.node";
 
 @Component({
@@ -105,14 +99,8 @@ export class FunctionNode extends BaseNode {
 
 	protected get element() { return this.elementRef.nativeElement; }
 
-	constructor (
-		@Inject(GRAPH) graph: Graph,
-		@Inject(GRAPH_VIEW_MODEL) vm: GraphViewModel,
-		@Inject(DOCUMENT) protected document: Document,
-		protected elementRef: ElementRef<HTMLElement>,
-	) {
-		super(graph, vm);
-	}
+	protected document = inject(DOCUMENT);
+	protected elementRef = injectRef<HTMLElement>();
 
 	override inputOffset(idx: number): Point {
 		return {

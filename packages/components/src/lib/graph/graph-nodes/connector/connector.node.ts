@@ -3,7 +3,7 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	EventEmitter,
-	Inject,
+	inject,
 	Input,
 	OnInit,
 	Output,
@@ -12,13 +12,7 @@ import {
 import { animationFrames, fromEvent, merge, takeUntil, tap } from "rxjs";
 
 import { GraphLibrary } from "../../graph-library.service";
-import {
-	Graph,
-	GRAPH,
-	GraphViewModel,
-	GRAPH_VIEW_MODEL,
-	NodeAlignment,
-} from "../../graph.types";
+import { NodeAlignment } from "../../graph.types";
 import { BaseNode } from "../base.node";
 
 @Component({
@@ -47,14 +41,8 @@ export class ConnectorNode extends BaseNode implements OnInit {
 	get color() { return this._color ??= this._library.typeColor(this.type); }
 	private _color?: string;
 
-	constructor (
-		@Inject(GRAPH) graph: Graph,
-		@Inject(GRAPH_VIEW_MODEL) vm: GraphViewModel,
-		@Inject(DOCUMENT) private _document: Document,
-		private _library: GraphLibrary,
-	) {
-		super(graph, vm);
-	}
+	private _document = inject(DOCUMENT);
+	private _library = inject(GraphLibrary);
 
 	override ngOnInit(): void {
 		super.ngOnInit();
