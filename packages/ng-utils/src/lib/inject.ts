@@ -1,6 +1,6 @@
 import { ElementRef, inject, TemplateRef } from "@angular/core";
 
-export function injectRef<T extends Element>() {
+export function injectRef<T extends (Element | HTMLOrSVGElement)>() {
 	return inject<ElementRef<T>>(ElementRef);
 }
 
