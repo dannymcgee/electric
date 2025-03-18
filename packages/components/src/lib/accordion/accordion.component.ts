@@ -150,6 +150,7 @@ export class AccordionHeaderComponent implements FocusableOption {
 // Accordion Group
 // =============================================================================
 
+// FIXME: `multi` input no longer working as expected?
 @Component({
 	selector: "elx-accordion-group, [elxAccordionGroup]",
 	template: `<ng-content></ng-content>`,
