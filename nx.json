@@ -53,5 +53,6 @@
 			}
 		}
 	},
-	"defaultBase": "main"
+	"defaultBase": "main",
+	"useDaemonProcess": false
 }
