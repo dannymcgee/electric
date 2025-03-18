@@ -42,20 +42,22 @@ interface GraphNodeMenuItem {
 	[style.transform-origin]="vm.nodesTransformOrigin"
 >
 	<svg class="elx-graph__wires">
-		<path class="elx-graph__wire"
-			*ngFor="let p of vm.paths"
-			[attr.d]="p"
-		></path>
-
-		<ng-container *ngIf="vm.debugControlPoints">
-			<path class="elx-graph__control-point"
-				*ngFor="let p of vm.controlPoints"
+		@for (p of vm.paths; track p) {
+			<path class="elx-graph__wire"
 				[attr.d]="p"
-			></path>
-		</ng-container>
+			/>
+		}
+
+		@if (vm.debugControlPoints) {
+			@for (p of vm.controlPoints; track p) {
+				<path class="elx-graph__control-point"
+					[attr.d]="p"
+				/>
+			}
+		}
 	</svg>
-	<ng-content></ng-content>
-	<ng-container #nodeOutlet></ng-container>
+	<ng-content />
+	<ng-container #nodeOutlet />
 </div>
 
 <div class="elx-graph__cursor-pos">
@@ -66,14 +68,16 @@ interface GraphNodeMenuItem {
 </div>
 
 <elx-menu #contextMenu>
-	<elx-menuitem *ngFor="let node of libNodes"
-		(click)="spawnNode(node.id)"
-	>
-		{{ node.displayName }}
-	</elx-menuitem>
+	@for (node of libNodes; track node) {
+		<elx-menuitem
+			(click)="spawnNode(node.id)"
+		>
+			{{ node.displayName }}
+		</elx-menuitem>
+	}
 </elx-menu>
 
-	`,
+`,
 	styleUrls: ["./graph.component.scss"],
 	providers: [{
 		provide: GRAPH,

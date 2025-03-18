@@ -39,23 +39,27 @@ import { IconName } from "../icon";
 	template: `
 
 <div class="elx-dialog-main">
-	<div *ngIf="loader"
-		class="elx-dialog-progress"
-		[class.elx-dialog-progress--indeterminate]="indeterminate"
-	>
-		<div *ngIf="!indeterminate"
-			class="elx-dialog-progress__value"
-			[style.width]="completed! / total! | percent : '1.0-3'"
-		></div>
-	</div>
-	<ng-content select="elx-dialog-heading, [elx-dialog-heading]"></ng-content>
+	@if (loader) {
+		<div
+			class="elx-dialog-progress"
+			[class.elx-dialog-progress--indeterminate]="indeterminate"
+		>
+			@if (!indeterminate) {
+				<div
+					class="elx-dialog-progress__value"
+					[style.width]="completed! / total! | percent : '1.0-3'"
+				></div>
+			}
+		</div>
+	}
+	<ng-content select="elx-dialog-heading, [elx-dialog-heading]" />
 	<section class="elx-dialog-body">
-		<ng-content></ng-content>
+		<ng-content />
 	</section>
 </div>
-<ng-content select="elx-dialog-footer, [elx-dialog-footer]"></ng-content>
+<ng-content select="elx-dialog-footer, [elx-dialog-footer]" />
 
-	`,
+`,
 	styleUrls: ["./dialog.component.scss"],
 	encapsulation: ViewEncapsulation.None,
 	exportAs: "dialog",
@@ -174,16 +178,17 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	selector: "elx-dialog-heading, [elx-dialog-heading]",
 	template: `
 
-<elx-icon class="elx-dialog-heading__icon"
-	*ngIf="icon"
-	[icon]="icon"
-></elx-icon>
+@if (icon) {
+	<elx-icon class="elx-dialog-heading__icon"
+		[icon]="icon"
+	></elx-icon>
+}
 
 <h3 class="elx-dialog-heading__title">
 	<ng-content></ng-content>
 </h3>
 
-	`,
+`,
 	encapsulation: ViewEncapsulation.None,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	standalone: false,

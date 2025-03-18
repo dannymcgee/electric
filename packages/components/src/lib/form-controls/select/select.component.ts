@@ -70,37 +70,37 @@ const VALUE_ACCESSOR_PROVIDER = {
 	selector: "elx-select",
 	template: `
 
-<span class="
+@if (!value) {
+	<span class="
 		elx-select__value
 		elx-select__value--placeholder"
-	*ngIf="!value"
->{{ placeholder }}</span>
+	>{{ placeholder }}</span>
+}
 
 <span class="elx-select__value">
-	<ng-container #outlet></ng-container>
+	<ng-container #outlet />
 </span>
 
 <div class="elx-select__icon">
 	<elx-icon
 		icon="ChevronDownSmall"
 		size="sm"
-	></elx-icon>
+	/>
 </div>
 
-<div class="elx-select__hidden-options"
-	[id]="_optionListId"
-	*ngIf="!_menuOpen"
->
-	<ng-template
-		[ngTemplateOutlet]="optionsTemplate"
-	></ng-template>
-</div>
+@if (!_menuOpen) {
+	<div class="elx-select__hidden-options"
+		[id]="_optionListId"
+	>
+		<ng-container *ngTemplateOutlet="optionsTemplate" />
+	</div>
+}
 
 <ng-template #optionsTemplate>
-	<ng-content></ng-content>
+	<ng-content />
 </ng-template>
 
-	`,
+`,
 	styleUrls: ["./select.component.scss"],
 	providers: [
 		CUSTOM_CONTROL_PROVIDER,

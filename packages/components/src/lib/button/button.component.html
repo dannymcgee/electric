@@ -1,7 +1,6 @@
-<elx-icon *ngIf="icon"
-	[icon]="icon"
-	[size]="size"
-></elx-icon>
+@if (icon) {
+	<elx-icon [icon]="icon" [size]="size" />
+}
 <span class="elx-btn__label">
-	<ng-content></ng-content>
+	<ng-content />
 </span>

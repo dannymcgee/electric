@@ -32,28 +32,31 @@ import {
 	selector: "elx-menuitem",
 	template: `
 
-<elx-icon class="elx-menuitem__icon"
-	*ngIf="icon"
-	[icon]="icon"
-></elx-icon>
+@if (icon) {
+	<elx-icon class="elx-menuitem__icon"
+		[icon]="icon"
+	/>
+}
 
 <span class="elx-menuitem__label">
-	<ng-content></ng-content>
+	<ng-content />
 </span>
 
-<span class="elx-menuitem__keybind"
-	*ngIf="keybind"
-	aria-hidden="true"
->
-	{{ keybind }}
-</span>
+@if (keybind) {
+	<span class="elx-menuitem__keybind"
+		aria-hidden="true"
+	>
+		{{ keybind }}
+	</span>
+}
 
-<elx-icon class="elx-menuitem__submenu-icon"
-	*ngIf="hasSubmenu"
-	icon="ChevronRightSmall"
-></elx-icon>
+@if (hasSubmenu) {
+	<elx-icon class="elx-menuitem__submenu-icon"
+		icon="ChevronRightSmall"
+	/>
+}
 
-	`,
+`,
 	styleUrls: ["./menu-item.component.scss"],
 	providers: [{
 		provide: MENU_ITEM,
