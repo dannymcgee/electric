@@ -10,7 +10,7 @@ import {
 	SimpleChanges,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
-import { Const, Option, replayUntil } from "@electric/utils";
+import { Const, Opt, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
 	combineLatest,
@@ -66,12 +66,12 @@ export class PenTool
 	@Input() glyphToCanvas!: Const<Matrix>;
 	@Input() canvasToGlyph!: Const<Matrix>;
 
-	@Output() toolVariantChange = new EventEmitter<Option<PenToolVariant>>();
+	@Output() toolVariantChange = new EventEmitter<Opt<PenToolVariant>>();
 
 	private _points$ = new BehaviorSubject<EditorPoint[]>([]);
 	get points() { return this._points$.value; }
 
-	private _newPoint$ = new BehaviorSubject<Option<Vec2>>(null);
+	private _newPoint$ = new BehaviorSubject<Opt<Vec2>>(null);
 	newPoint$ = this._newPoint$.asObservable();
 
 	private _beziers$ = new BehaviorSubject<EditorBezier[]>([]);
@@ -83,7 +83,7 @@ export class PenTool
 	private _activeBoundingBoxes$ = new BehaviorSubject<Rect[]>([]);
 	activeBoundingBoxes$ = this._activeBoundingBoxes$.asObservable();
 
-	private _outline$ = new BehaviorSubject<Option<Const<Path>>>(null);
+	private _outline$ = new BehaviorSubject<Opt<Const<Path>>>(null);
 	private _newOutlineEvent$ = new Subject<void>();
 
 	private _hashes$ = new BehaviorSubject<Hash2D[]>([]);

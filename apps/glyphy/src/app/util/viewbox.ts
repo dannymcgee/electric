@@ -3,9 +3,9 @@ import {
 	HostBinding,
 	Input,
 } from "@angular/core";
-import { Option } from "@electric/utils";
-import { FontMetrics } from "../family";
+import { Opt } from "@electric/utils";
 
+import { FontMetrics } from "../family";
 import { Font } from "../font";
 import { Glyph } from "../glyph/glyph";
 
@@ -51,7 +51,7 @@ export function getViewBox(
 	standalone: false,
 })
 export class ViewBoxDirective {
-	@Input("gViewBox") viewBox?: Option<ViewBox>;
+	@Input("gViewBox") viewBox?: Opt<ViewBox>;
 
 	@HostBinding("attr.viewBox")
 	get viewBoxAttr() {

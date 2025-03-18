@@ -12,7 +12,7 @@ import {
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
 import { cursor } from "@electric/style";
-import { Const, Option, exists, replayUntil } from "@electric/utils";
+import { Const, Opt, exists, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
 	combineLatest,
@@ -175,7 +175,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.adjustZoom(delta, offsetX, offsetY);
 	}
 
-	setPenCursorVariant(variant: Option<PenToolVariant>): void {
+	setPenCursorVariant(variant: Opt<PenToolVariant>): void {
 		const { style } = this._ref.nativeElement;
 		if (!variant)
 			style.removeProperty("cursor");

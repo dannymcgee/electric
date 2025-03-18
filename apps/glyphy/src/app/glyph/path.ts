@@ -1,4 +1,4 @@
-import { assert, Const, exists, Fn, match, Option, Stack } from "@electric/utils";
+import { assert, Const, exists, Fn, match, Opt, Stack } from "@electric/utils";
 import { Subject } from "rxjs";
 
 import { Matrix, nearlyEq, vec2, Vec2 } from "../math";
@@ -380,7 +380,7 @@ export class Path implements IPath {
 		this._changes$.next();
 	}
 
-	private recordEdit_before(cmd: PathCommand): Option<Omit<EditPayload, "next">> {
+	private recordEdit_before(cmd: PathCommand): Opt<Omit<EditPayload, "next">> {
 		if (!this._recording) return null;
 
 		const index = this._commands.indexOf(cmd);
@@ -389,7 +389,7 @@ export class Path implements IPath {
 		return { index, prev };
 	}
 
-	private recordEdit_after(cmd: PathCommand, partial: Option<Omit<EditPayload, "next">>) {
+	private recordEdit_after(cmd: PathCommand, partial: Opt<Omit<EditPayload, "next">>) {
 		if (!this._recording) return;
 
 		assert(this._inProgress != null);

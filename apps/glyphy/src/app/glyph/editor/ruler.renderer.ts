@@ -4,7 +4,7 @@ import {
 	Input,
 } from "@angular/core";
 import { Orientation, ThemeService } from "@electric/components";
-import { Const, Option } from "@electric/utils";
+import { Const, Opt } from "@electric/utils";
 
 import { Matrix, Rect } from "../../math";
 import {
@@ -43,7 +43,7 @@ export class RulerRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyphToCanvas = Matrix.Identity;
 	@Input() canvasToGlyph = Matrix.Identity;
 
-	@Input() background?: Option<PaintStyle> = this.theme.getHex("foreground", 50);
+	@Input() background?: Opt<PaintStyle> = this.theme.getHex("foreground", 50);
 
 	get top() { return this.y; }
 	get right() { return this.x + this.width; }

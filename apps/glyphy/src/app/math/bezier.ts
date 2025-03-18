@@ -1,4 +1,4 @@
-import { Const, Option, assert } from "@electric/utils";
+import { Const, Opt, assert } from "@electric/utils";
 
 import { Vec2, vec2 } from "./vec2";
 
@@ -13,7 +13,7 @@ export class Bezier {
 	/**
 	 * @returns null if `t` is not in the range [0, 1]
 	 */
-	sample(t: number): Option<Vec2> {
+	sample(t: number): Opt<Vec2> {
 		if (t < 0 || t > 1) return null;
 
 		return vec2.add(

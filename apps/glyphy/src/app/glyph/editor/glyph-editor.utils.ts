@@ -1,4 +1,4 @@
-import { Const, Option, match } from "@electric/utils";
+import { Const, Opt, match } from "@electric/utils";
 
 import { Vec2, vec2 } from "../../math";
 import { Point } from "../path";
@@ -11,7 +11,7 @@ export interface FindPointResult<T extends Point> {
 export function findNearestPoint<T extends Point>(
 	target: Const<Vec2>,
 	points: readonly T[],
-): Option<FindPointResult<T>> {
+): Opt<FindPointResult<T>> {
 	if (!points.length) return null;
 
 	const sorted = points.slice().sort(ascendingByDistanceTo(target));

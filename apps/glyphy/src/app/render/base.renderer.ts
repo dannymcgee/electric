@@ -6,7 +6,7 @@ import {
 	Output,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
-import { Option } from "@electric/utils";
+import { Opt } from "@electric/utils";
 
 import { Matrix } from "../math";
 import { PaintStyle, RenderElement } from "./render.types";
@@ -20,8 +20,8 @@ export abstract class BaseRenderer implements RenderElement, OnChanges {
 	/** Transform that will only apply along the Y dimension */
 	@Input() yTransform = Matrix.Identity;
 
-	@Input() fill?: Option<PaintStyle> = this.theme.getHex("foreground", 50);
-	@Input() stroke?: Option<PaintStyle>;
+	@Input() fill?: Opt<PaintStyle> = this.theme.getHex("foreground", 50);
+	@Input() stroke?: Opt<PaintStyle>;
 	@Input() strokeWidth = 0;
 
 	@Output("changes") changes$ = new EventEmitter<void>();
