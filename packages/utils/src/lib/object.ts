@@ -1,4 +1,4 @@
-import { Fn, Obj } from "./types";
+import { Fn, Obj, Printable } from "./types";
 
 export function keys<T extends object>(obj: T): Array<keyof T> {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -12,16 +12,18 @@ type EntriesReturn<T> = T extends ReadonlyMap<infer K, infer V>
 	? Array<[K, V]>
 	: never;
 
-export function entries<K, V>(map: ReadonlyMap<K, V>): Array<[K, V]>;
-export function entries<K, V>(map: Map<K, V>): Array<[K, V]>;
+export function entries<K extends Printable, V>(map: ReadonlyMap<K, V>): Array<[`${K}`, V]>;
+export function entries<K extends Printable, V>(map: Map<K, V>): Array<[`${K}`, V]>;
 export function entries<T extends object>(obj: T): Array<[keyof T, T[keyof T]]>;
 
 export function entries<K, V, T>(objOrMap: T | Map<K, V>): EntriesReturn<typeof objOrMap> {
 	if (objOrMap instanceof Map)
 		return Array.from(objOrMap.entries());
 
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
+	// @ts-expect-error FIXME:
+	//   `Object.entries()` returns stringified keys. Should be something like
+	//       [`${keyof T}`, T[keyof T]]
+	//   but `symbol` isn't valid in a template-literal type
 	return Object.entries(objOrMap);
 }
 

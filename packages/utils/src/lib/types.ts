@@ -24,6 +24,18 @@ export type Nullish = undefined | null | void;
 export type Opt<T> = Nullish | T;
 export type Transparent<T> = {} & { [K in keyof T]: T[K]; };
 
+export type Printable
+	= string
+	| number
+	| bigint
+	| boolean
+	| null
+	| undefined;
+
+export type PrintableKeys<T extends object> = keyof {
+	[K in keyof T]: K extends Printable ? true : never
+}
+
 export interface Fn<Args extends unknown[] = [], R = void> {
 	(...args: Args): R;
 }
