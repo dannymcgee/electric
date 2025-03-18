@@ -3,7 +3,6 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	ElementRef,
 	EventEmitter,
 	HostBinding,
 	HostListener,
@@ -15,7 +14,7 @@ import {
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { DetectChanges } from "@electric/ng-utils";
+import { DetectChanges, injectRef } from "@electric/ng-utils";
 import { elementId } from "@electric/utils";
 import { Subject, takeUntil } from "rxjs";
 
@@ -78,11 +77,8 @@ export class RadioComponent<T> implements Radio<T>, OnInit, OnDestroy {
 	get changeDetector() { return this._cdRef; }
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-	) {}
+	private _elementRef = injectRef<HTMLElement>();
+	private _focusMonitor = inject(FocusMonitor);
 
 	ngOnInit(): void {
 		if (!this.id) {

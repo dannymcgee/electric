@@ -1,7 +1,6 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
-	ElementRef,
 	HostBinding,
 	HostListener,
 	Input,
@@ -9,7 +8,7 @@ import {
 } from "@angular/core";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { Coerce } from "@electric/ng-utils";
+import { Coerce, injectRef } from "@electric/ng-utils";
 import { Fn, match } from "@electric/utils";
 
 import {
@@ -70,11 +69,8 @@ implements NativeControl, ValueAccessor<T> {
 	private _deferredValueChange?: T;
 	private _deferredOnTouch?: boolean;
 
+	private _elementRef = injectRef<HTMLInputElement>();
 	private get _element() { return this._elementRef.nativeElement; }
-
-	constructor (
-		private _elementRef: ElementRef<HTMLInputElement>,
-	) {}
 
 	@HostListener("input")
 	_onInput(): void {

@@ -2,6 +2,7 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	HostBinding,
+	inject,
 	Input,
 	OnInit,
 	ViewEncapsulation,
@@ -55,10 +56,7 @@ export class FunctionConnectionComponent implements OnInit {
 	private _glowColor?: string;
 
 	private _baseColor?: Color;
-
-	constructor (
-		private _library: GraphLibrary,
-	) {}
+	private _library = inject(GraphLibrary);
 
 	ngOnInit(): void {
 		this._baseColor = chroma(this._library.typeColor(this.type));

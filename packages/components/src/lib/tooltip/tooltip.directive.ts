@@ -2,12 +2,13 @@ import { ConnectedPosition, Overlay, OverlayRef } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
 import {
 	Directive,
-	ElementRef,
 	HostListener,
+	inject,
 	Input,
 	OnDestroy,
 	TemplateRef,
 } from "@angular/core";
+import { injectRef } from "@electric/ng-utils";
 import { match, Opt } from "@electric/utils";
 import { fromEvent, race, Subject, take, takeUntil, timer } from "rxjs";
 
@@ -87,11 +88,8 @@ export class TooltipDirective<Ctx extends Opt<{ [key: string]: any }>>
 	private _portal = new ComponentPortal(TooltipComponent);
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		private _ref: ElementRef<Element>,
-		private _overlay: Overlay,
-	) {}
+	private _ref = injectRef<Element>();
+	private _overlay = inject(Overlay);
 
 	ngOnDestroy(): void {
 		this._onDestroy$.next();

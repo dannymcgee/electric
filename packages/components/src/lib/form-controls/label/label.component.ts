@@ -8,11 +8,10 @@ import {
 	HostBinding,
 	inject,
 	Input,
-	TemplateRef,
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { Coerce, DetectChanges } from "@electric/ng-utils";
+import { Coerce, DetectChanges, injectTemplate } from "@electric/ng-utils";
 
 import { FormLabel, FORM_LABEL } from "../form-controls.types";
 
@@ -96,9 +95,8 @@ export class LabelComponent implements FormLabel {
 	standalone: false,
 })
 export class LabelPrefixDirective {
-	constructor (
-		public templateRef: TemplateRef<void>,
-	) {}
+	templateRef = injectTemplate<void>();
+
 }
 
 @Directive({
@@ -106,7 +104,6 @@ export class LabelPrefixDirective {
 	standalone: false,
 })
 export class LabelPostfixDirective {
-	constructor (
-		public templateRef: TemplateRef<void>,
-	) {}
+	templateRef = injectTemplate<void>();
+
 }

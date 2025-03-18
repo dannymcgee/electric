@@ -6,9 +6,8 @@ import {
 	TemplateRef,
 	ContentChildren,
 	QueryList,
-	ElementRef,
 } from "@angular/core";
-import { findEncapsulationId } from "@electric/ng-utils";
+import { findEncapsulationId, injectRef } from "@electric/ng-utils";
 
 import { MENU, MENU_ITEM, Menu, MenuItem } from "./menu.types";
 
@@ -44,7 +43,5 @@ export class MenuComponent implements Menu {
 		return findEncapsulationId(this._elementRef);
 	}
 
-	constructor (
-		private _elementRef: ElementRef<HTMLElement>,
-	) {}
+	private _elementRef = injectRef<HTMLElement>();
 }

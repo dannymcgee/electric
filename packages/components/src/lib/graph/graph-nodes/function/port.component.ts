@@ -2,18 +2,17 @@ import { DOCUMENT } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	Component,
-	ElementRef,
 	EventEmitter,
 	HostBinding,
 	HostListener,
-	Inject,
+	inject,
 	Input,
 	OnDestroy,
 	Output,
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { Coerce } from "@electric/ng-utils";
+import { Coerce, injectRef } from "@electric/ng-utils";
 import { fromEvent, mapTo, merge, race, Subject, take } from "rxjs";
 
 @Component({
@@ -50,10 +49,8 @@ export class FunctionPortComponent implements OnDestroy {
 	private _onDestroy$ = new Subject<void>();
 	private get _element() { return this._elementRef.nativeElement; }
 
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-		private _elementRef: ElementRef<HTMLElement>,
-	) {}
+	private _document = inject(DOCUMENT);
+	private _elementRef = injectRef<HTMLElement>();
 
 	@HostListener("pointerup")
 	onPointerup(): void {

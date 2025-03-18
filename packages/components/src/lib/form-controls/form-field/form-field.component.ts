@@ -1,13 +1,14 @@
 import {
-	Component,
-	ViewEncapsulation,
 	ChangeDetectionStrategy,
-	HostBinding,
 	ChangeDetectorRef,
+	Component,
 	ContentChild,
 	DoCheck,
+	HostBinding,
+	inject,
 	Input,
 	OnDestroy,
+	ViewEncapsulation,
 } from "@angular/core";
 import { NgControl, ValidationErrors } from "@angular/forms";
 
@@ -57,10 +58,7 @@ export class FormFieldComponent implements DoCheck, OnDestroy {
 	_touched = false;
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		private _changeDetector: ChangeDetectorRef,
-	) {}
+	private _changeDetector = inject(ChangeDetectorRef);
 
 	ngDoCheck(): void {
 		if (this._label && this._nativeControl) {

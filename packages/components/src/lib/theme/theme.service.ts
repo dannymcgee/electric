@@ -1,5 +1,5 @@
 import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable, InjectionToken } from "@angular/core";
+import { Injectable, InjectionToken, inject } from "@angular/core";
 import { floatToHex, Hex, RGB } from "@electric/utils";
 import { BehaviorSubject, Observable } from "rxjs";
 import { shareReplay } from "rxjs/operators";
@@ -33,11 +33,12 @@ export class ThemeService {
 	private _colorScheme$: BehaviorSubject<ColorSchemeName>;
 	private _styles: CSSStyleDeclaration;
 
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-		@Inject(THEME) private _theme: ThemeDefinition,
-		@Inject(COLOR_SCHEME) initialScheme: ColorSchemeName,
-	) {
+	private _document = inject(DOCUMENT);
+	private _theme = inject(THEME);
+
+	constructor () {
+		const initialScheme = inject(COLOR_SCHEME);
+
 		this._styles = this._document.documentElement.style;
 		this._colorScheme$ = new BehaviorSubject(initialScheme);
 		this.setColorScheme(initialScheme);

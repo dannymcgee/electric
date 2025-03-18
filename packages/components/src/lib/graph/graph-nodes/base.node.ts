@@ -1,14 +1,14 @@
 import {
-	Component,
 	ChangeDetectionStrategy,
-	Input,
-	HostBinding,
-	Inject,
-	OnInit,
-	OnDestroy,
-	ViewEncapsulation,
-	Output,
+	Component,
 	EventEmitter,
+	HostBinding,
+	inject,
+	Input,
+	OnDestroy,
+	OnInit,
+	Output,
+	ViewEncapsulation,
 } from "@angular/core";
 import { Subject } from "rxjs";
 
@@ -18,9 +18,7 @@ import { elementId, match } from "@electric/utils";
 import {
 	GRAPH_VIEW_MODEL,
 	GRAPH,
-	Graph,
 	GraphNode,
-	GraphViewModel,
 	NodeAlignment,
 	Point,
 	Port,
@@ -117,10 +115,8 @@ implements OnInit, OnDestroy, GraphNode {
 	changes$ = new Subject<void>();
 	protected onDestroy$ = new Subject<void>();
 
-	constructor (
-		@Inject(GRAPH) protected graph: Graph,
-		@Inject(GRAPH_VIEW_MODEL) public vm: GraphViewModel,
-	) {}
+	protected graph = inject(GRAPH);
+	vm = inject(GRAPH_VIEW_MODEL);
 
 	ngOnInit(): void {
 		this.graph.registerNode(this);

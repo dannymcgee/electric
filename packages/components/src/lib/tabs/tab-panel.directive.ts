@@ -1,5 +1,5 @@
-import { Directive, Input, TemplateRef } from "@angular/core";
-import { Coerce } from "@electric/ng-utils";
+import { Directive, Input } from "@angular/core";
+import { Coerce, injectTemplate } from "@electric/ng-utils";
 
 @Directive({
 	selector: "[elxTabPanel]",
@@ -9,7 +9,5 @@ export class TabPanelDirective {
 	@Coerce(Boolean)
 	@Input() persistent = false;
 
-	constructor (
-		public _template: TemplateRef<void>,
-	) {}
+	_template = injectTemplate<void>();
 }

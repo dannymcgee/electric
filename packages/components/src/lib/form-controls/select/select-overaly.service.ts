@@ -7,6 +7,7 @@ import {
 import { ComponentPortal } from "@angular/cdk/portal";
 import {
 	ElementRef,
+	inject,
 	Injectable,
 	Injector,
 	TemplateRef,
@@ -32,12 +33,10 @@ export class SelectOverlayManager {
 	private _portal?: ComponentPortal<OptionListComponent>;
 	private _overlayRef?: OverlayRef;
 
-	constructor (
-		private _overlay: Overlay,
-		private _data: OptionListOverlayData,
-		private _theme: ThemeService,
-		private _viewportRuler: ViewportRuler,
-	) {}
+	private _overlay = inject(Overlay);
+	private _data = inject(OptionListOverlayData);
+	private _theme = inject(ThemeService);
+	private _viewportRuler = inject(ViewportRuler);
 
 	initialize({ origin, viewContainerRef, injector }: OverlayConfig): void {
 		this._portal ??= new ComponentPortal(

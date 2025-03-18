@@ -92,10 +92,8 @@ implements ValueAccessor<boolean>, OnInit, OnDestroy {
 
 	private _onDestroy$ = new Subject<void>();
 
-	constructor (
-		private _elementRef: ElementRef<HTMLElement>,
-		private _focusMonitor: FocusMonitor,
-	) {}
+	private _elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+	private _focusMonitor = inject(FocusMonitor);
 
 	ngOnInit(): void {
 		this._focusMonitor

@@ -3,21 +3,19 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	ElementRef,
 	HostBinding,
 	HostListener,
-	Inject,
+	inject,
 	Input,
 	OnDestroy,
 	OnInit,
-	Self,
 	ViewChild,
 	ViewContainerRef,
 	ViewEncapsulation,
 } from "@angular/core";
 import { delay, merge, Subject, take, takeUntil } from "rxjs";
 
-import { Coerce } from "@electric/ng-utils";
+import { Coerce, injectRef } from "@electric/ng-utils";
 import { array, assert, entries } from "@electric/utils";
 
 import { Graph, GRAPH, GRAPH_VIEW_MODEL, GraphNode, Point, Port } from "./graph.types";
@@ -126,12 +124,10 @@ implements Graph, OnInit, AfterViewInit, OnDestroy {
 	private _onDestroy$ = new Subject<void>();
 	private get _element() { return this._elementRef.nativeElement; }
 
-	constructor (
-		@Self() @Inject(GRAPH_VIEW_MODEL) public vm: GraphViewModelService,
-		private _changeDetector: ChangeDetectorRef,
-		private _elementRef: ElementRef<HTMLElement>,
-		private _library: GraphLibrary,
-	) {}
+	vm = inject<GraphViewModelService>(GRAPH_VIEW_MODEL, { self: true });
+	private _changeDetector = inject(ChangeDetectorRef);
+	private _elementRef = injectRef<HTMLElement>();
+	private _library = inject(GraphLibrary);
 
 	ngOnInit(): void {
 		this._libNodes = entries(this._library.nodes)

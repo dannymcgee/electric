@@ -4,11 +4,9 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	ElementRef,
 	EventEmitter,
 	HostBinding,
 	HostListener,
-	Inject,
 	inject,
 	Input,
 	Output,
@@ -17,7 +15,7 @@ import {
 	ViewEncapsulation,
 } from "@angular/core";
 
-import { DetectChanges } from "@electric/ng-utils";
+import { DetectChanges, injectRef } from "@electric/ng-utils";
 import { a11y } from "@electric/style";
 import { elementId, getLabel } from "@electric/utils";
 
@@ -91,10 +89,8 @@ implements
 	private _cdRef = inject(ChangeDetectorRef);
 	get changeDetector() { return this._cdRef; }
 
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-		private _elementRef: ElementRef<HTMLElement>,
-	) {}
+	private _document = inject(DOCUMENT);
+	private _elementRef = injectRef<HTMLElement>();
 
 	@HostListener("click")
 	onSelect(): void {

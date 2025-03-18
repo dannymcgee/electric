@@ -14,20 +14,17 @@ import {
 	ElementRef,
 	EventEmitter,
 	forwardRef,
-	Host,
 	HostBinding,
 	HostListener,
+	inject,
 	Input,
 	OnDestroy,
-	Optional,
 	Output,
-	SkipSelf,
-	TemplateRef,
 	ViewChild,
 	ViewEncapsulation,
 } from "@angular/core";
-import { QueryList } from "@electric/ng-utils";
-import { elementId, exists, match } from "@electric/utils";
+import { injectTemplate, QueryList } from "@electric/ng-utils";
+import { elementId, exists, match, Opt } from "@electric/utils";
 import { map, merge, startWith, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
@@ -47,9 +44,7 @@ export class AccordionContentDirective {
 	@HostBinding("class")
 	readonly hostClass = "elx-accordion-content";
 
-	constructor (
-		public _template: TemplateRef<void>,
-	) {}
+	_template = injectTemplate<void>();
 }
 
 
@@ -119,10 +114,8 @@ export class AccordionHeaderComponent implements FocusableOption {
 	@ViewChild("button", { read: ElementRef })
 	private _button?: ElementRef<HTMLElement>;
 
-	constructor (
-		@Host() public accordion: AccordionComponent,
-		private _focusMonitor: FocusMonitor,
-	) {}
+	accordion = inject(AccordionComponent, { host: true });
+	private _focusMonitor = inject(FocusMonitor);
 
 	toggle(): void {
 		this.accordion.toggle();
@@ -277,13 +270,19 @@ export class AccordionComponent extends CdkAccordionItem implements DoCheck {
 	_header?: AccordionHeaderComponent;
 	private _headerInitialized = false;
 
-	constructor (
-		@Optional() @SkipSelf()
-			public accordionGroup: CdkAccordion,
-		private _cdRef: ChangeDetectorRef,
-		dispatcher: UniqueSelectionDispatcher,
-	) {
-		super(accordionGroup, _cdRef, dispatcher);
+	accordionGroup: Opt<CdkAccordion>;
+	private _cdRef: ChangeDetectorRef;
+
+	constructor () {
+		const accordionGroup = inject(CdkAccordion, { optional: true, skipSelf: true });
+		const cdRef = inject(ChangeDetectorRef);
+		const dispatcher = inject(UniqueSelectionDispatcher);
+
+		super(accordionGroup, cdRef, dispatcher);
+
+		this.accordionGroup = accordionGroup;
+		this._cdRef = cdRef;
+
 		this._hidden = !this.expanded;
 	}
 

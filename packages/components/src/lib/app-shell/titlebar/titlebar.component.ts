@@ -1,18 +1,17 @@
 import {
-	Component,
-	ViewEncapsulation,
 	ChangeDetectionStrategy,
+	Component,
+	ContentChild,
+	Directive,
+	EventEmitter,
+	forwardRef,
+	HostBinding,
+	inject,
 	Input,
 	Output,
-	EventEmitter,
-	HostBinding,
-	Directive,
-	TemplateRef,
-	ContentChild,
-	forwardRef,
-	Optional,
-	Inject,
+	ViewEncapsulation,
 } from "@angular/core";
+import { injectTemplate } from "@electric/ng-utils";
 
 import { APP_PLATFORM, AppPlatform } from "@electric/platform";
 
@@ -95,10 +94,7 @@ export class TitlebarComponent {
 	@ContentChild(forwardRef(() => TitlebarIconDirective))
 	_icon?: TitlebarIconDirective;
 
-	constructor (
-		@Optional() @Inject(APP_PLATFORM)
-			private _platform: AppPlatform,
-	) {}
+	private _platform = inject(APP_PLATFORM, { optional: true });
 }
 
 @Directive({
@@ -106,7 +102,5 @@ export class TitlebarComponent {
 	standalone: false,
 })
 export class TitlebarIconDirective {
-	constructor (
-		public templateRef: TemplateRef<void>,
-	) {}
+	templateRef = injectTemplate<void>();
 }

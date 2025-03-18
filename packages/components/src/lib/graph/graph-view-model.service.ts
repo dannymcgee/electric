@@ -1,5 +1,5 @@
 import { DOCUMENT } from "@angular/common";
-import { ChangeDetectorRef, Inject, Injectable, OnDestroy } from "@angular/core";
+import { ChangeDetectorRef, inject, Injectable, OnDestroy } from "@angular/core";
 import { path } from "d3-path";
 import { fromEvent, merge, Subject, takeUntil } from "rxjs";
 
@@ -72,11 +72,8 @@ export class GraphViewModelService implements GraphViewModel, OnDestroy {
 	private _controlPoints: string[] = [];
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-		private _changeDetector: ChangeDetectorRef,
-	) {}
+	private _document = inject(DOCUMENT);
+	private _changeDetector = inject(ChangeDetectorRef);
 
 	ngOnDestroy(): void {
 		this._onDestroy$.next();
