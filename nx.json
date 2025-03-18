@@ -9,9 +9,6 @@
 		"appsDir": "apps",
 		"libsDir": "packages"
 	},
-	"affected": {
-		"defaultBase": "main"
-	},
 	"generators": {
 		"@nx/angular:application": {
 			"style": "scss",
@@ -55,5 +52,6 @@
 				}
 			}
 		}
-	}
+	},
+	"defaultBase": "main"
 }
