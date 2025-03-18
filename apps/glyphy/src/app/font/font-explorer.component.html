@@ -1,72 +1,66 @@
-<ng-container *ngIf="ascender != null && descender != null">
-<ng-container
-	*ngIf="groupByCharacterSet && (unicodeGroups$ | async) as unicodeGroups
-	else flat"
->
-	<ng-container
-		*ngFor="let group of unicodeGroups
-			let groupIndex = index"
-	>
-		<section class="unicode-group"
-			*ngIf="group.glyphs.length"
-		>
-			<h2 class="unicode-group__heading">
-				{{ group.name }}
-			</h2>
-			<div class="glyphs"
-				*elxDeferRenderWhen="groupIndex > 3
-					proxy: dummyUnicodeGroup"
-			>
+@if (ascender != null && descender != null) {
+	@let unicodeGroups = (unicodeGroups$ | async);
+	@if (groupByCharacterSet && unicodeGroups) {
+		@for (group of unicodeGroups; let groupIndex = $index; track group) {
+			@if (group.glyphs.length) {
+				<section class="unicode-group">
+					<h2 class="unicode-group__heading">
+						{{ group.name }}
+					</h2>
+					<div class="glyphs"
+						*elxDeferRenderWhen="groupIndex > 3
+							proxy: dummyUnicodeGroup"
+					>
+						@for (glyph of group.glyphs; let i = $index; track glyph) {
+							<div class="glyph"
+								(dblclick)="openGlyph.emit(glyph)"
+							>
+								<svg class="glyph__svg"
+									[g-glyph]="glyph"
+									showMetrics
+								/>
+								<div class="glyph__label">
+									<strong class="glyph__name">
+										{{ glyph.name }}
+									</strong>
+									@if (glyph.unicode != null) {
+										<span class="glyph__char-code">
+											{{ glyph.unicode | hex }}
+										</span>
+									}
+								</div>
+							</div>
+						}
+					</div>
+				</section>
+			}
+		}
+	} @else {
+		@if ((font$ | async); as font) {
+			@for (glyph of font.glyphs; track glyph) {
 				<div class="glyph"
-					*ngFor="let glyph of group.glyphs
-						let i = index"
 					(dblclick)="openGlyph.emit(glyph)"
 				>
 					<svg class="glyph__svg"
 						[g-glyph]="glyph"
 						showMetrics
-					></svg>
+					/>
 					<div class="glyph__label">
 						<strong class="glyph__name">
 							{{ glyph.name }}
 						</strong>
-						<span class="glyph__char-code"
-							*ngIf="glyph.unicode != null"
-						>
-							{{ glyph.unicode | hex }}
-						</span>
+						@if (glyph.unicode != null) {
+							<span class="glyph__char-code">
+								{{ glyph.unicode | hex }}
+							</span>
+						}
 					</div>
 				</div>
-			</div>
-		</section>
-	</ng-container>
-</ng-container>
-</ng-container>
+			}
+		}
+	}
+}
 
 <ng-template #dummyUnicodeGroup>
 	<div class="glyphs" style="height: 256px"></div>
-</ng-template>
-
-<ng-template #flat>
-	<ng-container *ngIf="(font$ | async) as font">
-		<div class="glyph"
-			*ngFor="let glyph of font.glyphs"
-			(dblclick)="openGlyph.emit(glyph)"
-		>
-			<svg class="glyph__svg"
-				[g-glyph]="glyph"
-				showMetrics
-			></svg>
-			<div class="glyph__label">
-				<strong class="glyph__name">
-					{{ glyph.name }}
-				</strong>
-				<span class="glyph__char-code"
-					*ngIf="glyph.unicode != null"
-				>
-					{{ glyph.unicode | hex }}
-				</span>
-			</div>
-		</div>
-	</ng-container>
 </ng-template>

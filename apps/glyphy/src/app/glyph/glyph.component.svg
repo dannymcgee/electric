@@ -1,8 +1,9 @@
-<svg:g g-glyph-metrics
-	*ngIf="showMetrics"
-	[glyph]="glyph"
-	[viewBox]="_viewBox"
-></svg:g>
+@if (showMetrics) {
+	<svg:g g-glyph-metrics
+		[glyph]="glyph"
+		[viewBox]="_viewBox"
+	/>
+}
 <svg:path
 	[attr.d]="glyph?.outline?.svg"
 />

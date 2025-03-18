@@ -5,18 +5,22 @@
 	[yTransform]="glyphToCanvas"
 	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
 ></g-line>
-<g-line *ngIf="metrics.capHeight"
-	[x1]="viewRect.left" [x2]="viewRect.right"
-	[y1]="metrics.capHeight" [y2]="metrics.capHeight"
-	[yTransform]="glyphToCanvas"
-	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
-></g-line>
-<g-line *ngIf="metrics.xHeight"
-	[x1]="viewRect.left" [x2]="viewRect.right"
-	[y1]="metrics.xHeight" [y2]="metrics.xHeight"
-	[yTransform]="glyphToCanvas"
-	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
-></g-line>
+@if (metrics.capHeight) {
+	<g-line
+		[x1]="viewRect.left" [x2]="viewRect.right"
+		[y1]="metrics.capHeight" [y2]="metrics.capHeight"
+		[yTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	></g-line>
+}
+@if (metrics.xHeight) {
+	<g-line
+		[x1]="viewRect.left" [x2]="viewRect.right"
+		[y1]="metrics.xHeight" [y2]="metrics.xHeight"
+		[yTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	></g-line>
+}
 <g-line
 	[x1]="viewRect.left" [x2]="viewRect.right"
 	[y1]="0" [y2]="0"

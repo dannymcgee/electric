@@ -6,52 +6,50 @@
 	[fill]="background"
 ></g-rect>
 
-<ng-container
-	*ngFor="let hash of hashes"
-	[ngSwitch]="orientation"
->
-	<ng-container *ngSwitchCase="'horizontal'">
-		<g-text
-			[value]="hash.value.toString()"
-			[x]="hash.value"
-			[y]="bottom - 14"
-			fontFamily="monospace"
-			[fontSize]="12"
-			align="center"
-			[fill]="hash.textColor"
-			[xTransform]="glyphToCanvas"
-		></g-text>
-		<g-line
-			[x1]="hash.value"
-			[x2]="hash.value"
-			[y1]="bottom - 8"
-			[y2]="bottom"
-			[xTransform]="glyphToCanvas"
-			[stroke]="hash.lineColor"
-			[strokeWidth]="1"
-		></g-line>
-	</ng-container>
-
-	<ng-container *ngSwitchCase="'vertical'">
-		<g-text
-			[value]="hash.value.toString()"
-			[x]="right - 14"
-			[y]="hash.value"
-			fontFamily="monospace"
-			[fontSize]="12"
-			align="center"
-			[fill]="hash.textColor"
-			[yTransform]="glyphToCanvas"
-			[transform]="_textTransform(right - 14, hash.value)"
-		></g-text>
-		<g-line
-			[x1]="right - 8"
-			[x2]="right"
-			[y1]="hash.value"
-			[y2]="hash.value"
-			[yTransform]="glyphToCanvas"
-			[stroke]="hash.lineColor"
-			[strokeWidth]="1"
-		></g-line>
-	</ng-container>
-</ng-container>
+@for (hash of hashes; track hash) {
+	@switch (orientation) {
+		@case ('horizontal') {
+			<g-text
+				[value]="hash.value.toString()"
+				[x]="hash.value"
+				[y]="bottom - 14"
+				fontFamily="monospace"
+				[fontSize]="12"
+				align="center"
+				[fill]="hash.textColor"
+				[xTransform]="glyphToCanvas"
+			></g-text>
+			<g-line
+				[x1]="hash.value"
+				[x2]="hash.value"
+				[y1]="bottom - 8"
+				[y2]="bottom"
+				[xTransform]="glyphToCanvas"
+				[stroke]="hash.lineColor"
+				[strokeWidth]="1"
+			></g-line>
+		}
+		@case ('vertical') {
+			<g-text
+				[value]="hash.value.toString()"
+				[x]="right - 14"
+				[y]="hash.value"
+				fontFamily="monospace"
+				[fontSize]="12"
+				align="center"
+				[fill]="hash.textColor"
+				[yTransform]="glyphToCanvas"
+				[transform]="_textTransform(right - 14, hash.value)"
+			></g-text>
+			<g-line
+				[x1]="right - 8"
+				[x2]="right"
+				[y1]="hash.value"
+				[y2]="hash.value"
+				[yTransform]="glyphToCanvas"
+				[stroke]="hash.lineColor"
+				[strokeWidth]="1"
+			></g-line>
+		}
+	}
+}

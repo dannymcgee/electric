@@ -1,40 +1,41 @@
 <h1 class="family">
 	<elx-icon class="family__icon"
 		icon="Component"
-	></elx-icon>
+	/>
 	<span class="family__name">
 		{{ (family$ | async)?.name }}
 	</span>
 </h1>
 
 <nav class="fonts" role="navigation">
-	<div role="link"
-		*ngFor="let font of (fonts$ | async)"
-		class="font"
-		[class.active]="font === (font$ | async)"
-		tabindex="0"
-		(click)="setActive(font)"
-		(keydown.enter)="setActive(font)"
-	>
-		<svg class="font__icon"
-			*ngIf="font.previewGlyph else fallbackIcon"
-			[g-glyph]="font.previewGlyph"
-			upperBound="xHeight"
-			lowerBound="baseline"
-			style="transform: scale(1, -1)"
-			fill="currentColor"
-		></svg>
-		<ng-template #fallbackIcon>
-			<span class="font__icon"
-				aria-hidden="true"
-				[style.font-weight]="font.weight"
-				[style.font-style]="(font.style || 'normal').toLowerCase()"
-			>a</span>
-		</ng-template>
-		<span class="font__name">
-			{{ font.styleName }}
-		</span>
-	</div>
+	@for (font of (fonts$ | async); track font) {
+		<div role="link"
+			class="font"
+			[class.active]="font === (font$ | async)"
+			tabindex="0"
+			(click)="setActive(font)"
+			(keydown.enter)="setActive(font)"
+		>
+			@if (font.previewGlyph) {
+				<svg class="font__icon"
+					[g-glyph]="font.previewGlyph"
+					upperBound="xHeight"
+					lowerBound="baseline"
+					style="transform: scale(1, -1)"
+					fill="currentColor"
+				/>
+			} @else {
+				<span class="font__icon"
+					aria-hidden="true"
+					[style.font-weight]="font.weight"
+					[style.font-style]="(font.style || 'normal').toLowerCase()"
+				>a</span>
+			}
+			<span class="font__name">
+				{{ font.styleName }}
+			</span>
+		</div>
+	}
 </nav>
 
 <div role="button"
@@ -44,5 +45,5 @@
 >
 	<elx-icon class="nav-toggle__icon"
 		icon="ChevronLeftSmall"
-	></elx-icon>
+	/>
 </div>

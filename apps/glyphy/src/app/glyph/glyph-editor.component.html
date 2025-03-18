@@ -1,88 +1,94 @@
-<ng-container *ngIf="(contentRect$ | async) as viewRect">
-<ng-container *ngIf="(glyphToCanvas$ | async) as glyphToCanvas">
-<ng-container *ngIf="(canvasToGlyph$ | async) as canvasToGlyph">
-<ng-container *ngIf="(_familyService.family$ | async) as family">
+@let viewRect = (contentRect$ | async);
+@let glyphToCanvas = (glyphToCanvas$ | async);
+@let canvasToGlyph = (canvasToGlyph$ | async);
+@let family = (_familyService.family$ | async);
 
-<canvas g-canvas class="canvas"
-	[ngSwitch]="activeTool"
->
-	<g-path *ngSwitchCase="'pan'"
-		[outline]="glyph.outline"
-		[transform]="glyphToCanvas"
-		[fill]="theme.getHex('foreground', 50)"
-	></g-path>
+@if (viewRect && glyphToCanvas && canvasToGlyph && family) {
+	<canvas g-canvas class="canvas">
+		@switch (activeTool) {
+			@case ("pan") {
+				<g-path
+					[outline]="glyph.outline"
+					[transform]="glyphToCanvas"
+					[fill]="theme.getHex('foreground', 50)"
+				/>
+			}
+			@case ("select") {
+				<g-contour-editor
+					[glyph]="glyph"
+					[outline]="glyph.outline"
+					[metrics]="family"
+					[viewRect]="viewRect"
+					[glyphToCanvas]="glyphToCanvas"
+					[canvasToGlyph]="canvasToGlyph"
+				/>
+			}
+			@case ("pen") {
+				<g-pen-tool
+					[glyph]="glyph"
+					[outline]="glyph.outline"
+					[metrics]="family"
+					[viewRect]="viewRect"
+					[glyphToCanvas]="glyphToCanvas"
+					[canvasToGlyph]="canvasToGlyph"
+					(toolVariantChange)="setPenCursorVariant($event)"
+				/>
+			}
+		}
+	</canvas>
 
-	<g-contour-editor *ngSwitchCase="'select'"
-		[glyph]="glyph"
-		[outline]="glyph.outline"
-		[metrics]="family"
-		[viewRect]="viewRect"
-		[glyphToCanvas]="glyphToCanvas"
-		[canvasToGlyph]="canvasToGlyph"
-	></g-contour-editor>
+	<div class="ui-overlay">
+		<div class="tool-palette">
+			<div role="button"
+				class="tool contour-editor"
+				[class.active]="activeTool === 'select'"
 
-	<g-pen-tool *ngSwitchCase="'pen'"
-		[glyph]="glyph"
-		[outline]="glyph.outline"
-		[metrics]="family"
-		[viewRect]="viewRect"
-		[glyphToCanvas]="glyphToCanvas"
-		[canvasToGlyph]="canvasToGlyph"
-		(toolVariantChange)="setPenCursorVariant($event)"
-	></g-pen-tool>
-</canvas>
+				[elxTooltip]="toolPaletteTooltip"
+				[elxTooltipContext]="{
+					name: 'Select / Move',
+					keybind: activeTool === 'pen' ? 'Q or Hold Ctrl' : 'Q'
+				}"
+				elxTooltipPosition="right"
 
-<div class="ui-overlay">
-	<div class="tool-palette">
-		<div role="button"
-			class="tool contour-editor"
-			[class.active]="activeTool === 'select'"
+				keybind="Q"
+				(click)="activeTool = passiveTool = 'select'"
+			>
+				<elx-icon icon="Pointer" />
+			</div>
+			<div role="button"
+				class="tool pen"
+				[class.active]="activeTool === 'pen'"
 
-			[elxTooltip]="toolPaletteTooltip"
-			[elxTooltipContext]="{
-				name: 'Select / Move',
-				keybind: activeTool === 'pen' ? 'Q or Hold Ctrl' : 'Q'
-			}"
-			elxTooltipPosition="right"
+				[elxTooltip]="toolPaletteTooltip"
+				[elxTooltipContext]="{
+					name: 'Pen Tool',
+					keybind: 'W'
+				}"
+				elxTooltipPosition="right"
 
-			keybind="Q"
-			(click)="activeTool = passiveTool = 'select'"
-		>
-			<elx-icon icon="Pointer"></elx-icon>
-		</div>
-		<div role="button"
-			class="tool pen"
-			[class.active]="activeTool === 'pen'"
+				keybind="W"
+				(click)="activeTool = passiveTool = 'pen'"
+			>
+				<elx-icon icon="PenTool" />
+			</div>
+			<div role="button"
+				class="tool pan"
+				[class.active]="activeTool === 'pan'"
 
-			[elxTooltip]="toolPaletteTooltip"
-			[elxTooltipContext]="{
-				name: 'Pen Tool',
-				keybind: 'W'
-			}"
-			elxTooltipPosition="right"
+				[elxTooltip]="toolPaletteTooltip"
+				[elxTooltipContext]="{
+					name: 'Pan View',
+					keybind: 'Hold Spacebar'
+				}"
+				elxTooltipPosition="right"
 
-			keybind="W"
-			(click)="activeTool = passiveTool = 'pen'"
-		>
-			<elx-icon icon="PenTool"></elx-icon>
-		</div>
-		<div role="button"
-			class="tool pan"
-			[class.active]="activeTool === 'pan'"
-
-			[elxTooltip]="toolPaletteTooltip"
-			[elxTooltipContext]="{
-				name: 'Pan View',
-				keybind: 'Hold Spacebar'
-			}"
-			elxTooltipPosition="right"
-
-			(click)="activeTool = 'pan'"
-		>
-			<elx-icon icon="MoveAlt"></elx-icon>
+				(click)="activeTool = 'pan'"
+			>
+				<elx-icon icon="MoveAlt" />
+			</div>
 		</div>
 	</div>
-</div>
+}
 
 <ng-template #toolPaletteTooltip
 	let-name="name"
@@ -90,10 +96,8 @@
 >
 	<div class="tooltip">
 		<span class="tooltip__name">{{ name }}</span>
-		<span class="tooltip__keybind" *ngIf="keybind">({{ keybind }})</span>
+		@if (keybind) {
+			<span class="tooltip__keybind">({{ keybind }})</span>
+		}
 	</div>
 </ng-template>
-
-</ng-container>
-</ng-container>
-</ng-container>

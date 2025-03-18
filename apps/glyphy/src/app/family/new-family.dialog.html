@@ -50,15 +50,14 @@
 			<elx-label>Fonts</elx-label>
 
 			<div class="fonts-container">
-				<elx-checkbox
-					*ngFor="let font of fonts
-						trackBy: trackByIndex
-						let i = index"
-					[name]="font.weightName + font.style"
-					[(ngModel)]="fonts[i].checked"
-				>
-					{{ font.weightName }} ({{ font.weight }}) {{ font.style }}
-				</elx-checkbox>
+				@for (font of fonts; let i = $index; track i) {
+					<elx-checkbox
+						[name]="font.weightName + font.style"
+						[(ngModel)]="fonts[i].checked"
+					>
+						{{ font.weightName }} ({{ font.weight }}) {{ font.style }}
+					</elx-checkbox>
+				}
 			</div>
 		</elx-fieldset>
 	</form>

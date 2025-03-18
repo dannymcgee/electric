@@ -7,7 +7,7 @@
 		[(maximized)]="maximized"
 		(close)="close()"
 	>
-		<elx-icon *elxTitlebarIcon icon="Entity"></elx-icon>
+		<elx-icon *elxTitlebarIcon icon="Entity" />
 
 		<elx-menubar>
 			<elx-menuitem [elxMenuTriggerFor]="fileMenu">
@@ -23,14 +23,14 @@
 
 		<div class="title" elxTitlebarTitle>
 			<span class="title__app">Glyphy</span>
-			<ng-container *ngIf="(_familyService.family$ | async) as family">
+			@if ((_familyService.family$ | async); as family) {
 				<em class="title__sep">/</em>
 				<span class="title__project">{{ family.name }}</span>
-				<ng-container *ngIf="(_familyService.font$ | async) as font">
+				@if ((_familyService.font$ | async); as font) {
 					<em class="title__sep">/</em>
 					<span class="title__project">{{ font.styleName }}</span>
-				</ng-container>
-			</ng-container>
+				}
+			}
 		</div>
 	</elx-titlebar>
 
@@ -56,62 +56,60 @@
 	</elx-menu>
 
 	<elx-main-viewport class="main">
-		<g-family-panel class="sidebar"
-			*ngIf="(_familyService.family$ | async)"
-		></g-family-panel>
+		@if ((_familyService.family$ | async)) {
+			<g-family-panel class="sidebar" />
+		}
 
-		<div class="content"
-			*elxUnwrap="(_familyService.font$ | async) as font"
-		>
-			<ng-container *ngIf="font else getStarted">
+		@let font = (_familyService.font$ | async);
+		<div class="content">
+			@if (font) {
 				<elx-tab-list #tabs
 					indicator="top"
 					[(activeIndex)]="activeTabIndex"
 				>
 					<elx-tab class="tab tab--home" aria-label="Home">
-						<elx-icon icon="Home" size="lg"></elx-icon>
+						<elx-icon icon="Home" size="lg" />
 					</elx-tab>
-
-					<elx-tab class="tab"
-						*ngFor="let glyph of (openGlyphs$ | async)
-							let i = index
-							trackBy: glyphTabHasher"
-						removable
-						(remove)="closeGlyph(i)"
-					>
-						<strong class="tab__name">
-							{{ glyph.name }}
-						</strong>
-						<span class="tab__unicode">
-							{{ glyph.unicode | hex : 4 }}
-						</span>
-					</elx-tab>
+					@for (glyph of (openGlyphs$ | async);
+						let i = $index;
+						track "{{glyph.fontStyle}} {{glyph.name}}")
+					{
+						<elx-tab class="tab"
+							removable
+							(remove)="closeGlyph(i)"
+						>
+							<strong class="tab__name">
+								{{ glyph.name }}
+							</strong>
+							<span class="tab__unicode">
+								{{ glyph.unicode | hex : 4 }}
+							</span>
+						</elx-tab>
+					}
 				</elx-tab-list>
-
 				<elx-tab-group [for]="tabs">
 					<g-font-explorer
 						*elxTabPanel
 						(openGlyph)="openGlyph($event)"
-					></g-font-explorer>
-
-					<ng-template elxTabPanel
-						*ngFor="let glyph of (openGlyphs$ | async)
-							let i = index
-							trackBy: glyphTabHasher"
-					>
-						<g-glyph-editor [glyph]="glyph"></g-glyph-editor>
-					</ng-template>
+					/>
+					@for (glyph of (openGlyphs$ | async);
+						track "{{glyph.fontStyle}} {{glyph.name}}")
+					{
+						<g-glyph-editor
+							*elxTabPanel
+							[glyph]="glyph"
+						/>
+					}
 				</elx-tab-group>
-			</ng-container>
-
-			<ng-template #getStarted>
+			} @else {
 				<button elx-btn="primary"
 					class="get-started"
 					(click)="importFont()"
 				>
 					Get Started
 				</button>
-			</ng-template>
+			}
+
 		</div>
 
 		<g-new-family-dialog
@@ -119,7 +117,7 @@
 			blocking
 			(confirm)="createFamily($event[0], $event[1])"
 			(cancel)="newFamilyDialog = false"
-		></g-new-family-dialog>
+		/>
 
 	</elx-main-viewport>
 </elx-app-shell>

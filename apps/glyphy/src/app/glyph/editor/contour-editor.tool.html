@@ -5,13 +5,15 @@
 	[glyphToCanvas]="glyphToCanvas"
 ></g-canvas-metrics>
 
-<g-path *ngIf="outline"
-	[outline]="outline"
-	[transform]="glyphToCanvas"
-	[fill]="theme.getHex('foreground', 50, 0.1)"
-	[stroke]="theme.getHex('foreground', 50)"
-	[strokeWidth]="1"
-></g-path>
+@if (outline) {
+	<g-path
+		[outline]="outline"
+		[transform]="glyphToCanvas"
+		[fill]="theme.getHex('foreground', 50, 0.1)"
+		[stroke]="theme.getHex('foreground', 50)"
+		[strokeWidth]="1"
+	></g-path>
+}
 
 <g-outline-points
 	[points]="points"

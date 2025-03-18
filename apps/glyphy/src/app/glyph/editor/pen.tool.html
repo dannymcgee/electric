@@ -5,46 +5,54 @@
 	[glyphToCanvas]="glyphToCanvas"
 ></g-canvas-metrics>
 
-<g-path *ngIf="outline"
-	[outline]="outline"
-	[transform]="glyphToCanvas"
-	[fill]="theme.getHex('foreground', 50, 0.1)"
-	[stroke]="theme.getHex('foreground', 50)"
-	[strokeWidth]="1"
-></g-path>
+@if (outline) {
+	<g-path
+		[outline]="outline"
+		[transform]="glyphToCanvas"
+		[fill]="theme.getHex('foreground', 50, 0.1)"
+		[stroke]="theme.getHex('foreground', 50)"
+		[strokeWidth]="1"
+	></g-path>
+}
 
 <g-outline-points
 	[points]="points"
 	[glyphToCanvas]="glyphToCanvas"
 ></g-outline-points>
 
-<ng-container *ngIf="(newPoint$ | async)! as p">
+@if ((newPoint$ | async)!; as p) {
 	<g-point
 		shape="circle"
 		[cx]="p.x" [cy]="p.y" [r]="4"
 		[transform]="glyphToCanvas"
 		[fill]="theme.getHex('accent', 700)"
 	></g-point>
-</ng-container>
+}
 
-<g-rect *ngFor="let bb of (activeBoundingBoxes$ | async)"
-	[x]="bb.x"
-	[y]="bb.y"
-	[width]="bb.width"
-	[height]="bb.height"
-	[transform]="glyphToCanvas"
-	fill="#00FFFF40"
-	stroke="#00FFFF"
-	[strokeWidth]="1"
-></g-rect>
+@for (bb of (activeBoundingBoxes$ | async); track bb) {
+	<g-rect
+		[x]="bb.x"
+		[y]="bb.y"
+		[width]="bb.width"
+		[height]="bb.height"
+		[transform]="glyphToCanvas"
+		fill="#00FFFF40"
+		stroke="#00FFFF"
+		[strokeWidth]="1"
+	></g-rect>
+}
 
-<!-- <g-point *ngFor="let p of (debugPoints$ | async)"
-	[cx]="p.x"
-	[cy]="p.y"
-	[r]="4"
-	[transform]="glyphToCanvas"
-	fill="magenta"
-></g-point> -->
+<!--
+@for (p of (debugPoints$ | async)) {
+	<g-point
+		[cx]="p.x"
+		[cy]="p.y"
+		[r]="4"
+		[transform]="glyphToCanvas"
+		fill="magenta"
+	></g-point>
+}
+-->
 
 <g-rulers
 	[glyph]="glyph"
