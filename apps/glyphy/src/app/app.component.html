@@ -23,9 +23,11 @@
 
 		<div class="title" elxTitlebarTitle>
 			<span class="title__app">Glyphy</span>
+
 			@if ((_familyService.family$ | async); as family) {
 				<em class="title__sep">/</em>
 				<span class="title__project">{{ family.name }}</span>
+
 				@if ((_familyService.font$ | async); as font) {
 					<em class="title__sep">/</em>
 					<span class="title__project">{{ font.styleName }}</span>

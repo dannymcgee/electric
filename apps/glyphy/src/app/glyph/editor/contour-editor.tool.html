@@ -3,7 +3,7 @@
 	[metrics]="metrics"
 	[viewRect]="viewRect"
 	[glyphToCanvas]="glyphToCanvas"
-></g-canvas-metrics>
+/>
 
 @if (outline) {
 	<g-path
@@ -12,13 +12,13 @@
 		[fill]="theme.getHex('foreground', 50, 0.1)"
 		[stroke]="theme.getHex('foreground', 50)"
 		[strokeWidth]="1"
-	></g-path>
+	/>
 }
 
 <g-outline-points
 	[points]="points"
 	[glyphToCanvas]="glyphToCanvas"
-></g-outline-points>
+/>
 
 <g-rulers
 	[glyph]="glyph"
@@ -27,4 +27,4 @@
 	[viewRect]="viewRect"
 	[glyphToCanvas]="glyphToCanvas"
 	[canvasToGlyph]="canvasToGlyph"
-></g-rulers>
+/>

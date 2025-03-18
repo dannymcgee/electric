@@ -4,14 +4,14 @@
 	[y1]="metrics.ascender" [y2]="metrics.ascender"
 	[yTransform]="glyphToCanvas"
 	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
-></g-line>
+/>
 @if (metrics.capHeight) {
 	<g-line
 		[x1]="viewRect.left" [x2]="viewRect.right"
 		[y1]="metrics.capHeight" [y2]="metrics.capHeight"
 		[yTransform]="glyphToCanvas"
 		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
-	></g-line>
+	/>
 }
 @if (metrics.xHeight) {
 	<g-line
@@ -19,20 +19,20 @@
 		[y1]="metrics.xHeight" [y2]="metrics.xHeight"
 		[yTransform]="glyphToCanvas"
 		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
-	></g-line>
+	/>
 }
 <g-line
 	[x1]="viewRect.left" [x2]="viewRect.right"
 	[y1]="0" [y2]="0"
 	[yTransform]="glyphToCanvas"
 	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-></g-line>
+/>
 <g-line
 	[x1]="viewRect.left" [x2]="viewRect.right"
 	[y1]="metrics.descender" [y2]="metrics.descender"
 	[yTransform]="glyphToCanvas"
 	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
-></g-line>
+/>
 
 <!-- X rulers -->
 <g-line
@@ -40,10 +40,10 @@
 	[y1]="viewRect.top" [y2]="viewRect.bottom"
 	[xTransform]="glyphToCanvas"
 	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-></g-line>
+/>
 <g-line
 	[x1]="glyph.advance ?? 0" [x2]="glyph.advance ?? 0"
 	[y1]="viewRect.top" [y2]="viewRect.bottom"
 	[xTransform]="glyphToCanvas"
 	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-></g-line>
+/>

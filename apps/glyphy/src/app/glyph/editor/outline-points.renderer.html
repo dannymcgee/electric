@@ -6,14 +6,14 @@
 				handle: p.handle_in,
 				key: 'handle_in'
 			}"
-		></ng-container>
+		/>
 		<ng-container
 			*ngTemplateOutlet="handle, context: {
 				point: p,
 				handle: p.handle_out,
 				key: 'handle_out'
 			}"
-		></ng-container>
+		/>
 
 		@let style = p.getStyle(theme);
 		<g-point
@@ -24,7 +24,7 @@
 			[fill]="style.fill"
 			[stroke]="style.stroke"
 			[strokeWidth]="style.strokeWidth"
-		></g-point>
+		/>
 	}
 	<ng-template #handle
 		let-p="point"
@@ -38,7 +38,7 @@
 				[transform]="glyphToCanvas"
 				[stroke]="theme.getHex('primary', 700, 0.5)"
 				[strokeWidth]="1"
-			></g-line>
+			/>
 			<g-point
 				shape="diamond"
 				[cx]="handle.x" [cy]="handle.y"
@@ -47,7 +47,7 @@
 				[fill]="theme.getHex('primary', 700, 0.2)"
 				[stroke]="theme.getHex('primary', 800)"
 				[strokeWidth]="p.active && p.activeKey === key ? 2 : 1"
-			></g-point>
+			/>
 		}
 	</ng-template>
 }

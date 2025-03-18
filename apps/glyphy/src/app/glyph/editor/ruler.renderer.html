@@ -4,7 +4,7 @@
 	[width]="width"
 	[height]="height"
 	[fill]="background"
-></g-rect>
+/>
 
 @for (hash of hashes; track hash) {
 	@switch (orientation) {
@@ -18,7 +18,7 @@
 				align="center"
 				[fill]="hash.textColor"
 				[xTransform]="glyphToCanvas"
-			></g-text>
+			/>
 			<g-line
 				[x1]="hash.value"
 				[x2]="hash.value"
@@ -27,7 +27,7 @@
 				[xTransform]="glyphToCanvas"
 				[stroke]="hash.lineColor"
 				[strokeWidth]="1"
-			></g-line>
+			/>
 		}
 		@case ('vertical') {
 			<g-text
@@ -40,7 +40,7 @@
 				[fill]="hash.textColor"
 				[yTransform]="glyphToCanvas"
 				[transform]="_textTransform(right - 14, hash.value)"
-			></g-text>
+			/>
 			<g-line
 				[x1]="right - 8"
 				[x2]="right"
@@ -49,7 +49,7 @@
 				[yTransform]="glyphToCanvas"
 				[stroke]="hash.lineColor"
 				[strokeWidth]="1"
-			></g-line>
+			/>
 		}
 	}
 }

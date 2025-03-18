@@ -3,7 +3,7 @@
 	[metrics]="metrics"
 	[viewRect]="viewRect"
 	[glyphToCanvas]="glyphToCanvas"
-></g-canvas-metrics>
+/>
 
 @if (outline) {
 	<g-path
@@ -12,13 +12,13 @@
 		[fill]="theme.getHex('foreground', 50, 0.1)"
 		[stroke]="theme.getHex('foreground', 50)"
 		[strokeWidth]="1"
-	></g-path>
+	/>
 }
 
 <g-outline-points
 	[points]="points"
 	[glyphToCanvas]="glyphToCanvas"
-></g-outline-points>
+/>
 
 @if ((newPoint$ | async)!; as p) {
 	<g-point
@@ -26,7 +26,7 @@
 		[cx]="p.x" [cy]="p.y" [r]="4"
 		[transform]="glyphToCanvas"
 		[fill]="theme.getHex('accent', 700)"
-	></g-point>
+	/>
 }
 
 @for (bb of (activeBoundingBoxes$ | async); track bb) {
@@ -39,7 +39,7 @@
 		fill="#00FFFF40"
 		stroke="#00FFFF"
 		[strokeWidth]="1"
-	></g-rect>
+	/>
 }
 
 <!--
@@ -61,4 +61,4 @@
 	[viewRect]="viewRect"
 	[glyphToCanvas]="glyphToCanvas"
 	[canvasToGlyph]="canvasToGlyph"
-></g-rulers>
+/>
