@@ -1,4 +1,4 @@
-import { ExecutorContext } from "@nrwl/devkit";
+import { ExecutorContext } from "@nx/devkit";
 import chalk from "chalk";
 import { promises as fs } from "fs";
 import fsSync from "fs";
