@@ -1,9 +1,4 @@
-import {
-	ChangeDetectionStrategy,
-	Component,
-	Input,
-	TrackByFunction,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Input } from "@angular/core";
 import { ThemeService } from "@electric/components";
 import { Const, Opt } from "@electric/utils";
 
@@ -25,11 +20,5 @@ export class OutlinePointsRenderer extends GroupRenderer implements RenderElemen
 	@Input() points: Opt<readonly EditorPoint[]>;
 	@Input() glyphToCanvas!: Const<Matrix>;
 
-	trackPoint: TrackByFunction<EditorPoint> = (_, p) => p.id;
-
-	constructor (
-		public theme: ThemeService,
-	) {
-		super();
-	}
+	theme = inject(ThemeService);
 }

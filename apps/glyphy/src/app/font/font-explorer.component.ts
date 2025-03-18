@@ -4,6 +4,7 @@ import {
 	Component,
 	EventEmitter,
 	HostBinding,
+	inject,
 	OnDestroy,
 	OnInit,
 	Output,
@@ -50,11 +51,8 @@ export class FontExplorerComponent implements OnInit, OnDestroy {
 	unicodeGroups$!: Observable<UnicodeGroup[]>;
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		private _cdRef: ChangeDetectorRef,
-		private _familyService: FamilyService,
-	) {}
+	private _cdRef = inject(ChangeDetectorRef);
+	private _familyService = inject(FamilyService);
 
 	ngOnInit(): void {
 		this._familyService.family$

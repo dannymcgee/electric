@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostBinding } from "@angular/core";
+import { ChangeDetectionStrategy, Component, HostBinding, inject } from "@angular/core";
 
 import { Font } from "../font";
 import { FamilyService } from "./family.service";
@@ -18,9 +18,7 @@ export class FamilyPanelComponent {
 	get fonts$() { return this._familyService.fonts$; }
 	get font$() { return this._familyService.font$; }
 
-	constructor (
-		private _familyService: FamilyService,
-	) {}
+	private _familyService = inject(FamilyService);
 
 	setActive(font: Font) {
 		this._familyService.setActive(font);

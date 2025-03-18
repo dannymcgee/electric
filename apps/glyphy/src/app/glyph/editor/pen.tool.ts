@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	EventEmitter,
+	inject,
 	Input,
 	OnChanges,
 	OnInit,
@@ -89,13 +90,9 @@ export class PenTool
 	private _hashes$ = new BehaviorSubject<Hash2D[]>([]);
 	get hashes() { return this._hashes$.value; }
 
-	constructor (
-		private _cdRef: ChangeDetectorRef,
-		private _input: InputProvider,
-		public theme: ThemeService,
-	) {
-		super();
-	}
+	private _cdRef = inject(ChangeDetectorRef);
+	private _input = inject(InputProvider);
+	theme = inject(ThemeService);
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if ("outline" in changes) {

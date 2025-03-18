@@ -1,6 +1,6 @@
-import { Component, Inject, OnDestroy, OnInit, TrackByFunction } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { GlobalFocusManager } from "@electric/ng-utils";
-import { WindowProvider, WINDOW_PROVIDER } from "@electric/platform";
+import { WINDOW_PROVIDER } from "@electric/platform";
 import { filter, Subject, takeUntil } from "rxjs";
 
 import { Font, NewFont } from "./font";
@@ -21,16 +21,12 @@ export class AppComponent implements OnInit, OnDestroy {
 	openGlyphs$ = new Subject<Glyph[]>();
 	activeTabIndex = 0;
 
-	glyphTabHasher: TrackByFunction<Glyph> = (_, glyph) => `${glyph.fontStyle} ${glyph.name}`;
-
 	private _openGlyphsMap = new Map<Font, Glyph[]>();
 	private _onDestroy$ = new Subject<void>();
 
-	constructor (
-		@Inject(WINDOW_PROVIDER) private _win: WindowProvider,
-		public _familyService: FamilyService,
-		private _focusManager: GlobalFocusManager,
-	) {}
+	private _win = inject(WINDOW_PROVIDER);
+	_familyService = inject(FamilyService);
+	private _focusManager = inject(GlobalFocusManager);
 
 	ngOnInit(): void {
 		this._familyService.font$

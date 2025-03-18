@@ -2,6 +2,7 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	inject,
 	Input,
 	OnChanges,
 	OnDestroy,
@@ -85,14 +86,10 @@ export class ContourEditorTool
 	private _hashes$ = new BehaviorSubject<Hash2D[]>([]);
 	get hashes() { return this._hashes$.value; }
 
-	constructor (
-		private _cdRef: ChangeDetectorRef,
-		private _input: InputProvider,
-		private _keyBinds: KeybindRegistry,
-		public theme: ThemeService,
-	) {
-		super();
-	}
+	private _cdRef = inject(ChangeDetectorRef);
+	private _input = inject(InputProvider);
+	private _keyBinds = inject(KeybindRegistry);
+	theme = inject(ThemeService);
 
 	ngOnChanges(changes: SimpleChanges): void {
 		this.changes$.emit();

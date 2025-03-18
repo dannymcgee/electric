@@ -3,14 +3,15 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
-	ElementRef,
 	HostBinding,
 	HostListener,
+	inject,
 	Input,
 	OnDestroy,
 	OnInit,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
+import { injectRef } from "@electric/ng-utils";
 import { cursor } from "@electric/style";
 import { Const, Opt, exists, replayUntil } from "@electric/utils";
 import {
@@ -73,14 +74,12 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 	glyphToCanvas$?: Observable<Const<Matrix>>;
 	canvasToGlyph$?: Observable<Const<Matrix>>;
 
-	constructor (
-		private _cdRef: ChangeDetectorRef,
-		public _familyService: FamilyService,
-		private _input: InputProvider,
-		private _ref: ElementRef<HTMLElement>,
-		private _rect: ViewRectProvider,
-		public theme: ThemeService,
-	) {}
+	private _cdRef = inject(ChangeDetectorRef);
+	_familyService = inject(FamilyService);
+	private _input = inject(InputProvider);
+	private _ref = injectRef<HTMLElement>();
+	private _rect = inject(ViewRectProvider);
+	theme = inject(ThemeService);
 
 	ngOnInit(): void {
 		this.glyphToCanvas$ = combineLatest([

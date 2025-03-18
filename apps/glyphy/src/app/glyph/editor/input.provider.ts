@@ -1,4 +1,5 @@
-import { ElementRef, Injectable, OnDestroy } from "@angular/core";
+import { inject, Injectable, OnDestroy } from "@angular/core";
+import { injectRef } from "@electric/ng-utils";
 import { Const, delta, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
@@ -27,12 +28,11 @@ export class InputProvider implements OnDestroy {
 	get ptrLocation() { return this._ptrLocation$.value; }
 
 	private _onDestroy$ = new ReplaySubject<void>(1);
+	private _ref = injectRef<Element>();
+	private _rect = inject(ViewRectProvider);
 
-	constructor (
-		private _ref: ElementRef<Element>,
-		private _rect: ViewRectProvider,
-	) {
-		fromEvent<PointerEvent>(_ref.nativeElement, "pointermove")
+	constructor () {
+		fromEvent<PointerEvent>(this._ref.nativeElement, "pointermove")
 			.pipe(
 				withLatestFrom(this._rect.viewRect$),
 				map(([ptr, view]) => vec2(ptr.clientX-view.x, ptr.clientY-view.y)),
@@ -63,7 +63,7 @@ export class InputProvider implements OnDestroy {
 				this._keysDown$.next(set);
 			});
 
-		fromEvent<PointerEvent>(_ref.nativeElement, "pointerdown")
+		fromEvent<PointerEvent>(this._ref.nativeElement, "pointerdown")
 			.pipe(replayUntil(this._onDestroy$))
 			.subscribe(event => {
 				const set = this._ptrBtnsDown$.value;
@@ -71,7 +71,7 @@ export class InputProvider implements OnDestroy {
 				this._ptrBtnsDown$.next(set);
 			});
 
-		fromEvent<PointerEvent>(_ref.nativeElement, "pointerup")
+		fromEvent<PointerEvent>(this._ref.nativeElement, "pointerup")
 			.pipe(replayUntil(this._onDestroy$))
 			.subscribe(event => {
 				const set = this._ptrBtnsDown$.value;

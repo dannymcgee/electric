@@ -1,8 +1,4 @@
-import {
-	ChangeDetectionStrategy,
-	Component,
-	Input,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Input } from "@angular/core";
 import { Orientation, ThemeService } from "@electric/components";
 import { Const, Opt } from "@electric/utils";
 
@@ -43,18 +39,13 @@ export class RulerRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyphToCanvas = Matrix.Identity;
 	@Input() canvasToGlyph = Matrix.Identity;
 
+	theme = inject(ThemeService);
 	@Input() background?: Opt<PaintStyle> = this.theme.getHex("foreground", 50);
 
 	get top() { return this.y; }
 	get right() { return this.x + this.width; }
 	get bottom() { return this.y + this.height; }
 	get left() { return this.x; }
-
-	constructor (
-		public theme: ThemeService,
-	) {
-		super();
-	}
 
 	override onDraw(ctx: CanvasRenderingContext2D): void {
 		if (!this.children) return;

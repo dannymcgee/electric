@@ -1,15 +1,15 @@
-import { ChangeDetectionStrategy } from "@angular/core";
 import {
 	AfterContentInit,
+	ChangeDetectionStrategy,
 	Component,
 	ContentChildren,
-	ElementRef,
 	EventEmitter,
+	inject,
 	OnDestroy,
 	OnInit,
 	Output,
 } from "@angular/core";
-import { QueryList } from "@electric/ng-utils";
+import { injectRef, QueryList } from "@electric/ng-utils";
 import {
 	animationFrameScheduler,
 	merge,
@@ -26,7 +26,7 @@ import { RenderElement, RENDER_ELEMENT } from "./render.types";
 
 @Component({
 	selector: "canvas[g-canvas]",
-	template: `<ng-content></ng-content>`,
+	template: `<ng-content />`,
 	changeDetection: ChangeDetectionStrategy.Default,
 	standalone: false,
 })
@@ -40,11 +40,8 @@ export class CanvasRenderer implements OnInit, AfterContentInit, OnDestroy {
 	private _context!: CanvasRenderingContext2D;
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		private _ref: ElementRef<HTMLCanvasElement>,
-		private _rect: ViewRectProvider,
-	) {}
+	private _ref = injectRef<HTMLCanvasElement>();
+	private _rect = inject(ViewRectProvider);
 
 	ngOnInit(): void {
 		const { offsetWidth: width, offsetHeight: height } = this._canvas;

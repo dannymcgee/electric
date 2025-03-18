@@ -1,4 +1,4 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -119,8 +119,6 @@ import {
 	],
 })
 export class AppModule {
-	constructor (
-		private _: GlobalFocusManager,
-		private __: ThemeService,
-	) {}
+	private _ = inject(GlobalFocusManager);
+	private __ = inject(ThemeService);
 }

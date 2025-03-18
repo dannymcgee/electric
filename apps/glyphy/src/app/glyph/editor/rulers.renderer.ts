@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Input } from "@angular/core";
 import { ThemeService, Vec2 } from "@electric/components";
 import { Const, exists } from "@electric/utils";
 
@@ -35,6 +35,8 @@ export class RulersRenderer extends GroupRenderer implements RenderElement {
 	@Input() viewRect: Const<IRect> = new Rect(0, 0, 0, 0);
 	@Input() glyphToCanvas = Matrix.Identity;
 	@Input() canvasToGlyph = Matrix.Identity;
+
+	theme = inject(ThemeService);
 
 	@Input() background: PaintStyle = this.theme.getHex("background", 400)!;
 
@@ -100,11 +102,5 @@ export class RulersRenderer extends GroupRenderer implements RenderElement {
 			result.y.push({ value: gy, lineColor, textColor });
 
 		return result;
-	}
-
-	constructor (
-		public theme: ThemeService,
-	) {
-		super();
 	}
 }

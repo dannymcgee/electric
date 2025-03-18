@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Input } from "@angular/core";
 import { ThemeService } from "@electric/components";
 import { Const } from "@electric/utils";
 
@@ -23,9 +23,5 @@ export class MetricsRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyphToCanvas!: Const<Matrix>;
 	@Input() viewRect!: Const<IRect>;
 
-	constructor (
-		public theme: ThemeService,
-	) {
-		super();
-	}
+	theme = inject(ThemeService);
 }

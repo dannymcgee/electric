@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	HostBinding,
+	inject,
 	Input,
 	ViewEncapsulation,
 } from "@angular/core";
@@ -45,8 +46,6 @@ export class GlyphMetricsComponent {
 	@HostBinding("style.--stroke-width")
 	_strokeWidth = 1;
 
-	constructor (
-		private _cdRef: ChangeDetectorRef,
-		public _family: FamilyService,
-	) {}
+	private _cdRef = inject(ChangeDetectorRef);
+	_family = inject(FamilyService);
 }

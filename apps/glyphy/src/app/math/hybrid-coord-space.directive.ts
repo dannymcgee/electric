@@ -1,4 +1,5 @@
-import { Directive, ElementRef, Input, OnChanges } from "@angular/core";
+import { Directive, Input, OnChanges } from "@angular/core";
+import { injectRef } from "@electric/ng-utils";
 import { assert, Const, instanceOf } from "@electric/utils";
 
 import { Matrix } from "./matrix";
@@ -14,11 +15,8 @@ export class HybridCoordSpaceTransformDirective implements OnChanges {
 	@Input() xPosition = 0;
 	@Input() yPosition = 0;
 
+	private _ref = injectRef<HTMLOrSVGElement>();
 	private get _element() { return this._ref.nativeElement; }
-
-	constructor (
-		private _ref: ElementRef<HTMLOrSVGElement>,
-	) {}
 
 	ngOnChanges(): void {
 		const { x } = this.xTransform.transformPoint(this.xPosition, 0);

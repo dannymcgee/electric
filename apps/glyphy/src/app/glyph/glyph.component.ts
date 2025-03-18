@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	HostBinding,
+	inject,
 	Input,
 	OnChanges,
 	OnDestroy,
@@ -54,11 +55,8 @@ export class GlyphComponent implements OnChanges, OnInit, OnDestroy {
 	_viewBox?: ViewBox;
 
 	private _onDestroy$ = new Subject<void>();
-
-	constructor (
-		private _cdRef: ChangeDetectorRef,
-		public _family: FamilyService,
-	) {}
+	private _cdRef = inject(ChangeDetectorRef);
+	_family = inject(FamilyService);
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (this.glyph && ("glyph" in changes || "zoomFactor" in changes)) {

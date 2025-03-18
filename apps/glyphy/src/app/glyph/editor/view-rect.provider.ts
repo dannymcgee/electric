@@ -1,5 +1,5 @@
-import { ElementRef, Injectable, OnDestroy } from "@angular/core";
-import { ElxResizeObserver } from "@electric/ng-utils";
+import { inject, Injectable, OnDestroy } from "@angular/core";
+import { ElxResizeObserver, injectRef } from "@electric/ng-utils";
 import { Const, replayUntil } from "@electric/utils";
 import {
 	BehaviorSubject,
@@ -26,7 +26,10 @@ export class ViewRectProvider implements OnDestroy {
 
 	private _onDestroy$ = new Subject<void>();
 
-	constructor (ref: ElementRef<Element>, resizeObserver: ElxResizeObserver) {
+	constructor () {
+		const ref = injectRef<Element>();
+		const resizeObserver = inject(ElxResizeObserver);
+
 		this.viewRect$ = this._viewRect$.pipe(replayUntil(this._onDestroy$));
 
 		const resize$ = resizeObserver
