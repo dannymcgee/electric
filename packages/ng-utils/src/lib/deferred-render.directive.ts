@@ -113,10 +113,6 @@ export class DeferredRenderDirective<T = any> implements OnInit {
 		}
 
 		if (this.deferWhen) {
-			console.log({
-				proxyContext: this._proxyContext,
-			})
-
 			this._viewRef = this._viewContainer.createEmbeddedView(
 				this.proxyTemplate,
 				this._proxyContext,
