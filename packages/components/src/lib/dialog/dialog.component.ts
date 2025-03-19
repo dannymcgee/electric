@@ -2,7 +2,6 @@ import {
 	ConfigurableFocusTrap,
 	ConfigurableFocusTrapFactory,
 } from "@angular/cdk/a11y";
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { DragRef, DragDrop } from "@angular/cdk/drag-drop";
 import { DOCUMENT } from "@angular/common";
 import {
@@ -11,10 +10,8 @@ import {
 	Component,
 	ContentChild,
 	Directive,
-	ElementRef,
 	EventEmitter,
 	forwardRef,
-	HostAttributeToken,
 	HostBinding,
 	HostListener,
 	inject,
@@ -30,6 +27,7 @@ import {
 	Focusable,
 	GlobalFocusManager,
 	INITIAL_FOCUS_TARGET,
+	injectRef,
 } from "@electric/ng-utils";
 
 import { IconName } from "../icon";
@@ -72,6 +70,10 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	@HostBinding("attr.role")
 	@Input() role: "dialog"|"alert" = "dialog";
 
+	@Coerce(Boolean)
+	@Input() blocking = false;
+	get isBlocking() { return this.blocking || this.role === "alert"; }
+
 	@HostBinding("class.loader")
 	@Coerce(Boolean)
 	@Input() loader = false;
@@ -107,20 +109,14 @@ export class DialogComponent implements OnInit, AfterContentInit, OnDestroy {
 	private _dragRef?: DragRef;
 	private _focusTrap?: ConfigurableFocusTrap;
 
-	private get _isBlocking() {
-		return coerceBooleanProperty(this._blockingAttr)
-			|| this.role === "alert";
-	}
-
 	private _dragDrop = inject(DragDrop);
 	private _document = inject(DOCUMENT);
-	private _elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+	private _elementRef = injectRef<HTMLElement>();
 	private _focusTrapFactory = inject(ConfigurableFocusTrapFactory);
 	private _globalFocusManager = inject(GlobalFocusManager);
-	private _blockingAttr = inject(new HostAttributeToken("blocking"));
 
 	ngOnInit(): void {
-		if (this._isBlocking) {
+		if (this.isBlocking) {
 			this._focusTrap = this._focusTrapFactory.create(
 				this._elementRef.nativeElement,
 				{ defer: true },
@@ -197,7 +193,7 @@ export class DialogHeadingComponent {
 
 	@Input() icon?: IconName;
 
-	_elementRef = inject(ElementRef);
+	_elementRef = injectRef<HTMLElement>();
 }
 
 @Directive({
