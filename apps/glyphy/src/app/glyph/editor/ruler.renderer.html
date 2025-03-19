@@ -6,7 +6,7 @@
 	[fill]="background"
 />
 
-@for (hash of hashes; track hash) {
+@for (hash of hashes; track $index) {
 	@switch (orientation) {
 		@case ('horizontal') {
 			<g-text
