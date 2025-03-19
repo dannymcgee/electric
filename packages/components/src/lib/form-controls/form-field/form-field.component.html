@@ -1,16 +1,17 @@
 <ng-content select="elx-label" />
 <ng-content />
 
-@if (_touched && ((_status$ | async) === 'INVALID')) {
-  <ul class="elx-validation-errors">
-    @for (entry of (_validationErrors$ | async | keyvalue); track entry) {
-      <li class="elx-validation-error">
-        @if (entry.key === "required") {
-          This field is required.
-        } @else {
-          {{ entry.value }}
-        }
-      </li>
-    }
-  </ul>
+@let status = (_status$ | async);
+@if (_touched && (status === 'INVALID')) {
+	<ul class="elx-validation-errors">
+		@for (entry of (_validationErrors$ | async | keyvalue); track entry) {
+			<li class="elx-validation-error">
+				@if (entry.key === "required") {
+					This field is required.
+				} @else {
+					{{ entry.value }}
+				}
+			</li>
+		}
+	</ul>
 }
