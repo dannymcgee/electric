@@ -9,9 +9,12 @@
 					</h2>
 					<div class="glyphs"
 						*elxDeferRenderWhen="groupIndex > 3
-							proxy: dummyUnicodeGroup"
+							proxy: dummyUnicodeGroup;
+							context: {
+								unicodeGroup: group
+							}"
 					>
-						@for (glyph of group.glyphs; let i = $index; track glyph) {
+						@for (glyph of group.glyphs; track glyph) {
 							<div class="glyph"
 								(dblclick)="openGlyph.emit(glyph)"
 							>
@@ -61,6 +64,12 @@
 	}
 }
 
-<ng-template #dummyUnicodeGroup>
-	<div class="glyphs" style="height: 256px"></div>
+<ng-template #dummyUnicodeGroup
+	let-group="unicodeGroup"
+>
+	<div class="glyphs">
+		@for (_ of group?.glyphs; track $index) {
+			<div class="glyph"></div>
+		}
+	</div>
 </ng-template>
