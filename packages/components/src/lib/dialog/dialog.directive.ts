@@ -47,8 +47,9 @@ export class DialogTriggerDirective<T> {
 	private _overlay = inject(Overlay);
 	private _template = inject<TemplateRef<DialogTriggerContext<T>>>(TemplateRef);
 	private _viewContainer = inject(ViewContainerRef);
-	private _blockingAttr = inject(new HostAttributeToken("blocking"));
-	private _roleAttr = inject(new HostAttributeToken("role"));
+
+	private _blockingAttr = inject(new HostAttributeToken("blocking"), { optional: true });
+	private _roleAttr = inject(new HostAttributeToken("role"), { optional: true }) ?? "dialog";
 
 	private onTriggerChange(value?: T): void {
 		if (value) {
