@@ -7,9 +7,9 @@ import {
 	HostAttributeToken,
 	inject,
 	Input,
-	TemplateRef,
 	ViewContainerRef,
 } from "@angular/core";
+import { injectTemplate } from "@electric/ng-utils";
 
 interface DialogTriggerContext<T> {
 	$implicit?: T;
@@ -45,7 +45,7 @@ export class DialogTriggerDirective<T> {
 	private _viewRef: EmbeddedViewRef<DialogTriggerContext<T>> | null = null;
 
 	private _overlay = inject(Overlay);
-	private _template = inject<TemplateRef<DialogTriggerContext<T>>>(TemplateRef);
+	private _template = injectTemplate<DialogTriggerContext<T>>();
 	private _viewContainer = inject(ViewContainerRef);
 
 	private _blockingAttr = inject(new HostAttributeToken("blocking"), { optional: true });
