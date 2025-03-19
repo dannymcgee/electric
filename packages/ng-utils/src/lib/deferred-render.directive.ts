@@ -1,12 +1,15 @@
 import {
 	ChangeDetectorRef,
 	Directive,
+	EmbeddedViewRef,
+	inject,
 	Injectable,
 	Input,
 	OnInit,
 	TemplateRef,
 	ViewContainerRef,
 } from "@angular/core";
+import { injectTemplate } from "./inject";
 
 @Injectable({
 	providedIn: "root",
@@ -77,28 +80,58 @@ export class DeferredRenderService {
 	selector: "[elxDeferRender], [elxDeferRenderWhen]",
 	standalone: false,
 })
-export class DeferredRenderDirective implements OnInit {
+export class DeferredRenderDirective<T = any> implements OnInit {
 	@Input("elxDeferRenderWhen")
 	deferWhen = true;
 
 	@Input("elxDeferRender")
-	@Input("elxDeferRenderWhenProxy")
-	proxyTemplate!: TemplateRef<void>;
+	_proxyTemplateA?: TemplateRef<T>;
 
-	constructor (
-		private _cdRef: ChangeDetectorRef,
-		private _renderService: DeferredRenderService,
-		private _template: TemplateRef<void>,
-		private _viewContainer: ViewContainerRef,
-	) {}
+	@Input("elxDeferRenderWhenProxy")
+	_proxyTemplateB?: TemplateRef<T>;
+
+	@Input("elxDeferRenderWhenContext")
+	get _proxyContext() { return this.#proxyContext; }
+	set _proxyContext(value) {
+		this.#proxyContext = value;
+		this.onContextChange(value);
+	}
+	#proxyContext?: T;
+
+	get proxyTemplate() { return this._proxyTemplateA ?? this._proxyTemplateB; }
+
+	private _viewRef?: EmbeddedViewRef<T>;
+
+	private _cdRef = inject(ChangeDetectorRef);
+	private _renderService = inject(DeferredRenderService);
+	private _template = injectTemplate<void>();
+	private _viewContainer = inject(ViewContainerRef);
 
 	ngOnInit(): void {
+		if (!this.proxyTemplate) {
+			throw new Error("Proxy template for DeferredRenderDirective may not be null");
+		}
+
 		if (this.deferWhen) {
-			const viewRef = this._viewContainer.createEmbeddedView(this.proxyTemplate);
-			this._renderService.register(viewRef.rootNodes[0], this);
+			console.log({
+				proxyContext: this._proxyContext,
+			})
+
+			this._viewRef = this._viewContainer.createEmbeddedView(
+				this.proxyTemplate,
+				this._proxyContext,
+			);
+			this._renderService.register(this._viewRef.rootNodes[0], this);
 		}
 		else {
 			this._viewContainer.createEmbeddedView(this._template);
+		}
+	}
+
+	private onContextChange(value?: T): void {
+		if (this._viewRef) {
+			this._viewRef.context = value as T;
+			this._viewRef.markForCheck();
 		}
 	}
 
