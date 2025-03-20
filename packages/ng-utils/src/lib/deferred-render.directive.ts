@@ -80,7 +80,7 @@ export class DeferredRenderService {
 	selector: "[elxDeferRender], [elxDeferRenderWhen]",
 	standalone: false,
 })
-export class DeferredRenderDirective<T = any> implements OnInit {
+export class DeferredRenderDirective<T extends object = any> implements OnInit {
 	@Input("elxDeferRenderWhen")
 	deferWhen = true;
 
@@ -125,8 +125,8 @@ export class DeferredRenderDirective<T = any> implements OnInit {
 	}
 
 	private onContextChange(value?: T): void {
-		if (this._viewRef) {
-			this._viewRef.context = value as T;
+		if (this._viewRef?.context && value) {
+			Object.assign(this._viewRef.context, value);
 			this._viewRef.markForCheck();
 		}
 	}
