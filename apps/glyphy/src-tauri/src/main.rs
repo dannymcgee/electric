@@ -28,7 +28,6 @@ fn parse_font_to_xml(font_path: String) -> Result<String, String> {
 				Err(utf8_err) => Err(format!("{}", utf8_err)),
 			},
 			(0, 0) => Err("ttx produced no output..??".into()),
-			(_, _) => unreachable!(),
 		},
 		Err(err) => Err(format!("{}", err)),
 	}
