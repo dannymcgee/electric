@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = [
 	"demos/tauri-app/src-tauri",
 	"apps/tidy/src-tauri",
