@@ -4,9 +4,14 @@
 		"outDir": "../../dist/out-tsc",
 		"module": "commonjs",
 		"types": ["node"],
+		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"target": "es2021"
 	},
-	"exclude": ["**/*.spec.ts", "**/*.test.ts", "jest.config.ts"],
-	"include": ["**/*.ts"]
+	"include": ["src/**/*.ts"],
+	"exclude": [
+		"jest.config.ts",
+		"**/*.spec.ts",
+		"**/*.test.ts",
+	],
 }
