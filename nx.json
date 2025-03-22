@@ -51,6 +51,11 @@
 					"codeCoverage": true
 				}
 			}
+		},
+		"@nx/webpack:webpack": {
+			"cache": true,
+			"dependsOn": ["^build"],
+			"inputs": ["default", "^default"]
 		}
 	},
 	"defaultBase": "main",

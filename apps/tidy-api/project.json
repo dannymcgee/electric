@@ -7,15 +7,19 @@
 		"build": {
 			"executor": "@nx/webpack:webpack",
 			"outputs": ["{options.outputPath}"],
+			"defaultConfiguration": "production",
 			"options": {
 				"outputPath": "dist/apps/tidy-api",
 				"main": "apps/tidy-api/src/main.ts",
 				"tsConfig": "apps/tidy-api/tsconfig.app.json",
 				"assets": ["apps/tidy-api/src/assets"],
 				"target": "node",
-				"compiler": "tsc"
+				"compiler": "tsc",
+				"webpackConfig": "apps/tidy-api/webpack.config.js",
+				"generatePackageJson": true
 			},
 			"configurations": {
+				"development": {},
 				"production": {
 					"optimization": true,
 					"extractLicenses": true,
@@ -31,15 +35,27 @@
 		},
 		"serve": {
 			"executor": "@nx/js:node",
+			"defaultConfiguration": "development",
+			"dependsOn": ["build"],
 			"options": {
-				"buildTarget": "tidy-api:build"
+				"buildTarget": "tidy-api:build",
+				"runBuildTargetDependencies": false
+			},
+			"configurations": {
+				"development": {
+					"buildTarget": "tidy-api:build:development"
+				},
+				"production": {
+					"buildTarget": "tidy-api:build:production"
+				}
 			}
 		},
 		"test": {
 			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/apps/tidy-api"],
 			"options": {
-				"jestConfig": "apps/tidy-api/jest.config.ts"
+				"jestConfig": "apps/tidy-api/jest.config.ts",
+				"passWithNoTests": true
 			}
 		}
 	},
