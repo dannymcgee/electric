@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { sleep } from "@electric/utils";
-import type { WebviewWindow } from "@tauri-apps/api/window";
+import type { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import {
 	animationFrames,
 	BehaviorSubject,
@@ -29,8 +29,9 @@ export class TauriWindowService implements WindowProvider, OnDestroy {
 	private _onDestroy$ = new Subject<void>();
 
 	constructor () {
-		import("@tauri-apps/api/window")
-			.then(({ appWindow }) => {
+		import("@tauri-apps/api/webviewWindow")
+			.then(({ getCurrentWebviewWindow }) => {
+				const appWindow = getCurrentWebviewWindow();
 				this._window = appWindow;
 
 				animationFrames().pipe(

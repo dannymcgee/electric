@@ -1,7 +1,4 @@
-<elx-app-shell
-	[fakeWindowsChrome]="platform === 'tauri'"
-	[maximized]="maximized"
->
+<elx-app-shell [maximized]="maximized">
 	<elx-titlebar
 		[title]="title"
 		(minimize)="minimize()"
