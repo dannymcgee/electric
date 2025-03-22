@@ -1,7 +1,7 @@
 import { Component, Directive, EventEmitter, Input, Output, TrackByFunction } from "@angular/core";
 import { AbstractControl, AsyncValidator, NG_ASYNC_VALIDATORS } from "@angular/forms";
-import * as dialog from "@tauri-apps/api/dialog";
-import * as fs from "@tauri-apps/api/fs";
+import * as dialog from "@tauri-apps/plugin-dialog";
+import * as fs from "@tauri-apps/plugin-fs";
 
 import tauri from "../tauri.bridge";
 import { NewFont } from "../font/new-font";

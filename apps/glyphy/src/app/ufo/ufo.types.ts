@@ -1,8 +1,9 @@
 import { instanceOf, match, uint } from "@electric/utils";
-import { fs, path } from "@tauri-apps/api";
+import {  path } from "@tauri-apps/api";
 
 import { attr, float, hex, int, Serde, str, Xml, XmlElement } from "../xml";
 import { PList, plist, prop } from "../xml/plist";
+import * as fs from "@tauri-apps/plugin-fs"
 
 export enum StyleMapStyleName {
 	Regular = "regular",

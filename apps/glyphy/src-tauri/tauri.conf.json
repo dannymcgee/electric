@@ -1,70 +1,67 @@
 {
-  "$schema": "../../../node_modules/@tauri-apps/cli/schema.json",
-  "package": {
-    "productName": "glyphy",
-    "version": "0.1.0"
-  },
-  "build": {
-    "distDir": "../../../dist/apps/glyphy",
-    "devPath": "http://localhost:4200",
-    "beforeDevCommand": "nx serve glyphy",
-    "beforeBuildCommand": "nx build glyphy"
-  },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.tauri.dev",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": [],
-      "externalBin": [],
-      "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
-      "deb": {
-        "depends": []
-      },
-      "macOS": {
-        "frameworks": [],
-        "minimumSystemVersion": "",
-        "exceptionDomain": "",
-        "signingIdentity": null,
-        "entitlements": null
-      },
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "updater": {
-      "active": false
-    },
-    "allowlist": {
-      "all": true
-    },
-    "windows": [
-      {
-        "title": "Glyphy",
-        "width": 1080,
-        "height": 600,
-        "minWidth": 640,
-        "minHeight": 360,
-        "resizable": true,
-        "fullscreen": false,
-        "decorations": false,
-        "transparent": true
-      }
-    ],
-    "security": {
-      "csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
-    }
-  }
+	"$schema": "../../../node_modules/@tauri-apps/cli/config.schema.json",
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"windows": {
+			"certificateThumbprint": null,
+			"digestAlgorithm": "sha256",
+			"timestampUrl": ""
+		},
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"resources": [],
+		"externalBin": [],
+		"copyright": "",
+		"category": "DeveloperTool",
+		"shortDescription": "",
+		"longDescription": "",
+		"macOS": {
+			"frameworks": [],
+			"minimumSystemVersion": "",
+			"exceptionDomain": "",
+			"signingIdentity": null,
+			"entitlements": null
+		},
+		"linux": {
+			"deb": {
+				"depends": []
+			}
+		}
+	},
+	"build": {
+		"beforeBuildCommand": "nx build glyphy",
+		"frontendDist": "../../../dist/apps/glyphy",
+		"beforeDevCommand": "nx serve glyphy",
+		"devUrl": "http://localhost:4200"
+	},
+	"productName": "glyphy",
+	"mainBinaryName": "glyphy",
+	"version": "0.1.0",
+	"identifier": "com.tauri.dev",
+	"plugins": {},
+	"app": {
+		"security": {
+			"csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'; connect-src ipc: http://ipc.localhost"
+		},
+		"windows": [
+			{
+				"title": "Glyphy",
+				"width": 1080,
+				"height": 600,
+				"minWidth": 640,
+				"minHeight": 360,
+				"resizable": true,
+				"fullscreen": false,
+				"decorations": false,
+				"transparent": true,
+				"useHttpsScheme": true
+			}
+		]
+	}
 }

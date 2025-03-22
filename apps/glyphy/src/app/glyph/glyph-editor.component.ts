@@ -141,7 +141,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 		else if (this.activeTool === "pen"
 			// FIXME: Need an abstraction for checking platform-conventional modifier keys
 			&& (event.key === "Control"
-				|| await tauri.platform() === "darwin" && event.key === "Meta"))
+				|| tauri.platform() === "macos" && event.key === "Meta"))
 		{
 			this.activeTool = "select";
 		}
@@ -152,7 +152,7 @@ export class GlyphEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 		if (event.key === " "
 			|| (this.passiveTool === "pen"
 			&& (event.key === "Control"
-				|| await tauri.platform() === "darwin" && event.key === "Meta")))
+				|| tauri.platform() === "macos" && event.key === "Meta")))
 		{
 			this.activeTool = this.passiveTool;
 		}

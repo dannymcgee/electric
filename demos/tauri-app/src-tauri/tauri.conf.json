@@ -1,54 +1,53 @@
 {
-	"$schema": "../../../node_modules/@tauri-apps/cli/schema.json",
-	"package": {
-		"productName": "tauri-demo",
-		"version": "0.1.0"
-	},
-	"build": {
-		"distDir": "../../../dist/demos/showcase",
-		"devPath": "http://localhost:4200",
-		"beforeDevCommand": "npm run nx run showcase:serve:tauri",
-		"beforeBuildCommand": "npm run nx run showcase:build:tauri"
-	},
-	"tauri": {
-		"bundle": {
-			"active": true,
-			"targets": "all",
-			"identifier": "com.tauri.dev",
-			"icon": [
-				"icons/32x32.png",
-				"icons/128x128.png",
-				"icons/128x128@2x.png",
-				"icons/icon.icns",
-				"icons/icon.ico"
-			],
-			"resources": [],
-			"externalBin": [],
-			"copyright": "",
-			"category": "DeveloperTool",
-			"shortDescription": "",
-			"longDescription": "",
+	"$schema": "../../../node_modules/@tauri-apps/cli/config.schema.json",
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"windows": {
+			"certificateThumbprint": null,
+			"digestAlgorithm": "sha256",
+			"timestampUrl": ""
+		},
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"resources": [],
+		"externalBin": [],
+		"copyright": "",
+		"category": "DeveloperTool",
+		"shortDescription": "",
+		"longDescription": "",
+		"macOS": {
+			"frameworks": [],
+			"minimumSystemVersion": "",
+			"exceptionDomain": "",
+			"signingIdentity": null,
+			"entitlements": null
+		},
+		"linux": {
 			"deb": {
 				"depends": []
-			},
-			"macOS": {
-				"frameworks": [],
-				"minimumSystemVersion": "",
-				"exceptionDomain": "",
-				"signingIdentity": null,
-				"entitlements": null
-			},
-			"windows": {
-				"certificateThumbprint": null,
-				"digestAlgorithm": "sha256",
-				"timestampUrl": ""
 			}
-		},
-		"updater": {
-			"active": false
-		},
-		"allowlist": {
-			"all": true
+		}
+	},
+	"build": {
+		"beforeBuildCommand": "npm run nx run showcase:build:tauri",
+		"frontendDist": "../../../dist/demos/showcase",
+		"beforeDevCommand": "npm run nx run showcase:serve:tauri",
+		"devUrl": "http://localhost:4200"
+	},
+	"productName": "tauri-demo",
+	"mainBinaryName": "tauri-demo",
+	"version": "0.1.0",
+	"identifier": "com.tauri.dev",
+	"plugins": {},
+	"app": {
+		"security": {
+			"csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'; connect-src ipc: http://ipc.localhost"
 		},
 		"windows": [
 			{
@@ -60,11 +59,9 @@
 				"resizable": true,
 				"fullscreen": false,
 				"decorations": false,
-				"transparent": true
+				"transparent": true,
+				"useHttpsScheme": true
 			}
-		],
-		"security": {
-			"csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
-		}
+		]
 	}
 }

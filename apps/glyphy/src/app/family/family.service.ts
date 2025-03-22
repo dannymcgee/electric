@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { match } from "@electric/utils";
-import * as dialog from "@tauri-apps/api/dialog";
-import * as fs from "@tauri-apps/api/fs";
+import * as dialog from "@tauri-apps/plugin-dialog";
+import * as fs from "@tauri-apps/plugin-fs";
 import * as path from "@tauri-apps/api/path";
 import { BehaviorSubject, Observable } from "rxjs";
 
@@ -43,7 +43,7 @@ export class FamilyService implements OnDestroy {
 
 	async createFamily(newFamily: NewFontFamily, newFonts: NewFont[] = []) {
 		if (!(await tauri.pathExists(newFamily.directory)))
-			await fs.createDir(newFamily.directory);
+			await fs.mkdir(newFamily.directory, { recursive: true });
 
 		const metrics = defaultMetrics();
 		const family = new FontFamily(newFamily.name, metrics);
@@ -69,7 +69,7 @@ export class FamilyService implements OnDestroy {
 	}
 
 	async createFont(font: Font, dir: string) {
-		await fs.createDir(dir);
+		await fs.mkdir(dir, { recursive: true });
 
 		const metaInfo = await newPList(MetaInfo, "metainfo.plist", dir);
 		metaInfo.creator = "dev.dannymcgee.glyphy";

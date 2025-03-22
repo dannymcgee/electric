@@ -1,5 +1,5 @@
 import { Ctor, match } from "@electric/utils";
-import * as fs from "@tauri-apps/api/fs";
+import * as fs from "@tauri-apps/plugin-fs";
 import * as path from "@tauri-apps/api/path";
 
 import { float, int, Serde, str } from "./xml";
