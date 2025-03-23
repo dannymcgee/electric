@@ -2,9 +2,9 @@ import { OverlayModule } from "@angular/cdk/overlay";
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
+import { IconModule } from "@electric/components/icon";
 import { UtilityModule } from "@electric/ng-utils";
 
-import { IconModule } from "../icon";
 import { CheckboxComponent } from "./checkbox/checkbox.component";
 import { FormFieldComponent } from "./form-field/form-field.component";
 import { InputComponent } from "./input/input.component";

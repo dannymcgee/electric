@@ -22,6 +22,7 @@ import {
 	ViewEncapsulation,
 } from "@angular/core";
 
+import { IconName } from "@electric/components/icon";
 import {
 	Coerce,
 	Focusable,
@@ -29,8 +30,6 @@ import {
 	INITIAL_FOCUS_TARGET,
 	injectRef,
 } from "@electric/ng-utils";
-
-import { IconName } from "../icon";
 
 @Component({
 	selector: "elx-dialog",

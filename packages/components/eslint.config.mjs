@@ -9,6 +9,8 @@ export default [
 			"@angular-eslint/component-class-suffix": ["warn", {
 				suffixes: ["Component", "Node"],
 			}],
+			// FIXME: https://github.com/nrwl/nx/issues/30473
+			"@nx/enforce-module-boundaries": "off",
 		},
 	},
 ];

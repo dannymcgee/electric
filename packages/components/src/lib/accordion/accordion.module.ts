@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 
 import { A11yModule } from "@electric/ng-utils";
 
-import { IconModule } from "../icon";
+import { IconModule } from "@electric/components/icon";
 
 import {
 	AccordionComponent,

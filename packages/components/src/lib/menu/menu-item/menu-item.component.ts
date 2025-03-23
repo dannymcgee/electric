@@ -16,7 +16,7 @@ import { filter, map, take, takeUntil } from "rxjs/operators";
 import { Coerce, injectRef } from "@electric/ng-utils";
 import { array } from "@electric/utils";
 
-import { IconName } from "../../icon";
+import { IconName } from "@electric/components/icon";
 import {
 	MENU_ITEM,
 	MENU_TRIGGER,

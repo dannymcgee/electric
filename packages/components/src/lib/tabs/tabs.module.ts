@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 
 import { UtilityModule } from "@electric/ng-utils";
 
-import { IconModule } from "../icon";
+import { IconModule } from "@electric/components/icon";
 
 import { TabComponent } from "./tab/tab.component";
 import { TabGroupComponent } from "./tab-group/tab-group.component";

@@ -11,9 +11,9 @@ import {
 	ViewEncapsulation,
 } from "@angular/core";
 
+import { IconName } from "@electric/components/icon";
 import { Focusable, INITIAL_FOCUS_TARGET, injectRef } from "@electric/ng-utils";
 
-import { IconName } from "../icon";
 import { ButtonSize, ButtonVariant } from "./button.types";
 
 @Component({

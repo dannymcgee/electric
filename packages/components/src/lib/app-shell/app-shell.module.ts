@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { IconModule } from "../icon";
+import { IconModule } from "@electric/components/icon";
 
 import { AppShellComponent } from "./app-shell.component";
 import { MainViewportComponent } from './main-viewport/main-viewport.component';

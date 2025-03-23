@@ -25,5 +25,5 @@ export class MainViewportComponent {
 
 	@HostBinding("class.elx-main-viewport--scroll")
 	@Coerce(Boolean)
-	@Input() scroll?: boolean;
+	@Input() scroll?: boolean | "";
 }

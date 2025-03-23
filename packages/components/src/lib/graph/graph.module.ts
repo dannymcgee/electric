@@ -1,7 +1,7 @@
 import { ErrorHandler, ModuleWithProviders, NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
-import { MenuModule } from "../menu";
+import { MenuModule } from "@electric/components/menu";
 
 import { GraphComponent } from "./graph.component";
 import { GraphLibrary } from "./graph-library.service";
