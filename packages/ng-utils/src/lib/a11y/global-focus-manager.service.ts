@@ -1,5 +1,5 @@
 import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable, OnDestroy } from "@angular/core";
+import { inject, Injectable, OnDestroy } from "@angular/core";
 
 import { array, Stack } from "@electric/utils";
 import { BehaviorSubject, shareReplay } from "rxjs";
@@ -12,34 +12,31 @@ const $watchForChanges = Symbol("watchForChanges");
 	providedIn: "root",
 })
 export class GlobalFocusManager implements OnDestroy {
-	private _focusHistory = new Stack<HTMLElement>(100);
+	#focusHistory = new Stack<HTMLElement>(100);
+	#document = inject(DOCUMENT);
 
-	private _activeElement$ = new BehaviorSubject<HTMLElement>(this._document.body);
-	readonly activeElement$ = this._activeElement$.pipe(shareReplay({
+	#activeElement$ = new BehaviorSubject<HTMLElement>(this.#document.body);
+	readonly activeElement$ = this.#activeElement$.pipe(shareReplay({
 		bufferSize: 1,
 		refCount: false,
 	}));
 
-	constructor (
-		@Inject(DOCUMENT) private _document: Document,
-	) {}
-
 	ngOnDestroy(): void {
-		this._activeElement$.complete();
+		this.#activeElement$.complete();
 	}
 
 	getLastValidFocusTarget(): HTMLElement | null {
 		this.drainNullRefs();
 
-		if (!this._focusHistory.length) {
+		if (!this.#focusHistory.length) {
 			return null;
 		}
 
-		let liveElements = array(this._document.querySelectorAll("*"));
-		let candidate = this._focusHistory.pop();
+		let liveElements = array(this.#document.querySelectorAll("*"));
+		let candidate = this.#focusHistory.pop();
 
 		while (candidate != null && !liveElements.includes(candidate)) {
-			candidate = this._focusHistory.pop();
+			candidate = this.#focusHistory.pop();
 		}
 
 		return candidate ?? null;
@@ -49,19 +46,19 @@ export class GlobalFocusManager implements OnDestroy {
 	[$watchForChanges](): void {
 		this.drainNullRefs();
 
-		let last = this._focusHistory.top;
-		let current = this._document.activeElement as HTMLElement;
+		let last = this.#focusHistory.top;
+		let current = this.#document.activeElement as HTMLElement;
 
-		if (current && current !== this._document.body && current !== last)
-			this._focusHistory.push(current);
+		if (current && current !== this.#document.body && current !== last)
+			this.#focusHistory.push(current);
 
-		if (current && current !== this._activeElement$.value)
-			this._activeElement$.next(current);
+		if (current && current !== this.#activeElement$.value)
+			this.#activeElement$.next(current);
 	}
 
 	private drainNullRefs(): void {
-		while (this._focusHistory.length && !this._focusHistory.top) {
-			this._focusHistory.pop();
+		while (this.#focusHistory.length && !this.#focusHistory.top) {
+			this.#focusHistory.pop();
 		}
 	}
 }

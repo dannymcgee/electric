@@ -6,7 +6,7 @@
 @use "./elx/style/scrollbar" as *;
 @use "./elx/style/type";
 
-@import "~@angular/cdk/overlay-prebuilt.css";
+@import "@angular/cdk/overlay-prebuilt.css";
 
 :root {
 	--recursive-mono: 0.51;
