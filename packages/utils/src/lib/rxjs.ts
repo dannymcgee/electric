@@ -1,4 +1,3 @@
-import { ElementRef } from "@angular/core";
 import {
 	animationFrameScheduler,
 	filter,
@@ -17,14 +16,18 @@ import { ShareReplayConfig } from "rxjs/internal/operators/shareReplay";
 import { ModifierKey, MODIFIER_KEYS_NOLOCKS } from "./keys";
 import { Opt, Pred } from "./types";
 
+interface ElementRef<T extends Element = any> {
+	nativeElement: T;
+}
+
 export function fromKeydown(
-	eventTarget: ElementRef<Element> | Element | Document | Window,
+	eventTarget: ElementRef | Element | Document | Window,
 	primaryKey?: string | RegExp,
 	modifiers?: ModifierKey[],
 ): Observable<KeyboardEvent> {
-	let target = eventTarget instanceof ElementRef
-		? eventTarget.nativeElement
-		: eventTarget;
+	let target = eventTarget instanceof EventTarget
+		? eventTarget
+		: eventTarget.nativeElement;
 	let keydown$ = fromEvent<KeyboardEvent>(target, "keydown");
 
 	if (primaryKey) {
