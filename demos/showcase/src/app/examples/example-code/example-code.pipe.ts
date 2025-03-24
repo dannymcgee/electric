@@ -1,10 +1,7 @@
-import { Pipe, PipeTransform } from "@angular/core";
-// FIXME: This crap adds ~4 MB to the bundle size
+import { DestroyRef, inject, Pipe, PipeTransform } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import * as prettier from "prettier/standalone";
-import * as prettierHtml from "prettier/parser-html";
-import * as prettierNg from "prettier/parser-angular";
-import * as prettierTs from "prettier/parser-typescript";
-import * as prettierScss from "prettier/parser-postcss";
+import type { Config as PrettierConfig } from "prettier";
 
 import { exists, match } from "@electric/utils";
 
@@ -12,6 +9,16 @@ import { Defaults } from "../examples.types";
 import { HTML_IDENT } from "./languages/common";
 import { regex } from "./languages/util";
 import { HighlightService } from "./highlight.service";
+import {
+	catchError,
+	distinctUntilChanged,
+	filter,
+	from,
+	map,
+	Observable,
+	Subject,
+	switchMap,
+} from "rxjs";
 
 @Pipe({
 	name: "highlight",
@@ -94,46 +101,69 @@ export class StripDefaultsPipe implements PipeTransform {
 
 @Pipe({
 	name: "fmt",
+	pure: false,
 	standalone: false,
 })
 export class FormatCodePipe implements PipeTransform {
-	transform(lines?: string[], language?: string): string[] {
-		if (!lines) return [];
-		return prettier
-			.format(lines.join("\n"), this.optionsFor(language!))
-			.split("\n");
-	}
+	#inputs$ = new Subject<[string[]?, string?]>();
+	#value$?: Observable<string[]>;
 
-	private optionsFor(language: string) {
-		return match(language, {
-			html: () => ({
-				parser: "angular",
-				useTabs: true,
-				printWidth: 50,
-				plugins: [
-					prettierHtml,
-					prettierNg,
-				],
+	#destroyRef = inject(DestroyRef);
+
+	transform(lines?: string[], language?: string): Observable<string[]> {
+		this.#inputs$.next([lines, language]);
+
+		return this.#value$ ??= this.#inputs$.pipe(
+			filter((input): input is [string[], string] => input[0] != null && input[1] != null),
+			distinctUntilChanged(([prevLines, prevLang], [lines, lang]) => (
+				lang === prevLang
+				&& lines.length === prevLines.length
+				&& lines.every((line, i) => prevLines[i] === line)
+			)),
+			switchMap(([lines, lang]) => from(
+				optionsFor(lang)
+					.then(options => prettier.format(lines.join("\n"), options))
+					.then(txt => txt.split("\n"))
+			)),
+			catchError(err => {
+				console.error(err);
+				return [] as string[];
 			}),
-			scss: () => ({
-				parser: "scss",
-				useTabs: true,
-				plugins: [
-					prettierScss,
-				],
-			}),
-			typescript: () => ({
-				parser: "typescript",
-				useTabs: true,
-				plugins: [
-					prettierTs,
-				],
-			}),
-			_: () => {
-				throw new Error();
-			},
-		});
+			map(value => typeof value === "string" ? value.split("\n") : value),
+			takeUntilDestroyed(this.#destroyRef),
+		);
 	}
+}
+
+function optionsFor(language: string): Promise<PrettierConfig> {
+	return match(language, {
+		html: async () => ({
+			parser: "angular",
+			useTabs: true,
+			printWidth: 50,
+			plugins: await Promise.all([
+				import("prettier/plugins/html"),
+				import("prettier/plugins/angular"),
+			]),
+		}),
+		scss: async () => ({
+			parser: "scss",
+			useTabs: true,
+			plugins: [await import("prettier/plugins/postcss")]
+		}),
+		typescript: async () => ({
+			parser: "typescript",
+			useTabs: true,
+			plugins: await Promise.all([
+				import("prettier/plugins/typescript"),
+				import("prettier/plugins/estree"),
+			]),
+		}),
+		_: async () => {
+			console.error(`Unrecognized language "${language}"`);
+			return {};
+		},
+	});
 }
 
 @Pipe({

@@ -17,12 +17,13 @@ import { Defaults } from "../../examples.types";
 	| slice : 1
 	| stripIndents
 	| stripDefaults : defaults
-	| fmt : language;
+	| fmt : language
+	| async;
 
-<ol [showcaseLineNumbersFor]="lines"></ol>
+<ol [showcaseLineNumbersFor]="lines ?? []"></ol>
 <code class="language-{{ language }}"
 	[innerHtml]="
-		lines
+		lines ?? []
 			| joinLines
 			| highlight : language
 			| async"
