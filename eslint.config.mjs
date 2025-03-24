@@ -25,6 +25,26 @@ export function angularBase(prefix) {
 	];
 }
 
+
+/**
+ * @param {string[]} extraIgnoredFiles
+ */
+export function checkDependencies(extraIgnoredFiles = []) {
+	return [{
+		files: ["**/*.json"],
+		rules: {
+			"@nx/dependency-checks": ["error", {
+				ignoredFiles: [
+					"{projectRoot}/eslint.config.{js,cjs,mjs}",
+					"{projectRoot}/vite.config.{js,ts,mjs,mts}",
+					"{projectRoot}/**/*.{spec,test}.{js,ts,mjs,mts,jsx,tsx}",
+					...extraIgnoredFiles,
+				],
+			}],
+		},
+	}];
+}
+
 export default [
 	...nx.configs["flat/base"],
 	...nx.configs["flat/typescript"],
@@ -71,5 +91,11 @@ export default [
 				varsIgnorePattern: "^_",
 			}]
 		}
-	}
+	},
+	{
+		files: ["**/*.json"],
+		languageOptions: {
+			parser: await import("jsonc-eslint-parser"),
+		},
+	},
 ];

@@ -12,7 +12,8 @@
 				"main": "packages/utils/src/index.ts",
 				"tsConfig": "packages/utils/tsconfig.lib.json",
 				"assets": ["packages/utils/*.md"]
-			}
+			},
+			"dependsOn": ["^build"]
 		},
 		"lint": {
 			"executor": "@nx/eslint:lint",

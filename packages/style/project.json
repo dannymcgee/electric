@@ -12,7 +12,8 @@
 				"main": "packages/style/src/index.ts",
 				"tsConfig": "packages/style/tsconfig.lib.json",
 				"assets": ["packages/style/*.md", "packages/style/src/assets"]
-			}
+			},
+			"dependsOn": ["^build"]
 		},
 		"build-icons": {
 			"executor": "./tools/executors/icons:build",

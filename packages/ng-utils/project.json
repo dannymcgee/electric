@@ -20,7 +20,8 @@
 					"tsConfig": "packages/ng-utils/tsconfig.lib.json"
 				}
 			},
-			"defaultConfiguration": "production"
+			"defaultConfiguration": "production",
+			"dependsOn": ["^build"]
 		},
 		"test": {
 			"executor": "@nx/jest:jest",

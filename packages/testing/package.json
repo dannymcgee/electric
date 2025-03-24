@@ -13,10 +13,9 @@
 	},
 	"license": "(Parity-7.0.0 OR LicenseRef-scancode-prosperity-3.0)",
 	"peerDependencies": {
-		"@angular/common": "^13.0.0",
-		"@angular/core": "^13.0.0"
+		"@electric/utils": "0.0.1",
+		"@ngneat/spectator": "^19.4.1",
+		"keycode": "^2.2.1"
 	},
-	"dependencies": {
-		"tslib": "^2.3.0"
-	}
+	"dependencies": {}
 }

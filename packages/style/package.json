@@ -11,5 +11,9 @@
 		"url": "https://github.com/dannymcgee/electric.git",
 		"directory": "packages/style"
 	},
-	"license": "(Parity-7.0.0 OR LicenseRef-scancode-prosperity-3.0)"
+	"license": "(Parity-7.0.0 OR LicenseRef-scancode-prosperity-3.0)",
+	"dependencies": {
+		"@electric/utils": "0.0.1",
+		"tslib": "^2.3.0"
+	}
 }

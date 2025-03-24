@@ -13,7 +13,7 @@
 	},
 	"license": "(Parity-7.0.0 OR LicenseRef-scancode-prosperity-3.0)",
 	"peerDependencies": {
-		"@angular/core": "19.2.2",
+		"@angular/core": ">=13.0.0",
 		"rxjs": "7.8.2",
 		"tslib": "^2.0.0"
 	}
