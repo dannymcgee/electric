@@ -8,7 +8,7 @@ export default function (): Language {
 		INDENT,
 		{
 			scope: "operator",
-			begin: /[-+*\/=;:]+/,
+			begin: /[-+*/=;:]+/,
 		},
 		{
 			scope: "keyword",
@@ -181,9 +181,81 @@ export default function (): Language {
 		}],
 	};
 
+	// FIXME: Real tempted to just swap out highlight.js for Oniguruma so I can
+	//        just use the VS Code grammars...
+
+	// let blockExprClauseEnd = /(?=[$)])|(;)/;
+	// let blockExprOfClause: Mode = {
+	// 	begin: [JS_IDENT, /\bof\b/],
+	// 	beginScope: {
+	// 		1: "variable",
+	// 		2: "keyword",
+	// 	},
+	// 	end: blockExprClauseEnd,
+	// 	endScope: "punctuation",
+	// 	contains: expression,
+	// };
+	// let blockExprLetBinding: Mode = {
+	// 	begin: /\blet\b/,
+	// 	beginScope: "keyword",
+	// 	end: blockExprClauseEnd,
+	// 	endScope: "punctuation",
+	// 	contains: expression,
+	// };
+	// let blockExprTrackClause: Mode = {
+	// 	begin: /\btrack\b/,
+	// 	beginScope: "keyword",
+	// 	end: blockExprClauseEnd,
+	// 	endScope: "punctuation",
+	// 	contains: expression,
+	// };
+	// let blockExpression: Mode = {
+	// 	begin: /\(/,
+	// 	beginScope: "brace",
+	// 	end: /\)/,
+	// 	endScope: "brace",
+	// 	contains: [
+	// 		INDENT,
+	// 		blockExprOfClause,
+	// 		blockExprLetBinding,
+	// 		blockExprTrackClause,
+	// 		...expression,
+	// 	],
+	// };
+	// let blockBody: Mode = {
+	// 	begin: /\{/,
+	// 	beginScope: "brace",
+	// 	end: /\}/,
+	// 	endScope: "brace",
+	// 	contains: [
+	// 		tag,
+	// 		INDENT,
+	// 		interpolation,
+	// 	],
+	// };
+
+	// let block: Mode = {
+	// 	begin: /@(?:if|else if|else|defer|placeholder|loading|error|switch|case|default|for|empty)\b/,
+	// 	beginScope: "keyword",
+	// 	end: /\}/,
+	// 	endScope: "brace",
+	// 	contains: [
+	// 		blockExpression,
+	// 		{
+	// 			match: /\{/,
+	// 			scope: "brace",
+	// 		},
+	// 		"self",
+	// 		tag,
+	// 		INDENT,
+	// 		interpolation,
+	// 	],
+	// };
+
 	return {
 		name: "html",
 		contains: [
+			// block,
 			tag,
 			INDENT,
 			interpolation,

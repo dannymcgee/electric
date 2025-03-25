@@ -50,17 +50,16 @@ export class AccordionExample {
 			<elx-accordion-group class="accordion-group"
 				${multi ? "multi" : ""}
 			>
-				<elx-accordion
-					*ngFor="let accordion of accordions; let first = first;"
-					[expanded]="first"
-				>
-					<elx-accordion-header>
-						{{ accordion.header }}
-					</elx-accordion-header>
-					<p>
-						{{ accordion.content }}
-					</p>
-				</elx-accordion>
+				@for (accordion of accordions; let first = $first; track accordion) {
+					<elx-accordion [expanded]="first">
+						<elx-accordion-header>
+							{{ accordion.header }}
+						</elx-accordion-header>
+						<p>
+							{{ accordion.content }}
+						</p>
+					</elx-accordion>
+				}
 			</elx-accordion-group>
 		`;
 	}
