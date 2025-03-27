@@ -1,3 +1,5 @@
+import type { Config } from "jest";
+
 export default {
 	displayName: "components",
 
@@ -20,5 +22,5 @@ export default {
 		"jest-preset-angular/build/serializers/html-comment",
 	],
 	preset: "../../jest.preset.js",
-	// testEnvironment: "@happy-dom/jest-environment",
-};
+	testEnvironment: "jest-preset-angular/environments/jest-jsdom-env",
+} satisfies Config;

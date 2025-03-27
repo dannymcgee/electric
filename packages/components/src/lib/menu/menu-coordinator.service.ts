@@ -405,7 +405,12 @@ class SubmenuController extends AbstractMenuController {
 				// The X and Y coordinates need to be non-zero to avoid the Overlay
 				// Manager calling our bullshit and setting the focus origin to
 				// "keyboard".
-				if (this.triggerElement.matches(":hover")) {
+				if (
+					// Every element seems to be `:hover` in JSDom, which screws up
+					// our tests because submenus pop open when they shouldn't
+					!navigator.userAgent.includes("jsdom")
+					&& this.triggerElement.matches(":hover")
+				) {
 					let event = new MouseEvent("mouseenter", {
 						clientX: 42,
 						clientY: 42,
