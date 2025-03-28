@@ -35,12 +35,14 @@ Node.js 16+ is required for installing dependencies and building things. There's
 Each library/application has a `project.json` manifest at its root that enumerates the Nx executors available to that project under the `target` field. These executors can be run by using the following template:
 
 ```sh
-npx nx <target-name> <project-name> [options]
+npx nx <target-name> <project-name>
+# OR
+npx nx run <project-name>:<target-name>[:configuration] [options]
 ```
 
 The options available vary per executor and can be discovered by passing `--help`, e.g.:
 ```sh
-npx nx build components --help
+npx nx run components:build --help
 ```
 
 Generally, most projects will have `build` and `test` commands, while applications additionally have a `serve` command to start the web frontend on its own, and `launch` to start both the web frontend and the Tauri native app.
