@@ -71,7 +71,7 @@
 					</elx-tab>
 					@for (glyph of (openGlyphs$ | async);
 						let i = $index;
-						track "{{glyph.fontStyle}} {{glyph.name}}")
+						track glyph.trackId)
 					{
 						<elx-tab class="tab"
 							removable
@@ -92,7 +92,7 @@
 						(openGlyph)="openGlyph($event)"
 					/>
 					@for (glyph of (openGlyphs$ | async);
-						track "{{glyph.fontStyle}} {{glyph.name}}")
+						track glyph.trackId)
 					{
 						<g-glyph-editor
 							*elxTabPanel
