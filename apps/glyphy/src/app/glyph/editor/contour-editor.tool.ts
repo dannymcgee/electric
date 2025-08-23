@@ -60,6 +60,7 @@ export class ContourEditorTool
 	@Input() glyph!: Const<Glyph>;
 	@Input() outline?: Const<Path>;
 	@Input() metrics!: Const<FontMetrics>;
+	@Input() italicAngle = 0;
 
 	@Input() viewRect!: Const<IRect>;
 	@Input() glyphToCanvas!: Const<Matrix>;

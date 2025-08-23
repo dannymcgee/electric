@@ -20,8 +20,14 @@ import { Glyph } from "../glyph";
 export class MetricsRenderer extends GroupRenderer implements RenderElement {
 	@Input() glyph!: Const<Glyph>;
 	@Input() metrics!: Const<FontMetrics>;
+	@Input() italicAngle = 0;
 	@Input() glyphToCanvas!: Const<Matrix>;
 	@Input() viewRect!: Const<IRect>;
+
+	// FIXME: This needs to be a font-level configuration
+	caretOffset = -45;
+
+	Matrix = Matrix;
 
 	theme = inject(ThemeService);
 }

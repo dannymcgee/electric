@@ -35,15 +35,44 @@
 />
 
 <!-- X rulers -->
-<g-line
-	[x1]="0" [x2]="0"
-	[y1]="viewRect.top" [y2]="viewRect.bottom"
-	[xTransform]="glyphToCanvas"
-	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-/>
-<g-line
-	[x1]="glyph.advance ?? 0" [x2]="glyph.advance ?? 0"
-	[y1]="viewRect.top" [y2]="viewRect.bottom"
-	[xTransform]="glyphToCanvas"
-	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-/>
+@if (italicAngle) {
+	<g-line
+		data-ruler="lsb"
+		[attr.data-italic-angle]="italicAngle"
+		[x1]="0" [x2]="0"
+		[y1]="-9999" [y2]="9999"
+		[transform]="Matrix.concat(
+			Matrix.skew(-italicAngle),
+			Matrix.translate(caretOffset, 0),
+			glyphToCanvas
+		)"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+	/>
+	<g-line
+		data-ruler="advance"
+		[attr.data-italic-angle]="italicAngle"
+		[x1]="glyph.advance ?? 0" [x2]="glyph.advance ?? 0"
+		[y1]="-9999" [y2]="9999"
+		[transform]="Matrix.concat(
+			Matrix.skew(-italicAngle).withOrigin(glyph.advance ?? 0, 0),
+			Matrix.translate(caretOffset, 0),
+			glyphToCanvas
+		)"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+	/>
+} @else {
+	<g-line
+		data-ruler="lsb"
+		[x1]="0" [x2]="0"
+		[y1]="viewRect.top" [y2]="viewRect.bottom"
+		[xTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+	/>
+	<g-line
+		data-ruler="advance"
+		[x1]="glyph.advance ?? 0" [x2]="glyph.advance ?? 0"
+		[y1]="viewRect.top" [y2]="viewRect.bottom"
+		[xTransform]="glyphToCanvas"
+		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+	/>
+}

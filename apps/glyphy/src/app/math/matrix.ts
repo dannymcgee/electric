@@ -7,6 +7,10 @@ import { vec3, Vec3 } from "./vec3";
 export class Matrix {
 	static Identity: Const<Matrix> = new Matrix();
 
+	get translation(): Vec2 {
+		return vec2(this.m31, this.m32);
+	}
+
 	constructor (
 		public m11 = 1, public m12 = 0, public m13 = 0,
 		public m21 = 0, public m22 = 1, public m23 = 0,
@@ -53,7 +57,17 @@ export class Matrix {
 		}
 	}
 
-	static translate(dx: number, dy: number): Matrix {
+	static translate(dx: number, dy: number): Matrix;
+	static translate(dxy: Const<Vec2>): Matrix;
+
+	static translate(...args: [number, number] | [Const<Vec2>]): Matrix {
+		const [dx, dy] = match (args.length, {
+			2: () => args as [number, number],
+			1: () => {
+				const { x, y } = args[0] as Const<Vec2>;
+				return [x, y];
+			},
+		})
 		return new Matrix(
 			1, 0, 0,
 			0, 1, 0,
@@ -69,6 +83,19 @@ export class Matrix {
 		return new Matrix(
 			cos, sin, 0,
 			-sin, cos, 0,
+			0, 0, 1,
+		);
+	}
+
+	static skew(ax_deg: number, ay_deg = 0): Matrix {
+		const ax_rad = ax_deg * DEG2RAD;
+		const ay_rad = ay_deg * DEG2RAD;
+		const ax = Math.tan(ax_rad);
+		const ay = Math.tan(ay_rad);
+
+		return new Matrix(
+			1, ay, 0,
+			ax, 1, 0,
 			0, 0, 1,
 		);
 	}
@@ -166,6 +193,25 @@ export class Matrix {
 			this.m11, this.m12, this.m13,
 			this.m21, this.m22, this.m23,
 			this.m31, this.m32, this.m33,
+		);
+	}
+
+	withOrigin(x: number, y: number): Matrix;
+	withOrigin(xy: Const<Vec2>): Matrix;
+
+	withOrigin(...args: [number, number] | [Const<Vec2>]): Matrix {
+		const origin = match (args.length, {
+			1: () => args[0] as Const<Vec2>,
+			2: () => {
+				const [x, y] = args as [number, number];
+				return vec2(x, y);
+			}
+		});
+
+		return Matrix.concat(
+			Matrix.translate(vec2.neg(origin)),
+			this,
+			Matrix.translate(origin),
 		);
 	}
 
