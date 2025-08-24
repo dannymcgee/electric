@@ -1,8 +1,9 @@
 import { Directive, Input } from "@angular/core";
-import { Matrix, Rect, vec2, Vec2 } from "../math";
+import { Opt } from "@electric/utils";
 
+import { Matrix, Rect, vec2, Vec2 } from "../math";
 import { BaseRenderer } from "./base.renderer";
-import { RenderElement, RENDER_ELEMENT } from "./render.types";
+import { RenderElement, RENDER_ELEMENT, PaintStyle, Spacing, normalizeSpacing } from "./render.types";
 
 export type TextAlign
 	= "start"
@@ -36,6 +37,8 @@ export class TextRenderer extends BaseRenderer implements RenderElement {
 	@Input() fontSize = 16;
 	@Input() align: TextAlign = "center";
 	@Input() baseline: TextBaseline = "alphabetic";
+	@Input() background?: Opt<PaintStyle>;
+	@Input() padding?: Opt<Spacing>;
 
 	private _transformedOrigin?: Vec2;
 	get transformedOrigin() {
@@ -52,6 +55,18 @@ export class TextRenderer extends BaseRenderer implements RenderElement {
 
 		if (this.transform !== Matrix.Identity)
 			ctx.setTransform(this.transform.toDomMatrix());
+
+		if (this.background) {
+			const rect = this.measure(ctx);
+			const [pt, pr, pb, pl] = normalizeSpacing(this.padding);
+			rect.x -= pl * devicePixelRatio;
+			rect.y -= pt * devicePixelRatio;
+			rect.width += (pl + pr) * devicePixelRatio;
+			rect.height += (pt + pb) * devicePixelRatio;
+
+			ctx.fillStyle = this.background;
+			ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+		}
 
 		this.setTextStyle(ctx);
 
@@ -81,7 +96,7 @@ export class TextRenderer extends BaseRenderer implements RenderElement {
 			x - metrics.actualBoundingBoxLeft,
 			y - metrics.actualBoundingBoxAscent,
 			metrics.width,
-			metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent,
+			metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
 		);
 
 		result.transform_inPlace(this.transform);

@@ -42,6 +42,7 @@ import {
 } from "./glyph";
 import {
 	ContourEditorTool,
+	MetricsGuideRenderer,
 	MetricsRenderer,
 	OutlinePointsRenderer,
 	PenTool,
@@ -96,6 +97,7 @@ import {
 		HexPipe,
 		HybridCoordSpaceTransformDirective,
 		LineRenderer,
+		MetricsGuideRenderer,
 		MetricsRenderer,
 		NewFamilyDialog,
 		OutlinePointsRenderer,

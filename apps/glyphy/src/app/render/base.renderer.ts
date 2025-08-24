@@ -6,6 +6,7 @@ import {
 	Output,
 } from "@angular/core";
 import { ThemeService } from "@electric/components";
+import { Coerce } from "@electric/ng-utils";
 import { Opt } from "@electric/utils";
 
 import { Matrix } from "../math";
@@ -22,7 +23,7 @@ export abstract class BaseRenderer implements RenderElement, OnChanges {
 
 	@Input() fill?: Opt<PaintStyle> = this.theme.getHex("foreground", 50);
 	@Input() stroke?: Opt<PaintStyle>;
-	@Input() strokeWidth = 0;
+	@Coerce(Number) @Input() strokeWidth = 0;
 
 	@Output("changes") changes$ = new EventEmitter<void>();
 

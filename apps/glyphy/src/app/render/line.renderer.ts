@@ -1,4 +1,5 @@
 import { Directive, Input } from "@angular/core";
+import { Coerce } from "@electric/ng-utils";
 
 import { Matrix } from "../math";
 import { BaseRenderer } from "./base.renderer";
@@ -13,11 +14,11 @@ import { RenderElement, RENDER_ELEMENT } from "./render.types";
 	standalone: false,
 })
 export class LineRenderer extends BaseRenderer implements RenderElement {
-	@Input() x1 = 0;
-	@Input() x2 = 0;
+	@Coerce(Number) @Input() x1 = 0;
+	@Coerce(Number) @Input() x2 = 0;
 
-	@Input() y1 = 0;
-	@Input() y2 = 0;
+	@Coerce(Number) @Input() y1 = 0;
+	@Coerce(Number) @Input() y2 = 0;
 
 	onDraw(ctx: CanvasRenderingContext2D): void {
 		if (!this.stroke || !this.strokeWidth)

@@ -1,78 +1,49 @@
 <!-- Y rulers -->
-<g-line
-	[x1]="viewRect.left" [x2]="viewRect.right"
-	[y1]="metrics.ascender" [y2]="metrics.ascender"
-	[yTransform]="glyphToCanvas"
-	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+<g-metrics-guide
+	orientation="horizontal"
+	[value]="metrics.ascender"
+	label="ascender"
 />
+
 @if (metrics.capHeight) {
-	<g-line
-		[x1]="viewRect.left" [x2]="viewRect.right"
-		[y1]="metrics.capHeight" [y2]="metrics.capHeight"
-		[yTransform]="glyphToCanvas"
-		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	<g-metrics-guide
+		orientation="horizontal"
+		[value]="metrics.capHeight"
+		label="cap-height"
 	/>
 }
+
 @if (metrics.xHeight) {
-	<g-line
-		[x1]="viewRect.left" [x2]="viewRect.right"
-		[y1]="metrics.xHeight" [y2]="metrics.xHeight"
-		[yTransform]="glyphToCanvas"
-		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+	<g-metrics-guide
+		orientation="horizontal"
+		[value]="metrics.xHeight"
+		label="x-height"
 	/>
 }
-<g-line
-	[x1]="viewRect.left" [x2]="viewRect.right"
-	[y1]="0" [y2]="0"
-	[yTransform]="glyphToCanvas"
-	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+
+<g-metrics-guide
+	orientation="horizontal"
+	value="0"
+	label="baseline"
+	strong
 />
-<g-line
-	[x1]="viewRect.left" [x2]="viewRect.right"
-	[y1]="metrics.descender" [y2]="metrics.descender"
-	[yTransform]="glyphToCanvas"
-	[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.4)"
+
+<g-metrics-guide
+	orientation="horizontal"
+	[value]="metrics.descender"
+	label="descender"
 />
 
 <!-- X rulers -->
-@if (italicAngle) {
-	<g-line
-		data-ruler="lsb"
-		[attr.data-italic-angle]="italicAngle"
-		[x1]="0" [x2]="0"
-		[y1]="-9999" [y2]="9999"
-		[transform]="Matrix.concat(
-			Matrix.skew(-italicAngle),
-			Matrix.translate(caretOffset, 0),
-			glyphToCanvas
-		)"
-		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-	/>
-	<g-line
-		data-ruler="advance"
-		[attr.data-italic-angle]="italicAngle"
-		[x1]="glyph.advance ?? 0" [x2]="glyph.advance ?? 0"
-		[y1]="-9999" [y2]="9999"
-		[transform]="Matrix.concat(
-			Matrix.skew(-italicAngle).withOrigin(glyph.advance ?? 0, 0),
-			Matrix.translate(caretOffset, 0),
-			glyphToCanvas
-		)"
-		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-	/>
-} @else {
-	<g-line
-		data-ruler="lsb"
-		[x1]="0" [x2]="0"
-		[y1]="viewRect.top" [y2]="viewRect.bottom"
-		[xTransform]="glyphToCanvas"
-		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
-	/>
-	<g-line
-		data-ruler="advance"
-		[x1]="glyph.advance ?? 0" [x2]="glyph.advance ?? 0"
-		[y1]="viewRect.top" [y2]="viewRect.bottom"
-		[xTransform]="glyphToCanvas"
-		[strokeWidth]="1" [stroke]="theme.getHex('background', 600, 0.75)"
+<g-metrics-guide
+	orientation="vertical"
+	value="0"
+	strong
+/>
+@if (glyph.advance) {
+	<g-metrics-guide
+		orientation="vertical"
+		[value]="glyph.advance"
+		strong
 	/>
 }
